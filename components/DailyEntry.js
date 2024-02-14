@@ -1,5 +1,5 @@
 import React from 'react'
-import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space } from 'antd';
+import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css'
 
@@ -150,7 +150,7 @@ export default function DailyEntry() {
                                 // border: '1px solid #40a9ff',
                             }} justify={'space-around'} align={'center'}>
 
-                                <Form.Item style={{ width: '20%' }} label="Vehicle No."
+                                <Form.Item style={{ width: '30%' }} label="Vehicle No."
                                     name="vehicleNo">
                                     <Select
                                         showSearch
@@ -176,7 +176,7 @@ export default function DailyEntry() {
                                     />
                                 </Form.Item>
 
-                                <Form.Item style={{ width: '15%' }}
+                                <Form.Item style={{ width: '30%' }}
                                     label="Status"
                                     name="status"
                                 >
@@ -205,111 +205,253 @@ export default function DailyEntry() {
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '15%' }}
-                                    label="MT"
+                                    // label="MT"
                                     name="mt"
                                 >
-                                    <Select
-                                        showSearch
-                                        placeholder="MT Location"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'mumbai',
-                                                label: 'Mumbai',
-                                            },
-                                            {
-                                                value: 'pune',
-                                                label: 'Pune',
-                                            },
-                                            {
-                                                value: 'nagpur',
-                                                label: 'Nagpur',
-                                            },
-                                            {
-                                                value: 'nashik',
-                                                label: 'Nashik',
-                                            },
-                                            {
-                                                value: 'aurangabad',
-                                                label: 'Aurangabad',
-                                            }
-                                        ]}
-                                    />
+                                    <Checkbox >MT</Checkbox>
                                 </Form.Item>
 
-                                <Form.Item style={{ width: '15%' }} label="From"
-                                    name="From">
-                                    <Select
-                                        showSearch
-                                        placeholder="from"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'mumbai',
-                                                label: 'Mumbai',
-                                            },
-                                            {
-                                                value: 'pune',
-                                                label: 'Pune',
-                                            },
-                                            {
-                                                value: 'nagpur',
-                                                label: 'Nagpur',
-                                            },
-                                            {
-                                                value: 'nashik',
-                                                label: 'Nashik',
-                                            },
-                                            {
-                                                value: 'aurangabad',
-                                                label: 'Aurangabad',
-                                            }
-                                        ]}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }}
-                                    label="To"
-                                    name="to"
-                                >
-                                    <Select
-                                        showSearch
-                                        placeholder="To/Unloading Point"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        // filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'mumbai',
-                                                label: 'Mumbai',
-                                            },
-                                            {
-                                                value: 'pune',
-                                                label: 'Pune',
-                                            },
-                                            {
-                                                value: 'nagpur',
-                                                label: 'Nagpur',
-                                            },
-                                            {
-                                                value: 'nashik',
-                                                label: 'Nashik',
-                                            },
-                                            {
-                                                value: 'aurangabad',
-                                                label: 'Aurangabad',
-                                            }
-                                        ]}
-                                    />
-                                </Form.Item>
                             </Flex>
+
+                            {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
+                            <Form.List name="oneunit" >
+                                {(fields, { add, remove }) => (
+                                    <>
+                                        {fields.map(({ key, name, ...restField }) => (
+                                            <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
+                                                <div style={{ borderRadius: '10px', border: '1px solid green' }}>
+                                                    <h3 style={{ padding: '10px' }}>UNIT {name + 1} {console.log(fields)}</h3>
+                                                    <div
+                                                        key={key}
+                                                    >
+                                                        <Flex gap="middle" align="start" vertical>
+
+                                                            <Flex style={{ width: "100%", height: 30 }} justify={'space-around'} align='center'>
+                                                                <Form.Item style={{ width: '20%' }} label="From"
+                                                                    name="From">
+                                                                    <Select
+                                                                        showSearch
+                                                                        placeholder="from"
+                                                                        optionFilterProp="children"
+                                                                        // onChange={onChange}
+                                                                        // onSearch={onSearch}
+                                                                        filterOption={filterOption}
+                                                                        options={[
+                                                                            {
+                                                                                value: 'mumbai',
+                                                                                label: 'Mumbai',
+                                                                            },
+                                                                            {
+                                                                                value: 'pune',
+                                                                                label: 'Pune',
+                                                                            },
+                                                                            {
+                                                                                value: 'nagpur',
+                                                                                label: 'Nagpur',
+                                                                            },
+                                                                            {
+                                                                                value: 'nashik',
+                                                                                label: 'Nashik',
+                                                                            },
+                                                                            {
+                                                                                value: 'aurangabad',
+                                                                                label: 'Aurangabad',
+                                                                            }
+                                                                        ]}
+                                                                    />
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '20%' }} label="Bhejne waale"
+                                                                    name="bhejneWaale">
+                                                                    <Select
+                                                                        showSearch
+                                                                        placeholder="Bhejne waale"
+                                                                        optionFilterProp="children"
+                                                                        // onChange={onChange}
+                                                                        // onSearch={onSearch}
+                                                                        filterOption={filterOption}
+                                                                        options={[
+                                                                            {
+                                                                                value: 'ABC',
+                                                                                label: 'ABC',
+                                                                            },
+                                                                            {
+                                                                                value: 'XYZ',
+                                                                                label: 'XYZ',
+                                                                            },
+                                                                            {
+                                                                                value: 'PQR',
+                                                                                label: 'PQR',
+                                                                            },
+                                                                        ]}
+                                                                    />
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '20%' }}
+                                                                    label="To"
+                                                                    name="to"
+                                                                >
+                                                                    <Select
+                                                                        showSearch
+                                                                        placeholder="To/Unloading Point"
+                                                                        optionFilterProp="children"
+                                                                        // onChange={onChange}
+                                                                        // onSearch={onSearch}
+                                                                        // filterOption={filterOption}
+                                                                        options={[
+                                                                            {
+                                                                                value: 'mumbai',
+                                                                                label: 'Mumbai',
+                                                                            },
+                                                                            {
+                                                                                value: 'pune',
+                                                                                label: 'Pune',
+                                                                            },
+                                                                            {
+                                                                                value: 'nagpur',
+                                                                                label: 'Nagpur',
+                                                                            },
+                                                                            {
+                                                                                value: 'nashik',
+                                                                                label: 'Nashik',
+                                                                            },
+                                                                            {
+                                                                                value: 'aurangabad',
+                                                                                label: 'Aurangabad',
+                                                                            }
+                                                                        ]}
+                                                                    />
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '20%' }} label="Paane Waala"
+                                                                    name="paanewala">
+                                                                    <Select
+                                                                        showSearch
+                                                                        placeholder="Paane waala"
+                                                                        optionFilterProp="children"
+                                                                        // onChange={onChange}
+                                                                        // onSearch={onSearch}
+                                                                        filterOption={filterOption}
+                                                                        options={[
+                                                                            {
+                                                                                value: 'ABC',
+                                                                                label: 'ABC',
+                                                                            },
+                                                                            {
+                                                                                value: 'XYZ',
+                                                                                label: 'XYZ',
+                                                                            },
+                                                                            {
+                                                                                value: 'PQR',
+                                                                                label: 'PQR',
+                                                                            },
+                                                                        ]}
+                                                                    />
+                                                                </Form.Item>
+                                                                <div></div>
+                                                            </Flex>
+                                                            <Flex style={{ width: "100%", height: 30 }} justify={'space-around'} align='center'>
+                                                                <Form.Item style={{ width: '15%' }} label="Maal"
+                                                                    name="Maal">
+                                                                    <Select
+                                                                        showSearch
+                                                                        placeholder="Maal"
+                                                                        optionFilterProp="children"
+                                                                        // onChange={onChange}
+                                                                        // onSearch={onSearch}
+                                                                        filterOption={filterOption}
+                                                                        options={[
+                                                                            {
+                                                                                value: 'Aata',
+                                                                                label: 'Aata',
+                                                                            },
+                                                                            {
+                                                                                value: 'Maida',
+                                                                                label: 'Maida',
+                                                                            },
+                                                                            {
+                                                                                value: 'Scrape',
+                                                                                label: 'Scrape',
+                                                                            },
+                                                                            {
+                                                                                value: 'Loha',
+                                                                                label: 'Loha',
+                                                                            },
+                                                                        ]}
+                                                                    />
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '15%' }}
+                                                                    label="Qty"
+                                                                    name="qty"
+                                                                >
+                                                                    <Input></Input>
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '15%' }}
+                                                                    label="Rate"
+                                                                    name="rate"
+                                                                >
+                                                                    <Input></Input>
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '15%' }}
+                                                                    label="Total Freight"
+                                                                    name="totalFreight"
+                                                                >
+                                                                    <Input></Input>
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '15%' }}
+                                                                    label="Transporter"
+                                                                    name="transporter"
+                                                                >
+                                                                    <Select
+                                                                        showSearch
+                                                                        placeholder="Transporter Name"
+                                                                        optionFilterProp="children"
+                                                                        // onChange={onChange}
+                                                                        // onSearch={onSearch}
+                                                                        filterOption={filterOption}
+                                                                        options={[
+                                                                            {
+                                                                                value: 'ABC',
+                                                                                label: 'ABC',
+                                                                            },
+                                                                            {
+                                                                                value: 'XYZ',
+                                                                                label: 'XYZ',
+                                                                            },
+                                                                            {
+                                                                                value: 'PQR',
+                                                                                label: 'PQR',
+                                                                            },
+                                                                        ]}
+                                                                    />
+                                                                </Form.Item>
+
+                                                                <MinusCircleOutlined onClick={() => remove(name)} />
+
+                                                            </Flex>
+                                                        </Flex>
+
+
+
+                                                    </div>
+                                                </div>
+                                            </Flex>
+                                        ))}
+                                        <Form.Item style={{ margin: 'auto' }}>
+                                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                Add new
+                                            </Button>
+                                        </Form.Item>
+                                    </>
+                                )}
+                            </Form.List>
+
+
+                            {/* </Flex> */}
 
                             <Flex style={{
                                 width: '100%',
@@ -317,31 +459,7 @@ export default function DailyEntry() {
                                 // border: '1px solid #40a9ff',
                             }} justify={'space-around'} align={'center'}>
 
-
-
-                                <Form.Item style={{ width: '20%' }}
-                                    label="Rate"
-                                    name="rate"
-                                >
-                                    <Input></Input>
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '20%' }}
-                                    label="Qty"
-                                    name="qty"
-                                >
-                                    <Input></Input>
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '20%' }}
-                                    label="Total Freight"
-                                    name="totalFreight"
-                                >
-                                    <Input></Input>
-                                </Form.Item>
-
-
-                                <Form.Item style={{ width: '20%' }}
+                                <Form.Item style={{ width: '20%', margin: 'auto' }}
                                     label="To Pay/ Paid"
                                     name="To Pay/ Paid"
                                 >
@@ -361,211 +479,57 @@ export default function DailyEntry() {
                 </div>
             </>,
         },
-        {
-            key: '2',
-            label: 'Party And Transporter Details',
-            children: <>
-                <div>
-                    <Form name="Party And Transporter Details"
-                        // labelCol={{
-                        //     span: 8,
-                        // }}
-                        // wrapperCol={{
-                        //     span: 16,
-                        // }}
-                        style={{
-                            maxWidth: 1200,
-                        }}
-                        initialValues={{
-                            remember: true,
-                        }}
-                        // onFinish={onFinish}
-                        // onFinishFailed={onFinishFailed}
-                        autoComplete="off">
+        // {
+        //     key: '2',
+        //     label: 'Party And Transporter Details',
 
-                        <Flex gap="middle" align="start" vertical>
+        //     children: <>
+        //         <div>
+        //             <Form name="Party And Transporter Details"
+        //                 // labelCol={{
+        //                 //     span: 8,
+        //                 // }}
+        //                 // wrapperCol={{
+        //                 //     span: 16,
+        //                 // }}
+        //                 style={{
+        //                     maxWidth: 1200,
+        //                 }}
+        //                 initialValues={{
+        //                     remember: true,
+        //                 }}
+        //                 // onFinish={onFinish}
+        //                 // onFinishFailed={onFinishFailed}
+        //                 autoComplete="off">
 
-                            {/* BHEJNE WALE ka Add Button */}
-                            <Form.List name="bhejneWala">
-                                {(fields, { add, remove }) => (
-                                    <>
-                                        {fields.map(({ key, name, ...restField }) => (
-                                            <Space
-                                                key={key}
-                                            // style={{
-                                            //     display: 'flex',
-                                            //     marginBottom: 8,
-                                            // }}
-                                            // align="baseline"
-                                            >
-                                                <Flex style={{ width: 1000, height: 30 }} justify={'space-around'} align='center'>
+        //                 <Flex gap="middle" align="start" vertical>
 
-                                                    <Form.Item style={{ width: '40%' }} label="Bhejne waale"
-                                                        name="bhejneWaale">
-                                                        <Select
-                                                            showSearch
-                                                            placeholder="Bhejne waale"
-                                                            optionFilterProp="children"
-                                                            // onChange={onChange}
-                                                            // onSearch={onSearch}
-                                                            filterOption={filterOption}
-                                                            options={[
-                                                                {
-                                                                    value: 'ABC',
-                                                                    label: 'ABC',
-                                                                },
-                                                                {
-                                                                    value: 'XYZ',
-                                                                    label: 'XYZ',
-                                                                },
-                                                                {
-                                                                    value: 'PQR',
-                                                                    label: 'PQR',
-                                                                },
-                                                            ]}
-                                                        />
-                                                    </Form.Item>
+        //                     {/* Transporter Details */}
+        //                     <Flex style={{
+        //                         width: '100%',
+        //                         height: 60,
+        //                     }} justify={'space-around'} align={'center'}>
 
-                                                    <Form.Item style={{ width: '20%' }} label="Contact No."
-                                                        name="Contact No.">
-                                                        <Input></Input>
-                                                    </Form.Item>
+        //                         <Form.Item style={{ width: '20%' }}
+        //                             label="Address"
+        //                             name="address"
+        //                         >
+        //                             <Input></Input>
+        //                         </Form.Item>
 
-                                                    <Form.Item style={{ width: '20%' }} label="Place"
-                                                        name="Place">
-                                                        <Input></Input>
-                                                    </Form.Item>
-                                                    <MinusCircleOutlined onClick={() => remove(name)} />
-                                                </Flex>
-                                            </Space>
-                                        ))}
-                                        <Form.Item>
-                                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                                Add Bhejne Waala
-                                            </Button>
-                                        </Form.Item>
-                                    </>
-                                )}
-                            </Form.List>
+        //                         <Form.Item style={{ width: '20%' }}
+        //                             label="Contact"
+        //                             name="contact"
+        //                         >
+        //                             <Input></Input>
+        //                         </Form.Item>
 
-                            {/* PAANE WALE ka Add Button */}
-                            <Form.List name="paaneWaala">
-                                {(fields, { add, remove }) => (
-                                    <>
-                                        {fields.map(({ key, name, ...restField }) => (
-                                            <Space
-                                                key={key}
-                                            // style={{
-                                            //     display: 'flex',
-                                            //     marginBottom: 8,
-                                            // }}
-                                            // align="baseline"
-                                            >
-                                                <Flex style={{ width: 1000, height: 30 }} justify={'space-around'} align='center'>
-
-                                                    <Form.Item style={{ width: '40%' }} label="Paane waale" name="Paane waale">
-                                                        <Select
-                                                            showSearch
-                                                            placeholder="Paane waale"
-                                                            optionFilterProp="children"
-                                                            // onChange={onChange}
-                                                            // onSearch={onSearch}
-                                                            filterOption={filterOption}
-                                                            options={[
-                                                                {
-                                                                    value: 'ABC',
-                                                                    label: 'ABC',
-                                                                },
-                                                                {
-                                                                    value: 'XYZ',
-                                                                    label: 'XYZ',
-                                                                },
-                                                                {
-                                                                    value: 'PQR',
-                                                                    label: 'PQR',
-                                                                },
-                                                            ]}
-                                                        />
-                                                    </Form.Item>
-
-                                                    <Form.Item style={{ width: '20%' }} label="Contact No."
-                                                        name="Contact No.">
-                                                        <Input></Input>
-                                                    </Form.Item>
-
-                                                    <Form.Item style={{ width: '20%' }} label="Place"
-                                                        name="Place">
-                                                        <Input></Input>
-                                                    </Form.Item>
-
-                                                    <MinusCircleOutlined onClick={() => remove(name)} />
-                                                </Flex>
-
-                                            </Space>
-                                        ))}
-                                        <Form.Item>
-                                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                                Add Paane Wala
-                                            </Button>
-                                        </Form.Item>
-                                    </>
-                                )}
-                            </Form.List>
-
-                            {/* Transporter Details */}
-                            <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
-
-                                <Form.Item style={{ width: '35%' }}
-                                    label="Transporter"
-                                    name="transporter"
-                                >
-                                    <Select
-                                        showSearch
-                                        placeholder="Transporter Name"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'ABC',
-                                                label: 'ABC',
-                                            },
-                                            {
-                                                value: 'XYZ',
-                                                label: 'XYZ',
-                                            },
-                                            {
-                                                value: 'PQR',
-                                                label: 'PQR',
-                                            },
-                                        ]}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '20%' }}
-                                    label="Address"
-                                    name="address"
-                                >
-                                    <Input></Input>
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '20%' }}
-                                    label="Contact"
-                                    name="contact"
-                                >
-                                    <Input></Input>
-                                </Form.Item>
-
-                            </Flex>
-                        </Flex>
-                    </Form>
-                </div>
-            </>,
-        },
+        //                     </Flex>
+        //                 </Flex>
+        //             </Form>
+        //         </div>
+        //     </>,
+        // },
         {
             key: '3',
             label: 'Driver | Diesel | Km | Milometer | Avg Details',
@@ -588,7 +552,7 @@ export default function DailyEntry() {
                         // onFinishFailed={onFinishFailed}
                         autoComplete="off">
                         <Flex gap="middle" align="start" vertical>
-                            <Flex style={{
+                            {/* <Flex style={{
                                 width: '100%',
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
@@ -597,10 +561,91 @@ export default function DailyEntry() {
                                 <h3>Contact</h3>
                                 <h3>License Date</h3>
                                 <h3>Trip Cash</h3>
-                            </Flex>
+                            </Flex> */}
+
+                            <Form.List name="DriversDetails" >
+                                {(fields, { add, remove }) => (
+                                    <>
+                                        {fields.map(({ key, name, ...restField }) => (
+                                            <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
+                                                <div style={{ borderRadius: '10px', border: '1px solid green' }}>
+                                                    <h3 style={{ padding: '10px' }}>
+                                                        {name === 0 ? 'Driver 1' : (name === 1) ? 'Driver 2' : 'Conductor'}
+                                                    </h3>
+                                                    <div
+                                                        key={key}
+                                                    >
+                                                        <Flex gap="middle" align="start" vertical>
+
+                                                            <Flex style={{ width: "1000px", height: 30 }} justify={'space-around'} align='center'>
+
+                                                                <Form.Item style={{ width: '20%' }}
+                                                                    name="Driver1"
+                                                                    label='Name'
+                                                                >
+                                                                    <Select
+                                                                        showSearch
+                                                                        placeholder="Driver"
+                                                                        optionFilterProp="children"
+                                                                        // onChange={onChange}
+                                                                        // onSearch={onSearch}
+                                                                        filterOption={filterOption}
+                                                                        options={[
+                                                                            {
+                                                                                value: 'ABC',
+                                                                                label: 'ABC',
+                                                                            },
+                                                                            {
+                                                                                value: 'XYZ',
+                                                                                label: 'XYZ',
+                                                                            },
+                                                                            {
+                                                                                value: 'PQR',
+                                                                                label: 'PQR',
+                                                                            },
+                                                                        ]}
+                                                                    />
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '20%' }} name="driver1Contact" label="contact">
+                                                                    <Input placeholder='contact' />
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '20%' }} name="driver1LicenseDate" label="License Date">
+                                                                    <Input placeholder='License Date' type='date' />
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '20%' }} name="driver1TripCash" label="Cash">
+                                                                    <Input placeholder='Trip Cash' type='number' />
+                                                                </Form.Item>
+
+                                                                <Tooltip placement="top" title={'Driver Image'} >
+                                                                    <Button style={{ marginBottom: '22px' }}>View</Button>
+                                                                </Tooltip>
+                                                                <MinusCircleOutlined onClick={() => remove(name)} />
+
+                                                            </Flex>
+                                                        </Flex>
+
+
+
+                                                    </div>
+                                                </div>
+                                            </Flex>
+                                        ))}
+                                        {fields.length < 3 &&
+                                            <Form.Item style={{ margin: 'auto' }}>
+                                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                    Add new Driver/Conductor
+                                                </Button>
+                                            </Form.Item>
+                                        }
+                                    </>
+                                )}
+                            </Form.List>
 
                             {/* 1st Driver */}
-                            <Flex style={{
+                            {/* <Flex style={{
                                 width: '100%',
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
@@ -646,10 +691,10 @@ export default function DailyEntry() {
                                 <Form.Item style={{ width: '15%' }} name="driver1TripCash">
                                     <Input placeholder='Trip Cash' type='number' />
                                 </Form.Item>
-                            </Flex>
+                            </Flex> */}
 
                             {/* 2nd Driver */}
-                            <Flex style={{
+                            {/* <Flex style={{
                                 width: '100%',
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
@@ -695,10 +740,10 @@ export default function DailyEntry() {
                                 <Form.Item style={{ width: '15%' }} name="driver2TripCash">
                                     <Input placeholder='Trip Cash' type='number' />
                                 </Form.Item>
-                            </Flex>
+                            </Flex> */}
 
                             {/* Conductor */}
-                            <Flex style={{
+                            {/* <Flex style={{
                                 width: '100%',
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
@@ -743,7 +788,7 @@ export default function DailyEntry() {
                                 <Form.Item style={{ width: '15%' }} name="conductorTripCash">
                                     <Input placeholder='Trip Cash' type='number' />
                                 </Form.Item>
-                            </Flex>
+                            </Flex> */}
 
                             {/* KM */}
                             <Flex style={{
@@ -836,43 +881,76 @@ export default function DailyEntry() {
                         // onFinishFailed={onFinishFailed}
                         autoComplete="off">
                         <Flex gap="middle" align="start" vertical>
-                            <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
-                                <Form.Item style={{ width: '20%' }} name="Unloading Date" label="Unloading Date">
-                                    <Input placeholder='Unloading Date' type='date'></Input>
-                                </Form.Item>
 
-                                <Form.Item style={{ width: '20%' }} name="Khaali Gadi Wajan" label="Khaali Gadi wajan">
-                                    <Input placeholder='Weight' type='number'></Input>
-                                </Form.Item>
 
-                                <Form.Item style={{ width: '20%' }} name="Bhari Gaadi Wajan" label="Bhari Gaadi Wajan">
-                                    <Input placeholder='Weight' type='number'></Input>
-                                </Form.Item>
+                            {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
+                            <Form.List name="oneunit" >
+                                {(fields, { add, remove }) => (
+                                    <>
+                                        {fields.map(({ key, name, ...restField }) => (
+                                            <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
+                                                <div style={{ borderRadius: '10px', border: '1px solid green' }}>
+                                                    <h3 style={{ padding: '10px' }}>Kaata Parchi {name + 1} </h3>
+                                                    <div
+                                                        key={key}
+                                                    >
+                                                        <Flex gap="middle" align="start" vertical>
 
-                                <Form.Item style={{ width: '20%' }} name="Maal Wajan" label="Maal Ka Wajan">
-                                    <Input placeholder='weight' type='number'></Input>
-                                </Form.Item>
-                            </Flex>
+                                                            <Flex style={{
+                                                                width: '100%',
+                                                                height: 60,
+                                                            }} justify={'space-around'} align={'center'}>
+                                                                <Form.Item style={{ width: '20%' }} name="Unloading Date" label="Unloading Date">
+                                                                    <Input placeholder='Unloading Date' type='date'></Input>
+                                                                </Form.Item>
 
-                            <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
-                                <Form.Item style={{ width: '30%' }} name="Ghaata Allowed" label="Ghaate Allowed">
-                                    <Input placeholder='input' ></Input>
-                                </Form.Item>
+                                                                <Form.Item style={{ width: '20%' }} name="Khaali Gadi Wajan" label="Khaali Gadi wajan">
+                                                                    <Input placeholder='Weight' type='number'></Input>
+                                                                </Form.Item>
 
-                                <Form.Item style={{ width: '30%' }} name="Ghaata Actual" label="Ghaate Actual">
-                                    <Input placeholder='input' ></Input>
-                                </Form.Item>
+                                                                <Form.Item style={{ width: '20%' }} name="Bhari Gaadi Wajan" label="Bhari Gaadi Wajan">
+                                                                    <Input placeholder='Weight' type='number'></Input>
+                                                                </Form.Item>
 
-                                <Form.Item style={{ width: '30%' }} name="Remarks" label="Remarks">
-                                    <Input placeholder='remarks' ></Input>
-                                </Form.Item>
-                            </Flex>
+                                                                <Form.Item style={{ width: '20%' }} name="Maal Wajan" label="Maal Ka Wajan">
+                                                                    <Input placeholder='weight' type='number'></Input>
+                                                                </Form.Item>
+                                                            </Flex>
+
+                                                            <Flex style={{
+                                                                width: '100%',
+                                                                height: 60,
+                                                            }} justify={'space-around'} align={'center'}>
+                                                                <Form.Item style={{ width: '30%' }} name="Ghaata Allowed" label="Ghaate Allowed">
+                                                                    <Input placeholder='input' ></Input>
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '30%' }} name="Ghaata Actual" label="Ghaate Actual">
+                                                                    <Input placeholder='input' ></Input>
+                                                                </Form.Item>
+
+                                                                <Form.Item style={{ width: '30%' }} name="Remarks" label="Remarks">
+                                                                    <Input placeholder='remarks' ></Input>
+                                                                </Form.Item>
+
+                                                                <MinusCircleOutlined onClick={() => remove(name)} />
+                                                            </Flex>
+                                                        </Flex>
+
+
+
+                                                    </div>
+                                                </div>
+                                            </Flex>
+                                        ))}
+                                        <Form.Item style={{ margin: 'auto' }}>
+                                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                Add new Kaata Parchi
+                                            </Button>
+                                        </Form.Item>
+                                    </>
+                                )}
+                            </Form.List>
                         </Flex>
                     </Form>
                 </div>
@@ -1129,9 +1207,12 @@ export default function DailyEntry() {
     return (
         <>
 
-            <Input style={{ width: "20%", margin: "10px" }} type='date' />
-            <div style={{ width: "100%", margin: "10px" }}>
-                <Table dataSource={dataSource} columns={columns} />
+            <Input style={{ width: "20%", marginLeft: '40px' }} type='date' />
+            <div style={{ width: "100%", marginLeft: '20px' }}>
+                <Table dataSource={dataSource} columns={columns} expandable={{
+                    expandedRowRender: (record) => <Collapse accordion items={items} />,
+                    rowExpandable: (record) => true,
+                }} />
             </div>
             <Button style={{ marginLeft: "50px" }} onClick={() => setToggle(!toggle)}>Add New Details</Button>
             <div className={styles.addNewDetails}>
