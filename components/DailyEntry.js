@@ -1,10 +1,133 @@
-import React from 'react'
-import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip } from 'antd';
+import React, { useState, useEffect } from 'react'
+import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import styles from '../styles/DailyEntry.module.css'
+import styles from '../styles/DailyEntry.module.css';
+import { getDatabase, ref, set } from "firebase/database";
+import { CloseOutlined } from '@ant-design/icons';
 
 export default function DailyEntry() {
+    const [form] = Form.useForm();
+    const [form1] = Form.useForm();
+    const [form2] = Form.useForm();
+    const [form3] = Form.useForm();
     const [toggle, setToggle] = React.useState(false);
+    const [vehicleNo, setVehicleNo] = useState('');
+    const [mt, setMT] = useState(false);
+    const [payStatus, setPayStatus] = useState('Paid');
+    const [janaKm, setJanaKm] = useState('');
+    const [aanaKm, setAanaKm] = useState('');
+    const [tripKm, setTripKm] = useState('');
+    const [milometer, setMilometer] = useState('');
+    const [dieselQty, setDieselQty] = useState('');
+    const [pumpName, setPumpName] = useState('');
+    const [average, setAverage] = useState('');
+    const [midwayDiesel, setMidwayDiesel] = useState('');
+    const [rate, setRate] = useState([0, 0, 0, 0]);
+    const [qty, setQty] = useState([0, 0, 0, 0]);
+    const [totalFreight, setTotalFreight] = useState(0);
+    const [khaliGadiWajan, setKhaliGadiWajan] = useState([0, 0, 0, 0]);
+    const [bhariGadiWajan, setBhariGadiWajan] = useState([0, 0, 0, 0]);
+
+    // useEffect(()=>{
+    // const db = getDatabase();
+    // set(ref(db, 'users/' + '0'), {
+    //   username: 'Adnan',
+    //   email: 'adnan@tcs.com',
+    // });
+    // },[])
+
+    const handleSave = () => {
+        const tripDetails = form.getFieldsValue(['tripDetails']);
+        let listOfTrips = [];
+        tripDetails?.tripDetails?.forEach((trip) => {
+            listOfTrips.push({
+                from: trip.from || '',
+                to: trip.to || '',
+                bhejneWaliParty: trip.bhejneWaala || '',
+                paaneWaliParty: trip.paaneWaala || '',
+                transporter: trip.transporter || '',
+                maal: trip.Maal|| '',
+                qty: trip.qty || '',
+                rate: trip.rate || '',
+                totalFreight: parseInt(trip.rate)*parseInt(trip.qty) || '',
+            });
+        }
+        );
+
+        const driversDetails = form1.getFieldsValue(['DriversDetails']);
+        let listOfDrivers = [];
+        driversDetails?.DriversDetails?.forEach((driver) => {
+            listOfDrivers.push({
+                driverName: driver.driverName || '',
+                driverContact: driver.driverContact || '',
+                driverLicenseDate: driver.driverLicenseDate || '',
+                driverTripCash: driver.driverTripCash ||''
+            });
+        }
+        );
+
+        const kaataParchi = form2.getFieldsValue(['kaataParchi']);
+        let listOfKaataParchi = [];
+        kaataParchi?.kaataParchi?.forEach((parchi) => {
+            listOfKaataParchi.push({
+                unloadingDate: parchi.unloadingDate || '',
+                khaliGadiWajan: parchi.khaliGadiWajan || '',
+                bhariGadiWajan: parchi.bhariGadiWajan || '',
+                maalKaWajan: parchi.maalKaWajan || '',
+                ghaateAllowed: parchi.ghaateAllowed || '',
+                ghaateActual: parchi.ghaateActual || '',
+                remarks: parchi.remarks || ''
+            });
+        }
+        );
+
+        const firstPayment = form3.getFieldsValue(['paymentDetails']);
+        let listOfFirstPayment = [];
+        firstPayment?.paymentDetails?.forEach((payment) => {
+            listOfFirstPayment.push({
+                bhadaKaunDalega: payment.bhadaKaunDalega || '',
+                pohchAmount: payment.pohchAmount || '',
+                pohchDate: payment.pohchDate || '',
+                pohchBank: payment.pohchBank || '',
+                pohchRemarks: payment.pohchRemarks || '',
+                cashAmount: payment.cashAmount || '',
+                cashDate: payment.cashDate || '',
+                cashBank: payment.cashBank || '',
+                cashRemarks: payment.cashRemarks || '',
+                onlineAmount: payment.onlineAmount || '',
+                onlineDate: payment.onlineDate || '',
+                onlineBank: payment.onlineBank || '',
+                onlineRemarks: payment.onlineRemarks || '',
+                chequeAmount: payment.chequeAmount || '',
+                chequeDate: payment.chequeDate || '',
+                chequeBank: payment.chequeBank || '',
+                chequeRemarks: payment.chequeRemarks || '',
+            });
+        }
+        );
+
+        console.log(listOfTrips, listOfDrivers, listOfKaataParchi, listOfFirstPayment);
+        
+        const db = getDatabase();
+        let id = guidGenerator();
+        set(ref(db, 'dailyEntry/' + id), {
+            tripDetails: listOfTrips,
+            driversDetails: listOfDrivers,
+            kaataParchi: listOfKaataParchi,
+            firstPayment: listOfFirstPayment
+        }).then(() => {
+            console.log('Data saved');
+            alert('Data Saved Successfully');
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+
+        console.log('Save button clicked');
+    }
+
+    const onMTCheck = (e) => {
+        setMT(e.target.checked);
+    }
 
     const dataSource = [
         {
@@ -114,6 +237,13 @@ export default function DailyEntry() {
 
     ];
 
+    function guidGenerator() {
+        var S4 = function() {
+           return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        };
+        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+    }
+
     // Filter `option.label` match the user type `input`
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
@@ -126,28 +256,20 @@ export default function DailyEntry() {
                 <div>
                     <Form
                         name="Trip Details"
-                        // labelCol={{
-                        //     span: 8,
-                        // }}
-                        // wrapperCol={{
-                        //     span: 16,
-                        // }}
                         style={{
                             maxWidth: 1200,
                         }}
                         initialValues={{
                             remember: true,
                         }}
-                        // onFinish={onFinish}
-                        // onFinishFailed={onFinishFailed}
                         autoComplete="off"
+                        form={form}
                     >
 
                         <Flex gap="middle" align="start" vertical>
                             <Flex style={{
                                 width: '100%',
                                 height: 60,
-                                // border: '1px solid #40a9ff',
                             }} justify={'space-around'} align={'center'}>
 
                                 <Form.Item style={{ width: '30%' }} label="Vehicle No."
@@ -208,27 +330,41 @@ export default function DailyEntry() {
                                     // label="MT"
                                     name="mt"
                                 >
-                                    <Checkbox >MT</Checkbox>
+                                    <Checkbox onChange={onMTCheck} >MT</Checkbox>
                                 </Form.Item>
 
                             </Flex>
 
                             {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
-                            <Form.List name="oneunit" >
+                            <Form.List name="tripDetails" >
                                 {(fields, { add, remove }) => (
-                                    <>
+                                    <div
+                                    style={{
+                                      display: 'flex',
+                                      rowGap: 16,
+                                      flexDirection: 'column',
+                                    }}
+                                  >
                                         {fields.map(({ key, name, ...restField }) => (
-                                            <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
-                                                <div style={{ borderRadius: '10px', border: '1px solid green' }}>
-                                                    <h3 style={{ padding: '10px' }}>UNIT {name + 1} {console.log(fields)}</h3>
+                                            
+                                                <Card size="small"
+                                                    title={`Unit ${name + 1}`}
+                                                    key={key}
+                                                    extra={
+                                                        <CloseOutlined
+                                                            onClick={() => {
+                                                                remove(name);
+                                                            }}
+                                                        /> }>
+                                                    {/* <h3 style={{ padding: '10px' }}>UNIT {name + 1} {console.log(fields)}</h3> */}
                                                     <div
                                                         key={key}
                                                     >
                                                         <Flex gap="middle" align="start" vertical>
 
-                                                            <Flex style={{ width: "100%", height: 30 }} justify={'space-around'} align='center'>
+                                                            <Flex style={{ width: "100%", height: 30, marginTop:'10px' }} justify={'space-around'} align='center'>
                                                                 <Form.Item style={{ width: '20%' }} label="From"
-                                                                    name="From">
+                                                                    name={[name, 'from']}>
                                                                     <Select
                                                                         showSearch
                                                                         placeholder="from"
@@ -262,7 +398,7 @@ export default function DailyEntry() {
                                                                 </Form.Item>
 
                                                                 <Form.Item style={{ width: '20%' }} label="Bhejne waale"
-                                                                    name="bhejneWaale">
+                                                                    name={[name,'bhejneWaala']}>
                                                                     <Select
                                                                         showSearch
                                                                         placeholder="Bhejne waale"
@@ -286,10 +422,15 @@ export default function DailyEntry() {
                                                                         ]}
                                                                     />
                                                                 </Form.Item>
+                                                                
+                                                                {/* <Tooltip placement="top" title={'Malharganj new bus stand 8812329201'}>
+                                                                    <Button>Top</Button>
+                                                                </Tooltip> */}
+
 
                                                                 <Form.Item style={{ width: '20%' }}
                                                                     label="To"
-                                                                    name="to"
+                                                                    name={[name, 'to']}
                                                                 >
                                                                     <Select
                                                                         showSearch
@@ -324,7 +465,7 @@ export default function DailyEntry() {
                                                                 </Form.Item>
 
                                                                 <Form.Item style={{ width: '20%' }} label="Paane Waala"
-                                                                    name="paanewala">
+                                                                    name={[name, 'paaneWaala']}>
                                                                     <Select
                                                                         showSearch
                                                                         placeholder="Paane waala"
@@ -352,7 +493,7 @@ export default function DailyEntry() {
                                                             </Flex>
                                                             <Flex style={{ width: "100%", height: 30 }} justify={'space-around'} align='center'>
                                                                 <Form.Item style={{ width: '15%' }} label="Maal"
-                                                                    name="Maal">
+                                                                    name={[name, 'Maal']}>
                                                                     <Select
                                                                         showSearch
                                                                         placeholder="Maal"
@@ -383,28 +524,36 @@ export default function DailyEntry() {
 
                                                                 <Form.Item style={{ width: '15%' }}
                                                                     label="Qty"
-                                                                    name="qty"
+                                                                    name={[name, 'qty']}
                                                                 >
-                                                                    <Input></Input>
+                                                                    <Input type='number' 
+                                                                    value={qty} 
+                                                                    onChange={(e)=>{let q = qty; q[name] = e.target.value; setQty([...q])}}>
+
+                                                                    </Input>
                                                                 </Form.Item>
 
                                                                 <Form.Item style={{ width: '15%' }}
                                                                     label="Rate"
-                                                                    name="rate"
+                                                                    name={[name, 'rate']}
                                                                 >
-                                                                    <Input></Input>
+                                                                    <Input type='number' 
+                                                                    value={rate} 
+                                                                    onChange={(e)=>{let r = rate; r[name] = e.target.value; setRate([...r])}}
+                                                                    ></Input>
                                                                 </Form.Item>
-
+                                                                {console.log((form.getFieldValue(['tripDetails', name, 'rate'])||0)*(form.getFieldValue(['tripDetails', name, 'qty'])||0))}
                                                                 <Form.Item style={{ width: '15%' }}
                                                                     label="Total Freight"
-                                                                    name="totalFreight"
+                                                                    // name={[name, 'totalFreight']}
                                                                 >
-                                                                    <Input></Input>
+                                                                    {parseInt(rate[name])*parseInt(qty[name])}
+                                                                    {/* <Input value={rate[name]*qty[name]}></Input> */}
                                                                 </Form.Item>
 
-                                                                <Form.Item style={{ width: '15%' }}
+                                                                <Form.Item style={{ width: '20%' }}
                                                                     label="Transporter"
-                                                                    name="transporter"
+                                                                    name={[name, 'transporter']}
                                                                 >
                                                                     <Select
                                                                         showSearch
@@ -430,7 +579,7 @@ export default function DailyEntry() {
                                                                     />
                                                                 </Form.Item>
 
-                                                                <MinusCircleOutlined onClick={() => remove(name)} />
+                                                                {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
 
                                                             </Flex>
                                                         </Flex>
@@ -438,130 +587,116 @@ export default function DailyEntry() {
 
 
                                                     </div>
-                                                </div>
-                                            </Flex>
+                                                </Card>
+                                                
+                                            
                                         ))}
-                                        <Form.Item style={{ margin: 'auto' }}>
-                                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                                Add new
-                                            </Button>
-                                        </Form.Item>
-                                    </>
-                                )}
-                            </Form.List>
-
-
-                            {/* </Flex> */}
-
-                            <Flex style={{
-                                width: '100%',
-                                height: 60,
-                                // border: '1px solid #40a9ff',
-                            }} justify={'space-around'} align={'center'}>
-
-                                <Form.Item style={{ width: '20%', margin: 'auto' }}
-                                    label="To Pay/ Paid"
-                                    name="To Pay/ Paid"
-                                >
-                                    <Radio.Group
-                                        options={[{ label: 'To Pay', value: 'To Pay' }, { label: 'Paid', value: 'Paid' }]}
-                                        // onChange={onChange4}
-                                        value={'Paid'}
-                                        optionType="button"
-                                        buttonStyle="solid"
-                                    />
+                                <Form.Item style={{ margin: 'auto' }}>
+                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                        Add new
+                                    </Button>
                                 </Form.Item>
-                            </Flex>
+                            </div>
+                                )}
+                        </Form.List>
+
+
+                        {/* </Flex> */}
+
+                        <Flex style={{
+                            width: '100%',
+                            height: 60,
+                            // border: '1px solid #40a9ff',
+                        }} justify={'space-around'} align={'center'}>
+
+                            <Form.Item style={{ width: '50%', margin: 'auto' }}
+                                label="To Pay/ Paid"
+                                name="To Pay/ Paid"                           
+                            >
+                                <Radio.Group
+                                    options={[{ label: 'To Pay', value: 'To Pay' }, { label: 'Paid', value: 'Paid' }]}
+                                    onChange={(e)=>{setPayStatus(e.target.value)}}
+                                    value={'Paid'}
+                                    optionType="button"
+                                    buttonStyle="solid"
+                                />
+                            </Form.Item>
                         </Flex>
+                    </Flex>
 
 
-                    </Form>
-                </div>
+                </Form>
+            </div>
             </>,
         },
-        // {
-        //     key: '2',
-        //     label: 'Party And Transporter Details',
+// {
+//     key: '2',
+//     label: 'Party And Transporter Details',
 
-        //     children: <>
-        //         <div>
-        //             <Form name="Party And Transporter Details"
-        //                 // labelCol={{
-        //                 //     span: 8,
-        //                 // }}
-        //                 // wrapperCol={{
-        //                 //     span: 16,
-        //                 // }}
-        //                 style={{
-        //                     maxWidth: 1200,
-        //                 }}
-        //                 initialValues={{
-        //                     remember: true,
-        //                 }}
-        //                 // onFinish={onFinish}
-        //                 // onFinishFailed={onFinishFailed}
-        //                 autoComplete="off">
+//     children: <>
+//         <div>
+//             <Form name="Party And Transporter Details"
+//                 // labelCol={{
+//                 //     span: 8,
+//                 // }}
+//                 // wrapperCol={{
+//                 //     span: 16,
+//                 // }}
+//                 style={{
+//                     maxWidth: 1200,
+//                 }}
+//                 initialValues={{
+//                     remember: true,
+//                 }}
+//                 // onFinish={onFinish}
+//                 // onFinishFailed={onFinishFailed}
+//                 autoComplete="off">
 
-        //                 <Flex gap="middle" align="start" vertical>
+//                 <Flex gap="middle" align="start" vertical>
 
-        //                     {/* Transporter Details */}
-        //                     <Flex style={{
-        //                         width: '100%',
-        //                         height: 60,
-        //                     }} justify={'space-around'} align={'center'}>
+//                     {/* Transporter Details */}
+//                     <Flex style={{
+//                         width: '100%',
+//                         height: 60,
+//                     }} justify={'space-around'} align={'center'}>
 
-        //                         <Form.Item style={{ width: '20%' }}
-        //                             label="Address"
-        //                             name="address"
-        //                         >
-        //                             <Input></Input>
-        //                         </Form.Item>
+//                         <Form.Item style={{ width: '20%' }}
+//                             label="Address"
+//                             name="address"
+//                         >
+//                             <Input></Input>
+//                         </Form.Item>
 
-        //                         <Form.Item style={{ width: '20%' }}
-        //                             label="Contact"
-        //                             name="contact"
-        //                         >
-        //                             <Input></Input>
-        //                         </Form.Item>
+//                         <Form.Item style={{ width: '20%' }}
+//                             label="Contact"
+//                             name="contact"
+//                         >
+//                             <Input></Input>
+//                         </Form.Item>
 
-        //                     </Flex>
-        //                 </Flex>
-        //             </Form>
-        //         </div>
-        //     </>,
-        // },
-        {
-            key: '3',
-            label: 'Driver | Diesel | Km | Milometer | Avg Details',
+//                     </Flex>
+//                 </Flex>
+//             </Form>
+//         </div>
+//     </>,
+// },
+{
+    key: '3',
+        label: 'Driver | Diesel | Km | Milometer | Avg Details',
             children: <>
                 <div>
                     <Form name="Driver | Diesel | Km | Milometer | Avg Details"
-                        // labelCol={{
-                        //     span: 8,
-                        // }}
-                        // wrapperCol={{
-                        //     span: 16,
-                        // }}
                         style={{
                             maxWidth: 1200,
                         }}
                         initialValues={{
                             remember: true,
                         }}
-                        // onFinish={onFinish}
-                        // onFinishFailed={onFinishFailed}
-                        autoComplete="off">
+                        autoComplete="off"
+                        form={form1}
+                        >
                         <Flex gap="middle" align="start" vertical>
-                            {/* <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
-                                <h3>Driver</h3>
-                                <h3>Name</h3>
-                                <h3>Contact</h3>
-                                <h3>License Date</h3>
-                                <h3>Trip Cash</h3>
-                            </Flex> */}
+
 
                             <Form.List name="DriversDetails" >
                                 {(fields, { add, remove }) => (
@@ -580,7 +715,7 @@ export default function DailyEntry() {
                                                             <Flex style={{ width: "1000px", height: 30 }} justify={'space-around'} align='center'>
 
                                                                 <Form.Item style={{ width: '20%' }}
-                                                                    name="Driver1"
+                                                                    name={[name, 'driverName']}
                                                                     label='Name'
                                                                 >
                                                                     <Select
@@ -607,15 +742,15 @@ export default function DailyEntry() {
                                                                     />
                                                                 </Form.Item>
 
-                                                                <Form.Item style={{ width: '20%' }} name="driver1Contact" label="contact">
+                                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverContact']} label="contact">
                                                                     <Input placeholder='contact' />
                                                                 </Form.Item>
 
-                                                                <Form.Item style={{ width: '20%' }} name="driver1LicenseDate" label="License Date">
+                                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverLicenseDate']} label="License Date">
                                                                     <Input placeholder='License Date' type='date' />
                                                                 </Form.Item>
 
-                                                                <Form.Item style={{ width: '20%' }} name="driver1TripCash" label="Cash">
+                                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverTripCash']} label="Cash">
                                                                     <Input placeholder='Trip Cash' type='number' />
                                                                 </Form.Item>
 
@@ -644,151 +779,7 @@ export default function DailyEntry() {
                                 )}
                             </Form.List>
 
-                            {/* 1st Driver */}
-                            {/* <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
 
-                                <Form.Item>
-                                    <h4>1st Driver</h4>
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }}
-                                    name="Driver1">
-                                    <Select
-                                        showSearch
-                                        placeholder="1st Driver"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'ABC',
-                                                label: 'ABC',
-                                            },
-                                            {
-                                                value: 'XYZ',
-                                                label: 'XYZ',
-                                            },
-                                            {
-                                                value: 'PQR',
-                                                label: 'PQR',
-                                            },
-                                        ]}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }} name="driver1Contact">
-                                    <Input placeholder='contact' />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }} name="driver1LicenseDate">
-                                    <Input placeholder='License Date' type='date' />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }} name="driver1TripCash">
-                                    <Input placeholder='Trip Cash' type='number' />
-                                </Form.Item>
-                            </Flex> */}
-
-                            {/* 2nd Driver */}
-                            {/* <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
-
-                                <Form.Item>
-                                    <h4>2nd Driver</h4>
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }}
-                                    name="Driver2">
-                                    <Select
-                                        showSearch
-                                        placeholder="2nd Driver"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'ABC',
-                                                label: 'ABC',
-                                            },
-                                            {
-                                                value: 'XYZ',
-                                                label: 'XYZ',
-                                            },
-                                            {
-                                                value: 'PQR',
-                                                label: 'PQR',
-                                            },
-                                        ]}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }} name="driver2Contact">
-                                    <Input placeholder='contact' />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }} name="driver2LicenseDate">
-                                    <Input placeholder='License Date' type='date' />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }} name="driver2TripCash">
-                                    <Input placeholder='Trip Cash' type='number' />
-                                </Form.Item>
-                            </Flex> */}
-
-                            {/* Conductor */}
-                            {/* <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
-                                <Form.Item>
-                                    <h4>Conductor</h4>
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }}
-                                    name="Conductor">
-                                    <Select
-                                        showSearch
-                                        placeholder="Conductor"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'ABC',
-                                                label: 'ABC',
-                                            },
-                                            {
-                                                value: 'XYZ',
-                                                label: 'XYZ',
-                                            },
-                                            {
-                                                value: 'PQR',
-                                                label: 'PQR',
-                                            },
-                                        ]}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }} name="conductor">
-                                    <Input placeholder='contact' />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }} name="conductorLicenseDate">
-                                    <Input placeholder='License Date' type='date' />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }} name="conductorTripCash">
-                                    <Input placeholder='Trip Cash' type='number' />
-                                </Form.Item>
-                            </Flex> */}
 
                             {/* KM */}
                             <Flex style={{
@@ -859,18 +850,12 @@ export default function DailyEntry() {
                 </div>
             </>,
         },
-        {
-            key: '4',
-            label: 'Kaata Parchi Details',
+{
+    key: '4',
+        label: 'Kaata Parchi Details',
             children: <>
                 <div>
                     <Form name='Kaata Parchi Details'
-                        // labelCol={{
-                        //     span: 8,
-                        // }}
-                        // wrapperCol={{
-                        //     span: 16,
-                        // }}
                         style={{
                             maxWidth: 1200,
                         }}
@@ -879,12 +864,14 @@ export default function DailyEntry() {
                         }}
                         // onFinish={onFinish}
                         // onFinishFailed={onFinishFailed}
-                        autoComplete="off">
+                        autoComplete="off"
+                        form={form2}
+                        >
                         <Flex gap="middle" align="start" vertical>
 
 
                             {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
-                            <Form.List name="oneunit" >
+                            <Form.List name="kaataParchi" >
                                 {(fields, { add, remove }) => (
                                     <>
                                         {fields.map(({ key, name, ...restField }) => (
@@ -899,20 +886,20 @@ export default function DailyEntry() {
                                                             <Flex style={{
                                                                 width: '100%',
                                                                 height: 60,
-                                                            }} justify={'space-around'} align={'center'}>
-                                                                <Form.Item style={{ width: '20%' }} name="Unloading Date" label="Unloading Date">
+                                                            }} justify={'space-around'} align={'center'} >
+                                                                <Form.Item style={{ width: '20%' }} name={[name, 'unloadingDate']} label="Unloading Date">
                                                                     <Input placeholder='Unloading Date' type='date'></Input>
                                                                 </Form.Item>
 
-                                                                <Form.Item style={{ width: '20%' }} name="Khaali Gadi Wajan" label="Khaali Gadi wajan">
+                                                                <Form.Item style={{ width: '20%' }} name={[name, 'khaliGadiWajan']} label="Khaali Gadi wajan">
                                                                     <Input placeholder='Weight' type='number'></Input>
                                                                 </Form.Item>
 
-                                                                <Form.Item style={{ width: '20%' }} name="Bhari Gaadi Wajan" label="Bhari Gaadi Wajan">
+                                                                <Form.Item style={{ width: '20%' }} name={[name, 'bhariGadiWajan']} label="Bhari Gaadi Wajan">
                                                                     <Input placeholder='Weight' type='number'></Input>
                                                                 </Form.Item>
 
-                                                                <Form.Item style={{ width: '20%' }} name="Maal Wajan" label="Maal Ka Wajan">
+                                                                <Form.Item style={{ width: '20%' }} name={[name, "maalKaWajan"]} label="Maal Ka Wajan">
                                                                     <Input placeholder='weight' type='number'></Input>
                                                                 </Form.Item>
                                                             </Flex>
@@ -921,15 +908,15 @@ export default function DailyEntry() {
                                                                 width: '100%',
                                                                 height: 60,
                                                             }} justify={'space-around'} align={'center'}>
-                                                                <Form.Item style={{ width: '30%' }} name="Ghaata Allowed" label="Ghaate Allowed">
+                                                                <Form.Item style={{ width: '30%' }} name={[name, "ghaateAllowed"]} label="Ghaate Allowed">
                                                                     <Input placeholder='input' ></Input>
                                                                 </Form.Item>
 
-                                                                <Form.Item style={{ width: '30%' }} name="Ghaata Actual" label="Ghaate Actual">
+                                                                <Form.Item style={{ width: '30%' }} name={[name, "ghaateActual"]} label="Ghaate Actual">
                                                                     <Input placeholder='input' ></Input>
                                                                 </Form.Item>
 
-                                                                <Form.Item style={{ width: '30%' }} name="Remarks" label="Remarks">
+                                                                <Form.Item style={{ width: '30%' }} name={[name, "remarks"]} label="Remarks">
                                                                     <Input placeholder='remarks' ></Input>
                                                                 </Form.Item>
 
@@ -956,247 +943,259 @@ export default function DailyEntry() {
                 </div>
             </>,
         },
-        {
-            key: '5',
-            label: 'First Payment Details',
+{
+    key: '5',
+        label: 'First Payment Details',
             children: <>
                 <div>
                     <h3>Trip se kya mila</h3>
                     <Form name='Trip se kya mila'
-                        // labelCol={{
-                        //     span: 8,
-                        // }}
-                        // wrapperCol={{
-                        //     span: 16,
-                        // }}
                         style={{
-                            maxWidth: 1200,
+                            maxWidth: 1500,
                         }}
                         initialValues={{
                             remember: true,
                         }}
-                        // onFinish={onFinish}
-                        // onFinishFailed={onFinishFailed}
-                        autoComplete="off">
+                        autoComplete="off"
+                        form={form3}
+                        >
+
                         <Flex gap="middle" align="start" vertical>
-                            <Flex style={{
-                                width: '100%',
-                                height: 30,
-                            }} justify={'space-around'} align={'center'}>
-                                <h3>{'Party Name'}</h3>
-                                <h4>Amount</h4>
-                                <h4>Date</h4>
-                                <h4>Bank</h4>
-                                <h4>Remarks</h4>
+                            {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
+                            <Form.List name="paymentDetails" >
+                                {(fields, { add, remove }) => (
+                                    <>
+                                        {fields.map(({ key, name, ...restField }) => (
+                                            <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
+                                                <Card style={{ borderRadius: '10px', border: '1px solid green', padding: '5px' }}>
+                                                    <Row justify={'space-between'}>
+                                                        <Col>
+                                                            <h3 style={{ padding: '10px' }}>Unit {name + 1} </h3>
+                                                        </Col>
+                                                        <Col>
+                                                            <Form.Item label="Bhada kaun dalega" name={[name, 'bhadaKaunDalega']}>
+                                                                <Radio.Group
+                                                                    options={[{ label: 'Party', value: 'Party' },
+                                                                    { label: 'Transporter', value: 'Transporter' },
+                                                                    { label: 'UV Logistics', value: 'UvLogs' },
+                                                                    { label: 'Naveen Kaka', value: 'NaveenKaka' }
+                                                                    ]}
+                                                                    // onChange={onChange4}
+                                                                    // value={'Party'}
+                                                                    optionType="button"
+                                                                    buttonStyle="solid"
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
+                                                        <Col>
+                                                            <MinusCircleOutlined onClick={() => remove(name)} />
+                                                        </Col>
+                                                    </Row>
+                                                    <div
+                                                        key={key}
+                                                    >
 
-                            </Flex>
+                                                        <table style={{ border: '1px solid black', padding: '5px', borderRadius: '10px' }}>
+                                                            <tr style={{ border: '1px solid black' }}>
+                                                                <th style={{ border: '1px solid black' }}>Type</th>
+                                                                <th style={{ border: '1px solid black' }}>Amount</th>
+                                                                <th style={{ border: '1px solid black' }}>date</th>
+                                                                <th style={{ border: '1px solid black' }}>Bank</th>
+                                                                <th style={{ border: '1px solid black' }}>Remarks</th>
+                                                            </tr>
+                                                            <tr style={{ border: '1px solid black' }}>
+                                                                <td ><h3>Pohch</h3></td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'pohchAmount']} >
+                                                                        <Input placeholder='amount' type='number' />
+                                                                    </Form.Item>
+                                                                </td >
+                                                                <td >
+                                                                    <Form.Item name={[name, 'pohchDate']}>
+                                                                        <Input placeholder='date' type='date' />
+                                                                    </Form.Item>
+                                                                </td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'pohchBank']}>
+                                                                        <Select
+                                                                            showSearch
+                                                                            placeholder="Bank"
+                                                                            optionFilterProp="children"
+                                                                            // onChange={onChange}
+                                                                            // onSearch={onSearch}
+                                                                            filterOption={filterOption}
+                                                                            options={[
+                                                                                {
+                                                                                    value: 'ABC',
+                                                                                    label: 'ABC',
+                                                                                },
+                                                                                {
+                                                                                    value: 'XYZ',
+                                                                                    label: 'XYZ',
+                                                                                },
+                                                                                {
+                                                                                    value: 'PQR',
+                                                                                    label: 'PQR',
+                                                                                },
+                                                                            ]}
+                                                                        />
+                                                                    </Form.Item>
+                                                                </td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'pohchRemarks']}>
+                                                                        <Input placeholder='remarks' />
+                                                                    </Form.Item>
+                                                                </td>
+                                                            </tr>
+                                                            <tr style={{ border: '1px solid black' }}>
+                                                                <td ><h3>Cash</h3></td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'cashAmount']}>
+                                                                        <Input placeholder='amount' type='number' />
+                                                                    </Form.Item>
+                                                                </td >
+                                                                <td >
+                                                                    <Form.Item name={[name, 'cashDate']}>
+                                                                        <Input placeholder='date' type='date' />
+                                                                    </Form.Item>
+                                                                </td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'cashBank']}>
+                                                                        <Select
+                                                                            showSearch
+                                                                            placeholder="Bank"
+                                                                            optionFilterProp="children"
+                                                                            // onChange={onChange}
+                                                                            // onSearch={onSearch}
+                                                                            filterOption={filterOption}
+                                                                            options={[
+                                                                                {
+                                                                                    value: 'ABC',
+                                                                                    label: 'ABC',
+                                                                                },
+                                                                                {
+                                                                                    value: 'XYZ',
+                                                                                    label: 'XYZ',
+                                                                                },
+                                                                                {
+                                                                                    value: 'PQR',
+                                                                                    label: 'PQR',
+                                                                                },
+                                                                            ]}
+                                                                        />
+                                                                    </Form.Item>
+                                                                </td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'cashRemarks']}>
+                                                                        <Input placeholder='remarks' />
+                                                                    </Form.Item>
+                                                                </td>
+                                                            </tr>
+                                                            <tr style={{ border: '1px solid black' }}>
+                                                                <td ><h3>Online</h3></td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'onlineAmount']}>
+                                                                        <Input placeholder='amount' type='number' />
+                                                                    </Form.Item>
+                                                                </td >
+                                                                <td >
+                                                                    <Form.Item name={[name, 'onlineDate']}>
+                                                                        <Input placeholder='date' type='date' />
+                                                                    </Form.Item>
+                                                                </td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'onlineBank']}>
+                                                                        <Select
+                                                                            showSearch
+                                                                            placeholder="Bank"
+                                                                            optionFilterProp="children"
+                                                                            // onChange={onChange}
+                                                                            // onSearch={onSearch}
+                                                                            filterOption={filterOption}
+                                                                            options={[
+                                                                                {
+                                                                                    value: 'ABC',
+                                                                                    label: 'ABC',
+                                                                                },
+                                                                                {
+                                                                                    value: 'XYZ',
+                                                                                    label: 'XYZ',
+                                                                                },
+                                                                                {
+                                                                                    value: 'PQR',
+                                                                                    label: 'PQR',
+                                                                                },
+                                                                            ]}
+                                                                        />
+                                                                    </Form.Item>
+                                                                </td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'onlineRemarks']}>
+                                                                        <Input placeholder='remarks' />
+                                                                    </Form.Item>
+                                                                </td>
+                                                            </tr>
+                                                            <tr style={{ border: '1px solid black' }}>
+                                                                <td ><h3>Cheque</h3></td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'chequeAmount']}>
+                                                                        <Input placeholder='amount' type='number' />
+                                                                    </Form.Item>
+                                                                </td >
+                                                                <td >
+                                                                    <Form.Item name={[name, 'chequeDate']}>
+                                                                        <Input placeholder='date' type='date' />
+                                                                    </Form.Item>
+                                                                </td>
+                                                                <td >
+                                                                    <Form.Item name={[name,'chequeBank']}>
+                                                                        <Select
+                                                                            showSearch
+                                                                            placeholder="Bank"
+                                                                            optionFilterProp="children"
+                                                                            // onChange={onChange}
+                                                                            // onSearch={onSearch}
+                                                                            filterOption={filterOption}
+                                                                            options={[
+                                                                                {
+                                                                                    value: 'ABC',
+                                                                                    label: 'ABC',
+                                                                                },
+                                                                                {
+                                                                                    value: 'XYZ',
+                                                                                    label: 'XYZ',
+                                                                                },
+                                                                                {
+                                                                                    value: 'PQR',
+                                                                                    label: 'PQR',
+                                                                                },
+                                                                            ]}
+                                                                        />
+                                                                    </Form.Item>
+                                                                </td>
+                                                                <td >
+                                                                    <Form.Item name={[name, 'chequeRemarks']}>
+                                                                        <Input placeholder='remarks' />
+                                                                    </Form.Item>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
 
-                            {/* Pohch */}
-                            <Flex style={{
-                                width: '100%',
-                                height: 30,
-                            }} justify={'space-around'} align={'center'}>
-                                <h4>Pohch</h4>
-                                <Form.Item>
-                                    <Input placeholder='amount' type='number' />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Input placeholder='date' type='date' />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Select
-                                        showSearch
-                                        placeholder="Bank"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'ABC',
-                                                label: 'ABC',
-                                            },
-                                            {
-                                                value: 'XYZ',
-                                                label: 'XYZ',
-                                            },
-                                            {
-                                                value: 'PQR',
-                                                label: 'PQR',
-                                            },
-                                        ]}
-                                    />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Input placeholder='remarks' />
-                                </Form.Item>
 
-                            </Flex>
 
-                            {/* Cash */}
-                            <Flex style={{
-                                width: '100%',
-                                height: 30,
-                            }} justify={'space-around'} align={'center'}>
-                                <h4>Cash</h4>
-                                <Form.Item>
-                                    <Input placeholder='amount' type='number' />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Input placeholder='date' type='date' />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Select
-                                        showSearch
-                                        placeholder="Bank"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'ABC',
-                                                label: 'ABC',
-                                            },
-                                            {
-                                                value: 'XYZ',
-                                                label: 'XYZ',
-                                            },
-                                            {
-                                                value: 'PQR',
-                                                label: 'PQR',
-                                            },
-                                        ]}
-                                    />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Input placeholder='remarks' />
-                                </Form.Item>
+                                                    </div>
 
-                            </Flex>
-
-                            {/* Cheque */}
-                            <Flex style={{
-                                width: '100%',
-                                height: 30,
-                            }} justify={'space-around'} align={'center'}>
-                                <h4>Cheque</h4>
-                                <Form.Item>
-                                    <Input placeholder='amount' type='number' />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Input placeholder='date' type='date' />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Select
-                                        showSearch
-                                        placeholder="Bank"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'ABC',
-                                                label: 'ABC',
-                                            },
-                                            {
-                                                value: 'XYZ',
-                                                label: 'XYZ',
-                                            },
-                                            {
-                                                value: 'PQR',
-                                                label: 'PQR',
-                                            },
-                                        ]}
-                                    />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Input placeholder='remarks' />
-                                </Form.Item>
-
-                            </Flex>
-
-                            {/* Online */}
-                            <Flex style={{
-                                width: '100%',
-                                height: 30,
-                            }} justify={'space-around'} align={'center'}>
-                                <h4>Online</h4>
-                                <Form.Item>
-                                    <Input placeholder='amount' type='number' />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Input placeholder='date' type='date' />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Select
-                                        showSearch
-                                        placeholder="Bank"
-                                        optionFilterProp="children"
-                                        // onChange={onChange}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'ABC',
-                                                label: 'ABC',
-                                            },
-                                            {
-                                                value: 'XYZ',
-                                                label: 'XYZ',
-                                            },
-                                            {
-                                                value: 'PQR',
-                                                label: 'PQR',
-                                            },
-                                        ]}
-                                    />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Input placeholder='remarks' />
-                                </Form.Item>
-
-                            </Flex>
-                        </Flex>
-                    </Form>
-
-                    <h3>Bhada Dalega Kaun</h3>
-                    <Form name='Bhada Dalega Kaun'
-                        // labelCol={{
-                        //     span: 8,
-                        // }}
-                        // wrapperCol={{
-                        //     span: 16,
-                        // }}
-                        style={{
-                            maxWidth: 1200,
-                        }}
-                        initialValues={{
-                            remember: true,
-                        }}
-                        // onFinish={onFinish}
-                        // onFinishFailed={onFinishFailed}
-                        autoComplete="off">
-                        <Flex gap="middle" align="start" vertical>
-                            <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
-                                <Form.Item>
-                                    <Radio.Group
-                                        options={[{ label: 'Party', value: 'Party' },
-                                        { label: 'Transporter', value: 'Transporter' },
-                                        { label: 'UV Logistics', value: 'UvLogs' },
-                                        { label: 'Naveen Kaka', value: 'NaveenKaka' }
-                                        ]}
-                                        // onChange={onChange4}
-                                        // value={'Party'}
-                                        optionType="button"
-                                        buttonStyle="solid"
-                                    />
-                                </Form.Item>
-                            </Flex>
+                                                </Card>
+                                            </Flex>
+                                        ))}
+                                        <Form.Item style={{ margin: 'auto' }}>
+                                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                Add new Unit
+                                            </Button>
+                                        </Form.Item>
+                                    </>
+                                )}
+                            </Form.List>
                         </Flex>
                     </Form>
                 </div>
@@ -1204,22 +1203,26 @@ export default function DailyEntry() {
         }
     ];
 
-    return (
-        <>
+return (
+    <>
 
-            <Input style={{ width: "20%", marginLeft: '40px' }} type='date' />
-            <div style={{ width: "100%", marginLeft: '20px' }}>
-                <Table dataSource={dataSource} columns={columns} expandable={{
-                    expandedRowRender: (record) => <Collapse accordion items={items} />,
-                    rowExpandable: (record) => true,
-                }} />
-            </div>
-            <Button style={{ marginLeft: "50px" }} onClick={() => setToggle(!toggle)}>Add New Details</Button>
-            <div className={styles.addNewDetails}>
-                {toggle &&
-                    <Collapse accordion items={items} />
-                }
-            </div>
-        </>
-    )
+        <Input style={{ width: "20%", marginLeft: '40px' }} type='date' />
+        {/* {[...rate[0]]} */}
+        <div style={{ width: "100%", marginLeft: '20px' }}>
+            <Table dataSource={dataSource} columns={columns} expandable={{
+                expandedRowRender: (record) => <Collapse accordion items={items} />,
+                rowExpandable: (record) => true,
+            }} />
+        </div>
+        <Button style={{ marginLeft: "50px" }} onClick={() => setToggle(!toggle)}>Add New Details</Button>
+        <div className={styles.addNewDetails}>
+            {toggle &&
+                <>
+                    <Collapse items={items} defaultActiveKey={['1']} />
+                    <Button type="primary" block onClick={handleSave}>Save</Button>
+                </>
+            }
+        </div>
+    </>
+)
 }
