@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, ref, set, onValue } from "firebase/database";
 import { CloseOutlined } from '@ant-design/icons';
 
 export default function DailyEntry() {
@@ -28,13 +28,24 @@ export default function DailyEntry() {
     const [khaliGadiWajan, setKhaliGadiWajan] = useState([0, 0, 0, 0]);
     const [bhariGadiWajan, setBhariGadiWajan] = useState([0, 0, 0, 0]);
 
-    // useEffect(()=>{
-    // const db = getDatabase();
+    useEffect(()=>{
+    const db = getDatabase();
     // set(ref(db, 'users/' + '0'), {
     //   username: 'Adnan',
     //   email: 'adnan@tcs.com',
     // });
-    // },[])
+    // Get data from database
+    const starCountRef = ref(db, 'dailyEntry/');
+    // console.log(starCountRef);
+    onValue(starCountRef, (snapshot) => {
+        const data = snapshot.val();
+        console.log(data);
+        // updateStarCount(postElement, data);
+
+    });
+
+
+    },[])
 
     const handleSave = () => {
         const tripDetails = form.getFieldsValue(['tripDetails']);
@@ -111,6 +122,19 @@ export default function DailyEntry() {
         const db = getDatabase();
         let id = guidGenerator();
         set(ref(db, 'dailyEntry/' + id), {
+            vehicleNo: vehicleNo||'',
+            mt: mt,
+            payStatus: payStatus||'',
+            janaKm: janaKm||'',
+            aanaKm: aanaKm||'',
+            tripKm: tripKm||'',
+            milometer: milometer||'',
+            dieselQty: dieselQty||'',
+            pumpName: pumpName||'',
+            average: average||'',
+            midwayDiesel: midwayDiesel||'',
+
+
             tripDetails: listOfTrips,
             driversDetails: listOfDrivers,
             kaataParchi: listOfKaataParchi,
@@ -787,19 +811,19 @@ export default function DailyEntry() {
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
                                 <Form.Item style={{ width: '20%' }} name="Jana KM" label="Jana KM">
-                                    <Input placeholder='Jana KM' type='number'></Input>
+                                    <Input value={janaKm} onChange={(e)=>{setJanaKm(e.target.value)}} placeholder='Jana KM' type='number'></Input>
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '20%' }} name="Aana KM" label="Aana KM">
-                                    <Input placeholder='Aana KM' type='number'></Input>
+                                    <Input value={aanaKm} onChange={(e)=>{setAanaKm(e.target.value)}} placeholder='Aana KM' type='number'></Input>
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '20%' }} name="Trip KM" label="Trip KM">
-                                    <Input placeholder='Trip KM' type='number'></Input>
+                                    <Input value={Math.abs(janaKm-aanaKm)} onChange={(e)=>{setTripKm(e.target.value)}} placeholder='Trip KM' type='number'></Input>
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '20%' }} name="Milometer" label="Milometer">
-                                    <Input placeholder='Milometer'></Input>
+                                    <Input value={milometer} onChange={(e)=>{setMilometer(e.target.value)}} placeholder='Milometer'></Input>
                                 </Form.Item>
                             </Flex>
 
@@ -809,7 +833,7 @@ export default function DailyEntry() {
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
                                 <Form.Item style={{ width: '20%' }} name="Diesel Qty" label="Diesel">
-                                    <Input placeholder='Diesel' type='number'></Input>
+                                    <Input value={dieselQty} onChange={(e)=>setDieselQty(e.target.value)} placeholder='Diesel' type='number'></Input>
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '20%' }} name="Pump Name" label="Pump Name">
@@ -817,7 +841,8 @@ export default function DailyEntry() {
                                         showSearch
                                         placeholder="Pump Name"
                                         optionFilterProp="children"
-                                        // onChange={onChange}
+                                        onChange={(e)=>{setPumpName(e)}}
+                                        value={pumpName}
                                         // onSearch={onSearch}
                                         filterOption={filterOption}
                                         options={[
@@ -838,11 +863,11 @@ export default function DailyEntry() {
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '20%' }} name="Average" label="Average">
-                                    <Input placeholder='Average' type='number'></Input>
+                                    <Input value={average} onChange={(e)=>{setAverage(e.target.value)}} placeholder='Average' type='number'></Input>
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '20%' }} name="Midway diesel" label="Midway Diesel">
-                                    <Input placeholder='Midway Diesel'></Input>
+                                    <Input value={midwayDiesel} onChange={(e)=>setMidwayDiesel(e.target.value)} placeholder='Midway Diesel'></Input>
                                 </Form.Item>
                             </Flex>
                         </Flex>
@@ -988,7 +1013,11 @@ export default function DailyEntry() {
                                                             </Form.Item>
                                                         </Col>
                                                         <Col>
-                                                            <MinusCircleOutlined onClick={() => remove(name)} />
+                                                        <CloseOutlined
+                                                            onClick={() => {
+                                                                remove(name);
+                                                            }}
+                                                        /> 
                                                         </Col>
                                                     </Row>
                                                     <div
