@@ -187,9 +187,6 @@ export default function DailyEntry() {
             totalFreight: '100000',
             received: '100000'
         },
-
-
-
     ];
 
     const columns = [
@@ -281,7 +278,7 @@ export default function DailyEntry() {
                     <Form
                         name="Trip Details"
                         style={{
-                            maxWidth: 1200,
+                            // maxWidth: 1200,
                         }}
                         initialValues={{
                             remember: true,
@@ -726,7 +723,7 @@ export default function DailyEntry() {
                                 {(fields, { add, remove }) => (
                                     <>
                                         {fields.map(({ key, name, ...restField }) => (
-                                            <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
+                                            <Flex key={key} style={{ width: '100%' }} justify={'space-around'} align={'center'}>
                                                 <div style={{ borderRadius: '10px', border: '1px solid green' }}>
                                                     <h3 style={{ padding: '10px' }}>
                                                         {name === 0 ? 'Driver 1' : (name === 1) ? 'Driver 2' : 'Conductor'}
@@ -901,7 +898,7 @@ export default function DailyEntry() {
                                 {(fields, { add, remove }) => (
                                     <>
                                         {fields.map(({ key, name, ...restField }) => (
-                                            <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
+                                            <Flex key={key} style={{ width: '100%' }} justify={'space-around'} align={'center'}>
                                                 <div style={{ borderRadius: '10px', border: '1px solid green' }}>
                                                     <h3 style={{ padding: '10px' }}>Kaata Parchi {name + 1} </h3>
                                                     <div
@@ -993,7 +990,7 @@ export default function DailyEntry() {
                                 {(fields, { add, remove }) => (
                                     <>
                                         {fields.map(({ key, name, ...restField }) => (
-                                            <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
+                                            <Flex key={key} style={{ width: '100%' }} justify={'space-around'} align={'center'}>
                                                 <Card style={{ borderRadius: '10px', border: '1px solid green', padding: '5px' }}>
                                                     <Row justify={'space-between'}>
                                                         <Col>
