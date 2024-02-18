@@ -364,6 +364,7 @@ export default function DailyEntry() {
                                       display: 'flex',
                                       rowGap: 16,
                                       flexDirection: 'column',
+                                      width: "-webkit-fill-available",
                                     }}
                                   >
                                         {fields.map(({ key, name, ...restField }) => (
