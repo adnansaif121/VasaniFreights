@@ -39,3 +39,9 @@
   .tr:nth-child(even) {
     background-color: #dddddd;
   }
+
+  .tooltip{
+    position: relative;
+    /* left: auto; */
+    margin-bottom: 20px;
+  }
