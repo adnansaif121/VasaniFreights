@@ -447,9 +447,9 @@ export default function DailyEntry() {
                                                                     />
                                                                 </Form.Item>
                                                                 
-                                                                {/* <Tooltip placement="top" title={'Malharganj new bus stand 8812329201'}>
-                                                                    <Button>Top</Button>
-                                                                </Tooltip> */}
+                                                                <Tooltip placement="top" title={'Malharganj new bus stand 8812329201'}>
+                                                                    <Button>i</Button>
+                                                                </Tooltip>
 
 
                                                                 <Form.Item style={{ width: '20%' }}
@@ -647,7 +647,7 @@ export default function DailyEntry() {
                             </Form.Item>
                         </Flex>
                     </Flex>
-
+                    <Button type="primary" block onClick={handleSave}>Save</Button>
 
                 </Form>
             </div>
@@ -871,6 +871,7 @@ export default function DailyEntry() {
                                 </Form.Item>
                             </Flex>
                         </Flex>
+                        <Button type="primary" block onClick={handleSave}>Save</Button>
                     </Form>
                 </div>
             </>,
@@ -964,6 +965,7 @@ export default function DailyEntry() {
                                 )}
                             </Form.List>
                         </Flex>
+                        <Button type="primary" block onClick={handleSave}>Save</Button>
                     </Form>
                 </div>
             </>,
@@ -1226,6 +1228,7 @@ export default function DailyEntry() {
                                 )}
                             </Form.List>
                         </Flex>
+                        <Button type="primary" block onClick={handleSave}>Save</Button>
                     </Form>
                 </div>
             </>,
@@ -1237,7 +1240,7 @@ return (
 
         <Input style={{ width: "20%", marginLeft: '40px' }} type='date' />
         {/* {[...rate[0]]} */}
-        <div style={{ width: "100%", marginLeft: '20px' }}>
+        <div style={{ width: "100vw",overflowX:'auto', marginLeft: '20px' }}>
             <Table dataSource={dataSource} columns={columns} expandable={{
                 expandedRowRender: (record) => <Collapse accordion items={items} />,
                 rowExpandable: (record) => true,
@@ -1248,7 +1251,7 @@ return (
             {toggle &&
                 <>
                     <Collapse items={items} defaultActiveKey={['1']} />
-                    <Button type="primary" block onClick={handleSave}>Save</Button>
+                    
                 </>
             }
         </div>
