@@ -5,6 +5,7 @@ import { Button, Table } from 'antd';
 import styles from '../styles/Dashboard.module.css'
 
 import DailyEntry from './DailyEntry';
+import Party from './Party';
 
 export default function Dashboard() {
     const [nav, setNav] = useState("DailyEntry");
@@ -47,6 +48,34 @@ export default function Dashboard() {
             {nav == "DailyEntry" && 
                 <DailyEntry></DailyEntry>
             }
+            {nav == "Cash" && 
+                <div>Cash</div>
+            }
+            {nav == "Driver" && 
+                <div>Driver</div>
+            }
+            {nav == "Pohch" && 
+                <div>Pohch</div>
+            }
+            {nav == "Party" && 
+                <Party></Party>
+            }
+            {nav == "Transporter" && 
+                <div>Transporter</div>
+            }
+            {nav == "NaveenKaka" && 
+                <div>Naveen Kaka</div>
+            }
+            {nav == "UvLogs" && 
+                <div>UV Logistics</div>
+            }
+            {nav == "HareKrishna" && 
+                <div>Hare Krishna</div>
+            }
+            {nav == "Report" && 
+                <div>Report</div>
+            }
+
         </div>
     </div>
   )

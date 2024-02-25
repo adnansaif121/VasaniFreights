@@ -4,7 +4,175 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import { getDatabase, ref, set, onValue } from "firebase/database";
 import { CloseOutlined, EyeOutlined } from '@ant-design/icons';
-
+const bankData = [
+    { key: "0", bankName: "CV ICICI" },
+    { key: "1", bankName: "CCV ICICI" },
+    { key: "2", bankName: "BV ICICI" },
+    { key: "3", bankName: "RV ICICI" },
+    { key: "4", bankName: "NV ICICI" },
+    { key: "5", bankName: "NCV ICICI" },
+    { key: "6", bankName: "AV ICICI" },
+    { key: "7", bankName: "VV ICICI" },
+    { key: "8", bankName: "KV ICICI" },
+    { key: "9", bankName: "JV ICICI" },
+    { key: "10", bankName: "CV HUF ICICI" },
+    { key: "11", bankName: "CCV HUF ICICI" },
+    { key: "12", bankName: "BV HUF ICICI" },
+    { key: "13", bankName: "RV HUF HDFC" },
+    { key: "14", bankName: "RAMA ICICI" },
+    { key: "15", bankName: "HKL ICICI" },
+    { key: "16", bankName: "BV HDFC" },
+    { key: "17", bankName: "KV HDFC" },
+    { key: "18", bankName: "JV HDFC" },
+    { key: "19", bankName: "RKV HDFC" },
+    { key: "20", bankName: "SV HDFC" },
+    { key: "21", bankName: "DV HDFC" },
+    { key: "22", bankName: "UV GLOBAL HDFC" },
+    { key: "23", bankName: "UV LOGI HDFC" },
+    { key: "24", bankName: "CCV HDFC" }
+];
+const vehicleData =
+    [{
+        key: 0,
+        owner: "Bhavesh Vasani",
+        vehicleNo: "MH 18 AC 1411"
+    },
+    {
+        key: 1,
+        owner: "Asha Vasani",
+        vehicleNo: "MH 18 AC 1511"
+    },
+    {
+        key: 2,
+        owner: "Neha Vasani",
+        vehicleNo: "MH 18 AP 1811"
+    },
+    {
+        key: 3,
+        owner: "Nita Vasani",
+        vehicleNo: "MH 18 AP 1911"
+    },
+    {
+        key: 4,
+        owner: "Bhavesh Vasani",
+        vehicleNo: "MH 18 BA 2011"
+    },
+    {
+        key: 5,
+        owner: "Kunal Vasani",
+        vehicleNo: "MH 18 BA 2111"
+    },
+    {
+        key: 6,
+        owner: "Chandresh Vasani",
+        vehicleNo: "MH 18 BA 2311"
+    },
+    {
+        key: 7,
+        owner: "Bhavesh Vasani",
+        vehicleNo: "MH 18 BA 2411"
+    },
+    {
+        key: 8,
+        owner: "Kunal Vasani",
+        vehicleNo: "MH 18 BA 2611"
+    },
+    {
+        key: 9,
+        owner: "Kunal Vasani",
+        vehicleNo: "MH 18 BA 2711"
+    },
+    {
+        key: 10,
+        owner: "Jayesh Vasani",
+        vehicleNo: "MH 18 BG 2811"
+    },
+    {
+        key: 11,
+        owner: "Jayesh Vasani",
+        vehicleNo: "MH 18 BG 2911"
+    },
+    {
+        key: 12,
+        owner: "Jayesh Vasani",
+        vehicleNo: "MH 18 BG 3011"
+    },
+    {
+        key: 13,
+        owner: "Nita Vasani",
+        vehicleNo: "MH 18 BG 3111"
+    },
+    {
+        key: 14,
+        owner: "Bhavesh Vasani HUF",
+        vehicleNo: "MP 46 H  3211"
+    },
+    {
+        key: 15,
+        owner: "Chandresh Vasani HUF",
+        vehicleNo: "MP 46 H  3311"
+    },
+    {
+        key: 16,
+        owner: "Chetan Vasani HUF",
+        vehicleNo: "MP 46 H  3411"
+    },
+    {
+        key: 17,
+        owner: "Rajesh Vasani HUF",
+        vehicleNo: "MP 46 H  3511"
+    },
+    {
+        key: 18,
+        owner: "Veena Vasani",
+        vehicleNo: "MH 18 BG 3711"
+    },
+    {
+        key: 19,
+        owner: "Rajesh Vasani",
+        vehicleNo: "MH 18 BG 3811"
+    },
+    {
+        key: 20,
+        owner: "Chetan Vasani",
+        vehicleNo: "MH 18 BH 3911"
+    },
+    {
+        key: 21,
+        owner: "Chetan Vasani",
+        vehicleNo: "MH 18 BH 4011"
+    },
+    {
+        key: 22,
+        owner: "Chandresh Vasani",
+        vehicleNo: "MH 18 BH 4211"
+    },
+    {
+        key: 23,
+        owner: "Chandresh Vasani",
+        vehicleNo: "MH 18 BH 4311"
+    },
+    {
+        key: 24,
+        owner: "Rajesh Vasani",
+        vehicleNo: "MH 18 BZ 4611"
+    },
+    {
+        key: 25,
+        owner: "Rajesh Vasani",
+        vehicleNo: "MH 18 BZ 4711"
+    },
+    {
+        key: 26,
+        owner: "Bhavesh Vasani",
+        vehicleNo: "MH 18 BZ 4811"
+    },
+    {
+        key: 27,
+        owner: "Bhavesh Vasani",
+        vehicleNo: "MH 18 BZ 4911"
+    }
+    ]
 export default function DailyEntry() {
     const [form] = Form.useForm();
     const [form1] = Form.useForm();
@@ -46,6 +214,48 @@ export default function DailyEntry() {
 
 
     }, [])
+
+    // useEffect(() => {
+    // const bankData = [const vehicleData = 
+    // [{
+    //     { key: "0", bankName: "CV ICICI" },
+    //     { key: "1", bankName: "CCV ICICI" },
+    //     { key: "2", bankName: "BV ICICI" },
+    //     { key: "3", bankName: "RV ICICI" },
+    //     { key: "4", bankName: "NV ICICI" },
+    //     { key: "5", bankName: "NCV ICICI" },
+    //     { key: "6", bankName: "AV ICICI" },
+    //     { key: "7", bankName: "VV ICICI" },
+    //     { key: "8", bankName: "KV ICICI" },
+    //     { key: "9", bankName: "JV ICICI" },
+    //     { key: "10", bankName: "CV HUF ICICI" },
+    //     { key: "11", bankName: "CCV HUF ICICI" },
+    //     { key: "12", bankName: "BV HUF ICICI" },
+    //     { key: "13", bankName: "RV HUF HDFC" },
+    //     { key: "14", bankName: "RAMA ICICI" },
+    //     { key: "15", bankName: "HKL ICICI" },
+    //     { key: "16", bankName: "BV HDFC" },
+    //     { key: "17", bankName: "KV HDFC" },
+    //     { key: "18", bankName: "JV HDFC" },
+    //     { key: "19", bankName: "RKV HDFC" },
+    //     { key: "20", bankName: "SV HDFC" },
+    //     { key: "21", bankName: "DV HDFC" },
+    //     { key: "22", bankName: "UV GLOBAL HDFC" },
+    //     { key: "23", bankName: "UV LOGI HDFC" },
+    //     { key: "24", bankName: "CCV HDFC" }
+    // ]
+
+    //     const db = getDatabase();
+    //     set(ref(db, 'bankData/'), {
+    //         data : [...bankData]
+    //     }).then(() => {
+    //         // console.log('Data saved');
+    //         alert('bankData Saved Successfully');
+    //     }).catch((error) => {
+    //         console.error('Error:', error);
+    //     });
+
+    // }, [])
 
     // useEffect(()=>{
     //     const tripDetails = form.getFieldsValue(['tripDetails']);
@@ -126,30 +336,30 @@ export default function DailyEntry() {
 
         const db = getDatabase();
         let id = guidGenerator();
-        // set(ref(db, 'dailyEntry/' + id), {
-        //     vehicleNo: vehicleNo || '',
-        //     mt: mt,
-        //     payStatus: payStatus || '',
-        //     janaKm: janaKm || '',
-        //     aanaKm: aanaKm || '',
-        //     tripKm: tripKm || '',
-        //     milometer: milometer || '',
-        //     dieselQty: dieselQty || '',
-        //     pumpName: pumpName || '',
-        //     average: average || '',
-        //     midwayDiesel: midwayDiesel || '',
+        set(ref(db, 'dailyEntry/' + id), {
+            vehicleNo: vehicleNo || '',
+            mt: mt,
+            payStatus: payStatus || '',
+            janaKm: janaKm || '',
+            aanaKm: aanaKm || '',
+            tripKm: tripKm || '',
+            milometer: milometer || '',
+            dieselQty: dieselQty || '',
+            pumpName: pumpName || '',
+            average: average || '',
+            midwayDiesel: midwayDiesel || '',
 
 
-        //     tripDetails: listOfTrips,
-        //     driversDetails: listOfDrivers,
-        //     kaataParchi: listOfKaataParchi,
-        //     firstPayment: listOfFirstPayment
-        // }).then(() => {
-        //     console.log('Data saved');
-        //     alert('Data Saved Successfully');
-        // }).catch((error) => {
-        //     console.error('Error:', error);
-        // });
+            tripDetails: listOfTrips,
+            driversDetails: listOfDrivers,
+            kaataParchi: listOfKaataParchi,
+            firstPayment: listOfFirstPayment
+        }).then(() => {
+            console.log('Data saved');
+            alert('Data Saved Successfully');
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
 
         console.log('Save button clicked');
     }
@@ -1038,11 +1248,11 @@ export default function DailyEntry() {
                                                                     // onSearch={onSearch}
                                                                     filterOption={filterOption}
                                                                     options={[
-                                                                    { label: 'Party1', value: 'Party1' },
-                                                                    {label:'Party2', value: 'Party2'},
-                                                                    { label: 'Transporter', value: 'Transporter' },
-                                                                    { label: 'UV Logistics', value: 'UvLogs' },
-                                                                    { label: 'Naveen Kaka', value: 'NaveenKaka' }
+                                                                        { label: 'Party1', value: 'Party1' },
+                                                                        { label: 'Party2', value: 'Party2' },
+                                                                        { label: 'Transporter', value: 'Transporter' },
+                                                                        { label: 'UV Logistics', value: 'UvLogs' },
+                                                                        { label: 'Naveen Kaka', value: 'NaveenKaka' }
                                                                     ]}
                                                                 />
                                                             </Form.Item>
@@ -1279,17 +1489,17 @@ export default function DailyEntry() {
 
             <Input style={{ width: "20%", marginLeft: '40px' }} type='date' />
             {/* {[...rate[0]]} */}
-            <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height:'60vh', backgroundColor:'white' }}>
+            <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '60vh', backgroundColor: 'white' }}>
                 <Table dataSource={dataSource} columns={columns} expandable={{
                     expandedRowRender: (record) => <Collapse accordion items={items} />,
                     rowExpandable: (record) => true,
                 }} pagination={'none'}
-                 />
+                />
             </div>
-            <div style={{display:'flex', justifyContent:'center', margin:'auto', paddingTop:'10px', width:'90vw'}}>
-                <Button style={{border:'2px solid black'}} block onClick={() => setToggle(!toggle)}>Add New Details</Button>
+            <div style={{ display: 'flex', justifyContent: 'center', margin: 'auto', paddingTop: '10px', width: '90vw' }}>
+                <Button style={{ border: '2px solid black' }} block onClick={() => setToggle(!toggle)}>Add New Details</Button>
             </div>
-            <div style={{width: "95vw"}} className={styles.addNewDetails}>
+            <div style={{ width: "95vw" }} className={styles.addNewDetails}>
                 {toggle &&
                     <>
                         <Collapse items={items} defaultActiveKey={['1']} />
