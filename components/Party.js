@@ -24,7 +24,7 @@ const Party = () => {
         let parties = partyList;
         let filtered = parties.filter((item) => item.label.includes(query));
         setDisplayPartyList([...filtered]);
-        console.log(filtered);
+        console.log(filtered, 'FILTERED');
     }
 
     const onClick = (e) => {
@@ -140,14 +140,14 @@ const Party = () => {
                 <div className={styles.part1}>
                     <Input onChange={handleSearch} placeholder='Search' />
                     <div className={styles.menu}>
-                        <Menu
+                        {/* <Menu
                             onClick={onClick}
                             style={{
                                 width: "100%",
                             }}
                             mode="inline"
                             items={displayPartyList}
-                        />
+                        /> */}
                     </div>
                 </div>
                 <div className={styles.part2}>
