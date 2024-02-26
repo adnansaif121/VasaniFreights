@@ -140,14 +140,14 @@ const Party = () => {
                 <div className={styles.part1}>
                     <Input onChange={handleSearch} placeholder='Search' />
                     <div className={styles.menu}>
-                        {/* <Menu
+                        <Menu
                             onClick={onClick}
                             style={{
                                 width: "100%",
                             }}
                             mode="inline"
                             items={displayPartyList}
-                        /> */}
+                        />
                     </div>
                 </div>
                 <div className={styles.part2}>
@@ -366,7 +366,7 @@ const Party = () => {
                                                 }}
                                             >
                                                 {fields.map(({ key, name, ...restField }) => (
-                                                    <Row>
+                                                    <Row key={key}>
                                                         <Col>
                                                             <Form.Item label="Amount" style={{ margin: '3px' }}>
                                                                 <Input placeholder='Amount' type='number'></Input>
