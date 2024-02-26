@@ -29,16 +29,16 @@ const Party = () => {
 
     const onClick = (e) => {
         console.log('click ', e);
-        let party = e.target.value;
-        let partyId = 0;
-        let parties = partyList;
-        for (let i = 0; i < parties.length; i++) {
-            if (parties[i].label == party) {
-                partyId = parties[i].key;
-                break;
-            }
-        }
-        console.log(partyId);
+        // let party = e.target.value;
+        // let partyId = 0;
+        // let parties = partyList;
+        // for (let i = 0; i < parties.length; i++) {
+        //     if (parties[i].label == party) {
+        //         partyId = parties[i].key;
+        //         break;
+        //     }
+        // }
+        console.log(e);
 
     };
 
