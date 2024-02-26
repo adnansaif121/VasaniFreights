@@ -152,6 +152,24 @@ const Party = () => {
                 </div>
                 <div className={styles.part2}>
                     <div >
+
+                        <Form >
+                            <Row>
+                                <Col>
+                                    <Form.Item label="Start" name="startDate">
+                                        <Input type='date'></Input>
+                                    </Form.Item>
+                                </Col>
+                                <Col>
+                                    <Form.Item label="End" name="startDate">
+                                        <Input type='date'></Input>
+                                    </Form.Item>
+                                </Col>
+                                <Col>
+                                    <Button>Save</Button>
+                                </Col>
+                            </Row>
+                        </Form>
                         <Radio.Group defaultValue="a" buttonStyle="solid">
                             <Radio.Button value="a">Last Month</Radio.Button>
                             <Radio.Button value="b">Last Financial Year</Radio.Button>
@@ -161,27 +179,10 @@ const Party = () => {
                             <Radio.Button value="f">None</Radio.Button>
                         </Radio.Group>
 
-{/*                         
-                             <Form >
-                                <Row>
-                                    <Col>
-                                        <Form.Item label="Start" name="startDate">
-                                            <Input type='date'></Input>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col>
-                                        <Form.Item label="End" name="startDate">
-                                            <Input type='date'></Input>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col>
-                                        <Button>Save</Button>
-                                    </Col>
-                                </Row>
-                            </Form> */}
 
 
-                        
+
+
                     </div>
                     <Table dataSource={dataSource} columns={columns} expandable={{
                         expandedRowRender: (record) => <div>
