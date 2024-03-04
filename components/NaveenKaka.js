@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography } from 'antd';
 import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined } from '@ant-design/icons';
-const Party = () => {
+const NaveenKaka = () => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
     const [tableData, setTableData] = useState([]);
@@ -180,8 +180,8 @@ const Party = () => {
     const handleFilterChange = (value) => {
         console.log(`selected ${value}`);
         setFilterType(value);
-    };
-
+      };
+    
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
@@ -456,32 +456,6 @@ const Party = () => {
                                                             </Form.Item>
                                                         </Col>
                                                         <Col>
-                                                            <Form.Item label='bank'>
-                                                                <Select
-                                                                    showSearch
-                                                                    placeholder="Bank"
-                                                                    optionFilterProp="children"
-                                                                    // onChange={onChange}
-                                                                    // onSearch={onSearch}
-                                                                    filterOption={filterOption}
-                                                                    options={[
-                                                                        {
-                                                                            value: 'ABC',
-                                                                            label: 'ABC',
-                                                                        },
-                                                                        {
-                                                                            value: 'XYZ',
-                                                                            label: 'XYZ',
-                                                                        },
-                                                                        {
-                                                                            value: 'PQR',
-                                                                            label: 'PQR',
-                                                                        },
-                                                                    ]}
-                                                                />
-                                                            </Form.Item>
-                                                        </Col>
-                                                        <Col>
                                                             <Form.Item label="date" style={{ margin: '3px' }}>
                                                                 <Input type='date'></Input>
                                                             </Form.Item>
@@ -522,8 +496,7 @@ const Party = () => {
                         </div>
                         ,
                         rowExpandable: (record) => true,
-                    }} 
-                    pagination={'none'}
+                    }} pagination={'none'}
                     />
                 </div>
             </div>
@@ -531,4 +504,4 @@ const Party = () => {
     );
 };
 
-export default Party;
+export default NaveenKaka;

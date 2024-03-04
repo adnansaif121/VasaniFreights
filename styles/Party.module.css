@@ -5,16 +5,22 @@
 
 .part1 {
   width: 20%;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   padding: 5px;
 }
 
 .part2 {
   flex-grow: 1;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   padding: 5px;
+  
 }
 
+.table{
+  overflow-x: auto;
+  width: 76vw;
+  background: white;
+}
 .summary{
     padding: 5px;
 }
