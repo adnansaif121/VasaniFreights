@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
-import { getDatabase, ref, set, onValue } from "firebase/database";
+import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import { CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import ViewDailyEntry from './ViewDailyEntry';
 const bankData = [
@@ -338,6 +338,7 @@ export default function DailyEntry() {
     const [toggle, setToggle] = React.useState(false);
     const [vehicleNo, setVehicleNo] = useState('');
     const [mt, setMT] = useState(false);
+    const [vehicleStatus, setVehicleStatus] = useState('');
     const [payStatus, setPayStatus] = useState('Paid');
     const [janaKm, setJanaKm] = useState(0);
     const [aanaKm, setAanaKm] = useState(0);
@@ -357,22 +358,7 @@ export default function DailyEntry() {
     // to display dynamic Bhada Kaun Dalega list
     const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
     // Drivers List
-    const [driverList, setDriverList] = useState([
-
-        {
-            value: 'ABC',
-            label: 'ABC',
-        },
-        {
-            value: 'XYZ',
-            label: 'XYZ',
-        },
-        {
-            value: 'PQR',
-            label: 'PQR',
-        },
-
-    ]);
+    const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
     // Locations list
     const [Locations, setLocations] = useState([
@@ -426,6 +412,8 @@ export default function DailyEntry() {
     const [newTransporter, setNewTransporter] = useState('');
     // Data to display in the table
     const [dataSource, setDataSource] = useState([]); // Table Data
+    // FLAG 
+    const [flag, setFlag] = useState(false);
     useEffect(() => {
         const db = getDatabase();
         // set(ref(db, 'users/' + '0'), {
@@ -471,13 +459,65 @@ export default function DailyEntry() {
             setDataSource(ds);
         });
 
+        const locationsRef = ref(db, 'locations/');
+        onValue(locationsRef, (snapshot) => {
+            const data = snapshot.val();
+            console.log(data, 'Locations');
+            // updateStarCount(postElement, data);
+            let locations = []; // Data Source
+            if (data) {
+                Object.values(data).map((location, i) => {
+                    locations.push(location);
+                })
+                setLocations([...locations]);
+            }
+        });
 
+        const partyRef = ref(db, 'parties/');
+        onValue(partyRef, (snapshot) => {
+            const data = snapshot.val();
+            console.log(data, 'parties');
+            // updateStarCount(postElement, data);
+            let parties = []; // Data Source
+            Object.values(data).map((party, i) => {
+                parties.push(party);
+            })
+            setPartyListAll([...parties]);
+        });
+
+        const transporterRef = ref(db, 'transporters/');
+        onValue(transporterRef, (snapshot) => {
+            const data = snapshot.val();
+            console.log(data, 'transporters');
+            // updateStarCount(postElement, data);
+            let transporters = []; // Data Source
+            if (data) {
+                Object.values(data).map((transporter, i) => {
+                    transporters.push(transporter);
+                })
+                setTransporterList([...transporters]);
+            }
+        });
+
+        const driversRef = ref(db, 'drivers/');
+        onValue(driversRef, (snapshot) => {
+            const data = snapshot.val();
+            console.log(data, 'drivers');
+            // updateStarCount(postElement, data);
+            let drivers = []; // Data Source
+            if(data) {
+                Object.values(data).map((driver, i) => {
+                    drivers.push(driver)
+                })
+                setDriverList([...drivers]);
+            }
+        });
     }, [])
 
-    useEffect(() => {
-        const tripDetails = form.getFieldsValue(['tripDetails']);
-        console.log(tripDetails, form);
-    })
+    // useEffect(() => {
+    //     const tripDetails = form.getFieldsValue(['tripDetails']);
+    //     console.log(tripDetails, form);
+    // })
 
     const handleSave = () => {
         const tripDetails = form.getFieldsValue(['tripDetails']);
@@ -568,6 +608,7 @@ export default function DailyEntry() {
         set(ref(db, 'dailyEntry/' + id), {
             vehicleNo: vehicleNo || '',
             mt: mt,
+            vehicleStatus: vehicleStatus || '',
             // payStatus: payStatus || '',
             dieselAndKmDetails: { ...dieselAndKmDetails },
             tripDetails: listOfTrips,
@@ -666,14 +707,67 @@ export default function DailyEntry() {
 
     const addPartyInPartyList = (value, index) => {
         let pl = partyList;
-        pl[index].push({
-            label: value,
-            value: value
-        });
-        setPartyList([...pl]);
+        let exist = false;
+        for(let i = 0; i < pl; i++){
+            if(pl[i].value === value){
+                exist = true;
+                break;
+            }
+        }
+        if(!exist){
+            pl[index].push({
+                label: value,
+                value: value
+            });
+            setPartyList([...pl]);
+        }
     }
 
+    const addNewParty = (e) => {
+        e.preventDefault();
+        setPartyListAll([...partyListAll, { value: newParty, label: newParty }]);
+        setNewParty('');
+        // Create a new party reference with an auto-generated id
+        const db = getDatabase();
+        const partyListRef = ref(db, 'parties');
+        const newPartyRef = push(partyListRef);
+        set(newPartyRef, {
+            value: newParty,
+            label: newParty,
+        });
+    }
 
+    const addNewTransporter = (e) => {
+
+        e.preventDefault();
+        setTransporterList([...transporterList, { value: newTransporter, label: newTransporter }]);
+        setNewTransporter('');
+
+        // Create a new party reference with an auto-generated id
+        const db = getDatabase();
+        const transporterListRef = ref(db, 'transporters');
+        const newTransporterRef = push(transporterListRef);
+        set(newTransporterRef, {
+            value: newTransporter,
+            label: newTransporter,
+        });
+    }
+
+    const addNewDriver = (e) => {
+
+        e.preventDefault();
+        setDriverList([...driverList, { value: newDriverName, label: newDriverName }]);
+        setNewDriverName('');
+
+        // Create a new party reference with an auto-generated id
+        const db = getDatabase();
+        const driverListRef = ref(db, 'drivers');
+        const newDriverRef = push(driverListRef);
+        set(newDriverRef, {
+            value: newDriverName,
+            label: newDriverName,
+        });
+    }
     // Filter `option.label` match the user type `input`
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
@@ -723,7 +817,7 @@ export default function DailyEntry() {
                                         showSearch
                                         placeholder="Status"
                                         optionFilterProp="children"
-                                        // onChange={onChange}
+                                        onChange={(value)=>setVehicleStatus(value)}
                                         // onSearch={onSearch}
                                         // filterOption={filterOption}
                                         options={[
@@ -853,11 +947,7 @@ export default function DailyEntry() {
                                                                                     onChange={(e) => setNewParty(e.target.value)}
                                                                                     onKeyDown={(e) => e.stopPropagation()}
                                                                                 />
-                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                    e.preventDefault();
-                                                                                    setPartyListAll([...partyListAll, { value: newParty, label: newParty }]);
-                                                                                    setNewParty('');
-                                                                                }}>
+                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewParty(e)}>
 
                                                                                 </Button>
                                                                             </Space>
@@ -946,11 +1036,7 @@ export default function DailyEntry() {
                                                                                     onChange={(e) => setNewParty(e.target.value)}
                                                                                     onKeyDown={(e) => e.stopPropagation()}
                                                                                 />
-                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                    e.preventDefault();
-                                                                                    setPartyListAll([...partyListAll, { value: newParty, label: newParty }]);
-                                                                                    setNewParty('');
-                                                                                }}>
+                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewParty(e)}>
 
                                                                                 </Button>
                                                                             </Space>
@@ -1068,11 +1154,7 @@ export default function DailyEntry() {
                                                                                     onChange={(e) => setNewTransporter(e.target.value)}
                                                                                     onKeyDown={(e) => e.stopPropagation()}
                                                                                 />
-                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                    e.preventDefault();
-                                                                                    setTransporterList([...transporterList, { value: newTransporter, label: newTransporter }]);
-                                                                                    setNewTransporter('');
-                                                                                }}>
+                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewTransporter(e)}>
 
                                                                                 </Button>
                                                                             </Space>
@@ -1210,11 +1292,7 @@ export default function DailyEntry() {
                                                                                         onChange={(e) => setNewDriverName(e.target.value)}
                                                                                         onKeyDown={(e) => e.stopPropagation()}
                                                                                     />
-                                                                                    <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                        e.preventDefault();
-                                                                                        setDriverList([...driverList, { value: newDriverName, label: newDriverName }]);
-                                                                                        setNewDriverName('');
-                                                                                    }}>
+                                                                                    <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}>
 
                                                                                     </Button>
                                                                                 </Space>
@@ -1476,7 +1554,7 @@ export default function DailyEntry() {
                                                                     showSearch
                                                                     placeholder="Bhada Kaun Dalega"
                                                                     optionFilterProp="children"
-                                                                    // onChange={onChange}
+                                                                    onChange={()=>setFlag(!flag)}
                                                                     // onSearch={onSearch}
                                                                     filterOption={filterOption}
                                                                     options={[
@@ -1488,6 +1566,26 @@ export default function DailyEntry() {
                                                             </Form.Item>
 
                                                         </Col>
+
+                                                        {flag && form3.getFieldsValue(['paymentDetails']).paymentDetails[name]?.bhadaKaunDalega === 'NaveenKaka' ?
+                                                            <Col>
+                                                                <Form.Item label="Select Party" name={[name, 'partyForNaveenKaka']}>
+                                                                    <Select
+                                                                        showSearch
+                                                                        placeholder="Bhada Kaun Dalega"
+                                                                        optionFilterProp="children"
+                                                                        // onChange={onChange}
+                                                                        // onSearch={onSearch}
+                                                                        filterOption={filterOption}
+                                                                        options={[
+                                                                            ...partyList[name]
+                                                                        ]}
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            :
+                                                            null
+                                                        }
                                                         <Col>
                                                             <CloseOutlined
                                                                 onClick={() => {
@@ -1688,7 +1786,17 @@ export default function DailyEntry() {
             {/* {[...rate[0]]} */}
             <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '60vh', backgroundColor: 'white' }}>
                 <Table size="small" dataSource={dataSource} columns={columns} expandable={{
-                    expandedRowRender: (record) => <ViewDailyEntry  />,
+                    expandedRowRender: (record) => 
+                        <ViewDailyEntry 
+                            data={record} 
+                            Locations={Locations} 
+                            partyListAll={partyListAll} 
+                            transporterList={transporterList} 
+                            driverList={driverList} 
+                            vehicleData={vehicleData} 
+                            MaalList={MaalList}
+                            bankData={bankData}
+                        />,
                     rowExpandable: (record) => true,
                 }} pagination={'none'}
                 />
