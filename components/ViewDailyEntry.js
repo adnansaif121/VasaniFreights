@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { MinusCircleOutlined, PlusOutlined, EditFilled, CloseCircleFilled} from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import { getDatabase, ref, set, onValue } from "firebase/database";
 import { CloseOutlined, EyeOutlined } from '@ant-design/icons';
@@ -26,11 +26,13 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
     const [pumpName, setPumpName] = useState('');
     const [average, setAverage] = useState('');
     const [midwayDiesel, setMidwayDiesel] = useState('');
-    const [rate, setRate] = useState([0, 0, 0, 0]);
-    const [qty, setQty] = useState([0, 0, 0, 0]);
+    // const [rate, setRate] = useState([0, 0, 0, 0]);
+    // const [qty, setQty] = useState([0, 0, 0, 0]);
     // To Track number of trips
     const [tripCount, setTripCount] = useState(0);
     // to display dynamic Bhada Kaun Dalega list
+    const [rate, setRate] = useState([0, 0, 0, 0]);
+    const [qty, setQty] = useState([0, 0, 0, 0]);
     const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
     const [newDriverName, setNewDriverName] = useState('');
     const [newLocation, setNewLocation] = useState('');
@@ -39,6 +41,15 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
     const [newTransporter, setNewTransporter] = useState('');
     // FLAG 
     const [flag, setFlag] = useState(false);
+    // tripDetails Edit Flag
+    const [tripDetailsEditFlag, setTripDetailsEditFlag] = useState(false);
+    // DriverDetails Edit Flag
+    const [driverDetailsEditFlag, setDriverDetailsEditFlag] = useState(false);
+    // KaataParchi Edit Flag
+    const [kaataParchiEditFlag, setKaataParchiEditFlag] = useState(false);
+    // PaymentDetails Edit Flag
+    const [paymentDetailsEditFlag, setPaymentDetailsEditFlag] = useState(false);
+
     useEffect(()=>{
         console.log(data, Locations, transporterList, partyListAll, driverList)
         // setFieldsValue of tripDetails:
@@ -62,6 +73,29 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
         paymentDetails.paymentDetails = data.firstPayment;
         form3.setFieldsValue(paymentDetails);
 
+        // setRate and setQty
+        let r = [];
+        let q = [];
+        for(let i = 0; i < data.tripDetails.length; i++){
+            r.push(data.tripDetails[i].rate);
+            q.push(data.tripDetails[i].qty);
+        }   
+        setRate([...r]);
+        setQty([...q]);
+
+        // set Driver KM Details
+        setJanaKm(parseInt(data.dieselAndKmDetails.janaKm));
+        setAanaKm(parseInt(data.dieselAndKmDetails.aanaKm));
+        // setTripKm(parseInt(data.dieselAndKmDetails.tripKm));
+        setMilometer(parseInt(data.dieselAndKmDetails.milometer));
+        setDieselQty(parseInt(data.dieselAndKmDetails.dieselQty));
+        setPumpName(data.dieselAndKmDetails.pumpName);
+        setAverage(data.dieselAndKmDetails.average);
+        setMidwayDiesel(parseInt(data.dieselAndKmDetails.midwayDiesel));
+
+        // setVehicleNo
+        setVehicleNo(data.vehicleNo);
+
     }, [])
     
     const onMTCheck = (e) => {
@@ -75,10 +109,10 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
             listOfTrips.push({
                 from: trip.from || '',
                 to: trip.to || '',
-                bhejneWaliParty: trip.bhejneWaala || '',
-                paaneWaliParty: trip.paaneWaala || '',
+                bhejneWaala: trip.bhejneWaala || '',
+                paaneWaala: trip.paaneWaala || '',
                 transporter: trip.transporter || '',
-                maal: trip.Maal || '',
+                maal: trip.maal || '',
                 qty: trip.qty || 0,
                 rate: trip.rate || 0,
                 totalFreight: parseInt(trip.rate) * parseInt(trip.qty) || 0,
@@ -146,7 +180,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
             milometer: milometer || '',
             dieselQty: dieselQty || '',
             pumpName: pumpName || '',
-            average: average || '',
+            average: (Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || '',
             midwayDiesel: midwayDiesel || ''
         }
 
@@ -197,6 +231,16 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
         {
             key: '1',
             label: 'Trip Details',
+            extra: (
+                <>  
+                    {tripDetailsEditFlag ? 
+                        <Button type="primary" onClick={(e) => {e.stopPropagation();setTripDetailsEditFlag(!tripDetailsEditFlag)}}><CloseCircleFilled /></Button> 
+                        : 
+                        <Button type="primary" onClick={(e) => {e.stopPropagation();setTripDetailsEditFlag(!tripDetailsEditFlag)}}><EditFilled /></Button>
+                    }
+                </>
+            )
+            ,
             children: <>
                 <div>
                     <Form
@@ -209,6 +253,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                         }}
                         autoComplete="off"
                         form={form}
+                        disabled={!tripDetailsEditFlag}
                     >
 
                         <Flex gap="middle" align="start" vertical>
@@ -217,7 +262,8 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
 
-                                <Form.Item style={{ width: '30%' }} label="Vehicle No."
+                                <Form.Item style={{ width: '30%' }} label="Vehicle No." 
+                                    // className={!tripDetailsEditFlag ? '' : styles.disabled}
                                     name="vehicleNo">
                                     <Select
                                         showSearch
@@ -228,7 +274,8 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                         filterOption={filterOption}
                                         options={vehicleData}
                                         // disabled
-                                        defaultValue={data.truckNo}
+                                        defaultValue={data.vehicleNo}
+                                        
                                     />
                                 </Form.Item>
 
@@ -241,6 +288,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                         placeholder="Status"
                                         optionFilterProp="children"
                                         onChange={(value)=>setVehicleStatus(value)}
+                                        // value={vehicleStatus}
                                         // onSearch={onSearch}
                                         // filterOption={filterOption}
                                         options={[
@@ -257,7 +305,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                 label: 'Running',
                                             },
                                         ]}
-                                        defaultValue={data.status}
+                                        defaultValue={data.vehicleStatus}
                                     />
                                 </Form.Item>
 
@@ -477,7 +525,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                         </Flex>
                                                         <Flex style={{ width: "100%", height: 30 }} justify={'space-around'} align='center'>
                                                             <Form.Item style={{ width: '15%' }} label="Maal"
-                                                                name={[name, 'Maal']}>
+                                                                name={[name, 'maal']}>
                                                                 <Select
                                                                     showSearch
                                                                     placeholder="Maal"
@@ -543,6 +591,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                                 label="Total Freight"
                                                             // name={[name, 'totalFreight']}
                                                             >
+
                                                                 {parseInt(rate[name]) * parseInt(qty[name])}
                                                                 {/* <Input value={rate[name]*qty[name]}></Input> */}
                                                             </Form.Item>
@@ -654,6 +703,15 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
         {
             key: '3',
             label: 'Driver | Diesel | Km | Milometer | Avg Details',
+            extra: (
+                <>  
+                    {driverDetailsEditFlag ? 
+                        <Button type="primary" onClick={(e) => {e.stopPropagation();setDriverDetailsEditFlag(!driverDetailsEditFlag)}}><CloseCircleFilled /></Button> 
+                        : 
+                        <Button type="primary" onClick={(e) => {e.stopPropagation();setDriverDetailsEditFlag(!driverDetailsEditFlag)}}><EditFilled /></Button>
+                    }
+                </>
+            ),
             children: <>
                 <div>
                     <Form name="Driver | Diesel | Km | Milometer | Avg Details"
@@ -665,6 +723,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                         }}
                         autoComplete="off"
                         form={form1}
+                        disabled={!driverDetailsEditFlag}
                     >
                         <Flex gap="middle" align="start" vertical>
 
@@ -763,18 +822,16 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                 )}
                             </Form.List>
 
-
-
                             {/* KM */}
                             <Flex style={{
                                 width: '100%',
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
-                                <Form.Item style={{ width: '20%' }} name="Jana KM" label="Jana KM">
+                                <Form.Item style={{ width: '20%' }}  label="Jana KM">
                                     <Input value={janaKm} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number'></Input>
                                 </Form.Item>
 
-                                <Form.Item style={{ width: '20%' }} name="Aana KM" label="Aana KM">
+                                <Form.Item style={{ width: '20%' }}  label="Aana KM">
                                     <Input value={aanaKm} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number'></Input>
                                 </Form.Item>
 
@@ -782,7 +839,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                     {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))} onChange={(e) => { setTripKm(e.target.value) }} placeholder='Trip KM' type='number'></Input> */}
                                     {Math.abs(parseInt(janaKm) - parseInt(aanaKm))}
                                 </Form.Item>
-                                <Form.Item style={{ width: '20%' }} name="Milometer" label="Milometer">
+                                <Form.Item style={{ width: '20%' }}  label="Milometer">
                                     <Input value={milometer} onChange={(e) => { setMilometer(e.target.value) }} placeholder='Milometer'></Input>
                                 </Form.Item>
                             </Flex>
@@ -792,11 +849,11 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                 width: '100%',
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
-                                <Form.Item style={{ width: '20%' }} name="Diesel Qty" label="Diesel">
+                                <Form.Item style={{ width: '20%' }}  label="Diesel">
                                     <Input value={dieselQty} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number'></Input>
                                 </Form.Item>
 
-                                <Form.Item style={{ width: '20%' }} name="Pump Name" label="Pump Name">
+                                <Form.Item style={{ width: '20%' }}  label="Pump Name">
                                     <Select
                                         showSearch
                                         placeholder="Pump Name"
@@ -823,11 +880,11 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '20%' }} name="Average" label="Average">
-                                    {(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))) || 0}
+                                    {(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0}
                                     {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))/((parseInt(dieselQty)||0) + (parseInt(midwayDiesel)||0))} onChange={(e) => { setAverage(e.target.value) }} placeholder='Average' type='number'></Input> */}
                                 </Form.Item>
 
-                                <Form.Item style={{ width: '20%' }} name="Midway diesel" label="Midway Diesel">
+                                <Form.Item style={{ width: '20%' }}  label="Midway Diesel">
                                     <Input value={midwayDiesel} onChange={(e) => setMidwayDiesel(e.target.value)} placeholder='Midway Diesel'></Input>
                                 </Form.Item>
                             </Flex>
@@ -840,6 +897,15 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
         {
             key: '4',
             label: 'Kaata Parchi Details',
+            extra: (
+                <>  
+                    {kaataParchiEditFlag ? 
+                        <Button type="primary" onClick={(e) => {e.stopPropagation();setKaataParchiEditFlag(!kaataParchiEditFlag)}}><CloseCircleFilled /></Button> 
+                        : 
+                        <Button type="primary" onClick={(e) => {e.stopPropagation();setKaataParchiEditFlag(!kaataParchiEditFlag)}}><EditFilled /></Button>
+                    }
+                </>
+            ),
             children: <>
                 <div>
                     <Form name='Kaata Parchi Details'
@@ -853,6 +919,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                         // onFinishFailed={onFinishFailed}
                         autoComplete="off"
                         form={form2}
+                        disabled={!kaataParchiEditFlag}
                     >
                         <Flex gap="middle" align="start" vertical>
 
@@ -935,6 +1002,15 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
             key: '5',
             label: 'First Payment Details',
             forceRender: true,
+            extra: (
+                <>  
+                    { paymentDetailsEditFlag? 
+                        <Button type="primary" onClick={(e) => {e.stopPropagation();setPaymentDetailsEditFlag(!paymentDetailsEditFlag)}}><CloseCircleFilled /></Button> 
+                        : 
+                        <Button type="primary" onClick={(e) => {e.stopPropagation();setPaymentDetailsEditFlag(!paymentDetailsEditFlag)}}><EditFilled /></Button>
+                    }
+                </>
+            ),
             children: <>
                 <div>
                     <h3>Trip se kya mila</h3>
@@ -947,6 +1023,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                         }}
                         autoComplete="off"
                         form={form3}
+                        disabled={!paymentDetailsEditFlag}
                     >
 
                         <Flex gap="middle" align="start" vertical>
@@ -963,17 +1040,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                         </Col>
                                                         <Col span={12}>
                                                             <Form.Item label="Bhada kaun dalega" name={[name, 'bhadaKaunDalega']}>
-                                                                {/* <Radio.Group
-                                                                    options={[{ label: 'Party', value: 'Party' },
-                                                                    { label: 'Transporter', value: 'Transporter' },
-                                                                    { label: 'UV Logistics', value: 'UvLogs' },
-                                                                    { label: 'Naveen Kaka', value: 'NaveenKaka' }
-                                                                    ]}
-                                                                    // onChange={onChange4}
-                                                                    // value={'Party'}
-                                                                    optionType="button"
-                                                                    buttonStyle="solid"
-                                                                /> */}
+                                                                
                                                                 <Select
                                                                     showSearch
                                                                     placeholder="Bhada Kaun Dalega"

@@ -3,7 +3,7 @@ import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker } from 'antd';
 import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
-const ViewPartyDetails = () => {
+const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
     const [tableData, setTableData] = useState([]);
@@ -19,9 +19,59 @@ const ViewPartyDetails = () => {
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
     const [allTableData, setAllTableData] = useState({});
+ 
+    const [amountReceived, setAmountReceived] = useState(parseInt(data.firstPayment[0].pohchAmount || 0) +
+        parseInt(data.firstPayment[0].cashAmount || 0) +
+        parseInt(data.firstPayment[0].chequeAmount || 0) +
+        parseInt(data.firstPayment[0].onlineAmount || 0));
+    const [form4] = Form.useForm();
+
+    useEffect(() => {
+        console.log('data', data);
+        // let tripDetails = form.getFieldsValue(['tripDetails']);
+        // tripDetails.tripDetails = data.tripDetails;
+        // form.setFieldsValue(tripDetails);
+        // console.log(tripDetails);    
+        let furtherPayments = data.furtherPayments;
+        form4.setFieldsValue(furtherPayments);
+
+        let totalAmount = 0;
+        for(let i = 0; i < data.furtherPayments.FurtherPayments.length; i++){
+            totalAmount += parseInt(data.furtherPayments.FurtherPayments[i].amount);
+        }
+        setAmountReceived(amountReceived+totalAmount);
+    }, []);
 
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+
+    const handleSave = () => {
+        const db = getDatabase();
+        // let id = guidGenerator();
+        set(ref(db, 'dailyEntry/' + data.key), {
+            date: data.date||'',
+            vehicleNo: data.vehicleNo || '',
+            mt: data.mt,
+            vehicleStatus: data.vehicleStatus || '',
+            // payStatus: payStatus || '',
+            dieselAndKmDetails: data.dieselAndKmDetails || '',
+            tripDetails: data.tripDetails || '',
+            driversDetails: data.driversDetails || '',
+            kaataParchi: data.kaataParchi || '',
+            firstPayment: data.firstPayment || '',
+            furtherPayments: form4.getFieldsValue(['FurtherPayments']),
+            // FIELDS DATA
+            // tripDetailsFields: form.getFieldsValue(['tripDetails']),
+            // driversDetailsFields: form1.getFieldsValue(['DriversDetails']),
+            // kaataParchiFields: form2.getFieldsValue(['kaataParchi']),
+            // firstPaymentFields: form3.getFieldsValue(['paymentDetails'])
+        }).then(() => {
+            console.log('Data saved');
+            alert('Data Saved Successfully');
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+    }
 
     return (
         <>
@@ -29,57 +79,96 @@ const ViewPartyDetails = () => {
                 <div className={styles.summary}>
                     <Row justify={'space-between'}>
                         <Col>
-                            <h4>Amount Received Till Date : </h4>
+                            <h4>Amount Received Till Date :
+                                {amountReceived}
+                            </h4>
                         </Col>
                     </Row>
 
                 </div>
                 <Card title="Payment Details">
 
-                    <table style={{ border: '1px solid black', padding: '5px', borderRadius: '10px' }}>
+                    <table style={{ border: '1px solid black', padding: '5px', borderRadius: '10px', width: '100%' }}>
                         <thead>
                             <tr style={{ border: '1px solid black' }}>
                                 <th style={{ border: '1px solid black' }}>Type</th>
                                 <th style={{ border: '1px solid black' }}>Amount</th>
-                                <th style={{ border: '1px solid black' }}>date</th>
+                                <th style={{ border: '1px solid black' }}>Bank/Courier Date</th>
                                 <th style={{ border: '1px solid black' }}>Bank</th>
                                 <th style={{ border: '1px solid black' }}>Remarks</th>
                             </tr>
                         </thead>
                         <tbody>
-
                             <tr style={{ border: '1px solid black' }}>
-                                <td ><h3>Cash</h3></td>
+                                <td ><h3>Pohch</h3></td>
                                 <td >
-                                    <Form.Item name={[name, 'cashAmount']}>
-                                        <Input placeholder='amount' type='number' />
+                                    <Form.Item >
+                                        <Input value={parseInt(data.firstPayment[0].pohchAmount)} placeholder='amount' type='number' />
                                     </Form.Item>
                                 </td >
                                 <td >
-                                    <Form.Item name={[name, 'cashDate']}>
-                                        <Input placeholder='date' type='date' />
+                                    <Form.Item >
+                                        <Input value={data.firstPayment[0].pohchDate} placeholder='date' type='date' />
                                     </Form.Item>
                                 </td>
                                 <td >
-                                    <Form.Item name={[name, 'cashRemarks']}>
-                                        <Input placeholder='remarks' />
+                                    <Form.Item >
+                                        <Input value={data.firstPayment[0].pohchSendTo || ''}></Input>
+                                        {/* <Select
+                                                                                showSearch
+                                                                                placeholder="Pohch Send To"
+                                                                                optionFilterProp="children"
+                                                                                // onChange={onChange}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={[
+                                                                                    // ...partyList[name],
+                                                                                    { label: 'UV Logistics', value: 'UvLogs' },
+                                                                                    { label: 'Naveen Kaka', value: 'NaveenKaka' }
+                                                                                ]}
+                                                                            /> */}
+                                    </Form.Item>
+                                </td>
+                                <td >
+                                    <Form.Item>
+                                        <Input value={data.firstPayment[0].pohchRemarks} placeholder='remarks' />
+                                    </Form.Item>
+                                </td>
+                            </tr>
+                            <tr style={{ border: '1px solid black' }}>
+                                <td ><h3>Cash</h3></td>
+                                <td >
+                                    <Form.Item >
+                                        <Input value={data.firstPayment[0].cashAmount} placeholder='amount' type='number' />
+                                    </Form.Item>
+                                </td >
+                                <td >
+                                    <Form.Item >
+                                        <Input value={data.firstPayment[0].cashDate} placeholder='date' type='date' />
+                                    </Form.Item>
+                                </td>
+                                <td >
+                                </td>
+                                <td >
+                                    <Form.Item >
+                                        <Input value={data.firstPayment[0].cashRemarks} placeholder='remarks' />
                                     </Form.Item>
                                 </td>
                             </tr>
                             <tr style={{ border: '1px solid black' }}>
                                 <td ><h3>Online</h3></td>
                                 <td >
-                                    <Form.Item name={[name, 'onlineAmount']}>
-                                        <Input placeholder='amount' type='number' />
+                                    <Form.Item >
+                                        <Input value={parseInt(data.firstPayment[0].onlineAmount)} placeholder='amount' type='number' />
                                     </Form.Item>
                                 </td >
                                 <td >
-                                    <Form.Item name={[name, 'onlineDate']}>
-                                        <Input placeholder='date' type='date' />
+                                    <Form.Item >
+                                        <Input value={data.firstPayment[0].onlineDate} placeholder='date' type='date' />
                                     </Form.Item>
                                 </td>
                                 <td >
-                                    <Form.Item name={[name, 'onlineBank']}>
+                                    <Form.Item >
                                         <Select
                                             showSearch
                                             placeholder="Bank"
@@ -87,43 +176,31 @@ const ViewPartyDetails = () => {
                                             // onChange={onChange}
                                             // onSearch={onSearch}
                                             filterOption={filterOption}
-                                            options={[
-                                                {
-                                                    value: 'ABC',
-                                                    label: 'ABC',
-                                                },
-                                                {
-                                                    value: 'XYZ',
-                                                    label: 'XYZ',
-                                                },
-                                                {
-                                                    value: 'PQR',
-                                                    label: 'PQR',
-                                                },
-                                            ]}
+                                            options={bankData}
+                                            defaultValue={data.firstPayment[0].onlineBank}
                                         />
                                     </Form.Item>
                                 </td>
                                 <td >
-                                    <Form.Item name={[name, 'onlineRemarks']}>
-                                        <Input placeholder='remarks' />
+                                    <Form.Item >
+                                        <Input value={data.firstPayment[0].onlineRemarks} placeholder='remarks' />
                                     </Form.Item>
                                 </td>
                             </tr>
                             <tr style={{ border: '1px solid black' }}>
                                 <td ><h3>Cheque</h3></td>
                                 <td >
-                                    <Form.Item name={[name, 'chequeAmount']}>
-                                        <Input placeholder='amount' type='number' />
+                                    <Form.Item >
+                                        <Input value={parseInt(data.firstPayment[0].chequeAmount)} placeholder='amount' type='number' />
                                     </Form.Item>
                                 </td >
                                 <td >
-                                    <Form.Item name={[name, 'chequeDate']}>
-                                        <Input placeholder='date' type='date' />
+                                    <Form.Item >
+                                        <Input value={data.firstPayment[0].chequeDate} placeholder='date' type='date' />
                                     </Form.Item>
                                 </td>
                                 <td >
-                                    <Form.Item name={[name, 'chequeBank']}>
+                                    <Form.Item>
                                         <Select
                                             showSearch
                                             placeholder="Bank"
@@ -131,26 +208,14 @@ const ViewPartyDetails = () => {
                                             // onChange={onChange}
                                             // onSearch={onSearch}
                                             filterOption={filterOption}
-                                            options={[
-                                                {
-                                                    value: 'ABC',
-                                                    label: 'ABC',
-                                                },
-                                                {
-                                                    value: 'XYZ',
-                                                    label: 'XYZ',
-                                                },
-                                                {
-                                                    value: 'PQR',
-                                                    label: 'PQR',
-                                                },
-                                            ]}
+                                            options={bankData}
+                                            defaultValue={data.firstPayment[0].chequeBank}
                                         />
                                     </Form.Item>
                                 </td>
                                 <td >
-                                    <Form.Item name={[name, 'chequeRemarks']}>
-                                        <Input placeholder='remarks' />
+                                    <Form.Item >
+                                        <Input value={data.firstPayment[0].chequeRemarks} placeholder='remarks' />
                                     </Form.Item>
                                 </td>
                             </tr>
@@ -160,7 +225,10 @@ const ViewPartyDetails = () => {
                 </Card>
 
                 <Card title="Add Further Payment Details" >
-                    <Form >
+                    <Form
+                        name=' Further Payment Details'
+                        form={form4}
+                    >
                         <Form.List name="FurtherPayments" >
                             {(fields, { add, remove }) => (
                                 <div
@@ -174,12 +242,12 @@ const ViewPartyDetails = () => {
                                     {fields.map(({ key, name, ...restField }) => (
                                         <Row key={key}>
                                             <Col>
-                                                <Form.Item label="Amount" style={{ margin: '3px' }}>
-                                                    <Input placeholder='Amount' type='number'></Input>
+                                                <Form.Item name={[name, 'amount']} label="Amount" style={{ margin: '3px' }}>
+                                                    <Input placeholder='Amount' type='number'  ></Input>
                                                 </Form.Item>
                                             </Col>
                                             <Col>
-                                                <Form.Item label="Mode of Payment" style={{ margin: '3px' }}>
+                                                <Form.Item name={[name, 'modeOfPayment']} label="Mode of Payment" style={{ margin: '3px' }}>
                                                     <Select
                                                         showSearch
                                                         placeholder="Mode"
@@ -206,7 +274,7 @@ const ViewPartyDetails = () => {
                                                 </Form.Item>
                                             </Col>
                                             <Col>
-                                                <Form.Item label='bank'>
+                                                <Form.Item name={[name, 'bank']} label='bank'>
                                                     <Select
                                                         showSearch
                                                         placeholder="Bank"
@@ -214,30 +282,17 @@ const ViewPartyDetails = () => {
                                                         // onChange={onChange}
                                                         // onSearch={onSearch}
                                                         filterOption={filterOption}
-                                                        options={[
-                                                            {
-                                                                value: 'ABC',
-                                                                label: 'ABC',
-                                                            },
-                                                            {
-                                                                value: 'XYZ',
-                                                                label: 'XYZ',
-                                                            },
-                                                            {
-                                                                value: 'PQR',
-                                                                label: 'PQR',
-                                                            },
-                                                        ]}
+                                                        options={bankData}
                                                     />
                                                 </Form.Item>
                                             </Col>
                                             <Col>
-                                                <Form.Item label="date" style={{ margin: '3px' }}>
+                                                <Form.Item name={[name, 'date']} label="date" style={{ margin: '3px' }}>
                                                     <Input type='date'></Input>
                                                 </Form.Item>
                                             </Col>
                                             <Col>
-                                                <Form.Item label="Remarks" style={{ margin: '3px' }}>
+                                                <Form.Item name={[name, 'remarks']} label="Remarks" style={{ margin: '3px' }}>
                                                     <Input placeholder='remarks'></Input>
                                                 </Form.Item>
                                             </Col>
@@ -259,7 +314,7 @@ const ViewPartyDetails = () => {
                             )}
                         </Form.List>
                     </Form>
-                    <Button type='primary'>Save</Button>
+                    <Button type='primary' onClick={handleSave}>Save</Button>
                 </Card>
 
                 <div>

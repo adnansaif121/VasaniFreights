@@ -45,3 +45,10 @@
     /* left: auto; */
     margin-bottom: 20px;
   }
+
+.disabled{
+    /* pointer-events: none;
+    cursor: default;
+    background-color: #f2f2f2; */
+    color: #080808;
+}

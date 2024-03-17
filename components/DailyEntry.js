@@ -337,6 +337,7 @@ export default function DailyEntry() {
     const [form3] = Form.useForm();
     const [toggle, setToggle] = React.useState(false);
     const [vehicleNo, setVehicleNo] = useState('');
+    const [date, setDate] = useState((new Date()).toISOString().split('T')[0]);
     const [mt, setMT] = useState(false);
     const [vehicleStatus, setVehicleStatus] = useState('');
     const [payStatus, setPayStatus] = useState('Paid');
@@ -357,6 +358,7 @@ export default function DailyEntry() {
     const [tripCount, setTripCount] = useState(0);
     // to display dynamic Bhada Kaun Dalega list
     const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
+    const [partyDetailsList, setPartyDetailsList] = useState([[], [], [], [], [], []]);
     // Drivers List
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
@@ -434,13 +436,13 @@ export default function DailyEntry() {
                         {
                             key: key,
                             id: i + 1,
-                            truckNo: data[key].vehicleNo,
+                            vehicleNo: data[key].vehicleNo,
                             mt: data[key].mt,
                             from: data[key].tripDetails[0].from,
                             to: data[key].tripDetails[0].to,
                             paid: data[key].tripDetails[0].payStatus,
-                            bhejneWaliParty: data[key].tripDetails[0].bhejneWaliParty,
-                            paaneWaliParty: data[key].tripDetails[0].paaneWaliParty,
+                            bhejneWaliParty: data[key].tripDetails[0].bhejneWaala,
+                            paaneWaliParty: data[key].tripDetails[0].paaneWaala,
                             transporter: data[key].tripDetails[0].transporter,
                             maal: data[key].tripDetails[0].maal,
                             qty: data[key].tripDetails[0].qty,
@@ -451,7 +453,9 @@ export default function DailyEntry() {
                             tripDetails: data[key].tripDetails,
                             driversDetails: data[key].driversDetails,
                             kaataParchi: data[key].kaataParchi,
-                            firstPayment: data[key].firstPayment
+                            firstPayment: data[key].firstPayment,
+                            vehicleStatus: data[key].vehicleStatus,
+                            bhadaKaunDalega: data[key].firstPayment[0].bhadaKaunDalega,
                         }
                     )
                 });
@@ -526,8 +530,8 @@ export default function DailyEntry() {
             listOfTrips.push({
                 from: trip.from || '',
                 to: trip.to || '',
-                bhejneWaliParty: trip.bhejneWaala || '',
-                paaneWaliParty: trip.paaneWaala || '',
+                bhejneWaala: trip.bhejneWaala || '',
+                paaneWaala: trip.paaneWaala || '',
                 transporter: trip.transporter || '',
                 maal: trip.Maal || '',
                 qty: trip.qty || 0,
@@ -542,10 +546,10 @@ export default function DailyEntry() {
         let listOfDrivers = [];
         driversDetails?.DriversDetails?.forEach((driver) => {
             listOfDrivers.push({
-                driverName: driver.driverName || '',
-                driverContact: driver.driverContact || '',
-                driverLicenseDate: driver.driverLicenseDate || '',
-                driverTripCash: driver.driverTripCash || ''
+                driverName: driver?.driverName || '',
+                driverContact: driver?.driverContact || '',
+                driverLicenseDate: driver?.driverLicenseDate || '',
+                driverTripCash: driver?.driverTripCash || ''
             });
         }
         );
@@ -554,13 +558,13 @@ export default function DailyEntry() {
         let listOfKaataParchi = [];
         kaataParchi?.kaataParchi?.forEach((parchi) => {
             listOfKaataParchi.push({
-                unloadingDate: parchi.unloadingDate || '',
-                khaliGadiWajan: parchi.khaliGadiWajan || '',
-                bhariGadiWajan: parchi.bhariGadiWajan || '',
-                maalKaWajan: parchi.maalKaWajan || '',
-                ghaateAllowed: parchi.ghaateAllowed || '',
-                ghaateActual: parchi.ghaateActual || '',
-                remarks: parchi.remarks || ''
+                unloadingDate: parchi?.unloadingDate || '',
+                khaliGadiWajan: parchi?.khaliGadiWajan || '',
+                bhariGadiWajan: parchi?.bhariGadiWajan || '',
+                maalKaWajan: parchi?.maalKaWajan || '',
+                ghaateAllowed: parchi?.ghaateAllowed || '',
+                ghaateActual: parchi?.ghaateActual || '',
+                remarks: parchi?.remarks || ''
             });
         }
         );
@@ -570,22 +574,21 @@ export default function DailyEntry() {
         firstPayment?.paymentDetails?.forEach((payment) => {
             listOfFirstPayment.push({
                 bhadaKaunDalega: payment.bhadaKaunDalega || '',
-                pohchAmount: payment.pohchAmount || '',
-                pohchDate: payment.pohchDate || '',
+                pohchAmount: payment?.pohchAmount || '',
+                pohchDate: payment?.pohchDate || '',
 
-                pohchRemarks: payment.pohchRemarks || '',
-                cashAmount: payment.cashAmount || '',
-                cashDate: payment.cashDate || '',
-
-                cashRemarks: payment.cashRemarks || '',
-                onlineAmount: payment.onlineAmount || '',
-                onlineDate: payment.onlineDate || '',
-                onlineBank: payment.onlineBank || '',
-                onlineRemarks: payment.onlineRemarks || '',
-                chequeAmount: payment.chequeAmount || '',
-                chequeDate: payment.chequeDate || '',
-                chequeBank: payment.chequeBank || '',
-                chequeRemarks: payment.chequeRemarks || '',
+                pohchRemarks: payment?.pohchRemarks || '',
+                cashAmount: payment?.cashAmount || '',
+                cashDate: payment?.cashDate || '',
+                cashRemarks: payment?.cashRemarks || '',
+                onlineAmount: payment?.onlineAmount || '',
+                onlineDate: payment?.onlineDate || '',
+                onlineBank: payment?.onlineBank || '',
+                onlineRemarks: payment?.onlineRemarks || '',
+                chequeAmount: payment?.chequeAmount || '',
+                chequeDate: payment?.chequeDate || '',
+                chequeBank: payment?.chequeBank || '',
+                chequeRemarks: payment?.chequeRemarks || '',
             });
         }
         );
@@ -597,7 +600,7 @@ export default function DailyEntry() {
             milometer: milometer || '',
             dieselQty: dieselQty || '',
             pumpName: pumpName || '',
-            average: average || '',
+            average: (Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0,
             midwayDiesel: midwayDiesel || ''
         }
 
@@ -606,6 +609,7 @@ export default function DailyEntry() {
         const db = getDatabase();
         let id = guidGenerator();
         set(ref(db, 'dailyEntry/' + id), {
+            date: date,
             vehicleNo: vehicleNo || '',
             mt: mt,
             vehicleStatus: vehicleStatus || '',
@@ -614,7 +618,13 @@ export default function DailyEntry() {
             tripDetails: listOfTrips,
             driversDetails: listOfDrivers,
             kaataParchi: listOfKaataParchi,
-            firstPayment: listOfFirstPayment
+            firstPayment: listOfFirstPayment,
+
+            // FIELDS DATA
+            tripDetailsFields: form.getFieldsValue(['tripDetails']),
+            driversDetailsFields: form1.getFieldsValue(['DriversDetails']),
+            kaataParchiFields: form2.getFieldsValue(['kaataParchi']),
+            firstPaymentFields: form3.getFieldsValue(['paymentDetails'])
         }).then(() => {
             console.log('Data saved');
             alert('Data Saved Successfully');
@@ -637,8 +647,8 @@ export default function DailyEntry() {
         },
         {
             title: 'Truck No.',
-            dataIndex: 'truckNo',
-            key: 'truckNo',
+            dataIndex: 'vehicleNo',
+            key: 'vehicleNo',
         },
         {
             title: 'From',
@@ -707,20 +717,24 @@ export default function DailyEntry() {
 
     const addPartyInPartyList = (value, index) => {
         let pl = partyList;
-        let exist = false;
-        for(let i = 0; i < pl; i++){
-            if(pl[i].value === value){
-                exist = true;
-                break;
-            }
+        let party1 = form.getFieldValue(['tripDetails', index, 'bhejneWaala']);
+        let party2 = form.getFieldValue(['tripDetails', index, 'paaneWaala']);
+        let transporter = form.getFieldValue(['tripDetails', index, 'transporter']);
+        pl[index] = [{label:party1, value:party1}, {label:party2, value:party2}, {label:transporter, value:transporter}];
+        setPartyList([...pl]);
+
+        let plDetails = partyDetailsList;
+        let party1Details = 'no details available';
+        let party2Details = 'no details available';
+        let transporterDetails = 'no details available';
+        for(let i = 0; i < plDetails.length; i++){
+            if(plDetails[i].value === party1)party1Details = `${plDetails[i].address || 'Address notFound'} ${plDetails[i].contact || 'Contact notFound'}`;
+            if(plDetails[i].value === party2)party2Details = `${plDetails[i].address || 'Address notFound'} ${plDetails[i].contact || 'Contact notFound'}`;
+            if(plDetails[i].value === transporter)transporterDetails = `${plDetails[i].address || 'Address notFound'} ${plDetails[i].contact || 'Contact notFound'}`;
         }
-        if(!exist){
-            pl[index].push({
-                label: value,
-                value: value
-            });
-            setPartyList([...pl]);
-        }
+        plDetails[index] = [{party1Details, party2Details, transporterDetails}];
+        console.log(plDetails);
+        setPartyDetailsList([...plDetails]);
     }
 
     const addNewParty = (e) => {
@@ -795,6 +809,9 @@ export default function DailyEntry() {
                                 width: '100%',
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
+                                 <Form.Item style={{ width: '20%' }} label="Date">
+                                    <Input type='date' value={date} ></Input>
+                                </Form.Item>
 
                                 <Form.Item style={{ width: '30%' }} label="Vehicle No."
                                     name="vehicleNo">
@@ -957,7 +974,7 @@ export default function DailyEntry() {
                                                             </Form.Item>
 
                                                             <div className='tooltip'>
-                                                                <Tooltip placement="top" title={'Malharganj new bus stand 8812329201'}>
+                                                                <Tooltip placement="top" title={partyDetailsList[name]?.party1Details}>
                                                                     <EyeOutlined />
                                                                 </Tooltip>
                                                             </div>
@@ -1046,7 +1063,7 @@ export default function DailyEntry() {
                                                             </Form.Item>
 
                                                             <div className='tooltip'>
-                                                                <Tooltip placement="top" title={'Malharganj new bus stand 8812329201'}>
+                                                                <Tooltip placement="top" title={partyDetailsList[name]?.party2Details}>
                                                                     <EyeOutlined />
                                                                 </Tooltip>
                                                             </div>
@@ -1164,7 +1181,7 @@ export default function DailyEntry() {
                                                             </Form.Item>
 
                                                             <div className='tooltip'>
-                                                                <Tooltip placement="top" title={'Malharganj new bus stand 8812329201'}>
+                                                                <Tooltip placement="top" title={partyDetailsList[name]?.transporterDetails}>
                                                                     <EyeOutlined />
                                                                 </Tooltip>
                                                             </div>
@@ -1339,8 +1356,6 @@ export default function DailyEntry() {
                                 )}
                             </Form.List>
 
-
-
                             {/* KM */}
                             <Flex style={{
                                 width: '100%',
@@ -1399,7 +1414,7 @@ export default function DailyEntry() {
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '20%' }} name="Average" label="Average">
-                                    {(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))) || 0}
+                                    {(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0}
                                     {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))/((parseInt(dieselQty)||0) + (parseInt(midwayDiesel)||0))} onChange={(e) => { setAverage(e.target.value) }} placeholder='Average' type='number'></Input> */}
                                 </Form.Item>
 
@@ -1539,17 +1554,7 @@ export default function DailyEntry() {
                                                         </Col>
                                                         <Col span={12}>
                                                             <Form.Item label="Bhada kaun dalega" name={[name, 'bhadaKaunDalega']}>
-                                                                {/* <Radio.Group
-                                                                    options={[{ label: 'Party', value: 'Party' },
-                                                                    { label: 'Transporter', value: 'Transporter' },
-                                                                    { label: 'UV Logistics', value: 'UvLogs' },
-                                                                    { label: 'Naveen Kaka', value: 'NaveenKaka' }
-                                                                    ]}
-                                                                    // onChange={onChange4}
-                                                                    // value={'Party'}
-                                                                    optionType="button"
-                                                                    buttonStyle="solid"
-                                                                /> */}
+                                                                
                                                                 <Select
                                                                     showSearch
                                                                     placeholder="Bhada Kaun Dalega"
@@ -1559,6 +1564,9 @@ export default function DailyEntry() {
                                                                     filterOption={filterOption}
                                                                     options={[
                                                                         ...partyList[name],
+                                                                        // {label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.bhejneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.bhejneWaala},
+                                                                        // { label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.paaneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.paaneWaala},
+                                                                        // {label: form.getFieldValue(['tripDetails'])?.tripDetails[name]?.transporter, value: form.getFieldValue(['tripDetails']).tripDetails[name]?.transporter},
                                                                         { label: 'UV Logistics', value: 'UvLogs' },
                                                                         { label: 'Naveen Kaka', value: 'NaveenKaka' }
                                                                     ]}
