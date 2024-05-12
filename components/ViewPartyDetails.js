@@ -19,7 +19,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
     const [allTableData, setAllTableData] = useState({});
- 
+
     const [amountReceived, setAmountReceived] = useState(parseInt(data.firstPayment[0].pohchAmount || 0) +
         parseInt(data.firstPayment[0].cashAmount || 0) +
         parseInt(data.firstPayment[0].chequeAmount || 0) +
@@ -32,14 +32,16 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
         // tripDetails.tripDetails = data.tripDetails;
         // form.setFieldsValue(tripDetails);
         // console.log(tripDetails);    
-        let furtherPayments = data.furtherPayments;
-        form4.setFieldsValue(furtherPayments);
+        if (data.furtherPayments.FurtherPayments !== undefined) {
+            let furtherPayments = data.furtherPayments;
+            form4.setFieldsValue(furtherPayments);
 
-        let totalAmount = 0;
-        for(let i = 0; i < data.furtherPayments.FurtherPayments.length; i++){
-            totalAmount += parseInt(data.furtherPayments.FurtherPayments[i].amount);
+            let totalAmount = 0;
+            for (let i = 0; i < data.furtherPayments.FurtherPayments.length; i++) {
+                totalAmount += parseInt(data.furtherPayments.FurtherPayments[i].amount);
+            }
+            setAmountReceived(amountReceived + totalAmount);
         }
-        setAmountReceived(amountReceived+totalAmount);
     }, []);
 
     const filterOption = (input, option) =>
@@ -49,7 +51,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
         const db = getDatabase();
         // let id = guidGenerator();
         set(ref(db, 'dailyEntry/' + data.key), {
-            date: data.date||'',
+            date: data.date || '',
             vehicleNo: data.vehicleNo || '',
             mt: data.mt,
             vehicleStatus: data.vehicleStatus || '',
@@ -76,16 +78,24 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
     return (
         <>
             <div>
-                <div className={styles.summary}>
+                <div className={styles.summary} style={{display:'flex', justifyContent: 'center'}}>
                     <Row justify={'space-between'}>
                         <Col>
-                            <h4>Amount Received Till Date :
-                                {amountReceived}
-                            </h4>
+                            <h3>Amount Received Till Date :
+                                <span style={{color: 'green'}}>{amountReceived}</span>
+                            </h3>
                         </Col>
                     </Row>
 
                 </div>
+
+                <Card title="Transaction Status">
+                    <Radio.Group defaultValue="a" buttonStyle="solid">
+                        <Radio.Button value="a">Open</Radio.Button>
+                        <Radio.Button value="b">Close</Radio.Button>
+                    </Radio.Group>
+                </Card>
+
                 <Card title="Payment Details">
 
                     <table style={{ border: '1px solid black', padding: '5px', borderRadius: '10px', width: '100%' }}>
@@ -225,84 +235,157 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                 </Card>
 
                 <Card title="Add Further Payment Details" >
+
                     <Form
                         name=' Further Payment Details'
                         form={form4}
                     >
                         <Form.List name="FurtherPayments" >
                             {(fields, { add, remove }) => (
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        rowGap: 16,
-                                        flexDirection: 'column',
-                                        width: "-webkit-fill-available",
-                                    }}
-                                >
-                                    {fields.map(({ key, name, ...restField }) => (
-                                        <Row key={key}>
-                                            <Col>
-                                                <Form.Item name={[name, 'amount']} label="Amount" style={{ margin: '3px' }}>
-                                                    <Input placeholder='Amount' type='number'  ></Input>
-                                                </Form.Item>
-                                            </Col>
-                                            <Col>
-                                                <Form.Item name={[name, 'modeOfPayment']} label="Mode of Payment" style={{ margin: '3px' }}>
-                                                    <Select
-                                                        showSearch
-                                                        placeholder="Mode"
-                                                        optionFilterProp="children"
-                                                        // onChange={onChange}
-                                                        // onSearch={onSearch}
-                                                        filterOption={filterOption}
-                                                        options={[
-                                                            {
-                                                                value: 'Cash',
-                                                                label: 'Cash',
-                                                            },
-                                                            {
-                                                                value: 'Online',
-                                                                label: 'Online',
-                                                            },
-                                                            {
-                                                                value: 'Cheque',
-                                                                label: 'Cheque',
-                                                            },
-                                                        ]}
-                                                    />
+                                <table style={{ border: '1px solid black', padding:'5px' }}>
+                                    <tr style={{ border: '1px solid black' }}>
+                                        <th style={{ border: '1px solid black' }}>Amount</th>
+                                        <th style={{ border: '1px solid black' }}>Mode of Payment</th>
+                                        <th style={{ border: '1px solid black' }}>Bank</th>
+                                        <th style={{ border: '1px solid black' }}>Date</th>
+                                        <th style={{ border: '1px solid black' }}>Remarks</th>
+                                        <th style={{ border: '1px solid black' }}>Remove</th>
+                                    </tr>
 
-                                                </Form.Item>
-                                            </Col>
-                                            <Col>
-                                                <Form.Item name={[name, 'bank']} label='bank'>
-                                                    <Select
-                                                        showSearch
-                                                        placeholder="Bank"
-                                                        optionFilterProp="children"
-                                                        // onChange={onChange}
-                                                        // onSearch={onSearch}
-                                                        filterOption={filterOption}
-                                                        options={bankData}
+                                    {fields.map(({ key, name, ...restField }) => (
+                                        <>
+                                            <tr>
+                                                <td>
+                                                    <Form.Item name={[name, 'amount']} >
+                                                        <Input placeholder='Amount' type='number'  ></Input>
+                                                    </Form.Item>
+                                                </td>
+                                                <td>
+                                                    <Form.Item name={[name, 'modeOfPayment']} >
+                                                        <Select
+                                                            showSearch
+                                                            placeholder="Mode"
+                                                            optionFilterProp="children"
+                                                            // onChange={onChange}
+                                                            // onSearch={onSearch}
+                                                            filterOption={filterOption}
+                                                            options={[
+                                                                {
+                                                                    value: 'Cash',
+                                                                    label: 'Cash',
+                                                                },
+                                                                {
+                                                                    value: 'Online',
+                                                                    label: 'Online',
+                                                                },
+                                                                {
+                                                                    value: 'Cheque',
+                                                                    label: 'Cheque',
+                                                                },
+                                                            ]}
+                                                        />
+
+                                                    </Form.Item>
+                                                </td>
+                                                <td>
+                                                    <Form.Item name={[name, 'bank']}>
+                                                        <Select
+                                                            showSearch
+                                                            placeholder="Bank"
+                                                            optionFilterProp="children"
+                                                            // onChange={onChange}
+                                                            // onSearch={onSearch}
+                                                            filterOption={filterOption}
+                                                            options={bankData}
+                                                        />
+                                                    </Form.Item>
+                                                </td>
+                                                <td>
+                                                    <Form.Item name={[name, 'date']}>
+                                                        <Input type='date'></Input>
+                                                    </Form.Item>
+                                                </td>
+                                                <td>
+                                                    <Form.Item name={[name, 'remarks']} >
+                                                        <Input placeholder='remarks'></Input>
+                                                    </Form.Item>
+                                                </td>
+                                                <td style={{display: 'flex', justifyContent:'center', alignItems: 'center'}}>
+                                                    <MinusCircleOutlined
+                                                        className="dynamic-delete-button"
+                                                        onClick={() => {
+                                                            let confirmDelete = confirm("Are you sure to delete this Payment Entry?");
+                                                            if(confirmDelete)
+                                                                remove(name)
+                                                            
+                                                        }}
                                                     />
-                                                </Form.Item>
-                                            </Col>
-                                            <Col>
-                                                <Form.Item name={[name, 'date']} label="date" style={{ margin: '3px' }}>
-                                                    <Input type='date'></Input>
-                                                </Form.Item>
-                                            </Col>
-                                            <Col>
-                                                <Form.Item name={[name, 'remarks']} label="Remarks" style={{ margin: '3px' }}>
-                                                    <Input placeholder='remarks'></Input>
-                                                </Form.Item>
-                                            </Col>
-                                            <Col>
-                                                <MinusCircleOutlined
-                                                    className="dynamic-delete-button"
-                                                    onClick={() => remove(name)}
-                                                />
-                                            </Col>
-                                        </Row>
+                                                </td>
+                                            </tr>
+                                            {/* <Row key={key}>
+                                                    <Col>
+                                                        <Form.Item name={[name, 'amount']} label="Amount" style={{ margin: '3px' }}>
+                                                            <Input placeholder='Amount' type='number'  ></Input>
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col>
+                                                        <Form.Item name={[name, 'modeOfPayment']} label="Mode of Payment" style={{ margin: '3px' }}>
+                                                            <Select
+                                                                showSearch
+                                                                placeholder="Mode"
+                                                                optionFilterProp="children"
+                                                                // onChange={onChange}
+                                                                // onSearch={onSearch}
+                                                                filterOption={filterOption}
+                                                                options={[
+                                                                    {
+                                                                        value: 'Cash',
+                                                                        label: 'Cash',
+                                                                    },
+                                                                    {
+                                                                        value: 'Online',
+                                                                        label: 'Online',
+                                                                    },
+                                                                    {
+                                                                        value: 'Cheque',
+                                                                        label: 'Cheque',
+                                                                    },
+                                                                ]}
+                                                            />
+
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col>
+                                                        <Form.Item name={[name, 'bank']} label='bank'>
+                                                            <Select
+                                                                showSearch
+                                                                placeholder="Bank"
+                                                                optionFilterProp="children"
+                                                                // onChange={onChange}
+                                                                // onSearch={onSearch}
+                                                                filterOption={filterOption}
+                                                                options={bankData}
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col>
+                                                        <Form.Item name={[name, 'date']} label="date" style={{ margin: '3px' }}>
+                                                            <Input type='date'></Input>
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col>
+                                                        <Form.Item name={[name, 'remarks']} label="Remarks" style={{ margin: '3px' }}>
+                                                            <Input placeholder='remarks'></Input>
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col>
+                                                        <MinusCircleOutlined
+                                                            className="dynamic-delete-button"
+                                                            onClick={() => remove(name)}
+                                                        />
+                                                    </Col>
+                                                </Row> */}
+                                        </>
 
                                     ))}
                                     <Form.Item style={{ margin: 'auto' }}>
@@ -310,20 +393,23 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                             Add new
                                         </Button>
                                     </Form.Item>
-                                </div>
+
+                                </table>
+
                             )}
                         </Form.List>
+
                     </Form>
-                    <Button type='primary' onClick={handleSave}>Save</Button>
+                    <div>
+                        <h3>Total : {amountReceived}</h3>
+                    </div>
                 </Card>
 
-                <div>
+                <Button style={{marginTop:'5px'}} type='primary' onClick={handleSave}>Save</Button>
+
+                {/* <div>
                     <h4>Transaction Status: </h4>
-                    <Radio.Group defaultValue="a" buttonStyle="solid">
-                        <Radio.Button value="a">Open</Radio.Button>
-                        <Radio.Button value="b">Close</Radio.Button>
-                    </Radio.Group>
-                </div>
+                </div> */}
             </div>
 
 
@@ -332,3 +418,4 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
 };
 
 export default ViewPartyDetails;
+

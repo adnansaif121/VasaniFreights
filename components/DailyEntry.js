@@ -628,6 +628,24 @@ export default function DailyEntry() {
         }).then(() => {
             console.log('Data saved');
             alert('Data Saved Successfully');
+            console.log({
+                    date: date,
+                    vehicleNo: vehicleNo || '',
+                    mt: mt,
+                    vehicleStatus: vehicleStatus || '',
+                    // payStatus: payStatus || '',
+                    dieselAndKmDetails: { ...dieselAndKmDetails },
+                    tripDetails: listOfTrips,
+                    driversDetails: listOfDrivers,
+                    kaataParchi: listOfKaataParchi,
+                    firstPayment: listOfFirstPayment,
+        
+                    // FIELDS DATA
+                    tripDetailsFields: form.getFieldsValue(['tripDetails']),
+                    driversDetailsFields: form1.getFieldsValue(['DriversDetails']),
+                    kaataParchiFields: form2.getFieldsValue(['kaataParchi']),
+                    firstPaymentFields: form3.getFieldsValue(['paymentDetails'])
+                });
         }).catch((error) => {
             console.error('Error:', error);
         });
@@ -810,7 +828,7 @@ export default function DailyEntry() {
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
                                  <Form.Item style={{ width: '20%' }} label="Date">
-                                    <Input type='date' value={date} ></Input>
+                                    <Input type='date' value={date} onChange={(e)=>setDate(e.target.value)} ></Input>
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '30%' }} label="Vehicle No."

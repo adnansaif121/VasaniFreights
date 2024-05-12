@@ -8,6 +8,7 @@ import DailyEntry from './DailyEntry';
 import Party from './Party';
 import Transporter from './Transporter';
 import NaveenKaka from './NaveenKaka';
+import Driver from './Driver';
 
 export default function Dashboard() {
     const [nav, setNav] = useState("DailyEntry");
@@ -54,7 +55,7 @@ export default function Dashboard() {
                 <div>Cash</div>
             }
             {nav == "Driver" && 
-                <div>Driver</div>
+                <Driver></Driver>
             }
             {nav == "Pohch" && 
                 <div>Pohch</div>

@@ -345,6 +345,8 @@ const Party = () => {
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
     const [allTableData, setAllTableData] = useState({});
+    const [customStartDate, setCustomStartDate] = useState(null);
+    const [customEndDate, setCustomEndDate] = useState(null);
     useEffect(() => {
         const db = getDatabase();
         // Get data from database
@@ -362,6 +364,7 @@ const Party = () => {
                         {
                             key: key,
                             id: i + 1,
+                            date: data[key].date,
                             vehicleNo: data[key].vehicleNo,
                             transactionStatus: data[key].transactionStatus || 'open',
                             mt: data[key].mt,
@@ -388,6 +391,10 @@ const Party = () => {
                     )
                 });
             }
+            console.log(ds); 
+            ds = ds.sort(
+                (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
+            );
             setDisplayDataSource(ds);
             setDataSource(ds);
         });
@@ -497,7 +504,7 @@ const Party = () => {
             key: 'id',
         },
         {
-            title: 'Status',
+            title: 'Payment Status',
             dataIndex: 'transactionStatus',
             key: 'transactionStatus',
             // render: (text) => { text == 'open' ? <><ExclamationOutlined />OPEN</> : <CheckOutlined /> }
@@ -546,6 +553,11 @@ const Party = () => {
             title: 'Total Freight',
             dataIndex: 'totalFreight',
             key: 'totalFreight',
+        },
+        {
+            title: 'Remaining Balance',
+            dataIndex: 'remainingBalance',
+            key: 'remainingBalance',
         }
     ];
 
@@ -588,14 +600,85 @@ const Party = () => {
     ]
     
     const handleFilterChange = (value) => {
-        console.log(`selected ${value}`);
+        console.log(`selected ${value} value`);
         setFilterType(value);
+        let _displayDataSource = [];
+        let today = new Date();
+        let year = today.getFullYear();
+        let month = today.getMonth();
+        switch(value){
+            case "lastMonth":
+                let month_first_date = (new Date(year, month, 1)).getTime();
+                _displayDataSource= dataSource.filter(
+                    (item) => {
+                        let itemDate = new Date(item.date).getTime();
+                        return itemDate >= month_first_date;
+                    } 
+                )
+                setDisplayDataSource([..._displayDataSource]);
+                console.log(_displayDataSource);
+                break;
+            case "lastQuarter":
+                // let year = (new Date()).getFullYear();
+                let quarter = Math.floor(((new Date()).getMonth() + 3) / 3);
+                let quarterStartMonth = [0, 3, 6, 9] //jan, April, July, Oct
+                let quarter_first_date = (new Date(year, quarterStartMonth[quarter-1], 1)).getTime();
+                _displayDataSource = dataSource.filter(
+                    (item) => {
+                        let itemDate = new Date(item.date).getTime();
+                        return itemDate >= quarter_first_date;
+                    }
+                )
+                setDisplayDataSource([..._displayDataSource]);
+                break;
+            case "last6Months":
+                let _last6thMonthYear = year;
+                let _last6thmonth = month-6;
+                if(_last6thmonth >= 0){
+                    _last6thMonthYear--; 
+                    _last6thmonth = 12+_last6thMonthYear; 
+                }
+                let last6month_start_date = (new Date(_last6thMonthYear, _last6thmonth, 1)).getTime();
+                _displayDataSource = dataSource.filter(
+                    (item) => {
+                        let itemDate = new Date(item.date).getTime();
+                        return itemDate >= last6month_start_date;
+                    }
+                )
+                setDisplayDataSource([..._displayDataSource]);
+                break;
+            case "lastYear":
+                let _lastYear_start_date = (new Date(year-1, 0, 1)).getTime();
+                _displayDataSource = dataSource.filter(
+                    (item) => {
+                        let itemDate = new Date(item.date).getTime();
+                        return itemDate >= _lastYear_start_date;
+                    }
+                )
+                setDisplayDataSource([..._displayDataSource]);
+                break;
+            case "lastFinancialYear":
+                let _lastFinancialYear_start_date = (new Date(year-1, 3, 1)).getTime();
+                let _lastFinancialYear_end_date = (new Date(year, 2, 31)).getTime();
+                _displayDataSource = dataSource.filter(
+                    (item) => {
+                        let itemDate = new Date(item.date).getTime();
+                        return itemDate >= _lastFinancialYear_start_date && itemDate <= _lastFinancialYear_end_date;
+                    }
+                )
+                setDisplayDataSource([..._displayDataSource]);
+                break;
+            default:
+                console.log(value);
+                setDisplayDataSource([...dataSource]);
+        }
     };
 
     const [open, setOpen] = useState(false);
     const showDrawer = () => {
         setOpen(true);
     };
+    
     const onClose = () => {
         setOpen(false);
     };
@@ -629,6 +712,26 @@ const Party = () => {
         onClose();
     }
     
+    const handleCustomFilter = () => {
+        if(customStartDate === null){
+            alert("Please Enter Start Date");
+            return;
+        }
+        if(customEndDate === null){
+            alert("Please Enter End Date");
+            return;
+        }
+        let _custom_start_date = new Date(customStartDate).getTime();
+        let _custom_end_date = new Date(customEndDate).getTime();
+        let _displayDataSource = dataSource.filter(
+            (item) => {
+                let itemDate = new Date(item.date).getTime();
+                return itemDate >= _custom_start_date && itemDate <= _custom_end_date;
+            }
+        ) 
+        setDisplayDataSource(_displayDataSource);
+    }
+
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
@@ -637,7 +740,19 @@ const Party = () => {
             <div className={styles.container}>
                 <div className={styles.part1}>
                     <Input onChange={handleSearch} placeholder='Search' />
-                    <div className={styles.menu}>
+                    <div className={styles.menu} style={{display: 'flex'}}>
+                       
+                        <div style={{backgroundColor: 'white', marginLeft: '2px', borderRadius: '5px', padding: '0px 5px 0px 5px'}}>
+                            {displayPartyList.map((item, index)=>{
+                                return(
+                                <div key={index} style={{padding:'6px 0px 6px 0px', color: 'blue'}}> 
+                                        <Button onClick={showDrawer} icon={<UserOutlined/>}></Button>
+                                         
+                                    </div>    
+                                )
+                            })}   
+                        </div>
+
                         <Menu
                             onClick={onClick}
                             style={{
@@ -665,22 +780,22 @@ const Party = () => {
                                 {
                                     filterType === 'custom' ? <Row>
                                         <Col>
-                                            <Input type='date' ></Input>
+                                            <Input type='date' placeholder='start Date' onChange={(e)=>setCustomStartDate(e.target.value)}></Input>
                                         </Col>
                                         <Col>
-                                            <Input type='date' ></Input>
+                                            <Input type='date' placeholder='end Date' onChange={(e)=>setCustomEndDate(e.target.value)}></Input>
                                         </Col>
                                         <Col>
-                                            <Button>Apply</Button>
+                                            <Button onClick={handleCustomFilter}>Apply</Button>
                                         </Col>
                                     </Row> : null
                                 }
                             </Col>
-                            <Col>
+                            {/* <Col>
                                 <Button type="primary" onClick={showDrawer}>
                                     View/Edit Party Profile
                                 </Button>
-                            </Col>
+                            </Col> */}
                         </Row>
 
 

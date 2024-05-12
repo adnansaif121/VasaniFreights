@@ -153,6 +153,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
         firstPayment?.paymentDetails?.forEach((payment) => {
             listOfFirstPayment.push({
                 bhadaKaunDalega: payment.bhadaKaunDalega || '',
+                partyForNaveenKaka: payment.partyForNaveenKaka || '',
                 pohchAmount: payment.pohchAmount || '',
                 pohchDate: payment.pohchDate || '',
 
@@ -1071,6 +1072,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                                         options={[
                                                                             ...partyList[name]
                                                                         ]}
+                                                                        
                                                                     />
                                                                 </Form.Item>
                                                             </Col>
