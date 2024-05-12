@@ -402,24 +402,24 @@ const Driver = () => {
 
         // create dummy party List
         
-        const partyRef = ref(db, 'parties/');
-        onValue(partyRef, (snapshot) => {
+        const driverRef = ref(db, 'drivers/');
+        onValue(driverRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data, 'parties');
+            console.log(data, 'drivers');
             // updateStarCount(postElement, data);
-            let parties = []; // Data Source
-            Object.values(data).map((party, i) => {
-                if(party.contact === undefined || party.address === undefined){
-                    parties.push({...party, icon: <ExclamationCircleTwoTone twoToneColor="#eb2f96" />});
+            let drivers = []; // Data Source
+            Object.values(data).map((driver, i) => {
+                if(driver.contact === undefined || driver.address === undefined){
+                    drivers.push({...driver, icon: <ExclamationCircleTwoTone twoToneColor="#eb2f96" />});
                 }
                 else{
-                    parties.push(party);
+                    drivers.push(driver);
                 }
             })
             setPartyIds(Object.keys(data));
             // setPartyListAll([...parties]);
-            setPartyList([...parties]);
-            setDisplayPartyList([...parties]);
+            setPartyList([...drivers]);
+            setDisplayPartyList([...drivers]);
         });
 
     }, []);
@@ -447,13 +447,15 @@ const Driver = () => {
         console.log(displayPartyList[partyIndex]);
         console.log(e.item.props.value);
 
-        let party = displayPartyList[partyIndex].label;    
+        let driver = displayPartyList[partyIndex].label;    
         let ds = [];    
         console.log(dataSource);
         for(let i = 0; i < dataSource.length; i++){
-            console.log(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase(), party.toLowerCase());
-            if(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase() === party.toLowerCase()){
-                ds.push(dataSource[i]);
+            // console.log(dataSource[i].driversDetails[0].?.toLowerCase(), party.toLowerCase());
+            for(let j = 0; j < dataSource[i].driversDetails.length; j++){
+                if(dataSource[i].driversDetails[j].driverName?.toLowerCase() === driver.toLowerCase()){
+                    ds.push(dataSource[i]);
+                }
             }
         }
         console.log(ds);
@@ -537,7 +539,6 @@ const Driver = () => {
             dataIndex: 'totalFreight',
             key: 'totalFreight',
         },
-       
     ];
 
     const filterMenuItems = [
