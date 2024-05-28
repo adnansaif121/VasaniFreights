@@ -1274,7 +1274,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
 
     
     return (
-        <Collapse items={items}></Collapse>
+        <Collapse items={items} activeKey={['1', '3', '4', '5']}></Collapse>
     )
 }
 
