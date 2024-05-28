@@ -413,6 +413,7 @@ export default function DailyEntry() {
     const [transporterList, setTransporterList] = useState([]);
     const [newTransporter, setNewTransporter] = useState('');
     // Data to display in the table
+    const [completeDataSource, setCompleteDataSource] = useState([]);
     const [dataSource, setDataSource] = useState([]); // Table Data
     // FLAG 
     const [flag, setFlag] = useState(false);
@@ -420,6 +421,7 @@ export default function DailyEntry() {
     //Bank
     const [newBank, setNewBank] = useState('');
     const [bankData, setBankData] = useState([]);
+    const [dateFilter, setDateFilter] = useState(null);
 
     useEffect(() => {
         const db = getDatabase();
@@ -439,6 +441,7 @@ export default function DailyEntry() {
                 Object.keys(data).map((key, i) => {
                     ds.push(
                         {
+                            date: data[key].date,
                             key: key,
                             id: i + 1,
                             vehicleNo: data[key].vehicleNo,
@@ -466,6 +469,7 @@ export default function DailyEntry() {
                 });
             }
             setDataSource(ds);
+            setCompleteDataSource(ds);
         });
 
         const locationsRef = ref(db, 'locations/');
@@ -2050,11 +2054,28 @@ export default function DailyEntry() {
     const handleDateFilter = (e) => {
         let date = e.target.value;
         console.log(date);
+        // let _custom_date = new Date(date).getTime();
+        // let _custom_end_date = new Date(customEndDate).getTime();
+        console.log(completeDataSource);
+        let _displayDataSource = completeDataSource.filter(
+            (item) => {
+                // let itemDate = new Date(item.date).getTime();
+                console.log(item.date, date);
+                return item.date === date;
+            }
+        ) 
+        setDataSource(_displayDataSource);
+        // setDisplayDataSource(_displayDataSource);
     }
     return (
         <>
-
-            <Input style={{ width: "20%", marginLeft: '40px' }} type='date' onChange={handleDateFilter}/>
+            <div>
+                <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter}/>
+                <Button onClick={() => {
+                    setDataSource(completeDataSource);
+                    setDateFilter(null);
+                }}>Clear Date</Button>
+            </div>
             {/* {[...rate[0]]} */}
             <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '60vh', backgroundColor: 'white' }}>
                 <Table size="small" dataSource={dataSource} columns={columns} expandable={{
