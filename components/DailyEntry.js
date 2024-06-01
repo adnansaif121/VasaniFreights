@@ -421,7 +421,7 @@ export default function DailyEntry() {
     //Bank
     const [newBank, setNewBank] = useState('');
     const [bankData, setBankData] = useState([]);
-    const [dateFilter, setDateFilter] = useState(null);
+    const [dateFilter, setDateFilter] = useState('');
 
     useEffect(() => {
         const db = getDatabase();
@@ -530,7 +530,7 @@ export default function DailyEntry() {
         onValue(bankRef, (snapshot) => {
             const data = snapshot.val();
             let _bankData = [];
-            for(let i = 0; i < data.data.length; i++){
+            for (let i = 0; i < data.data.length; i++) {
                 _bankData.push({
                     label: data.data[i].bankName,
                     value: data.data[i].bankName,
@@ -822,14 +822,14 @@ export default function DailyEntry() {
     const addNewBank = (e) => {
         e.preventDefault();
         let key = bankData.length;
-        setBankData([...bankData, {value: newBank, label: newBank, key: key}]);
+        setBankData([...bankData, { value: newBank, label: newBank, key: key }]);
         setNewBank('');
 
         const db = getDatabase();
-        const bankRef = ref(db, 'bankData/data/'+key);
+        const bankRef = ref(db, 'bankData/data/' + key);
         // const newBankRef = push(bankRef);
         set(bankRef, {
-            value: newBank, 
+            value: newBank,
             label: newBank,
             key: key,
         })
@@ -1328,247 +1328,197 @@ export default function DailyEntry() {
                         form={form1}
                     >
                         <Flex gap="middle" align="start" vertical>
+                            <div style={{display: 'flex', justifyContent: 'center', width:'100%'}}>
+                                <table style={{border: '1px solid black', width:'100%'}}>
+                                    <tr style={{border: '1px solid black'}}>
+                                        <th>*</th>
+                                        <th style={{width:'20%'}}>Name</th>
+                                        <th>Contact</th>
+                                        <th>License Date</th>
+                                        <th>Cash</th>
+                                        <th>View</th>
+                                    </tr>
+                                    <tr style={{border: '1px solid black'}}>
+                                        <th>Driver 1</th>
+                                        {/* Name */}
+                                        <td >
+                                            <Select
+                                                style={{width:'100%'}}
+                                                showSearch
+                                                placeholder="Driver"
+                                                optionFilterProp="children"
+                                                // onChange={onChange}
+                                                // onSearch={onSearch}
+                                                filterOption={filterOption}
+                                                options={driverList}
+                                                dropdownRender={(menu) => (
+                                                    <>
+                                                        {menu}
+                                                        <Divider
+                                                            style={{
+                                                                margin: '8px 0',
+                                                            }}
+                                                        />
+                                                        <Space
+                                                            style={{
+                                                                padding: '0 8px 4px',
+                                                            }}
+                                                        >
+                                                            <Input
+                                                                placeholder="Please enter item"
+                                                                value={newDriverName}
+                                                                onChange={(e) => setNewDriverName(e.target.value)}
+                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                            />
+                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}>
 
-                        <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
-                                <div style={{ borderRadius: '10px', border: '1px solid green' }}>
-                                    <h3 style={{ padding: '10px' }}>
-                                        Driver 1
-                                    </h3>
-                                    <div
-                                        
-                                    >
-                                        <Flex gap="middle" align="start" vertical>
+                                                            </Button>
+                                                        </Space>
+                                                    </>
+                                                )}
+                                            />
+                                        </td>
+                                        {/* Contact */}
+                                        <td>
+                                            <Input placeholder='contact' />
+                                        </td>
+                                        {/* License Date */}
+                                        <td>
+                                            <Input placeholder='License Date' type='date' />
+                                        </td>
+                                        {/* Trip Cash */}
+                                        <td>
+                                            <Input placeholder='Trip Cash' type='number' />
+                                        </td>
+                                        {/* View */}
+                                        <td>
+                                            <Tooltip placement="top" title={'Driver Image'} >
+                                                <Button style={{ marginBottom: '22px' }}>View</Button>
+                                            </Tooltip>
+                                        </td>
+                                    </tr>
 
-                                            <Flex style={{ width: "1000px", height: 30 }} justify={'space-around'} align='center'>
+                                    <tr>
+                                        <th>Driver 2</th>
+                                        {/* Name */}
+                                        <td>
+                                            <Select
+                                                style={{width:'100%'}}
+                                                showSearch
+                                                placeholder="Driver"
+                                                optionFilterProp="children"
+                                                // onChange={onChange}
+                                                // onSearch={onSearch}
+                                                filterOption={filterOption}
+                                                options={driverList}
+                                                dropdownRender={(menu) => (
+                                                    <>
+                                                        {menu}
+                                                        <Divider
+                                                            style={{
+                                                                margin: '8px 0',
+                                                            }}
+                                                        />
+                                                        <Space
+                                                            style={{
+                                                                padding: '0 8px 4px',
+                                                            }}
+                                                        >
+                                                            <Input
+                                                                placeholder="Please enter item"
+                                                                value={newDriverName}
+                                                                onChange={(e) => setNewDriverName(e.target.value)}
+                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                            />
+                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}>
 
-                                                <Form.Item style={{ width: '20%' }}
-                                                    name={[name, 'driverName']}
-                                                    label='Name'
-                                                >
-                                                    <Select
-                                                        showSearch
-                                                        placeholder="Driver"
-                                                        optionFilterProp="children"
-                                                        // onChange={onChange}
-                                                        // onSearch={onSearch}
-                                                        filterOption={filterOption}
-                                                        options={driverList}
-                                                        dropdownRender={(menu) => (
-                                                            <>
-                                                                {menu}
-                                                                <Divider
-                                                                    style={{
-                                                                        margin: '8px 0',
-                                                                    }}
-                                                                />
-                                                                <Space
-                                                                    style={{
-                                                                        padding: '0 8px 4px',
-                                                                    }}
-                                                                >
-                                                                    <Input
-                                                                        placeholder="Please enter item"
-                                                                        value={newDriverName}
-                                                                        onChange={(e) => setNewDriverName(e.target.value)}
-                                                                        onKeyDown={(e) => e.stopPropagation()}
-                                                                    />
-                                                                    <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}>
+                                                            </Button>
+                                                        </Space>
+                                                    </>
+                                                )}
+                                            />
+                                        </td>
+                                        {/* Contact */}
+                                        <td>
+                                            <Input placeholder='contact' />
+                                        </td>
+                                        {/* License Date */}
+                                        <td>
+                                            <Input placeholder='License Date' type='date' />
+                                        </td>
+                                        {/* Trip Cash */}
+                                        <td>
+                                            <Input placeholder='Trip Cash' type='number' />
+                                        </td>
+                                        {/* View */}
+                                        <td>
+                                            <Tooltip placement="top" title={'Driver Image'} >
+                                                <Button style={{ marginBottom: '22px' }}>View</Button>
+                                            </Tooltip>
+                                        </td>
+                                    </tr>
 
-                                                                    </Button>
-                                                                </Space>
-                                                            </>
-                                                        )}
-                                                    />
+                                    <tr>
+                                        <th>Conductor</th>
+                                        {/* Name */}
+                                        <td >
+                                            <Select
+                                                style={{width:'100%'}}
+                                                showSearch
+                                                placeholder="Driver"
+                                                optionFilterProp="children"
+                                                // onChange={onChange}
+                                                // onSearch={onSearch}
+                                                filterOption={filterOption}
+                                                options={driverList}
+                                                dropdownRender={(menu) => (
+                                                    <>
+                                                        {menu}
+                                                        <Divider
+                                                            style={{
+                                                                margin: '8px 0',
+                                                            }}
+                                                        />
+                                                        <Space
+                                                            style={{
+                                                                padding: '0 8px 4px',
+                                                            }}
+                                                        >
+                                                            <Input
+                                                                placeholder="Please enter item"
+                                                                value={newDriverName}
+                                                                onChange={(e) => setNewDriverName(e.target.value)}
+                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                            />
+                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}>
 
-                                                </Form.Item>
-
-                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverContact']} label="contact">
-                                                    <Input placeholder='contact' />
-                                                </Form.Item>
-
-                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverLicenseDate']} label="License Date">
-                                                    <Input placeholder='License Date' type='date' />
-                                                </Form.Item>
-
-                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverTripCash']} label="Cash">
-                                                    <Input placeholder='Trip Cash' type='number' />
-                                                </Form.Item>
-
-                                                <Tooltip placement="top" title={'Driver Image'} >
-                                                    <Button style={{ marginBottom: '22px' }}>View</Button>
-                                                </Tooltip>
-                                                <MinusCircleOutlined onClick={() => remove(name)} />
-
-                                            </Flex>
-                                        </Flex>
-
-
-
-                                    </div>
-                                </div>
-                            </Flex>
-
-                            <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
-                                <div style={{ borderRadius: '10px', border: '1px solid green' }}>
-                                    <h3 style={{ padding: '10px' }}>
-                                        Driver 2
-                                    </h3>
-                                    <div
-                                        
-                                    >
-                                        <Flex gap="middle" align="start" vertical>
-
-                                            <Flex style={{ width: "1000px", height: 30 }} justify={'space-around'} align='center'>
-
-                                                <Form.Item style={{ width: '20%' }}
-                                                    name={[name, 'driverName']}
-                                                    label='Name'
-                                                >
-                                                    <Select
-                                                        showSearch
-                                                        placeholder="Driver"
-                                                        optionFilterProp="children"
-                                                        // onChange={onChange}
-                                                        // onSearch={onSearch}
-                                                        filterOption={filterOption}
-                                                        options={driverList}
-                                                        dropdownRender={(menu) => (
-                                                            <>
-                                                                {menu}
-                                                                <Divider
-                                                                    style={{
-                                                                        margin: '8px 0',
-                                                                    }}
-                                                                />
-                                                                <Space
-                                                                    style={{
-                                                                        padding: '0 8px 4px',
-                                                                    }}
-                                                                >
-                                                                    <Input
-                                                                        placeholder="Please enter item"
-                                                                        value={newDriverName}
-                                                                        onChange={(e) => setNewDriverName(e.target.value)}
-                                                                        onKeyDown={(e) => e.stopPropagation()}
-                                                                    />
-                                                                    <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}>
-
-                                                                    </Button>
-                                                                </Space>
-                                                            </>
-                                                        )}
-                                                    />
-
-                                                </Form.Item>
-
-                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverContact']} label="contact">
-                                                    <Input placeholder='contact' />
-                                                </Form.Item>
-
-                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverLicenseDate']} label="License Date">
-                                                    <Input placeholder='License Date' type='date' />
-                                                </Form.Item>
-
-                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverTripCash']} label="Cash">
-                                                    <Input placeholder='Trip Cash' type='number' />
-                                                </Form.Item>
-
-                                                <Tooltip placement="top" title={'Driver Image'} >
-                                                    <Button style={{ marginBottom: '22px' }}>View</Button>
-                                                </Tooltip>
-                                                <MinusCircleOutlined onClick={() => remove(name)} />
-
-                                            </Flex>
-                                        </Flex>
-
-
-
-                                    </div>
-                                </div>
-                            </Flex>
-
-                            <Flex style={{ width: '100%' }} justify={'space-around'} align={'center'}>
-                                <div style={{ borderRadius: '10px', border: '1px solid green' }}>
-                                    <h3 style={{ padding: '10px' }}>
-                                        Conductor
-                                    </h3>
-                                    <div
-                                        
-                                    >
-                                        <Flex gap="middle" align="start" vertical>
-
-                                            <Flex style={{ width: "1000px", height: 30 }} justify={'space-around'} align='center'>
-
-                                                <Form.Item style={{ width: '20%' }}
-                                                    name={[name, 'driverName']}
-                                                    label='Name'
-                                                >
-                                                    <Select
-                                                        showSearch
-                                                        placeholder="Driver"
-                                                        optionFilterProp="children"
-                                                        // onChange={onChange}
-                                                        // onSearch={onSearch}
-                                                        filterOption={filterOption}
-                                                        options={driverList}
-                                                        dropdownRender={(menu) => (
-                                                            <>
-                                                                {menu}
-                                                                <Divider
-                                                                    style={{
-                                                                        margin: '8px 0',
-                                                                    }}
-                                                                />
-                                                                <Space
-                                                                    style={{
-                                                                        padding: '0 8px 4px',
-                                                                    }}
-                                                                >
-                                                                    <Input
-                                                                        placeholder="Please enter item"
-                                                                        value={newDriverName}
-                                                                        onChange={(e) => setNewDriverName(e.target.value)}
-                                                                        onKeyDown={(e) => e.stopPropagation()}
-                                                                    />
-                                                                    <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}>
-
-                                                                    </Button>
-                                                                </Space>
-                                                            </>
-                                                        )}
-                                                    />
-
-                                                </Form.Item>
-
-                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverContact']} label="contact">
-                                                    <Input placeholder='contact' />
-                                                </Form.Item>
-
-                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverLicenseDate']} label="License Date">
-                                                    <Input placeholder='License Date' type='date' />
-                                                </Form.Item>
-
-                                                <Form.Item style={{ width: '20%' }} name={[name, 'driverTripCash']} label="Cash">
-                                                    <Input placeholder='Trip Cash' type='number' />
-                                                </Form.Item>
-
-                                                <Tooltip placement="top" title={'Driver Image'} >
-                                                    <Button style={{ marginBottom: '22px' }}>View</Button>
-                                                </Tooltip>
-                                                <MinusCircleOutlined onClick={() => remove(name)} />
-
-                                            </Flex>
-                                        </Flex>
-
-
-
-                                    </div>
-                                </div>
-                            </Flex>
-
-
-
-
+                                                            </Button>
+                                                        </Space>
+                                                    </>
+                                                )}
+                                            />
+                                        </td>
+                                        {/* Contact */}
+                                        <td>
+                                            <Input placeholder='contact' />
+                                        </td>
+                                        {/* License Date */}
+                                        <td>
+                                            <Input placeholder='License Date' type='date' />
+                                        </td>
+                                        {/* Trip Cash */}
+                                        <td>
+                                            <Input placeholder='Trip Cash' type='number' />
+                                        </td>
+                                        {/* View */}
+                                        <td>
+                                            <Tooltip placement="top" title={'Driver Image'} >
+                                                <Button style={{ marginBottom: '22px' }}>View</Button>
+                                            </Tooltip>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
 
                             {/* KM */}
                             <Flex style={{
@@ -1953,7 +1903,7 @@ export default function DailyEntry() {
                                                                                                 onKeyDown={(e) => e.stopPropagation()}
                                                                                             />
                                                                                             <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
-            
+
                                                                                             </Button>
                                                                                         </Space>
                                                                                     </>
@@ -2009,7 +1959,7 @@ export default function DailyEntry() {
                                                                                                 onKeyDown={(e) => e.stopPropagation()}
                                                                                             />
                                                                                             <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
-            
+
                                                                                             </Button>
                                                                                         </Space>
                                                                                     </>
@@ -2063,14 +2013,15 @@ export default function DailyEntry() {
                 console.log(item.date, date);
                 return item.date === date;
             }
-        ) 
+        )
         setDataSource(_displayDataSource);
+        setDateFilter(e.target.value);
         // setDisplayDataSource(_displayDataSource);
     }
     return (
         <>
             <div>
-                <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter}/>
+                <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
                 <Button onClick={() => {
                     setDataSource(completeDataSource);
                     setDateFilter(null);
