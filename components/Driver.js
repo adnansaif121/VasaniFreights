@@ -385,7 +385,7 @@ const Driver = () => {
                             driversDetails: data[key].driversDetails,
                             kaataParchi: data[key].kaataParchi,
                             firstPayment: data[key].firstPayment,
-                            bhadaKaunDalega: data[key].firstPayment[0].bhadaKaunDalega,
+                            bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
                             vehicleStatus: data[key].vehicleStatus,
                             furtherPayments: data[key].furtherPayments || {},
                         }
@@ -922,7 +922,7 @@ const Driver = () => {
 
                     </div>
                     <Table size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
-                        expandedRowRender: (record) => <ViewDriverDetails/>
+                        expandedRowRender: (record) => <ViewDriverDetails />
                         ,
                         rowExpandable: (record) => true,
                     }}

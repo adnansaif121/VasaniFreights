@@ -116,7 +116,7 @@ const CashHisab = () => {
                             </tr>
                             {cashReceived && cashReceived.map((item, i) => {
                                 return (
-                                    <tr>
+                                    <tr key={i}>
                                         <td style={{textAlign: 'center'}}>
                                             {item.date}
                                         </td>
