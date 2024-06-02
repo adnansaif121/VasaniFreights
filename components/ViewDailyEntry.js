@@ -262,6 +262,11 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                 width: '100%',
                                 height: 60,
                             }} justify={'space-around'} align={'center'}>
+                                <Form.Item style={{ width: '20%' }} label="Date" 
+                                    // className={!tripDetailsEditFlag ? '' : styles.disabled}
+                                    name="Date">
+                                   <Input type="date" defaultValue={data.date}></Input>
+                                </Form.Item>
 
                                 <Form.Item style={{ width: '30%' }} label="Vehicle No." 
                                     // className={!tripDetailsEditFlag ? '' : styles.disabled}

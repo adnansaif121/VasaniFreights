@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker } from 'antd';
-import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Upload } from 'antd';
+import { InboxOutlined ,UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
 import ViewDriverDetails from './ViewDriverDetails';
@@ -348,6 +348,27 @@ const Driver = () => {
     const [allTableData, setAllTableData] = useState({});
     const [customStartDate, setCustomStartDate] = useState(null);
     const [customEndDate, setCustomEndDate] = useState(null);
+
+    const { Dragger } = Upload;
+    const props = {
+        name: 'file',
+        multiple: true,
+        action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
+        onChange(info) {
+          const { status } = info.file;
+          if (status !== 'uploading') {
+            console.log(info.file, info.fileList);
+          }
+          if (status === 'done') {
+            message.success(`${info.file.name} file uploaded successfully.`);
+          } else if (status === 'error') {
+            message.error(`${info.file.name} file upload failed.`);
+          }
+        },
+        onDrop(e) {
+          console.log('Dropped files', e.dataTransfer.files);
+        },
+      };
     useEffect(() => {
         const db = getDatabase();
         // Get data from database
@@ -392,7 +413,7 @@ const Driver = () => {
                     )
                 });
             }
-            console.log(ds); 
+            console.log(ds);
             ds = ds.sort(
                 (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
             );
@@ -401,7 +422,7 @@ const Driver = () => {
         });
 
         // create dummy party List
-        
+
         const driverRef = ref(db, 'drivers/');
         onValue(driverRef, (snapshot) => {
             const data = snapshot.val();
@@ -409,10 +430,10 @@ const Driver = () => {
             // updateStarCount(postElement, data);
             let drivers = []; // Data Source
             Object.values(data).map((driver, i) => {
-                if(driver.contact === undefined || driver.address === undefined){
-                    drivers.push({...driver, icon: <ExclamationCircleTwoTone twoToneColor="#eb2f96" />});
+                if (driver.contact === undefined || driver.address === undefined) {
+                    drivers.push({ ...driver, icon: <ExclamationCircleTwoTone twoToneColor="#eb2f96" /> });
                 }
-                else{
+                else {
                     drivers.push(driver);
                 }
             })
@@ -447,13 +468,13 @@ const Driver = () => {
         console.log(displayPartyList[partyIndex]);
         console.log(e.item.props.value);
 
-        let driver = displayPartyList[partyIndex].label;    
-        let ds = [];    
+        let driver = displayPartyList[partyIndex].label;
+        let ds = [];
         console.log(dataSource);
-        for(let i = 0; i < dataSource.length; i++){
+        for (let i = 0; i < dataSource.length; i++) {
             // console.log(dataSource[i].driversDetails[0].?.toLowerCase(), party.toLowerCase());
-            for(let j = 0; j < dataSource[i].driversDetails.length; j++){
-                if(dataSource[i].driversDetails[j].driverName?.toLowerCase() === driver.toLowerCase()){
+            for (let j = 0; j < dataSource[i].driversDetails.length; j++) {
+                if (dataSource[i].driversDetails[j].driverName?.toLowerCase() === driver.toLowerCase()) {
                     ds.push(dataSource[i]);
                 }
             }
@@ -506,7 +527,7 @@ const Driver = () => {
             dataIndex: 'id',
             key: 'id',
         },
-       
+
         {
             title: 'Date',
             dataIndex: 'date',
@@ -527,13 +548,13 @@ const Driver = () => {
             dataIndex: 'to',
             key: 'to',
         },
-       
+
         {
             title: 'Maal',
             dataIndex: 'maal',
             key: 'maal',
         },
-        
+
         {
             title: 'Total Freight',
             dataIndex: 'totalFreight',
@@ -578,7 +599,7 @@ const Driver = () => {
             value: 'custom',
         }
     ]
-    
+
     const handleFilterChange = (value) => {
         console.log(`selected ${value} value`);
         setFilterType(value);
@@ -586,14 +607,14 @@ const Driver = () => {
         let today = new Date();
         let year = today.getFullYear();
         let month = today.getMonth();
-        switch(value){
+        switch (value) {
             case "lastMonth":
                 let month_first_date = (new Date(year, month, 1)).getTime();
-                _displayDataSource= dataSource.filter(
+                _displayDataSource = dataSource.filter(
                     (item) => {
                         let itemDate = new Date(item.date).getTime();
                         return itemDate >= month_first_date;
-                    } 
+                    }
                 )
                 setDisplayDataSource([..._displayDataSource]);
                 console.log(_displayDataSource);
@@ -602,7 +623,7 @@ const Driver = () => {
                 // let year = (new Date()).getFullYear();
                 let quarter = Math.floor(((new Date()).getMonth() + 3) / 3);
                 let quarterStartMonth = [0, 3, 6, 9] //jan, April, July, Oct
-                let quarter_first_date = (new Date(year, quarterStartMonth[quarter-1], 1)).getTime();
+                let quarter_first_date = (new Date(year, quarterStartMonth[quarter - 1], 1)).getTime();
                 _displayDataSource = dataSource.filter(
                     (item) => {
                         let itemDate = new Date(item.date).getTime();
@@ -613,10 +634,10 @@ const Driver = () => {
                 break;
             case "last6Months":
                 let _last6thMonthYear = year;
-                let _last6thmonth = month-6;
-                if(_last6thmonth >= 0){
-                    _last6thMonthYear--; 
-                    _last6thmonth = 12+_last6thMonthYear; 
+                let _last6thmonth = month - 6;
+                if (_last6thmonth >= 0) {
+                    _last6thMonthYear--;
+                    _last6thmonth = 12 + _last6thMonthYear;
                 }
                 let last6month_start_date = (new Date(_last6thMonthYear, _last6thmonth, 1)).getTime();
                 _displayDataSource = dataSource.filter(
@@ -628,7 +649,7 @@ const Driver = () => {
                 setDisplayDataSource([..._displayDataSource]);
                 break;
             case "lastYear":
-                let _lastYear_start_date = (new Date(year-1, 0, 1)).getTime();
+                let _lastYear_start_date = (new Date(year - 1, 0, 1)).getTime();
                 _displayDataSource = dataSource.filter(
                     (item) => {
                         let itemDate = new Date(item.date).getTime();
@@ -638,7 +659,7 @@ const Driver = () => {
                 setDisplayDataSource([..._displayDataSource]);
                 break;
             case "lastFinancialYear":
-                let _lastFinancialYear_start_date = (new Date(year-1, 3, 1)).getTime();
+                let _lastFinancialYear_start_date = (new Date(year - 1, 3, 1)).getTime();
                 let _lastFinancialYear_end_date = (new Date(year, 2, 31)).getTime();
                 _displayDataSource = dataSource.filter(
                     (item) => {
@@ -658,7 +679,7 @@ const Driver = () => {
     const showDrawer = () => {
         setOpen(true);
     };
-    
+
     const onClose = () => {
         setOpen(false);
     };
@@ -675,29 +696,29 @@ const Driver = () => {
             address: partyAddress,
             contact: partyContact,
             description: partyDescription
-        }); 
+        });
 
         // let pl = partyList;
         let dpl = displayPartyList;
         dpl[selectedPartyIndex] = {
             label: partyName,
             value: partyName,
-            location: (partyLocation|| ''),
-            address: (partyAddress|| ''),
-            contact:( partyContact|| ''),
-            description: (partyDescription|| '')
+            location: (partyLocation || ''),
+            address: (partyAddress || ''),
+            contact: (partyContact || ''),
+            description: (partyDescription || '')
         }
         //  setPartyList([...parties]);
         setDisplayPartyList([...dpl]);
         onClose();
     }
-    
+
     const handleCustomFilter = () => {
-        if(customStartDate === null){
+        if (customStartDate === null) {
             alert("Please Enter Start Date");
             return;
         }
-        if(customEndDate === null){
+        if (customEndDate === null) {
             alert("Please Enter End Date");
             return;
         }
@@ -708,7 +729,7 @@ const Driver = () => {
                 let itemDate = new Date(item.date).getTime();
                 return itemDate >= _custom_start_date && itemDate <= _custom_end_date;
             }
-        ) 
+        )
         setDisplayDataSource(_displayDataSource);
     }
 
@@ -720,17 +741,17 @@ const Driver = () => {
             <div className={styles.container}>
                 <div className={styles.part1}>
                     <Input onChange={handleSearch} placeholder='Search' />
-                    <div className={styles.menu} style={{display: 'flex'}}>
-                       
-                        <div style={{backgroundColor: 'white', marginLeft: '2px', borderRadius: '5px', padding: '0px 5px 0px 5px'}}>
-                            {displayPartyList.map((item, index)=>{
-                                return(
-                                <div key={index} style={{padding:'6px 0px 6px 0px', color: 'blue'}}> 
-                                        <Button onClick={showDrawer} icon={<UserOutlined/>}></Button>
-                                         
-                                    </div>    
+                    <div className={styles.menu} style={{ display: 'flex' }}>
+
+                        <div style={{ backgroundColor: 'white', marginLeft: '2px', borderRadius: '5px', padding: '0px 5px 0px 5px' }}>
+                            {displayPartyList.map((item, index) => {
+                                return (
+                                    <div key={index} style={{ padding: '6px 0px 6px 0px', color: 'blue' }}>
+                                        <Button onClick={showDrawer} icon={<UserOutlined />}></Button>
+
+                                    </div>
                                 )
-                            })}   
+                            })}
                         </div>
 
                         <Menu
@@ -745,7 +766,7 @@ const Driver = () => {
                 </div>
                 <div className={styles.part2}>
                     <div >
-                        <Row justify={'space-between'} style={{width:'75vw'}}>
+                        <Row justify={'space-between'} style={{ width: '75vw' }}>
                             <Col>
                                 <Select
                                     defaultValue="none"
@@ -760,10 +781,10 @@ const Driver = () => {
                                 {
                                     filterType === 'custom' ? <Row>
                                         <Col>
-                                            <Input type='date' placeholder='start Date' onChange={(e)=>setCustomStartDate(e.target.value)}></Input>
+                                            <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
                                         </Col>
                                         <Col>
-                                            <Input type='date' placeholder='end Date' onChange={(e)=>setCustomEndDate(e.target.value)}></Input>
+                                            <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
                                         </Col>
                                         <Col>
                                             <Button onClick={handleCustomFilter}>Apply</Button>
@@ -829,7 +850,7 @@ const Driver = () => {
                                                 },
                                             ]}
                                         >
-                                            <Input placeholder="Please enter user name" value={partyName} onChange={(e)=>setPartyName(e.target.value)}/>
+                                            <Input placeholder="Please enter user name" value={partyName} onChange={(e) => setPartyName(e.target.value)} />
                                         </Form.Item>
                                     </Col>
                                     <Col span={12}>
@@ -849,7 +870,7 @@ const Driver = () => {
                                                 }}
                                                 placeholder="Party Location"
                                                 value={partyLocation}
-                                                onChange={(e)=>setPartyLocation(e.target.value)}
+                                                onChange={(e) => setPartyLocation(e.target.value)}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -872,7 +893,7 @@ const Driver = () => {
                                                 }}
                                                 placeholder="Party Address"
                                                 value={partyAddress}
-                                                onChange={(e)=>setPartyAddress(e.target.value)}
+                                                onChange={(e) => setPartyAddress(e.target.value)}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -893,7 +914,7 @@ const Driver = () => {
                                                 }}
                                                 placeholder="Contact Number"
                                                 value={partyContact}
-                                                onChange={(e)=>setPartyContact(e.target.value)}
+                                                onChange={(e) => setPartyContact(e.target.value)}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -911,9 +932,22 @@ const Driver = () => {
                                                 },
                                             ]}
                                         >
-                                            <Input.TextArea rows={4} placeholder="please enter url description" value={partyDescription} onChange={(e)=>setPartyDescription(e.target.value)}/>
+                                            <Input.TextArea rows={4} placeholder="please enter url description" value={partyDescription} onChange={(e) => setPartyDescription(e.target.value)} />
                                         </Form.Item>
                                     </Col>
+                                </Row>
+
+                                <Row>
+                                    <Dragger {...props}>
+                                        <p className="ant-upload-drag-icon">
+                                            <InboxOutlined />
+                                        </p>
+                                        <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                                        <p className="ant-upload-hint">
+                                            Support for a single or bulk upload. Strictly prohibited from uploading company data or other
+                                            banned files.
+                                        </p>
+                                    </Dragger>
                                 </Row>
                             </Form>
                         </Drawer>
