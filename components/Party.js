@@ -384,7 +384,7 @@ const Party = () => {
                             driversDetails: data[key].driversDetails,
                             kaataParchi: data[key].kaataParchi,
                             firstPayment: data[key].firstPayment,
-                            bhadaKaunDalega: data[key].firstPayment[0].bhadaKaunDalega,
+                            bhadaKaunDalega:(data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
                             vehicleStatus: data[key].vehicleStatus,
                             furtherPayments: data[key].furtherPayments || {},
                         }

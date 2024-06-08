@@ -420,7 +420,7 @@ const Driver = () => {
             setDisplayDataSource(ds);
             setDataSource(ds);
         });
-
+        
         // create dummy party List
 
         const driverRef = ref(db, 'drivers/');

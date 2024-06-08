@@ -830,6 +830,12 @@ export default function DailyEntry() {
 
     const addNewParty = (e) => {
         e.preventDefault();
+        for(let i = 0; i < partyListAll.length; i++){
+            if(newParty.toUpperCase() === partyListAll[i].value.toUpperCase()){
+                alert(`Party with name ${partyListAll[i].value} already exists.` );
+                return;
+            }
+        }
         setPartyListAll([...partyListAll, { value: newParty, label: newParty }]);
         setNewParty('');
         // Create a new party reference with an auto-generated id
@@ -845,6 +851,12 @@ export default function DailyEntry() {
     const addNewTransporter = (e) => {
 
         e.preventDefault();
+        for(let i = 0; i < transporterList.length; i++){
+            if(newTransporter.toUpperCase() === transporterList[i].value.toUpperCase()){
+                alert(`Transporter with name ${transporterList[i].value} already exixts`);
+                return;
+            }
+        }
         setTransporterList([...transporterList, { value: newTransporter, label: newTransporter }]);
         setNewTransporter('');
 
@@ -877,6 +889,12 @@ export default function DailyEntry() {
     const addNewDriver = (e) => {
 
         e.preventDefault();
+        for(let i = 0; i < driverList.length; i++){
+            if(newDriverName.toUpperCase() === driverList[i].value.toUpperCase()){
+                alert("Driver with this name already exists");
+                return;
+            }
+        }
         setDriverList([...driverList, { value: newDriverName, label: newDriverName }]);
         setNewDriverName('');
 
