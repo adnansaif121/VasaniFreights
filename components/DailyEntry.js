@@ -381,6 +381,7 @@ export default function DailyEntry() {
     // to display dynamic Bhada Kaun Dalega list
     const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
     const [partyDetailsList, setPartyDetailsList] = useState([[], [], [], [], [], []]);
+    const [selectedPartyIndex, setSelectedPartyIndex] = useState([-1, -1, -1, -1, -1, -1, -1]);
     // Drivers List
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
@@ -585,6 +586,7 @@ export default function DailyEntry() {
         setDataSource(ds);
         setCompleteDataSource(ds);
     }
+
     const handleSave = () => {
         let tripDetails = form.getFieldsValue(['tripDetails']);
         let listOfTrips = [];
@@ -1076,7 +1078,17 @@ export default function DailyEntry() {
                                                                     showSearch
                                                                     placeholder="Bhejne waale"
                                                                     optionFilterProp="children"
-                                                                    onChange={(value) => addPartyInPartyList(value, name)}
+                                                                    onChange={(value) => {addPartyInPartyList(value, name); 
+                                                                        let _selectedPartyIndex = selectedPartyIndex;
+                                                                        for(let i = 0; i < partyListAll.length; i++){
+                                                                            if(partyListAll[i].value.toUpperCase() === value.toUpperCase()){
+                                                                                _selectedPartyIndex[name] = i;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        // console.log(_selectedPartyIndex);
+                                                                        setSelectedPartyIndex([..._selectedPartyIndex]);
+                                                                    }}
                                                                     // onSearch={onSearch}
                                                                     filterOption={filterOption}
                                                                     options={partyListAll}
@@ -1109,7 +1121,11 @@ export default function DailyEntry() {
                                                             </Form.Item>
 
                                                             <div className='tooltip'>
-                                                                <Tooltip placement="top" title={partyDetailsList[name]?.party1Details}>
+                                                                <Tooltip placement="top" 
+                                                                // title={partyDetailsList[name]?.party1Details}
+                                                                    title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}`: 'Not available'}
+                                                                >
+
                                                                     <EyeOutlined />
                                                                 </Tooltip>
                                                             </div>
@@ -1165,7 +1181,18 @@ export default function DailyEntry() {
                                                                     showSearch
                                                                     placeholder="Paane waala"
                                                                     optionFilterProp="children"
-                                                                    onChange={(value) => addPartyInPartyList(value, name)}
+                                                                    onChange={(value) => {
+                                                                        addPartyInPartyList(value, name)
+                                                                        let _selectedPartyIndex = selectedPartyIndex;
+                                                                        for(let i = 0; i < partyListAll.length; i++){
+                                                                            if(partyListAll[i].value.toUpperCase() === value.toUpperCase()){
+                                                                                _selectedPartyIndex[name+1] = i;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        // console.log(_selectedPartyIndex);
+                                                                        setSelectedPartyIndex([..._selectedPartyIndex]);
+                                                                    }}
                                                                     // onSearch={onSearch}
                                                                     filterOption={filterOption}
                                                                     options={partyListAll}
@@ -1198,7 +1225,10 @@ export default function DailyEntry() {
                                                             </Form.Item>
 
                                                             <div className='tooltip'>
-                                                                <Tooltip placement="top" title={partyDetailsList[name]?.party2Details}>
+                                                                <Tooltip placement="top" 
+                                                                // title={partyDetailsList[name]?.party2Details}
+                                                                title={selectedPartyIndex[name+1] !== -1 ? `${partyListAll[selectedPartyIndex[name+1]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name+1]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name+1]].location || ' '}`: 'Not available'}
+                                                                >
                                                                     <EyeOutlined />
                                                                 </Tooltip>
                                                             </div>
