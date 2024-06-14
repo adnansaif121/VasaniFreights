@@ -64,7 +64,8 @@ export default function Dashboard() {
                 <Party></Party>
             }
             {nav == "Transporter" && 
-                <Transporter></Transporter>
+                <></>
+                // <Transporter></Transporter>
             }
             {nav == "NaveenKaka" && 
                 <NaveenKaka></NaveenKaka>

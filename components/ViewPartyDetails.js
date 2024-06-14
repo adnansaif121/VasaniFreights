@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker } from 'antd';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Divider } from 'antd';
 import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
-const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
+const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
     const [tableData, setTableData] = useState([]);
@@ -20,14 +20,18 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
     const [displayDataSource, setDisplayDataSource] = useState([]);
     const [allTableData, setAllTableData] = useState({});
 
-    const [amountReceived, setAmountReceived] = useState(parseInt(data.firstPayment[0].pohchAmount || 0) +
-        parseInt(data.firstPayment[0].cashAmount || 0) +
-        parseInt(data.firstPayment[0].chequeAmount || 0) +
-        parseInt(data.firstPayment[0].onlineAmount || 0));
+    const [newBank, setNewBank] = useState('');
+    // const [bankData, setBankData] = useState([]);
+
+    const [amountReceived, setAmountReceived] = useState((data.firstPayment === undefined? 0 : parseInt(data.firstPayment[0].pohchAmount || 0) +
+    parseInt(data.firstPayment[0].cashAmount || 0) +
+    parseInt(data.firstPayment[0].chequeAmount || 0) +
+    parseInt(data.firstPayment[0].onlineAmount || 0)) );
     const [form4] = Form.useForm();
 
     useEffect(() => {
         console.log('data', data);
+        // parseInt(data.firstPayment[0].cashAmount) + parseInt(data.firstPayment[0].onlineAmount) + parseInt(data.firstPayment[0].chequeAmount)
         // let tripDetails = form.getFieldsValue(['tripDetails']);
         // tripDetails.tripDetails = data.tripDetails;
         // form.setFieldsValue(tripDetails);
@@ -42,6 +46,21 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
             }
             setAmountReceived(amountReceived + totalAmount);
         }
+
+        // const bankRef = ref(db, 'bankData/');
+        // onValue(bankRef, (snapshot) => {
+        //     const data = snapshot.val();
+        //     let _bankData = [];
+        //     for (let i = 0; i < data.data.length; i++) {
+        //         _bankData.push({
+        //             label: data.data[i].bankName,
+        //             value: data.data[i].bankName,
+        //             key: data.data[i].key
+        //         })
+        //     }
+        //     setBankData([..._bankData]);
+        //     // console.log(data, 'Bankdata');
+        // })
     }, []);
 
     const filterOption = (input, option) =>
@@ -75,6 +94,21 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
         });
     }
 
+    const addNewBank = (e) => {
+        e.preventDefault();
+        let key = bankData.length;
+        setBankData([...bankData, { value: newBank, label: newBank, key: key }]);
+        setNewBank('');
+
+        const db = getDatabase();
+        const bankRef = ref(db, 'bankData/data/' + key);
+        // const newBankRef = push(bankRef);
+        set(bankRef, {
+            value: newBank,
+            label: newBank,
+            key: key,
+        })
+    }
     return (
         <>
             <div>
@@ -89,12 +123,6 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
 
                 </div>
 
-                <Card title="Transaction Status">
-                    <Radio.Group defaultValue="a" buttonStyle="solid">
-                        <Radio.Button value="a">Open</Radio.Button>
-                        <Radio.Button value="b">Close</Radio.Button>
-                    </Radio.Group>
-                </Card>
 
                 <Card title="Payment Details">
 
@@ -113,17 +141,17 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                 <td ><h3>Pohch</h3></td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={parseInt(data.firstPayment[0].pohchAmount)} placeholder='amount' type='number' />
+                                        <Input value={(data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].pohchAmount))} placeholder='amount' type='number' />
                                     </Form.Item>
                                 </td >
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment[0].pohchDate} placeholder='date' type='date' />
+                                        <Input value={data.firstPayment === undefined ? 0 : data.firstPayment[0].pohchDate} placeholder='date' type='date' />
                                     </Form.Item>
                                 </td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment[0].pohchSendTo || ''}></Input>
+                                        <Input value={data.firstPayment === undefined ? 'NA' : data.firstPayment[0].pohchSendTo || ''}></Input>
                                         {/* <Select
                                                                                 showSearch
                                                                                 placeholder="Pohch Send To"
@@ -141,7 +169,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                 </td>
                                 <td >
                                     <Form.Item>
-                                        <Input value={data.firstPayment[0].pohchRemarks} placeholder='remarks' />
+                                        <Input value={data.firstPayment === undefined ? null : data.firstPayment[0].pohchRemarks} placeholder='remarks' />
                                     </Form.Item>
                                 </td>
                             </tr>
@@ -149,19 +177,19 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                 <td ><h3>Cash</h3></td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment[0].cashAmount} placeholder='amount' type='number' />
+                                        <Input value={data.firstPayment === undefined ? 0 : data.firstPayment[0].cashAmount} placeholder='amount' type='number' />
                                     </Form.Item>
                                 </td >
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment[0].cashDate} placeholder='date' type='date' />
+                                        <Input value={data.firstPayment === undefined ? null : data.firstPayment[0].cashDate} placeholder='date' type='date' />
                                     </Form.Item>
                                 </td>
                                 <td >
                                 </td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment[0].cashRemarks} placeholder='remarks' />
+                                        <Input value={data.firstPayment === undefined ? null : data.firstPayment[0].cashRemarks} placeholder='remarks' />
                                     </Form.Item>
                                 </td>
                             </tr>
@@ -169,12 +197,12 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                 <td ><h3>Online</h3></td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={parseInt(data.firstPayment[0].onlineAmount)} placeholder='amount' type='number' />
+                                        <Input value={data.firstPayment === undefined ? null : parseInt(data.firstPayment[0].onlineAmount)} placeholder='amount' type='number' />
                                     </Form.Item>
                                 </td >
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment[0].onlineDate} placeholder='date' type='date' />
+                                        <Input value={data.firstPayment === undefined ? null : data.firstPayment[0].onlineDate} placeholder='date' type='date' />
                                     </Form.Item>
                                 </td>
                                 <td >
@@ -187,13 +215,38 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                             // onSearch={onSearch}
                                             filterOption={filterOption}
                                             options={bankData}
-                                            defaultValue={data.firstPayment[0].onlineBank}
+                                            defaultValue={data.firstPayment === undefined ? null : data.firstPayment[0].onlineBank}
+                                            dropdownRender={(menu) => (
+                                                <>
+                                                    {menu}
+                                                    <Divider
+                                                        style={{
+                                                            margin: '8px 0',
+                                                        }}
+                                                    />
+                                                    <Space
+                                                        style={{
+                                                            padding: '0 8px 4px',
+                                                        }}
+                                                    >
+                                                        <Input
+                                                            placeholder="Please enter item"
+                                                            value={newBank}
+                                                            onChange={(e) => setNewBank(e.target.value)}
+                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                        />
+                                                        <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
+
+                                                        </Button>
+                                                    </Space>
+                                                </>
+                                            )}
                                         />
                                     </Form.Item>
                                 </td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment[0].onlineRemarks} placeholder='remarks' />
+                                        <Input value={data.firstPayment === undefined ? null : data.firstPayment[0].onlineRemarks} placeholder='remarks' />
                                     </Form.Item>
                                 </td>
                             </tr>
@@ -201,12 +254,12 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                 <td ><h3>Cheque</h3></td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={parseInt(data.firstPayment[0].chequeAmount)} placeholder='amount' type='number' />
+                                        <Input value={data.firstPayment === undefined ? null : parseInt(data.firstPayment[0].chequeAmount)} placeholder='amount' type='number' />
                                     </Form.Item>
                                 </td >
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment[0].chequeDate} placeholder='date' type='date' />
+                                        <Input value={data.firstPayment === undefined ? null : data.firstPayment[0].chequeDate} placeholder='date' type='date' />
                                     </Form.Item>
                                 </td>
                                 <td >
@@ -219,13 +272,38 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                             // onSearch={onSearch}
                                             filterOption={filterOption}
                                             options={bankData}
-                                            defaultValue={data.firstPayment[0].chequeBank}
+                                            defaultValue={data.firstPayment === undefined ? null : data.firstPayment[0].chequeBank}
+                                            dropdownRender={(menu) => (
+                                                <>
+                                                    {menu}
+                                                    <Divider
+                                                        style={{
+                                                            margin: '8px 0',
+                                                        }}
+                                                    />
+                                                    <Space
+                                                        style={{
+                                                            padding: '0 8px 4px',
+                                                        }}
+                                                    >
+                                                        <Input
+                                                            placeholder="Please enter item"
+                                                            value={newBank}
+                                                            onChange={(e) => setNewBank(e.target.value)}
+                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                        />
+                                                        <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
+
+                                                        </Button>
+                                                    </Space>
+                                                </>
+                                            )}
                                         />
                                     </Form.Item>
                                 </td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment[0].chequeRemarks} placeholder='remarks' />
+                                        <Input value={data.firstPayment === undefined ? null : data.firstPayment[0].chequeRemarks} placeholder='remarks' />
                                     </Form.Item>
                                 </td>
                             </tr>
@@ -297,6 +375,31 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                                             // onSearch={onSearch}
                                                             filterOption={filterOption}
                                                             options={bankData}
+                                                            dropdownRender={(menu) => (
+                                                                <>
+                                                                    {menu}
+                                                                    <Divider
+                                                                        style={{
+                                                                            margin: '8px 0',
+                                                                        }}
+                                                                    />
+                                                                    <Space
+                                                                        style={{
+                                                                            padding: '0 8px 4px',
+                                                                        }}
+                                                                    >
+                                                                        <Input
+                                                                            placeholder="Please enter item"
+                                                                            value={newBank}
+                                                                            onChange={(e) => setNewBank(e.target.value)}
+                                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                                        />
+                                                                        <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
+
+                                                                        </Button>
+                                                                    </Space>
+                                                                </>
+                                                            )}
                                                         />
                                                     </Form.Item>
                                                 </td>
@@ -403,6 +506,31 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                     <div>
                         <h3>Total : {amountReceived}</h3>
                     </div>
+                </Card>
+
+                <Card title='Remaining Balance'>
+                    <table>
+                        <tr>
+                            <th>Freight Amt</th>
+                            <th>Table 1 Amt</th>
+                            <th>Table 2 Amt</th>
+                            <th>Extra Amt</th>
+                            <th>Remark</th>
+                        </tr>
+                        <tr>
+                            <td style={{display: 'flex', justifyContent:'center'}}>{data.totalFreight}</td>
+                            {/* <td style={{display: 'flex', justifyContent:'center'}}>{(parseInt(data.firstPayment[0].cashAmount) || 0)  + (parseInt(data.firstPayment[0].onlineAmount) || 0) + (parseInt(data.firstPayment[0].chequeAmount) || 0)}</td> */}
+                            {/* <td>{amountReceived - ((parseInt(data.firstPayment[0].cashAmount) || 0) + (parseInt(data.firstPayment[0].onlineAmount) || 0) + (parseInt(data.firstPayment[0].chequeAmount) || 0))}</td> */}
+                            <td><Input style={{width: '50px'}} type='number'></Input></td>
+                        </tr>
+                    </table>
+                </Card>
+
+                <Card title="Transaction Status">
+                    <Radio.Group defaultValue="a" buttonStyle="solid">
+                        <Radio.Button value="a">Open</Radio.Button>
+                        <Radio.Button value="b">Close</Radio.Button>
+                    </Radio.Group>
                 </Card>
 
                 <Button style={{marginTop:'5px'}} type='primary' onClick={handleSave}>Save</Button>

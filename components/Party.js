@@ -450,7 +450,8 @@ const Party = () => {
         let ds = [];    
         console.log(dataSource);
         for(let i = 0; i < dataSource.length; i++){
-            console.log(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase(), party.toLowerCase());
+            // console.log(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase(), party.toLowerCase());
+            if(dataSource[i].firstPayment === undefined || dataSource[i].bhadaKaunDalega === undefined)continue;
             if(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase() === party.toLowerCase()){
                 ds.push(dataSource[i]);
             }
@@ -458,44 +459,6 @@ const Party = () => {
         console.log(ds);
         setDisplayDataSource([...ds]);
     };
-
-    // const dataSource = [
-    //     {
-    //         key: '1',
-    //         id: '1',
-    //         transactionStatus: 'open',
-    //         truckNo: 'MH 04 1234',
-    //         from: 'Pune',
-    //         to: 'Mumbai',
-    //         paid: 'Paid',
-    //         bhejneWaliParty: 'ABC',
-    //         paaneWaliParty: 'XYZ',
-    //         transporter: 'UV Logistics',
-    //         maal: 'Cement',
-    //         qty: '100',
-    //         rate: '1000',
-    //         totalFreight: '100000',
-    //         received: '100000'
-    //     },
-    //     {
-    //         key: '2',
-    //         id: '2',
-    //         transactionStatus: 'open',
-    //         truckNo: 'MH 04 1234',
-    //         from: 'Pune',
-    //         to: 'Mumbai',
-    //         paid: 'Paid',
-    //         bhejneWaliParty: 'ABC',
-    //         paaneWaliParty: 'XYZ',
-    //         transporter: 'UV Logistics',
-    //         maal: 'Cement',
-    //         qty: '100',
-
-    //         rate: '1000',
-    //         totalFreight: '100000',
-    //         received: '100000'
-    //     },
-    // ];
 
     const columns = [
         {
@@ -513,6 +476,13 @@ const Party = () => {
             title: 'Date',
             dataIndex: 'date',
             key: 'date',
+            render: (text) => {
+                let date = new Date(text);
+                console.log(date, date.getDay(), date.getMonth());
+                return(
+                    <span>{date.getDate()}/{date.getMonth()+1}/{date.getFullYear()}</span>
+                )
+            }
         },
         {
             title: 'Truck No.',

@@ -5,7 +5,7 @@ import styles from '../styles/DailyEntry.module.css';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import { CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import ViewDailyEntry from './ViewDailyEntry';
-import { render } from 'react-dom';
+// import { render } from 'react-dom';
 let bankData = [
     {
         key: "0",
@@ -381,7 +381,7 @@ export default function DailyEntry() {
     // to display dynamic Bhada Kaun Dalega list
     const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
     const [partyDetailsList, setPartyDetailsList] = useState([[], [], [], [], [], []]);
-    const [selectedPartyIndex, setSelectedPartyIndex] = useState([-1, -1, -1, -1, -1, -1, -1]);
+    const [selectedPartyIndex, setSelectedPartyIndex] = useState([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
     // Drivers List
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
@@ -492,6 +492,10 @@ export default function DailyEntry() {
                             firstPayment: data[key].firstPayment,
                             vehicleStatus: data[key].vehicleStatus,
                             bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
+
+                            driver1: data[key].driver1 || null,
+                            driver2: data[key].driver2 || null,
+                            conductor: data[key].conductor || null,
                         }
                     )
                 });
@@ -606,19 +610,20 @@ export default function DailyEntry() {
         }
         );
 
-        let driversDetails = form1.getFieldsValue(['DriversDetails']);
-        let listOfDrivers = [];
-        driversDetails?.DriversDetails?.forEach((driver) => {
-            listOfDrivers.push({
-                driverName: driver?.driverName || '',
-                driverContact: driver?.driverContact || '',
-                driverLicenseDate: driver?.driverLicenseDate || '',
-                driverTripCash: driver?.driverTripCash || ''
-            });
-        }
-        );
+        // let driversDetails = form1.getFieldsValue(['DriversDetails']);
+        // let listOfDrivers = [];
+        // driversDetails?.DriversDetails?.forEach((driver) => {
+        //     listOfDrivers.push({
+        //         driverName: driver?.driverName || '',
+        //         driverContact: driver?.driverContact || '',
+        //         driverLicenseDate: driver?.driverLicenseDate || '',
+        //         driverTripCash: driver?.driverTripCash || ''
+        //     });
+        // }
+        // );
+        // let driversDetails = [{...driver1}, {...driver2}, {...conductor}];
 
-        if (form1?.getFieldsValue(['DriversDetails']).DriversDetails === undefined || driversDetails.length === 0) listOfDrivers = null;
+        // if (form1?.getFieldsValue(['DriversDetails']).DriversDetails === undefined || driversDetails.length === 0) listOfDrivers = null;
 
         let kaataParchi = form2.getFieldsValue(['kaataParchi']);
         let listOfKaataParchi = [];
@@ -677,7 +682,7 @@ export default function DailyEntry() {
         }
 
         if (dieselAndKmDetails === undefined || dieselAndKmDetails.length === 0) dieselAndKmDetails = null;
-        console.log(listOfTrips, listOfDrivers, listOfKaataParchi, listOfFirstPayment);
+        console.log(listOfTrips, listOfKaataParchi, listOfFirstPayment);
 
         console.log(form1?.getFieldsValue(['DriversDetails']));
         const db = getDatabase();
@@ -690,13 +695,18 @@ export default function DailyEntry() {
             // payStatus: payStatus || '',
             dieselAndKmDetails: { ...dieselAndKmDetails } || null,
             tripDetails: listOfTrips || null,
-            driversDetails: listOfDrivers || null,
+            // driversDetails: listOfDrivers || null,
             kaataParchi: listOfKaataParchi || null,
             firstPayment: listOfFirstPayment || null,
 
-            // FIELDS DATA
+            //DRIVER DATA
+            driver1 : driver1 || null,
+            driver2 : driver2 || null,
+            conductor: conductor|| null, 
+
+            // FIELDS DATA  
             tripDetailsFields: (form?.getFieldsValue(['tripDetails']) || null),
-            driversDetailsFields: (listOfDrivers === null) ? null : (form1?.getFieldsValue(['DriversDetails']) || null),
+            // driversDetailsFields: (listOfDrivers === null) ? null : (form1?.getFieldsValue(['DriversDetails']) || null),
             kaataParchiFields: (listOfKaataParchi === null) ? null : (form2?.getFieldsValue(['kaataParchi']) || null),
             firstPaymentFields: (listOfFirstPayment === null) ? null : (form3?.getFieldsValue(['paymentDetails']) || null)
         }).then(() => {
@@ -737,6 +747,18 @@ export default function DailyEntry() {
             dataIndex: 'id',
             key: 'id',
             render: (text, record, index) => index + 1
+        },
+        {
+            title: 'Date',
+            dataIndex: 'date',
+            key: 'date',
+            render: (text) => {
+                let date = new Date(text);
+                console.log(date, date.getDay(), date.getMonth());
+                return(
+                    <span>{date.getDate()}/{date.getMonth()+1}/{date.getFullYear()}</span>
+                )
+            }
         },
         {
             title: 'Truck No.',
@@ -1313,7 +1335,8 @@ export default function DailyEntry() {
                                                                     showSearch
                                                                     placeholder="Transporter Name"
                                                                     optionFilterProp="children"
-                                                                    onChange={(value) => addPartyInPartyList(value, name)}
+                                                                    onChange={(value) => 
+                                                                        addPartyInPartyList(value, name)}
                                                                     // onSearch={onSearch}
                                                                     filterOption={filterOption}
                                                                     options={transporterList}
@@ -1511,11 +1534,19 @@ export default function DailyEntry() {
                                             </td>
                                             {/* Contact */}
                                             <td>
-                                                <Input value={driver1.Contact} placeholder='contact' />
+                                                <Input value={driver1.Contact} onChange={(e) => {
+                                                    let obj = driver1;
+                                                    obj.Contact = e.target.value;
+                                                    setDriver1(obj);
+                                                }} placeholder='contact' />
                                             </td>
                                             {/* License Date */}
                                             <td>
-                                                <Input value={driver1.LicenseDate} placeholder='License Date' type='date' />
+                                                <Input value={driver1.LicenseDate} onChange={(e) => {
+                                                    let obj = driver1;
+                                                    obj.LicenseDate = e.target.value;
+                                                    setDriver1(obj);
+                                                }} placeholder='License Date' type='date' />
                                             </td>
                                             {/* Trip Cash */}
                                             <td>
@@ -1592,15 +1623,17 @@ export default function DailyEntry() {
                                                                     padding: '0 8px 4px',
                                                                 }}
                                                             >
-                                                                <Input
+                                                                {/* <Input
                                                                     placeholder="Please enter item"
                                                                     value={newDriverName}
                                                                     onChange={(e) => setNewDriverName(e.target.value)}
                                                                     onKeyDown={(e) => e.stopPropagation()}
                                                                 />
-                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}>
+                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}> */}
+                                                            
+                                                                {/* </Button> */}
 
-                                                                </Button>
+                                                                <Button onClick={()=>setIsModalOpen(true)}>Add New</Button>
                                                             </Space>
                                                         </>
                                                     )}
@@ -1608,11 +1641,19 @@ export default function DailyEntry() {
                                             </td>
                                             {/* Contact */}
                                             <td>
-                                                <Input value={driver2.Contact} placeholder='contact' />
+                                                <Input value={driver2.Contact} onChange={(e) => {
+                                                    let obj = driver2;
+                                                    driver2.Contact = e.target.value;
+                                                    setDriver2(obj);
+                                                }} placeholder='contact' />
                                             </td>
                                             {/* License Date */}
                                             <td>
-                                                <Input value={driver2.LicenseDate} placeholder='License Date' type='date' />
+                                                <Input value={driver2.LicenseDate} onChange={(e) => {
+                                                    let obj = driver2;
+                                                    driver2.LicenseDate = e.target.value;
+                                                    setDriver2(obj);
+                                                }} placeholder='License Date' type='date' />
                                             </td>
                                             {/* Trip Cash */}
                                             <td>
@@ -1705,11 +1746,19 @@ export default function DailyEntry() {
                                             </td>
                                             {/* Contact */}
                                             <td>
-                                                <Input value={conductor.Contact} placeholder='contact' />
+                                                <Input value={conductor.Contact} onChange={(e) => {
+                                                    let obj = conductor;
+                                                    obj.Contact = e.target.value;
+                                                    setConductor(obj);
+                                                }} placeholder='contact' />
                                             </td>
                                             {/* License Date */}
                                             <td>
-                                                <Input value={conductor.LicenseDate} placeholder='License Date' type='date' />
+                                                <Input value={conductor.LicenseDate} onChange={(e) => {
+                                                    let obj = conductor;
+                                                    obj.LicenseDate = e.target.value;
+                                                    setConductor(obj);
+                                                }} placeholder='License Date' type='date' />
                                             </td>
                                             {/* Trip Cash */}
                                             <td>
