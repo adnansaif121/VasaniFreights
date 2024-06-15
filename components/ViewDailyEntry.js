@@ -299,8 +299,8 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                             }} justify={'space-around'} align={'center'}>
                                 <Form.Item style={{ width: '20%' }} label="Date" 
                                     // className={!tripDetailsEditFlag ? '' : styles.disabled}
-                                    name="Date">
-                                   <Input type="date" value={data.date} onChange={(e) => setDate(e.target.value)}></Input>
+                                    >
+                                   <Input type="date" value={date} onChange={(e) => setDate(e.target.value)}></Input>
                                 </Form.Item>
 
                                 <Form.Item style={{ width: '30%' }} label="Vehicle No." 
@@ -856,11 +856,19 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* Contact */}
                                             <td>
-                                                <Input value={driver1.Contact} placeholder='contact' />
+                                                <Input value={driver1.Contact} placeholder='contact' onChange={(e) => {
+                                                    let obj = driver1;
+                                                    obj.Contact = e.target.value;
+                                                    setDriver1(obj);
+                                                }} />
                                             </td>
                                             {/* License Date */}
                                             <td>
-                                                <Input value={driver1.LicenseDate} placeholder='License Date' type='date' />
+                                                <Input value={driver1.LicenseDate} placeholder='License Date' type='date' onChange={(e) => {
+                                                    let obj = driver1;
+                                                    obj.LicenseDate = e.target.value;
+                                                    setDriver1(obj);
+                                                }} />
                                             </td>
                                             {/* Trip Cash */}
                                             <td>
@@ -956,11 +964,19 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* Contact */}
                                             <td>
-                                                <Input value={driver2.Contact} placeholder='contact' />
+                                                <Input value={driver2.Contact} placeholder='contact' onChange={(e) => {
+                                                    let obj = driver2;
+                                                    driver2.Contact = e.target.value;
+                                                    setDriver2(obj);
+                                                }}/>
                                             </td>
                                             {/* License Date */}
                                             <td>
-                                                <Input value={driver2.LicenseDate} placeholder='License Date' type='date' />
+                                                <Input value={driver2.LicenseDate} placeholder='License Date' type='date' onChange={(e) => {
+                                                    let obj = driver2;
+                                                    driver2.LicenseDate = e.target.value;
+                                                    setDriver2(obj);
+                                                }}/>
                                             </td>
                                             {/* Trip Cash */}
                                             <td>
@@ -1054,11 +1070,19 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* Contact */}
                                             <td>
-                                                <Input value={conductor.Contact} placeholder='contact' />
+                                                <Input value={conductor.Contact} placeholder='contact' onChange={(e) => {
+                                                    let obj = conductor;
+                                                    obj.Contact = e.target.value;
+                                                    setConductor(obj);
+                                                }}/>
                                             </td>
                                             {/* License Date */}
                                             <td>
-                                                <Input value={conductor.LicenseDate} placeholder='License Date' type='date' />
+                                                <Input value={conductor.LicenseDate} placeholder='License Date' type='date' onChange={(e) => {
+                                                    let obj = conductor;
+                                                    obj.LicenseDate = e.target.value;
+                                                    setConductor(obj);
+                                                }} />
                                             </td>
                                             {/* Trip Cash */}
                                             <td>

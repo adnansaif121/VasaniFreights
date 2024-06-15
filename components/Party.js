@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, {useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker } from 'antd';
-import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge } from 'antd';
+import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
+import Highlighter from 'react-highlight-words';
+
 const bankData = [
     {
         key: "0",
@@ -347,16 +349,22 @@ const Party = () => {
     const [allTableData, setAllTableData] = useState({});
     const [customStartDate, setCustomStartDate] = useState(null);
     const [customEndDate, setCustomEndDate] = useState(null);
+    const [modelPartySelected, setModelPartySelected] = useState(null);
+
+    const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef(null);
+  
     useEffect(() => {
         const db = getDatabase();
         // Get data from database
         const starCountRef = ref(db, 'dailyEntry/');
         // console.log(starCountRef);
+        let ds = []; // Data Source
         onValue(starCountRef, (snapshot) => {
             const data = snapshot.val();
             console.log(data);
             // updateStarCount(postElement, data);
-            let ds = []; // Data Source
             if (data) {
                 setAllTableData(data);
                 Object.keys(data).map((key, i) => {
@@ -393,12 +401,25 @@ const Party = () => {
             }
             console.log(ds); 
             ds = ds.sort(
-                (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
+                (a, b) => Number(new Date(a.date)) - Number(new Date(b.date)),
             );
             setDisplayDataSource(ds);
             setDataSource(ds);
         });
 
+        // Find the number of transactions open and frequeny for each party
+        let openTransactionFreq = {};
+        for(let i = 0; i < ds.length; i++){
+            if(ds[i].bhadaKaunDalega !== null && ds[i].bhadaKaunDalega !== undefined){
+                console.log(openTransactionFreq);
+                if(openTransactionFreq[ds[i].bhadaKaunDalega] === undefined)
+                    openTransactionFreq[ds[i].bhadaKaunDalega] = 0;
+                if(ds[i].transactionStatus === 'open')
+                    openTransactionFreq[ds[i].bhadaKaunDalega] ++;
+            }
+        }
+
+        console.log(openTransactionFreq);
         // create dummy party List
         
         const partyRef = ref(db, 'parties/');
@@ -408,12 +429,17 @@ const Party = () => {
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
             Object.values(data).map((party, i) => {
-                if(party.contact === undefined || party.address === undefined){
-                    parties.push({...party, icon: <ExclamationCircleTwoTone twoToneColor="#eb2f96" />});
-                }
-                else{
+                if(openTransactionFreq[party.label] !== undefined)
+                    parties.push(
+                    {...party, 
+                        openTransactions: openTransactionFreq[party.label],
+                        icon: <Badge count={openTransactionFreq[party.label]}>
+                            <BellOutlined />
+                        </Badge>
+                    }
+                );
+                else
                     parties.push(party);
-                }
             })
             setPartyIds(Object.keys(data));
             // setPartyListAll([...parties]);
@@ -422,6 +448,16 @@ const Party = () => {
         });
 
     }, []);
+
+    const handle_Search = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+      };
+      const handleReset = (clearFilters) => {
+        clearFilters();
+        setSearchText('');
+      };
 
     const handleSearch = (e) => {
         console.log(e.target.value);
@@ -438,11 +474,7 @@ const Party = () => {
         let partyIndex = parseInt(e.key.slice(4));
         setPartySelected(displayPartyList[partyIndex]);
         setSelectedPartyIndex(partyIndex);
-        setPartyName(displayPartyList[partyIndex].label);
-        setPartyLocation(displayPartyList[partyIndex].location);
-        setPartyAddress(displayPartyList[partyIndex].address);
-        setPartyContact(displayPartyList[partyIndex].contact);
-        setPartyDescription(displayPartyList[partyIndex].description);
+        
         console.log(displayPartyList[partyIndex]);
         console.log(e.item.props.value);
 
@@ -460,11 +492,107 @@ const Party = () => {
         setDisplayDataSource([...ds]);
     };
 
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+          <div
+            style={{
+              padding: 8,
+            }}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <Input
+              ref={searchInput}
+              placeholder={`Search ${dataIndex}`}
+              value={selectedKeys[0]}
+              onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+              onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
+              style={{
+                marginBottom: 8,
+                display: 'block',
+              }}
+            />
+            <Space>
+              <Button
+                type="primary"
+                onClick={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                icon={<SearchOutlined />}
+                size="small"
+                style={{
+                  width: 90,
+                }}
+              >
+                Search
+              </Button>
+              <Button
+                onClick={() => clearFilters && handleReset(clearFilters)}
+                size="small"
+                style={{
+                  width: 90,
+                }}
+              >
+                Reset
+              </Button>
+              <Button
+                type="link"
+                size="small"
+                onClick={() => {
+                  confirm({
+                    closeDropdown: false,
+                  });
+                  setSearchText(selectedKeys[0]);
+                  setSearchedColumn(dataIndex);
+                }}
+              >
+                Filter
+              </Button>
+              <Button
+                type="link"
+                size="small"
+                onClick={() => {
+                  close();
+                }}
+              >
+                close
+              </Button>
+            </Space>
+          </div>
+        ),
+        filterIcon: (filtered) => (
+          <SearchOutlined
+            style={{
+              color: filtered ? '#1677ff' : undefined,
+            }}
+          />
+        ),
+        onFilter: (value, record) =>
+          record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownOpenChange: (visible) => {
+          if (visible) {
+            setTimeout(() => searchInput.current?.select(), 100);
+          }
+        },
+        render: (text) =>
+          searchedColumn === dataIndex ? (
+            <Highlighter
+              highlightStyle={{
+                backgroundColor: '#ffc069',
+                padding: 0,
+              }}
+              searchWords={[searchText]}
+              autoEscape
+              textToHighlight={text ? text.toString() : ''}
+            />
+          ) : (
+            text
+          ),
+      });
+
     const columns = [
         {
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
+            render: (text, record, index) => index + 1
         },
         {
             title: 'Payment Status',
@@ -488,6 +616,7 @@ const Party = () => {
             title: 'Truck No.',
             dataIndex: 'vehicleNo',
             key: 'vehicleNo',
+            ...getColumnSearchProps('vehicleNo'),
         },
         {
             title: 'From',
@@ -645,8 +774,14 @@ const Party = () => {
     };
 
     const [open, setOpen] = useState(false);
-    const showDrawer = () => {
-        setOpen(true);
+    const showDrawer = (index) => {
+        setModelPartySelected(displayPartyList[index]);
+        setPartyName(displayPartyList[index].label);
+        setPartyLocation(displayPartyList[index].location);
+        setPartyAddress(displayPartyList[index].address);
+        setPartyContact(displayPartyList[index].contact);
+        setPartyDescription(displayPartyList[index].description);
+        setOpen(true)
     };
     
     const onClose = () => {
@@ -702,6 +837,12 @@ const Party = () => {
         setDisplayDataSource(_displayDataSource);
     }
 
+    const truckFilter = (truckno) => {
+        // let data = displayDataSource;
+        // let newData = [];
+        // newData = data.filter((item) => item.vehicleNo.includes(truckno))
+    }
+
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
@@ -716,7 +857,12 @@ const Party = () => {
                             {displayPartyList.map((item, index)=>{
                                 return(
                                 <div key={index} style={{padding:'6px 0px 6px 0px', color: 'blue'}}> 
-                                        <Button onClick={showDrawer} icon={<UserOutlined/>}></Button>
+                                        <Button onClick={() => showDrawer(index)} icon={
+                                            (item.contact === undefined || item.address === undefined) ?
+                                            <span style={{color:'red'}}><UserOutlined/></span>
+                                            :
+                                            <UserOutlined/>
+                                        }></Button>
                                          
                                     </div>    
                                 )
@@ -730,12 +876,14 @@ const Party = () => {
                             }}
                             mode="inline"
                             items={displayPartyList}
+
                         />
                     </div>
                 </div>
                 <div className={styles.part2}>
                     <div >
-                        <Row justify={'space-between'} style={{width:'75vw'}}>
+                        <Row  style={{width:'75vw'}}>
+                          
                             <Col>
                                 <Select
                                     defaultValue="none"

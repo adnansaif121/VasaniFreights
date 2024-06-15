@@ -3,64 +3,43 @@ import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Divider } from 'antd';
 import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
-const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
-    const [partyList, setPartyList] = useState([]);
-    const [displayPartyList, setDisplayPartyList] = useState([]);
-    const [tableData, setTableData] = useState([]);
-    const [filterType, setFilterType] = useState('none');
-    const [partySelected, setPartySelected] = useState({});
-    const [partyName, setPartyName] = useState('');
-    const [partyLocation, setPartyLocation] = useState('');
-    const [partyAddress, setPartyAddress] = useState('');
-    const [partyContact, setPartyContact] = useState('');
-    const [partyDescription, setPartyDescription] = useState('');
-    const [partyIds, setPartyIds] = useState([]);
-    const [selectedPartyIndex, setSelectedPartyIndex] = useState(0);
-    const [dataSource, setDataSource] = useState([]); // Table Data
-    const [displayDataSource, setDisplayDataSource] = useState([]);
-    const [allTableData, setAllTableData] = useState({});
-
+const { Meta } = Card;
+const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
     const [newBank, setNewBank] = useState('');
+
+    const [furtherPaymentTotal, setFurtherPaymentTotal] = useState(0);
+    const [firstPaymentTotal, setFirstPaymentTotal] = useState(0);
+    const [extraAmount, setExtraAmount] = useState(0);
+    const [extraAmtRemark, setExtraAmtRemark] = useState(null);
     // const [bankData, setBankData] = useState([]);
 
-    const [amountReceived, setAmountReceived] = useState((data.firstPayment === undefined? 0 : parseInt(data.firstPayment[0].pohchAmount || 0) +
-    parseInt(data.firstPayment[0].cashAmount || 0) +
-    parseInt(data.firstPayment[0].chequeAmount || 0) +
-    parseInt(data.firstPayment[0].onlineAmount || 0)) );
+    const [amountReceived, setAmountReceived] = useState((data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].pohchAmount || 0) +
+        parseInt(data.firstPayment[0].cashAmount || 0) +
+        parseInt(data.firstPayment[0].chequeAmount || 0) +
+        parseInt(data.firstPayment[0].onlineAmount || 0)));
     const [form4] = Form.useForm();
 
     useEffect(() => {
         console.log('data', data);
-        // parseInt(data.firstPayment[0].cashAmount) + parseInt(data.firstPayment[0].onlineAmount) + parseInt(data.firstPayment[0].chequeAmount)
-        // let tripDetails = form.getFieldsValue(['tripDetails']);
-        // tripDetails.tripDetails = data.tripDetails;
-        // form.setFieldsValue(tripDetails);
-        // console.log(tripDetails);    
+
         if (data.furtherPayments.FurtherPayments !== undefined) {
             let furtherPayments = data.furtherPayments;
             form4.setFieldsValue(furtherPayments);
-
-            let totalAmount = 0;
-            for (let i = 0; i < data.furtherPayments.FurtherPayments.length; i++) {
-                totalAmount += parseInt(data.furtherPayments.FurtherPayments[i].amount);
-            }
-            setAmountReceived(amountReceived + totalAmount);
         }
 
-        // const bankRef = ref(db, 'bankData/');
-        // onValue(bankRef, (snapshot) => {
-        //     const data = snapshot.val();
-        //     let _bankData = [];
-        //     for (let i = 0; i < data.data.length; i++) {
-        //         _bankData.push({
-        //             label: data.data[i].bankName,
-        //             value: data.data[i].bankName,
-        //             key: data.data[i].key
-        //         })
-        //     }
-        //     setBankData([..._bankData]);
-        //     // console.log(data, 'Bankdata');
-        // })
+        if (data.firstPayment !== undefined) {
+            let total = (data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].cashAmount || 0)) +
+                (data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].onlineAmount || 0)) +
+                (data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].chequeAmount || 0));
+            setFirstPaymentTotal(total);
+        }
+
+        if (data.furtherPayments.FurtherPayments !== undefined) {
+            updateTotal();
+        }
+
+        if (data.extraAmount !== undefined) setExtraAmount(data.extraAmount);
+        if (data.extraAmtRemark !== undefined) setExtraAmtRemark(data.extraAmtRemark)
     }, []);
 
     const filterOption = (input, option) =>
@@ -81,6 +60,11 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
             kaataParchi: data.kaataParchi || '',
             firstPayment: data.firstPayment || '',
             furtherPayments: form4.getFieldsValue(['FurtherPayments']),
+
+            firstPaymentTotal: firstPaymentTotal,
+            furtherPaymentTotal: furtherPaymentTotal,
+            extraAmount: extraAmount,
+            extraAmtRemark: extraAmtRemark
             // FIELDS DATA
             // tripDetailsFields: form.getFieldsValue(['tripDetails']),
             // driversDetailsFields: form1.getFieldsValue(['DriversDetails']),
@@ -109,10 +93,20 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
             key: key,
         })
     }
+
+    const updateTotal = () => {
+        let f_payment = form4.getFieldsValue(['FurtherPayments'])
+        let total = 0;
+        for (let i = 0; i < f_payment.FurtherPayments.length; i++) {
+            total += parseInt(f_payment.FurtherPayments[i].amount);
+        }
+        setFurtherPaymentTotal(total);
+        // console.log(f_payment);
+    }
     return (
         <>
             <div>
-                <div className={styles.summary} style={{display:'flex', justifyContent: 'center'}}>
+                {/* <div className={styles.summary} style={{display:'flex', justifyContent: 'center'}}>
                     <Row justify={'space-between'}>
                         <Col>
                             <h3>Amount Received Till Date :
@@ -121,10 +115,10 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
                         </Col>
                     </Row>
 
-                </div>
+                </div> */}
 
 
-                <Card title="Payment Details">
+                <Card title="Payment Details" style={{margin: '20px'}}>
 
                     <table style={{ border: '1px solid black', padding: '5px', borderRadius: '10px', width: '100%' }}>
                         <thead>
@@ -177,7 +171,7 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
                                 <td ><h3>Cash</h3></td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment === undefined ? 0 : data.firstPayment[0].cashAmount} placeholder='amount' type='number' />
+                                        <Input value={data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].cashAmount || 0)} placeholder='amount' type='number' />
                                     </Form.Item>
                                 </td >
                                 <td >
@@ -197,7 +191,7 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
                                 <td ><h3>Online</h3></td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment === undefined ? null : parseInt(data.firstPayment[0].onlineAmount)} placeholder='amount' type='number' />
+                                        <Input value={data.firstPayment === undefined ? null : parseInt(data.firstPayment[0].onlineAmount || 0)} placeholder='amount' type='number' />
                                     </Form.Item>
                                 </td >
                                 <td >
@@ -254,7 +248,7 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
                                 <td ><h3>Cheque</h3></td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment === undefined ? null : parseInt(data.firstPayment[0].chequeAmount)} placeholder='amount' type='number' />
+                                        <Input value={data.firstPayment === undefined ? null : parseInt(data.firstPayment[0].chequeAmount || 0)} placeholder='amount' type='number' />
                                     </Form.Item>
                                 </td >
                                 <td >
@@ -310,9 +304,13 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
                         </tbody>
                     </table>
 
+                    <div>
+                        <h3>Total : {firstPaymentTotal}</h3>
+                    </div>
+                    {/* <Meta title="Total" description= /> */}
                 </Card>
 
-                <Card title="Add Further Payment Details" >
+                <Card title="Add Further Payment Details" style={{margin: '20px'}} >
 
                     <Form
                         name=' Further Payment Details'
@@ -320,7 +318,7 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
                     >
                         <Form.List name="FurtherPayments" >
                             {(fields, { add, remove }) => (
-                                <table style={{ border: '1px solid black', padding:'5px' }}>
+                                <table style={{ border: '1px solid black', padding: '5px' }}>
                                     <tr style={{ border: '1px solid black' }}>
                                         <th style={{ border: '1px solid black' }}>Amount</th>
                                         <th style={{ border: '1px solid black' }}>Mode of Payment</th>
@@ -332,10 +330,10 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
 
                                     {fields.map(({ key, name, ...restField }) => (
                                         <>
-                                            <tr>
+                                            <tr key={key}>
                                                 <td>
                                                     <Form.Item name={[name, 'amount']} >
-                                                        <Input placeholder='Amount' type='number'  ></Input>
+                                                        <Input placeholder='Amount' type='number' onChange={updateTotal} ></Input>
                                                     </Form.Item>
                                                 </td>
                                                 <td>
@@ -413,14 +411,14 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
                                                         <Input placeholder='remarks'></Input>
                                                     </Form.Item>
                                                 </td>
-                                                <td style={{display: 'flex', justifyContent:'center', alignItems: 'center'}}>
+                                                <td style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                     <MinusCircleOutlined
                                                         className="dynamic-delete-button"
                                                         onClick={() => {
                                                             let confirmDelete = confirm("Are you sure to delete this Payment Entry?");
-                                                            if(confirmDelete)
+                                                            if (confirmDelete)
                                                                 remove(name)
-                                                            
+
                                                         }}
                                                     />
                                                 </td>
@@ -504,36 +502,55 @@ const ViewPartyDetails = ({ data, bankData,vehicleData }) => {
 
                     </Form>
                     <div>
-                        <h3>Total : {amountReceived}</h3>
+                        <h3>Total : {furtherPaymentTotal}</h3>
                     </div>
                 </Card>
 
-                <Card title='Remaining Balance'>
-                    <table>
-                        <tr>
-                            <th>Freight Amt</th>
-                            <th>Table 1 Amt</th>
-                            <th>Table 2 Amt</th>
-                            <th>Extra Amt</th>
-                            <th>Remark</th>
-                        </tr>
-                        <tr>
-                            <td style={{display: 'flex', justifyContent:'center'}}>{data.totalFreight}</td>
-                            {/* <td style={{display: 'flex', justifyContent:'center'}}>{(parseInt(data.firstPayment[0].cashAmount) || 0)  + (parseInt(data.firstPayment[0].onlineAmount) || 0) + (parseInt(data.firstPayment[0].chequeAmount) || 0)}</td> */}
-                            {/* <td>{amountReceived - ((parseInt(data.firstPayment[0].cashAmount) || 0) + (parseInt(data.firstPayment[0].onlineAmount) || 0) + (parseInt(data.firstPayment[0].chequeAmount) || 0))}</td> */}
-                            <td><Input style={{width: '50px'}} type='number'></Input></td>
-                        </tr>
-                    </table>
+                <Card title='Remaining Balance' style={{margin: '20px'}}>
+                    <Row justify={'space-between'}>
+                        <Col>
+                            <Card title="Total Freight" size='small'>
+                                <span>{data.tripDetails[0].totalFreight}</span>
+                            </Card>
+                        </Col>
+                        <Col>
+                            <span style={{fontSize: '50px'}}>- {"{"}</span>
+                        </Col>
+                        <Col>
+
+                            <Card title="First Payment Total" size='small'>
+                                <span>{firstPaymentTotal||0}</span>
+                            </Card>
+                        </Col>
+                        <Col>
+                            <Card title="Further Payment Total" size='small'>
+                                <span>{furtherPaymentTotal||0}</span>
+                            </Card>
+                        </Col>
+                        <Col span={6}>
+                            <Card title="Extra Amount" size='small'>
+                                <Input type='number' value={extraAmount} onChange={(e) => setExtraAmount(e.target.value)}></Input>
+                                <Input placeholder='remark' value={extraAmtRemark} onChange={(e) => setExtraAmtRemark(e.target.value)}></Input>
+                            </Card>
+                        </Col>
+                        <Col>
+                        <span style={{fontSize: '50px'}}>{"}"}</span>
+                        </Col>
+                    </Row>
+
+                    <div style={{border: '1px black dotted',marginTop: '20px', padding: '20px', fontSize: '20px'}}>
+                        Remaining : {data.tripDetails[0].totalFreight - firstPaymentTotal - (furtherPaymentTotal||0) - extraAmount}
+                    </div>
                 </Card>
 
-                <Card title="Transaction Status">
+                <Card title="Transaction Status" style={{margin: '20px'}}>
                     <Radio.Group defaultValue="a" buttonStyle="solid">
                         <Radio.Button value="a">Open</Radio.Button>
                         <Radio.Button value="b">Close</Radio.Button>
                     </Radio.Group>
                 </Card>
 
-                <Button style={{marginTop:'5px'}} type='primary' onClick={handleSave}>Save</Button>
+                <Button style={{ marginTop: '5px' }} type='primary' onClick={handleSave}>Save</Button>
 
                 {/* <div>
                     <h4>Transaction Status: </h4>
