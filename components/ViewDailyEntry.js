@@ -789,7 +789,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                     showSearch
                                                     placeholder="Driver"
                                                     optionFilterProp="children"
-                                                    value={driver1.value}
+                                                    value={driver1 !== null ? driver1.value : null}
                                                     onChange={(value, option) => {
                                                         if (driver1.label !== undefined) {
                                                             let __driverList = _driverList;
@@ -856,7 +856,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* Contact */}
                                             <td>
-                                                <Input value={driver1.Contact} placeholder='contact' onChange={(e) => {
+                                                <Input value={driver1 !== null ?driver1.Contact : null} placeholder='contact' onChange={(e) => {
                                                     let obj = driver1;
                                                     obj.Contact = e.target.value;
                                                     setDriver1(obj);
@@ -864,7 +864,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* License Date */}
                                             <td>
-                                                <Input value={driver1.LicenseDate} placeholder='License Date' type='date' onChange={(e) => {
+                                                <Input value={driver1 !== null ?driver1.LicenseDate: null} placeholder='License Date' type='date' onChange={(e) => {
                                                     let obj = driver1;
                                                     obj.LicenseDate = e.target.value;
                                                     setDriver1(obj);
@@ -872,7 +872,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* Trip Cash */}
                                             <td>
-                                                <Input value={driver1.TripCash} onChange={(e) => {
+                                                <Input value={driver1 !== null ? driver1.TripCash : null} onChange={(e) => {
                                                     let _obj = driver1;
                                                     _obj.TripCash = e.target.value;
                                                     setDriver1(_obj);
@@ -895,7 +895,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                     showSearch
                                                     placeholder="Driver"
                                                     optionFilterProp="children"
-                                                    value={driver2.value}
+                                                    value={driver2 !== null ? driver2.value : null}
                                                     onChange={(value, option) => {
                                                         if (driver2.label !== undefined) {
                                                             let __driverList = _driverList;
@@ -964,7 +964,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* Contact */}
                                             <td>
-                                                <Input value={driver2.Contact} placeholder='contact' onChange={(e) => {
+                                                <Input value={driver2 !== null ? driver2.Contact: null} placeholder='contact' onChange={(e) => {
                                                     let obj = driver2;
                                                     driver2.Contact = e.target.value;
                                                     setDriver2(obj);
@@ -972,7 +972,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* License Date */}
                                             <td>
-                                                <Input value={driver2.LicenseDate} placeholder='License Date' type='date' onChange={(e) => {
+                                                <Input value={driver2 !== null ? driver2.LicenseDate : null} placeholder='License Date' type='date' onChange={(e) => {
                                                     let obj = driver2;
                                                     driver2.LicenseDate = e.target.value;
                                                     setDriver2(obj);
@@ -980,7 +980,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* Trip Cash */}
                                             <td>
-                                                <Input value={driver2.TripCash} onChange={(e) => {
+                                                <Input value={driver2 !== null ? driver2.TripCash : null} onChange={(e) => {
                                                     let _obj = driver2;
                                                     _obj.TripCash = e.target.value;
                                                     setDriver2(_obj);
@@ -1003,7 +1003,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                     showSearch
                                                     placeholder="Driver"
                                                     optionFilterProp="children"
-                                                    value={conductor.value}
+                                                    value={conductor !== null ? conductor.value : null}
                                                     onChange={(value, option) => {
                                                         if (conductor.label !== undefined) {
                                                             let __driverList = _driverList;
@@ -1070,7 +1070,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* Contact */}
                                             <td>
-                                                <Input value={conductor.Contact} placeholder='contact' onChange={(e) => {
+                                                <Input value={conductor !== null ? conductor.Contact : null} placeholder='contact' onChange={(e) => {
                                                     let obj = conductor;
                                                     obj.Contact = e.target.value;
                                                     setConductor(obj);
@@ -1078,7 +1078,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* License Date */}
                                             <td>
-                                                <Input value={conductor.LicenseDate} placeholder='License Date' type='date' onChange={(e) => {
+                                                <Input value={conductor !== null ? conductor.LicenseDate: null} placeholder='License Date' type='date' onChange={(e) => {
                                                     let obj = conductor;
                                                     obj.LicenseDate = e.target.value;
                                                     setConductor(obj);
@@ -1086,7 +1086,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                             </td>
                                             {/* Trip Cash */}
                                             <td>
-                                                <Input value={conductor.TripCash} onChange={(e) => {
+                                                <Input value={conductor !== null ? conductor.TripCash : null} onChange={(e) => {
                                                     let _obj = conductor;
                                                     _obj.TripCash = e.target.value;
                                                     setConductor(_obj);
