@@ -1,5 +1,6 @@
-import {useState, useEffect} from 'react';
-import {Row, Col, Select, Table, Input, Button} from 'antd';
+import {useState, useEffect, useRef} from 'react';
+import {Row, Col, Select, Table, Input, Button, Space} from 'antd';
+import {SearchOutlined}  from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import styles from '../styles/Party.module.css';
 import _default from 'antd/es/grid';
@@ -12,6 +13,10 @@ const PohchHisab = () => {
     const [partySelected, setPartySelected] = useState('All');
     const [totalPohchAmt, setTotalPohchAmt] = useState(0);
     const [totalRemaining, setTotalRemaining] = useState(0);
+
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef(null);
 
     useEffect(() => {
         const db = getDatabase();
@@ -76,8 +81,6 @@ const PohchHisab = () => {
         
 
     }, []);
-
-    
 
     const filterMenuItems = [
         {
@@ -192,11 +195,128 @@ const PohchHisab = () => {
         }
     };
 
+    const handle_Search = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+
+    const handleReset = (clearFilters) => {
+        clearFilters();
+        setSearchText('');
+    };
+
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            <div
+                style={{
+                    padding: 8,
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            >
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                    style={{
+                        marginBottom: 8,
+                        display: 'block',
+                    }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Search
+                    </Button>
+                    <Button
+                        onClick={() => clearFilters && handleReset(clearFilters)}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            confirm({
+                                closeDropdown: false,
+                            });
+                            setSearchText(selectedKeys[0]);
+                            setSearchedColumn(dataIndex);
+                        }}
+                    >
+                        Filter
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            close();
+                        }}
+                    >
+                        close
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <SearchOutlined
+                style={{
+                    color: filtered ? '#1677ff' : undefined,
+                }}
+            />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownOpenChange: (visible) => {
+            if (visible) {
+                setTimeout(() => searchInput.current?.select(), 100);
+            }
+        },
+        render: (text) =>
+            searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{
+                        backgroundColor: '#ffc069',
+                        padding: 0,
+                    }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
+
     const PohchHisabColumns = [
         {
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
+        },
+        {
+            title: 'Date',
+            dataIndex: 'date',
+            key: 'date',
+        },
+        {
+            title: 'Truck No.',
+            dataIndex: 'vehicleNo',
+            key: 'vehicleNo',
+            ...getColumnSearchProps('vehicleNo'),
         },
         {
             title: 'Pohch Courier date',
@@ -205,14 +325,10 @@ const PohchHisab = () => {
             // render: (text) => { text == 'open' ? <><ExclamationOutlined />OPEN</> : <CheckOutlined /> }
         },
         {
-            title: 'Truck No.',
-            dataIndex: 'vehicleNo',
-            key: 'vehicleNo',
-        },
-        {
             title: 'Party Name',
             dataIndex: 'partyName',
-            key: 'partyName'
+            key: 'partyName',
+            ...getColumnSearchProps('partyName'),
         },
         {
             title: 'Pohch Amt',
