@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload } from 'antd';
-import { InboxOutlined,MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { InboxOutlined,MinusCircleOutlined, PlusOutlined,  CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
+import firebase from '../config/firebase'
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
-import { CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import ViewDailyEntry from './ViewDailyEntry';
+// const ViewDailyEntry = dynamic(() => import('../components/ViewDailyEntry'), {ssr: false});
 // import { render } from 'react-dom';
 let bankData = [
     {
@@ -334,7 +336,7 @@ let vehicleData =
 
     const { Dragger } = Upload;
     const props = {
-        name: 'file',
+        name: 'file',       
         multiple: true,
         action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
         onChange(info) {
@@ -352,7 +354,9 @@ let vehicleData =
           console.log('Dropped files', e.dataTransfer.files);
         },
       };
-export default function DailyEntry() {
+
+const DailyEntry = () => {
+
     const [form] = Form.useForm();
     const [form1] = Form.useForm();
     const [form2] = Form.useForm();
@@ -440,7 +444,6 @@ export default function DailyEntry() {
     const [dataSource, setDataSource] = useState([]); // Table Data
     // FLAG 
     const [flag, setFlag] = useState(false);
-
     //Bank
     const [newBank, setNewBank] = useState('');
     const [bankData, setBankData] = useState([]);
@@ -451,6 +454,12 @@ export default function DailyEntry() {
     const [conductor, setConductor] = useState({});
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
+
+    // MODAL VARIABLES:
+    const [partyModal, setPartyModal] = useState({});
+    const [driverModal, setDriverModal] = useState({});
+
     useEffect(() => {
         const db = getDatabase();
         // set(ref(db, 'users/' + '0'), {
@@ -575,11 +584,7 @@ export default function DailyEntry() {
         })
     }, [])
 
-    // useEffect(() => {
-    //     const tripDetails = form.getFieldsValue(['tripDetails']);
-    //     console.log(tripDetails, form);
-    // })
-
+    
     const applyDateSort = (ds) => {
         ds.sort(function (a, b) {
             // Turn your strings into dates, and then subtract them
@@ -594,7 +599,7 @@ export default function DailyEntry() {
     const handleSave = () => {
         let tripDetails = form.getFieldsValue(['tripDetails']);
         let listOfTrips = [];
-        tripDetails?.tripDetails?.forEach((trip) => {
+        tripDetails?.tripDetails?.forEach((trip, index) => {
             listOfTrips.push({
                 from: trip.from || '',
                 to: trip.to || '',
@@ -606,6 +611,15 @@ export default function DailyEntry() {
                 rate: trip.rate || 0,
                 totalFreight: parseInt(trip.rate) * parseInt(trip.qty) || 0,
                 payStatus: trip.payStatus || '',
+                
+                remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -  
+                    ((form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index]!==undefined) ?
+                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
+                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
+                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
+                        :
+                        0
+                )            
             });
         }
         );
@@ -684,7 +698,7 @@ export default function DailyEntry() {
         if (dieselAndKmDetails === undefined || dieselAndKmDetails.length === 0) dieselAndKmDetails = null;
         console.log(listOfTrips, listOfKaataParchi, listOfFirstPayment);
 
-        console.log(form1?.getFieldsValue(['DriversDetails']));
+        // console.log(form1?.getFieldsValue(['DriversDetails']));
         const db = getDatabase();
         let id = guidGenerator();
         set(ref(db, 'dailyEntry/' + id), {
@@ -708,7 +722,8 @@ export default function DailyEntry() {
             tripDetailsFields: (form?.getFieldsValue(['tripDetails']) || null),
             // driversDetailsFields: (listOfDrivers === null) ? null : (form1?.getFieldsValue(['DriversDetails']) || null),
             kaataParchiFields: (listOfKaataParchi === null) ? null : (form2?.getFieldsValue(['kaataParchi']) || null),
-            firstPaymentFields: (listOfFirstPayment === null) ? null : (form3?.getFieldsValue(['paymentDetails']) || null)
+            firstPaymentFields: (listOfFirstPayment === null) ? null : (form3?.getFieldsValue(['paymentDetails']) || null),
+
         }).then(() => {
             console.log('Data saved');
             alert('Data Saved Successfully');
@@ -852,24 +867,32 @@ export default function DailyEntry() {
         setPartyDetailsList([...plDetails]);
     }
 
-    const addNewParty = (e) => {
-        e.preventDefault();
+    const addNewParty = () => {
+        // e.preventDefault();
+        if(partyModal.label === undefined){
+            alert('Please Enter Party name');
+            return;
+        }
+        let _newParty = partyModal.label;
         for(let i = 0; i < partyListAll.length; i++){
-            if(newParty.toUpperCase() === partyListAll[i].value.toUpperCase()){
+            if(_newParty.toUpperCase() === partyListAll[i].value.toUpperCase()){
                 alert(`Party with name ${partyListAll[i].value} already exists.` );
                 return;
             }
         }
-        setPartyListAll([...partyListAll, { value: newParty, label: newParty }]);
-        setNewParty('');
+        setPartyListAll([...partyListAll, { ...partyModal }]);
+        // setNewParty('');
         // Create a new party reference with an auto-generated id
         const db = getDatabase();
         const partyListRef = ref(db, 'parties');
         const newPartyRef = push(partyListRef);
         set(newPartyRef, {
-            value: newParty,
-            label: newParty,
-        });
+           ...partyModal
+        }).then(()=>{
+            alert("Party Created Successfully!!");
+            setPartyModal({});
+            return;
+        })
     }
 
     const addNewTransporter = (e) => {
@@ -912,14 +935,18 @@ export default function DailyEntry() {
 
     const addNewDriver = (e) => {
 
-        e.preventDefault();
+        // e.preventDefault();
+        if(driverModal.label === undefined){
+            alert("Please Enter Driver Name to submit")
+        }
+        let _newDriverName = driverModal.label;
         for(let i = 0; i < driverList.length; i++){
-            if(newDriverName.toUpperCase() === driverList[i].value.toUpperCase()){
+            if(_newDriverName.toUpperCase() === driverList[i].value.toUpperCase()){
                 alert("Driver with this name already exists");
                 return;
             }
         }
-        setDriverList([...driverList, { value: newDriverName, label: newDriverName }]);
+        setDriverList([...driverList, { ...driverModal }]);
         setNewDriverName('');
 
         // Create a new party reference with an auto-generated id
@@ -927,8 +954,11 @@ export default function DailyEntry() {
         const driverListRef = ref(db, 'drivers');
         const newDriverRef = push(driverListRef);
         set(newDriverRef, {
-            value: newDriverName,
-            label: newDriverName,
+            ...driverModal
+        }).then(() => {
+            alert("Driver Added Successfully!!");
+            setDriverModal({});
+            return;
         });
     }
     // Filter `option.label` match the user type `input`
@@ -938,12 +968,24 @@ export default function DailyEntry() {
     const showModal = () => {
         setIsModalOpen(true);
     };
+
     const handleOk = () => {
+        addNewParty();
         setIsModalOpen(false);
     };
+
+    const handleDriverOk = () => {
+        addNewDriver();
+        setIsDriverModalOpen(false);
+    }
+
     const handleCancel = () => {
         setIsModalOpen(false);
     };
+
+    const handleDriverCancel = () => {
+        setIsDriverModalOpen(false);
+    }
 
     const items = [
         {
@@ -1127,15 +1169,7 @@ export default function DailyEntry() {
                                                                                     padding: '0 8px 4px',
                                                                                 }}
                                                                             >
-                                                                                <Input
-                                                                                    placeholder="Please enter item"
-                                                                                    value={newParty}
-                                                                                    onChange={(e) => setNewParty(e.target.value)}
-                                                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                                                />
-                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewParty(e)}>
-
-                                                                                </Button>
+                                                                               <Button onClick={()=>setIsModalOpen(true)}>Add New</Button>
                                                                             </Space>
                                                                         </>
                                                                     )}
@@ -1231,15 +1265,7 @@ export default function DailyEntry() {
                                                                                     padding: '0 8px 4px',
                                                                                 }}
                                                                             >
-                                                                                <Input
-                                                                                    placeholder="Please enter item"
-                                                                                    value={newParty}
-                                                                                    onChange={(e) => setNewParty(e.target.value)}
-                                                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                                                />
-                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewParty(e)}>
-
-                                                                                </Button>
+                                                                                 <Button onClick={()=>setIsModalOpen(true)}>Add New</Button>
                                                                             </Space>
                                                                         </>
                                                                     )}
@@ -1518,15 +1544,7 @@ export default function DailyEntry() {
                                                                     padding: '0 8px 4px',
                                                                 }}
                                                             >
-                                                                <Input
-                                                                    placeholder="Please enter item"
-                                                                    value={newDriverName}
-                                                                    onChange={(e) => setNewDriverName(e.target.value)}
-                                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                                />
-                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}>
-
-                                                                </Button>
+                                                               <Button onClick={()=>setIsDriverModalOpen(true)}>Add New</Button>
                                                             </Space>
                                                         </>
                                                     )}
@@ -1633,7 +1651,7 @@ export default function DailyEntry() {
                                                             
                                                                 {/* </Button> */}
 
-                                                                <Button onClick={()=>setIsModalOpen(true)}>Add New</Button>
+                                                                <Button onClick={()=>setIsDriverModalOpen(true)}>Add New</Button>
                                                             </Space>
                                                         </>
                                                     )}
@@ -1730,15 +1748,7 @@ export default function DailyEntry() {
                                                                     padding: '0 8px 4px',
                                                                 }}
                                                             >
-                                                                <Input
-                                                                    placeholder="Please enter item"
-                                                                    value={newDriverName}
-                                                                    onChange={(e) => setNewDriverName(e.target.value)}
-                                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                                />
-                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}>
-
-                                                                </Button>
+                                                               <Button onClick={()=>setIsDriverModalOpen(true)}>Add New</Button>
                                                             </Space>
                                                         </>
                                                     )}
@@ -2280,7 +2290,16 @@ export default function DailyEntry() {
 
     return (
         <>
-            <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+            <Modal title="Create Party" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
+                footer={[
+                    <Button key="back" onClick={handleCancel}>
+                      Return
+                    </Button>,
+                    <Button key="submit" type="primary"  onClick={handleOk}>
+                      Submit
+                    </Button>
+                  ]}
+            >
                 <Form layout="vertical" >
                     <Row gutter={16}>
                         <Col span={12}>
@@ -2294,7 +2313,12 @@ export default function DailyEntry() {
                                     },
                                 ]}
                             >
-                                <Input placeholder="Please enter user name"  />
+                                <Input onChange={(e) => {
+                                    let obj = partyModal;
+                                    obj.label = e.target.value;
+                                    obj.value = e.target.value;
+                                    setPartyModal(obj);
+                                }} placeholder="Please enter user name"  />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -2313,7 +2337,11 @@ export default function DailyEntry() {
                                         width: '100%',
                                     }}
                                     placeholder="Party Location"
-                                    
+                                    onChange={(e) => {
+                                        let obj = partyModal;
+                                        obj.location = e.target.value;
+                                        setPartyModal(obj);
+                                    }}  
                                 />
                             </Form.Item>
                         </Col>
@@ -2335,7 +2363,11 @@ export default function DailyEntry() {
                                         width: '100%',
                                     }}
                                     placeholder="Party Address"
-                                    
+                                    onChange={(e) => {
+                                        let obj = partyModal;
+                                        obj.address = e.target.value;
+                                        setPartyModal(obj);
+                                    }}
                                 />
                             </Form.Item>
                         </Col>
@@ -2355,7 +2387,11 @@ export default function DailyEntry() {
                                         width: '100%',
                                     }}
                                     placeholder="Contact Number"
-                                    
+                                    onChange={(e) => {
+                                        let obj = partyModal;
+                                        obj.contact = e.target.value;
+                                        setPartyModal(obj);
+                                    }}
                                 />
                             </Form.Item>
                         </Col>
@@ -2373,26 +2409,151 @@ export default function DailyEntry() {
                                     },
                                 ]}
                             >
-                                <Input.TextArea rows={4} placeholder="please enter url description"  />
+                                <Input.TextArea rows={4} placeholder="please enter url description" onChange={(e) => {
+                                    let obj = partyModal;
+                                    obj.description = e.target.value;
+                                    setPartyModal(obj);
+                                }} />
                             </Form.Item>
                         </Col>
                     </Row>
 
-                    <Row>
-                        <Dragger {...props}>
-                            <p className="ant-upload-drag-icon">
-                                <InboxOutlined />
-                            </p>
-                            <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                            <p className="ant-upload-hint">
-                                Support for a single or bulk upload. Strictly prohibited from uploading company data or other
-                                banned files.
-                            </p>
-                        </Dragger>
+                </Form>
+            </Modal>
+
+            <Modal title="Create Driver" open={isDriverModalOpen} onOk={handleDriverOk} onCancel={handleDriverCancel}
+                footer={[
+                    <Button key="back" onClick={handleDriverCancel}>
+                      Return
+                    </Button>,
+                    <Button key="submit" type="primary"  onClick={handleDriverOk}>
+                      Submit
+                    </Button>
+                  ]}
+            >
+                <Form layout="vertical" >
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                // name="name"
+                                label="Name"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please enter user name',
+                                    },
+                                ]}
+                            >
+                                <Input onChange={(e) => {
+                                    let obj = driverModal;
+                                    obj.label = e.target.value;
+                                    obj.value = e.target.value;
+                                    setDriverModal(obj);
+                                }} placeholder="Please enter user name"  />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                // name="Party Location"
+                                label="Driver Location"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please enter url',
+                                    },
+                                ]}
+                            >
+                                <Input
+                                    style={{
+                                        width: '100%',
+                                    }}
+                                    placeholder="Driver Location"
+                                    onChange={(e) => {
+                                        let obj = driverModal;
+                                        obj.location = e.target.value;
+                                        setDriverModal(obj);
+                                    }}  
+                                />
+                            </Form.Item>
+                        </Col>
                     </Row>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                // name="Address"
+                                label="License Date"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please select an owner',
+                                    },
+                                ]}
+                            >
+                                <Input
+                                    style={{
+                                        width: '100%',
+                                    }}
+                                    type='date'
+                                    placeholder="License Date"
+                                    onChange={(e) => {
+                                        let obj = driverModal;
+                                        obj.LicenseDate = e.target.value;
+                                        setDriverModal(obj);
+                                    }}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                // name="ContactNumber"
+                                label="Contact Number"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Provide Contact Number',
+                                    },
+                                ]}
+                            >
+                                <Input
+                                    style={{
+                                        width: '100%',
+                                    }}
+                                    placeholder="Contact Number"
+                                    onChange={(e) => {
+                                        let obj = driverModal;
+                                        obj.Contact = e.target.value;
+                                        setDriverModal(obj);
+                                    }}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item
+                                // name="description"
+                                label="Description"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'please enter url description',
+                                    },
+                                ]}
+                            >
+                                <Input.TextArea rows={4} placeholder="please enter url description" onChange={(e) => {
+                                    let obj = driverModal;
+                                    obj.description = e.target.value;
+                                    setDriverModal(obj);
+                                }} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
                 </Form>
             </Modal>
             <div>
+                <Button style={{ border: '2px solid black', marginLeft: '40px' }} onClick={() => setToggle(!toggle)}>Add New Details</Button>
                 <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
                 <Button onClick={() => {
                     setDataSource(completeDataSource);
@@ -2418,7 +2579,7 @@ export default function DailyEntry() {
                 />
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', margin: 'auto', paddingTop: '10px', width: '90vw' }}>
-                <Button style={{ border: '2px solid black' }} block onClick={() => setToggle(!toggle)}>Add New Details</Button>
+                
             </div>
             <div style={{ width: "95vw" }} className={styles.addNewDetails}>
                 {toggle &&
@@ -2431,3 +2592,5 @@ export default function DailyEntry() {
         </>
     )
 }
+
+export default DailyEntry;

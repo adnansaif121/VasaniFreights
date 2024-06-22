@@ -2,7 +2,7 @@
 
 import React, {useState} from 'react'
 import { Button, Table } from 'antd';
-import styles from '../styles/Dashboard.module.css'
+import styles from '../styles/Dashboard.module.css';
 
 import DailyEntry from './DailyEntry';
 import Party from './Party';

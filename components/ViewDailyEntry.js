@@ -266,7 +266,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
     const items = [
         {
             key: '1',
-            label: 'Trip Details',
+            label: 'Trip Details',  
             extra: (
                 <>  
                     {tripDetailsEditFlag ? 

@@ -11,6 +11,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
     const [firstPaymentTotal, setFirstPaymentTotal] = useState(0);
     const [extraAmount, setExtraAmount] = useState(0);
     const [extraAmtRemark, setExtraAmtRemark] = useState(null);
+    const [transactionStatus, setTransactionStatus] = useState(null);
     // const [bankData, setBankData] = useState([]);
 
     const [amountReceived, setAmountReceived] = useState((data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].pohchAmount || 0) +
@@ -21,7 +22,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
 
     useEffect(() => {
         console.log('data', data);
-
+        
         if (data.furtherPayments.FurtherPayments !== undefined) {
             let furtherPayments = data.furtherPayments;
             form4.setFieldsValue(furtherPayments);
@@ -40,6 +41,8 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
 
         if (data.extraAmount !== undefined) setExtraAmount(data.extraAmount);
         if (data.extraAmtRemark !== undefined) setExtraAmtRemark(data.extraAmtRemark)
+        if(data.transactionStatus !== undefined)setTransactionStatus(data.transactionStatus);
+        else setTransactionStatus('open');
     }, []);
 
     const filterOption = (input, option) =>
@@ -64,7 +67,10 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
             firstPaymentTotal: firstPaymentTotal,
             furtherPaymentTotal: furtherPaymentTotal,
             extraAmount: extraAmount,
-            extraAmtRemark: extraAmtRemark
+            extraAmtRemark: extraAmtRemark,
+
+            transactionStatus: (transactionStatus !== null ? transactionStatus : 'open'),
+            remainingBalance: data.tripDetails[0].totalFreight - firstPaymentTotal - (furtherPaymentTotal||0) - extraAmount
             // FIELDS DATA
             // tripDetailsFields: form.getFieldsValue(['tripDetails']),
             // driversDetailsFields: form1.getFieldsValue(['DriversDetails']),
@@ -544,9 +550,9 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                 </Card>
 
                 <Card title="Transaction Status" style={{margin: '20px'}}>
-                    <Radio.Group defaultValue="a" buttonStyle="solid">
-                        <Radio.Button value="a">Open</Radio.Button>
-                        <Radio.Button value="b">Close</Radio.Button>
+                    <Radio.Group defaultValue="open" buttonStyle="solid" onChange={(e) => setTransactionStatus(e.target.value)}>
+                        <Radio.Button value="open">Open</Radio.Button>
+                        <Radio.Button value="close">Close</Radio.Button>
                     </Radio.Group>
                 </Card>
 
