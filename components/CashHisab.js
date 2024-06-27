@@ -103,6 +103,22 @@ const CashHisab = () => {
         <div>
             <Row>
                 <Col span={12}>
+                <div style={{display: 'flex', justifyContent: 'center'}}>
+                            <Row>   
+                                <Col>
+                                    <Input onChange={(e) => setReceivedDate(e.target.value)} type='date' placeholder='date'></Input>
+                                </Col>
+                                <Col>
+                                    <Input onChange={(e) => setReceivedAmount(e.target.value)} placeholder='Amount'></Input>
+                                </Col>
+                                <Col>
+                                    <Input onChange={(e) => setReceivedRemark(e.target.value)} placeholder='remark'></Input>
+                                </Col>
+                                
+                            </Row>
+                                    <Button onClick={saveCashReceived}>Add New Entry</Button>
+                        </div>
+
                     <div style={{ background: 'white', height: '75vh', borderRadius: '10px', margin: '2px', overflowY: 'auto' }}>
                         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px', paddingTop: "10px" }}>
                             <h3>Cash Received</h3>
@@ -138,24 +154,27 @@ const CashHisab = () => {
                         
                         {/* <h3>Total Amount: {}</h3> */}
                     </div>
-                        <div style={{display: 'flex', justifyContent: 'center'}}>
-                            <Row>   
-                                <Col>
-                                    <Input onChange={(e) => setReceivedDate(e.target.value)} type='date' placeholder='date'></Input>
-                                </Col>
-                                <Col>
-                                    <Input onChange={(e) => setReceivedAmount(e.target.value)} placeholder='Amount'></Input>
-                                </Col>
-                                <Col>
-                                    <Input onChange={(e) => setReceivedRemark(e.target.value)} placeholder='remark'></Input>
-                                </Col>
-                                
-                            </Row>
-                                    <Button onClick={saveCashReceived}>Add New Entry</Button>
-                        </div>
-
+                       
                 </Col>
                 <Col span={12}>
+
+                <div>
+                                <Row>
+                                    <Col>
+                                        <Input onChange={(e) => setPaidDate(e.target.value)} type="date" placeholder='date'></Input>
+                                    </Col>
+                                    <Col>
+                                        <Input onChange={(e) => setPaidAmount(e.target.value)} type='number' placeholder='Amount'></Input>
+                                    </Col>
+                                    <Col>
+                                        <Input onChange={(e) => setPaidRemark(e.target.value)} placeholder='remark'></Input>
+                                    </Col>
+                                    <Col>
+                                        <Button onClick={saveCashPaid}>Add New Entry</Button>
+                                    </Col>
+                                </Row>
+                            </div>
+                            
                     <div style={{ background: 'white', height: '75vh', borderRadius: '10px', margin: '2px', overflowY: 'auto' }}>
                         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px', paddingTop: "10px" }}>
                             <h3>Cash Paid</h3>
@@ -189,22 +208,7 @@ const CashHisab = () => {
                         </table>
                     </div>
 
-                            <div>
-                                <Row>
-                                    <Col>
-                                        <Input onChange={(e) => setPaidDate(e.target.value)} type="date" placeholder='date'></Input>
-                                    </Col>
-                                    <Col>
-                                        <Input onChange={(e) => setPaidAmount(e.target.value)} type='number' placeholder='Amount'></Input>
-                                    </Col>
-                                    <Col>
-                                        <Input onChange={(e) => setPaidRemark(e.target.value)} placeholder='remark'></Input>
-                                    </Col>
-                                    <Col>
-                                        <Button onClick={saveCashPaid}>Add New Entry</Button>
-                                    </Col>
-                                </Row>
-                            </div>
+                            
                 </Col>
             </Row>
         </div>

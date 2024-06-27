@@ -113,14 +113,14 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
         setQty([...q]);
 
         // set Driver KM Details
-        setJanaKm(data.dieselAndKmDetails === undefined ? null : parseInt(data.dieselAndKmDetails.janaKm));
-        setAanaKm(data.dieselAndKmDetails === undefined ? null : parseInt(data.dieselAndKmDetails.aanaKm));
+        setJanaKm(data.dieselAndKmDetails === undefined ? null : parseInt(data.dieselAndKmDetails.janaKm || 0));
+        setAanaKm(data.dieselAndKmDetails === undefined ? null : parseInt(data.dieselAndKmDetails.aanaKm || 0));
         // setTripKm(parseInt(data.dieselAndKmDetails.tripKm));
-        setMilometer(data.dieselAndKmDetails === undefined ? null : parseInt(data.dieselAndKmDetails.milometer));
-        setDieselQty(data.dieselAndKmDetails === undefined ? null : parseInt(data.dieselAndKmDetails.dieselQty));
+        setMilometer(data.dieselAndKmDetails === undefined ? 0 : parseInt(data.dieselAndKmDetails.milometer || 0));
+        setDieselQty(data.dieselAndKmDetails === undefined ? null : parseInt(data.dieselAndKmDetails.dieselQty || 0));
         setPumpName(data.dieselAndKmDetails.pumpName);
         setAverage(data.dieselAndKmDetails.average);
-        setMidwayDiesel(data.dieselAndKmDetails === undefined ? null : parseInt(data.dieselAndKmDetails.midwayDiesel));
+        setMidwayDiesel(data.dieselAndKmDetails === undefined ? 0 : parseInt(data.dieselAndKmDetails.midwayDiesel || 0));
 
         // setVehicleNo
         setVehicleNo(data.vehicleNo);  
@@ -135,7 +135,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
     const handleSave = () => {
         const tripDetails = form.getFieldsValue(['tripDetails']);
         let listOfTrips = [];
-        tripDetails?.tripDetails?.forEach((trip) => {
+        tripDetails?.tripDetails?.forEach((trip, index) => {
             listOfTrips.push({
                 from: trip.from || '',
                 to: trip.to || '',
@@ -147,6 +147,14 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                 rate: trip.rate || 0,
                 totalFreight: parseInt(trip.rate) * parseInt(trip.qty) || 0,
                 payStatus: trip.payStatus || '',
+                remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -  
+                ((form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index]!==undefined) ?
+                    parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
+                    parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
+                    parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
+                    :
+                    0
+                ) 
             });
         }
         );
@@ -186,11 +194,10 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                 partyForNaveenKaka: payment.partyForNaveenKaka || '',
                 pohchAmount: payment.pohchAmount || '',
                 pohchDate: payment.pohchDate || '',
-
+                pohchSendTo: payment?.pohchSendTo || '',
                 pohchRemarks: payment.pohchRemarks || '',
                 cashAmount: payment.cashAmount || '',
                 cashDate: payment.cashDate || '',
-
                 cashRemarks: payment.cashRemarks || '',
                 onlineAmount: payment.onlineAmount || '',
                 onlineDate: payment.onlineDate || '',
@@ -219,7 +226,9 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
 
         const db = getDatabase();
         // let id = guidGenerator();
-        set(ref(db, 'dailyEntry/' + data.key), {
+        let data_key = data.key.slice(0, -1); 
+        // let index = data_key[data_key.length-1];
+        set(ref(db, 'dailyEntry/' + data_key), {
             date: date,
             vehicleNo: vehicleNo || '',
             mt: mt,
@@ -791,7 +800,8 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                     optionFilterProp="children"
                                                     value={driver1 !== null ? driver1.value : null}
                                                     onChange={(value, option) => {
-                                                        if (driver1.label !== undefined) {
+                                                        console.log(driver1);
+                                                        if (driver1 !== null && driver1.label !== undefined) {
                                                             let __driverList = _driverList;
                                                             // Enable Last selected Option:
                                                             for (let i = 0; i < __driverList.length; i++) {
@@ -897,7 +907,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                     optionFilterProp="children"
                                                     value={driver2 !== null ? driver2.value : null}
                                                     onChange={(value, option) => {
-                                                        if (driver2.label !== undefined) {
+                                                        if (driver2 !== null && driver2.label !== undefined) {
                                                             let __driverList = _driverList;
                                                             // Enable Last selected Option:
                                                             for (let i = 0; i < __driverList.length; i++) {
@@ -1005,7 +1015,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                     optionFilterProp="children"
                                                     value={conductor !== null ? conductor.value : null}
                                                     onChange={(value, option) => {
-                                                        if (conductor.label !== undefined) {
+                                                        if (conductor !== null && conductor.label !== undefined) {
                                                             let __driverList = _driverList;
                                                             // Enable Last selected Option:
                                                             for (let i = 0; i < __driverList.length; i++) {

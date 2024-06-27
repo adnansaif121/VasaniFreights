@@ -386,6 +386,7 @@ const DailyEntry = () => {
     const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
     const [partyDetailsList, setPartyDetailsList] = useState([[], [], [], [], [], []]);
     const [selectedPartyIndex, setSelectedPartyIndex] = useState([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
+    const [selectedTransporterIndex, setSelectedTransporterIndex] = useState([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
     // Drivers List
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
@@ -476,37 +477,52 @@ const DailyEntry = () => {
             let ds = []; // Data Source
             if (data) {
                 Object.keys(data).map((key, i) => {
-                    ds.push(
-                        {
-                            date: data[key].date,
-                            key: key,
-                            id: i + 1,
-                            vehicleNo: data[key].vehicleNo,
-                            mt: data[key].mt,
-                            from: data[key].tripDetails[0].from,
-                            to: data[key].tripDetails[0].to,
-                            paid: data[key].tripDetails[0].payStatus,
-                            bhejneWaliParty: data[key].tripDetails[0].bhejneWaala,
-                            paaneWaliParty: data[key].tripDetails[0].paaneWaala,
-                            transporter: data[key].tripDetails[0].transporter,
-                            maal: data[key].tripDetails[0].maal,
-                            qty: data[key].tripDetails[0].qty,
-                            rate: data[key].tripDetails[0].rate,
-                            totalFreight: data[key].tripDetails[0].totalFreight,
-                            received: '100000',
-                            dieselAndKmDetails: data[key].dieselAndKmDetails,
-                            tripDetails: data[key].tripDetails,
-                            driversDetails: data[key].driversDetails,
-                            kaataParchi: data[key].kaataParchi,
-                            firstPayment: data[key].firstPayment,
-                            vehicleStatus: data[key].vehicleStatus,
-                            bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
+                    for(let j = 0; j < data[key].tripDetails.length; j++){
+                        let receivedAmt = (data[key]?.firstPayment[j] !== undefined) ? 
+                            (
+                                parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
+                                parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
+                                parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
+                                parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
+                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
+                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
+                            )
+                            : 0;
 
-                            driver1: data[key].driver1 || null,
-                            driver2: data[key].driver2 || null,
-                            conductor: data[key].conductor || null,
-                        }
-                    )
+                        console.log(receivedAmt);
+
+                        ds.push(
+                            {
+                                date: data[key].date,
+                                key: key+j,
+                                id: i + 1,
+                                vehicleNo: data[key].vehicleNo,
+                                mt: data[key].mt,
+                                from: data[key].tripDetails[j].from,
+                                to: data[key].tripDetails[j].to,
+                                paid: data[key].tripDetails[j].payStatus,
+                                bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                transporter: data[key].tripDetails[j].transporter,
+                                maal: data[key].tripDetails[j].maal,
+                                qty: data[key].tripDetails[j].qty,
+                                rate: data[key].tripDetails[j].rate,
+                                totalFreight: data[key].tripDetails[j].totalFreight,
+                                received: receivedAmt,
+                                dieselAndKmDetails: data[key].dieselAndKmDetails,
+                                tripDetails: data[key].tripDetails,
+                                driversDetails: data[key].driversDetails,
+                                kaataParchi: data[key].kaataParchi,
+                                firstPayment: data[key].firstPayment,
+                                vehicleStatus: data[key].vehicleStatus,
+                                bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
+    
+                                driver1: data[key].driver1 || null,
+                                driver2: data[key].driver2 || null,
+                                conductor: data[key].conductor || null,
+                            }
+                        )
+                    }
                 });
             }
             applyDateSort(ds);
@@ -661,9 +677,10 @@ const DailyEntry = () => {
         firstPayment?.paymentDetails?.forEach((payment) => {
             listOfFirstPayment.push({
                 bhadaKaunDalega: payment?.bhadaKaunDalega || '',
+                partyForNaveenKaka: payment?.partyForNaveenKaka || '',
                 pohchAmount: payment?.pohchAmount || '',
                 pohchDate: payment?.pohchDate || '',
-
+                pohchSendTo: payment?.pohchSendTo || '',
                 pohchRemarks: payment?.pohchRemarks || '',
                 cashAmount: payment?.cashAmount || '',
                 cashDate: payment?.cashDate || '',
@@ -719,32 +736,32 @@ const DailyEntry = () => {
             conductor: conductor|| null, 
 
             // FIELDS DATA  
-            tripDetailsFields: (form?.getFieldsValue(['tripDetails']) || null),
+            // tripDetailsFields: (form?.getFieldsValue(['tripDetails']) || null),
             // driversDetailsFields: (listOfDrivers === null) ? null : (form1?.getFieldsValue(['DriversDetails']) || null),
-            kaataParchiFields: (listOfKaataParchi === null) ? null : (form2?.getFieldsValue(['kaataParchi']) || null),
-            firstPaymentFields: (listOfFirstPayment === null) ? null : (form3?.getFieldsValue(['paymentDetails']) || null),
+            // kaataParchiFields: (listOfKaataParchi === null) ? null : (form2?.getFieldsValue(['kaataParchi']) || null),
+            // firstPaymentFields: (listOfFirstPayment === null) ? null : (form3?.getFieldsValue(['paymentDetails']) || null),
 
         }).then(() => {
             console.log('Data saved');
             alert('Data Saved Successfully');
-            console.log({
-                date: date,
-                vehicleNo: vehicleNo || '',
-                mt: mt,
-                vehicleStatus: vehicleStatus || '',
-                // payStatus: payStatus || '',
-                dieselAndKmDetails: { ...dieselAndKmDetails },
-                tripDetails: listOfTrips,
-                driversDetails: listOfDrivers,
-                kaataParchi: listOfKaataParchi,
-                firstPayment: listOfFirstPayment,
+            // console.log({
+            //     date: date,
+            //     vehicleNo: vehicleNo || '',
+            //     mt: mt,
+            //     vehicleStatus: vehicleStatus || '',
+            //     // payStatus: payStatus || '',
+            //     dieselAndKmDetails: { ...dieselAndKmDetails },
+            //     tripDetails: listOfTrips,
+            //     driversDetails: listOfDrivers,
+            //     kaataParchi: listOfKaataParchi,
+            //     firstPayment: listOfFirstPayment,
 
-                // FIELDS DATA
-                tripDetailsFields: form.getFieldsValue(['tripDetails']),
-                driversDetailsFields: form1.getFieldsValue(['DriversDetails']),
-                kaataParchiFields: form2.getFieldsValue(['kaataParchi']),
-                firstPaymentFields: form3.getFieldsValue(['paymentDetails'])
-            });
+            //     // FIELDS DATA
+            //     tripDetailsFields: form.getFieldsValue(['tripDetails']),
+            //     driversDetailsFields: form1.getFieldsValue(['DriversDetails']),
+            //     kaataParchiFields: form2.getFieldsValue(['kaataParchi']),
+            //     firstPaymentFields: form3.getFieldsValue(['paymentDetails'])
+            // });
         }).catch((error) => {
             console.error('Error:', error);
         });
@@ -852,19 +869,6 @@ const DailyEntry = () => {
         let transporter = form.getFieldValue(['tripDetails', index, 'transporter']);
         pl[index] = [{ label: party1, value: party1 }, { label: party2, value: party2 }, { label: transporter, value: transporter }];
         setPartyList([...pl]);
-
-        let plDetails = partyDetailsList;
-        let party1Details = 'no details available';
-        let party2Details = 'no details available';
-        let transporterDetails = 'no details available';
-        for (let i = 0; i < plDetails.length; i++) {
-            if (plDetails[i].value === party1) party1Details = `${plDetails[i].address || 'Address notFound'} ${plDetails[i].contact || 'Contact notFound'}`;
-            if (plDetails[i].value === party2) party2Details = `${plDetails[i].address || 'Address notFound'} ${plDetails[i].contact || 'Contact notFound'}`;
-            if (plDetails[i].value === transporter) transporterDetails = `${plDetails[i].address || 'Address notFound'} ${plDetails[i].contact || 'Contact notFound'}`;
-        }
-        plDetails[index] = [{ party1Details, party2Details, transporterDetails }];
-        console.log(plDetails);
-        setPartyDetailsList([...plDetails]);
     }
 
     const addNewParty = () => {
@@ -1361,8 +1365,17 @@ const DailyEntry = () => {
                                                                     showSearch
                                                                     placeholder="Transporter Name"
                                                                     optionFilterProp="children"
-                                                                    onChange={(value) => 
-                                                                        addPartyInPartyList(value, name)}
+                                                                    onChange={(value) => {
+                                                                        addPartyInPartyList(value, name);
+                                                                        let _transporterList = transporterList;
+                                                                        for(let i = 0; i < _transporterList.length; i++){
+                                                                            if(_transporterList[i].value === value){
+                                                                                setSelectedTransporterIndex(i);
+                                                                                break;
+                                                                            }
+                                                                        }
+
+                                                                    }}
                                                                     // onSearch={onSearch}
                                                                     filterOption={filterOption}
                                                                     options={transporterList}
@@ -1394,11 +1407,15 @@ const DailyEntry = () => {
                                                                 />
                                                             </Form.Item>
 
-                                                            <div className='tooltip'>
-                                                                <Tooltip placement="top" title={partyDetailsList[name]?.transporterDetails}>
+                                                            {/* <div className='tooltip'>
+                                                                <Tooltip placement="top" 
+                                                                    // title={transporterList[selectedTransporterIndex].address}
+                                                                    title={'Hello'}
+                                                                    // title={selectedTransporterIndex[name+1] !== -1 ? `${transporterList[selectedTransporterIndex[name+1]].address || 'Address not available'} ${transporterList[selectedTransporterIndex[name+1]].contact || 'Contact Not Available'} ${transporterList[selectedTransporterIndex[name+1]].location || ' '}`: 'Not available'}
+                                                                    >
                                                                     <EyeOutlined />
                                                                 </Tooltip>
-                                                            </div>
+                                                            </div> */}
                                                             {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
 
                                                         </Flex>

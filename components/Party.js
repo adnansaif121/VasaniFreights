@@ -368,36 +368,49 @@ const Party = () => {
             if (data) {
                 setAllTableData(data);
                 Object.keys(data).map((key, i) => {
-                    ds.push(
-                        {
-                            key: key,
-                            id: i + 1,
-                            date: data[key].date,
-                            vehicleNo: data[key].vehicleNo,
-                            transactionStatus: data[key].transactionStatus || 'open',
-                            mt: data[key].mt,
-                            from: data[key].tripDetails[0].from,
-                            to: data[key].tripDetails[0].to,
-                            paid: data[key].tripDetails[0].payStatus,
-                            bhejneWaliParty: data[key].tripDetails[0].bhejneWaala,
-                            paaneWaliParty: data[key].tripDetails[0].paaneWaala,
-                            transporter: data[key].tripDetails[0].transporter,
-                            maal: data[key].tripDetails[0].maal,
-                            qty: data[key].tripDetails[0].qty,
-                            rate: data[key].tripDetails[0].rate,
-                            totalFreight: data[key].tripDetails[0].totalFreight,
-                            received: '100000',
-                            dieselAndKmDetails: data[key].dieselAndKmDetails,
-                            tripDetails: data[key].tripDetails,
-                            driversDetails: data[key].driversDetails,
-                            kaataParchi: data[key].kaataParchi,
-                            firstPayment: data[key].firstPayment,
-                            bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
-                            vehicleStatus: data[key].vehicleStatus,
-                            furtherPayments: data[key].furtherPayments || {},
-                            remainingBalance: (data[key].tripDetails[0].remainingBalance === undefined ? null : data[key].tripDetails[0].remainingBalance)
-                        }
-                    )
+                    for(let j = 0; j < data[key].tripDetails.length; j++){
+                        let receivedAmt = (data[key]?.firstPayment[j] !== undefined) ? 
+                            (
+                                parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
+                                parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
+                                parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
+                                parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
+                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
+                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
+                            )
+                            : 0;
+
+                        ds.push(
+                            {
+                                key: key+j,
+                                id: i + 1,
+                                date: data[key].date,
+                                vehicleNo: data[key].vehicleNo,
+                                transactionStatus: data[key].tripDetails[j].transactionStatus || 'open',
+                                mt: data[key].mt,
+                                from: data[key].tripDetails[j].from,
+                                to: data[key].tripDetails[j].to,
+                                paid: data[key].tripDetails[j].payStatus,
+                                bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                transporter: data[key].tripDetails[j].transporter,
+                                maal: data[key].tripDetails[j].maal,
+                                qty: data[key].tripDetails[j].qty,
+                                rate: data[key].tripDetails[j].rate,
+                                totalFreight: data[key].tripDetails[j].totalFreight,
+                                received: receivedAmt,
+                                dieselAndKmDetails: data[key].dieselAndKmDetails,
+                                tripDetails: data[key].tripDetails,
+                                driversDetails: data[key].driversDetails,
+                                kaataParchi: data[key].kaataParchi,
+                                firstPayment: data[key].firstPayment,
+                                bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
+                                vehicleStatus: data[key].vehicleStatus,
+                                furtherPayments: data[key].furtherPayments || {},
+                                remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance)
+                            }
+                        )
+                    }
                 });
             }
             console.log(ds);
@@ -911,31 +924,8 @@ const Party = () => {
                                     </Row> : null
                                 }
                             </Col>
-                            {/* <Col>
-                                <Button type="primary" onClick={showDrawer}>
-                                    View/Edit Party Profile
-                                </Button>
-                            </Col> */}
+                            
                         </Row>
-
-
-                        {/* <Form >
-                            <Row>
-                                <Col>
-                                    <Form.Item label="Start" name="startDate">
-                                        <Input type='date'></Input>
-                                    </Form.Item>
-                                </Col>
-                                <Col>
-                                    <Form.Item label="End" name="startDate">
-                                        <Input type='date'></Input>
-                                    </Form.Item>
-                                </Col>
-                                <Col>
-                                    <Button>Save</Button>
-                                </Col>
-                            </Row>
-                        </Form> */}
 
                         <Drawer
                             title="Create a new account"

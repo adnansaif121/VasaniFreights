@@ -369,7 +369,7 @@ const NaveenKakaParty = () => {
                 setAllTableData(data);
                 Object.keys(data).map((key, i) => {
                     for(let j = 0; j < data[key].tripDetails.length; j++){
-                        if(data[key].firstPaymentFields?.paymentDetails[j]. bhadaKaunDalega === "NaveenKaka"){
+                        if(data[key].firstPayment[j]. bhadaKaunDalega === "NaveenKaka"){
                             ds.push(
                                 {
                                     key: key,
@@ -395,7 +395,7 @@ const NaveenKakaParty = () => {
                                     kaataParchi: data[key].kaataParchi,
                                     firstPayment: data[key].firstPayment,
                                     bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
-                                    partyForNaveenKaka: (data[key].firstPaymentFields === undefined) ? null : data[key].firstPaymentFields?.paymentDetails[j].partyForNaveenKaka,
+                                    partyForNaveenKaka: (data[key]?.firstPayment === undefined) ? null : data[key].firstPayment[j]?.partyForNaveenKaka,
                                     vehicleStatus: data[key].vehicleStatus,
                                     furtherPayments: data[key].furtherPayments || {},
                                     remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance)

@@ -22,9 +22,9 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
 
     useEffect(() => {
         console.log('data', data);
-        
-        if (data.furtherPayments.FurtherPayments !== undefined) {
-            let furtherPayments = data.furtherPayments;
+        let index = parseInt(data.key[data.key.length - 1]);
+        if (data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
+            let furtherPayments = data.tripDetails[index].furtherPayments;
             form4.setFieldsValue(furtherPayments);
         }
 
@@ -35,13 +35,13 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
             setFirstPaymentTotal(total);
         }
 
-        if (data.furtherPayments.FurtherPayments !== undefined) {
+        if (data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
             updateTotal();
         }
 
-        if (data.extraAmount !== undefined) setExtraAmount(data.extraAmount);
-        if (data.extraAmtRemark !== undefined) setExtraAmtRemark(data.extraAmtRemark)
-        if(data.transactionStatus !== undefined)setTransactionStatus(data.transactionStatus);
+        if (data.tripDetails[index].extraAmount !== undefined) setExtraAmount(data.tripDetails[index].extraAmount);
+        if (data.tripDetails[index].extraAmtRemark !== undefined) setExtraAmtRemark(data.tripDetails[index].extraAmtRemark)
+        if (data.tripDetails[index].transactionStatus !== undefined) setTransactionStatus(data.tripDetails[index].transactionStatus);
         else setTransactionStatus('open');
     }, []);
 
@@ -51,34 +51,28 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
     const handleSave = () => {
         const db = getDatabase();
         // let id = guidGenerator();
-        set(ref(db, 'dailyEntry/' + data.key), {
-            date: data.date || '',
-            vehicleNo: data.vehicleNo || '',
-            mt: data.mt,
-            vehicleStatus: data.vehicleStatus || '',
-            // payStatus: payStatus || '',
-            dieselAndKmDetails: data.dieselAndKmDetails || '',
-            tripDetails: data.tripDetails || '',
-            driversDetails: data.driversDetails || '',
-            kaataParchi: data.kaataParchi || '',
-            firstPayment: data.firstPayment || '',
-            furtherPayments: form4.getFieldsValue(['FurtherPayments']),
+        let index = parseInt(data.key[data.key.length - 1]);
+        console.log(data.key, index);
+        let data_key = data.key.slice(0, -1);
 
-            firstPaymentTotal: firstPaymentTotal,
-            furtherPaymentTotal: furtherPaymentTotal,
-            extraAmount: extraAmount,
-            extraAmtRemark: extraAmtRemark,
-
-            transactionStatus: (transactionStatus !== null ? transactionStatus : 'open'),
-            remainingBalance: data.tripDetails[0].totalFreight - firstPaymentTotal - (furtherPaymentTotal||0) - extraAmount
-            // FIELDS DATA
-            // tripDetailsFields: form.getFieldsValue(['tripDetails']),
-            // driversDetailsFields: form1.getFieldsValue(['DriversDetails']),
-            // kaataParchiFields: form2.getFieldsValue(['kaataParchi']),
-            // firstPaymentFields: form3.getFieldsValue(['paymentDetails'])
+        let obj_to_save = data.tripDetails[index];
+        obj_to_save.furtherPayments = form4.getFieldsValue(['FurtherPayments']);
+        obj_to_save.firstPaymentTotal = firstPaymentTotal;
+        obj_to_save.furtherPaymentTotal = furtherPaymentTotal;
+        obj_to_save.extraAmount = extraAmount;
+        obj_to_save.extraAmtRemark = extraAmtRemark;
+        obj_to_save.transactionStatus = (transactionStatus !== null ? transactionStatus : 'open');
+        obj_to_save.remainingBalance = data.tripDetails[index].totalFreight - firstPaymentTotal - (furtherPaymentTotal||0) - extraAmount;
+        // let dataToSave = data;
+        // data.furtherPayments = form4.getFieldsValue(['FurtherPayments'])
+        set(ref(db, 'dailyEntry/' + data_key + '/tripDetails/' + index + '/'), {
+            ...obj_to_save    
         }).then(() => {
             console.log('Data saved');
             alert('Data Saved Successfully');
+
+
+
         }).catch((error) => {
             console.error('Error:', error);
         });
@@ -112,19 +106,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
     return (
         <>
             <div>
-                {/* <div className={styles.summary} style={{display:'flex', justifyContent: 'center'}}>
-                    <Row justify={'space-between'}>
-                        <Col>
-                            <h3>Amount Received Till Date :
-                                <span style={{color: 'green'}}>{amountReceived}</span>
-                            </h3>
-                        </Col>
-                    </Row>
-
-                </div> */}
-
-
-                <Card title="Payment Details" style={{margin: '20px'}}>
+                <Card title="Payment Details" style={{ margin: '20px' }}>
 
                     <table style={{ border: '1px solid black', padding: '5px', borderRadius: '10px', width: '100%' }}>
                         <thead>
@@ -152,19 +134,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                 <td >
                                     <Form.Item >
                                         <Input value={data.firstPayment === undefined ? 'NA' : data.firstPayment[0].pohchSendTo || ''}></Input>
-                                        {/* <Select
-                                                                                showSearch
-                                                                                placeholder="Pohch Send To"
-                                                                                optionFilterProp="children"
-                                                                                // onChange={onChange}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={[
-                                                                                    // ...partyList[name],
-                                                                                    { label: 'UV Logistics', value: 'UvLogs' },
-                                                                                    { label: 'Naveen Kaka', value: 'NaveenKaka' }
-                                                                                ]}
-                                                                            /> */}
+
                                     </Form.Item>
                                 </td>
                                 <td >
@@ -316,7 +286,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                     {/* <Meta title="Total" description= /> */}
                 </Card>
 
-                <Card title="Add Further Payment Details" style={{margin: '20px'}} >
+                <Card title="Add Further Payment Details" style={{ margin: '20px' }} >
 
                     <Form
                         name=' Further Payment Details'
@@ -325,17 +295,18 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                         <Form.List name="FurtherPayments" >
                             {(fields, { add, remove }) => (
                                 <table style={{ border: '1px solid black', padding: '5px' }}>
-                                    <tr style={{ border: '1px solid black' }}>
-                                        <th style={{ border: '1px solid black' }}>Amount</th>
-                                        <th style={{ border: '1px solid black' }}>Mode of Payment</th>
-                                        <th style={{ border: '1px solid black' }}>Bank</th>
-                                        <th style={{ border: '1px solid black' }}>Date</th>
-                                        <th style={{ border: '1px solid black' }}>Remarks</th>
-                                        <th style={{ border: '1px solid black' }}>Remove</th>
-                                    </tr>
+                                    <tbody>
+                                        <tr style={{ border: '1px solid black' }}>
+                                            <th style={{ border: '1px solid black' }}>Amount</th>
+                                            <th style={{ border: '1px solid black' }}>Mode of Payment</th>
+                                            <th style={{ border: '1px solid black' }}>Bank</th>
+                                            <th style={{ border: '1px solid black' }}>Date</th>
+                                            <th style={{ border: '1px solid black' }}>Remarks</th>
+                                            <th style={{ border: '1px solid black' }}>Remove</th>
+                                        </tr>
 
-                                    {fields.map(({ key, name, ...restField }) => (
-                                        <>
+                                        {fields.map(({ key, name, ...restField }) => (
+
                                             <tr key={key}>
                                                 <td>
                                                     <Form.Item name={[name, 'amount']} >
@@ -429,77 +400,19 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                                     />
                                                 </td>
                                             </tr>
-                                            {/* <Row key={key}>
-                                                    <Col>
-                                                        <Form.Item name={[name, 'amount']} label="Amount" style={{ margin: '3px' }}>
-                                                            <Input placeholder='Amount' type='number'  ></Input>
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col>
-                                                        <Form.Item name={[name, 'modeOfPayment']} label="Mode of Payment" style={{ margin: '3px' }}>
-                                                            <Select
-                                                                showSearch
-                                                                placeholder="Mode"
-                                                                optionFilterProp="children"
-                                                                // onChange={onChange}
-                                                                // onSearch={onSearch}
-                                                                filterOption={filterOption}
-                                                                options={[
-                                                                    {
-                                                                        value: 'Cash',
-                                                                        label: 'Cash',
-                                                                    },
-                                                                    {
-                                                                        value: 'Online',
-                                                                        label: 'Online',
-                                                                    },
-                                                                    {
-                                                                        value: 'Cheque',
-                                                                        label: 'Cheque',
-                                                                    },
-                                                                ]}
-                                                            />
 
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col>
-                                                        <Form.Item name={[name, 'bank']} label='bank'>
-                                                            <Select
-                                                                showSearch
-                                                                placeholder="Bank"
-                                                                optionFilterProp="children"
-                                                                // onChange={onChange}
-                                                                // onSearch={onSearch}
-                                                                filterOption={filterOption}
-                                                                options={bankData}
-                                                            />
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col>
-                                                        <Form.Item name={[name, 'date']} label="date" style={{ margin: '3px' }}>
-                                                            <Input type='date'></Input>
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col>
-                                                        <Form.Item name={[name, 'remarks']} label="Remarks" style={{ margin: '3px' }}>
-                                                            <Input placeholder='remarks'></Input>
-                                                        </Form.Item>
-                                                    </Col>
-                                                    <Col>
-                                                        <MinusCircleOutlined
-                                                            className="dynamic-delete-button"
-                                                            onClick={() => remove(name)}
-                                                        />
-                                                    </Col>
-                                                </Row> */}
-                                        </>
+                                        ))}
 
-                                    ))}
-                                    <Form.Item style={{ margin: 'auto' }}>
-                                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                            Add new
-                                        </Button>
-                                    </Form.Item>
+                                        <tr>
+                                            <td>
+                                                <Form.Item style={{ margin: 'auto' }}>
+                                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                        Add new
+                                                    </Button>
+                                                </Form.Item>
+                                            </td>
+                                        </tr>
+                                    </tbody>
 
                                 </table>
 
@@ -512,7 +425,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                     </div>
                 </Card>
 
-                <Card title='Remaining Balance' style={{margin: '20px'}}>
+                <Card title='Remaining Balance' style={{ margin: '20px' }}>
                     <Row justify={'space-between'}>
                         <Col>
                             <Card title="Total Freight" size='small'>
@@ -520,17 +433,17 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                             </Card>
                         </Col>
                         <Col>
-                            <span style={{fontSize: '50px'}}>- {"{"}</span>
+                            <span style={{ fontSize: '50px' }}>- {"{"}</span>
                         </Col>
                         <Col>
 
                             <Card title="First Payment Total" size='small'>
-                                <span>{firstPaymentTotal||0}</span>
+                                <span>{firstPaymentTotal || 0}</span>
                             </Card>
                         </Col>
                         <Col>
                             <Card title="Further Payment Total" size='small'>
-                                <span>{furtherPaymentTotal||0}</span>
+                                <span>{furtherPaymentTotal || 0}</span>
                             </Card>
                         </Col>
                         <Col span={6}>
@@ -540,16 +453,16 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                             </Card>
                         </Col>
                         <Col>
-                        <span style={{fontSize: '50px'}}>{"}"}</span>
+                            <span style={{ fontSize: '50px' }}>{"}"}</span>
                         </Col>
                     </Row>
 
-                    <div style={{border: '1px black dotted',marginTop: '20px', padding: '20px', fontSize: '20px'}}>
-                        Remaining : {data.tripDetails[0].totalFreight - firstPaymentTotal - (furtherPaymentTotal||0) - extraAmount}
+                    <div style={{ border: '1px black dotted', marginTop: '20px', padding: '20px', fontSize: '20px' }}>
+                        Remaining : {data.tripDetails[0].totalFreight - firstPaymentTotal - (furtherPaymentTotal || 0) - extraAmount}
                     </div>
                 </Card>
 
-                <Card title="Transaction Status" style={{margin: '20px'}}>
+                <Card title="Transaction Status" style={{ margin: '20px' }}>
                     <Radio.Group defaultValue="open" buttonStyle="solid" onChange={(e) => setTransactionStatus(e.target.value)}>
                         <Radio.Button value="open">Open</Radio.Button>
                         <Radio.Button value="close">Close</Radio.Button>

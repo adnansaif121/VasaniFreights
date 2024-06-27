@@ -4,6 +4,7 @@ import {SearchOutlined}  from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import styles from '../styles/Party.module.css';
 import _default from 'antd/es/grid';
+import Highlighter from 'react-highlight-words';
 const PohchHisab = () => {
     const [allTableData, setAllTableData] = useState({});
     const [dataSource, setDataSource] = useState([]); // Table Data
@@ -33,20 +34,20 @@ const PohchHisab = () => {
             let _totalPohchAmt = 0;
             if (data) {
                 setAllTableData(data);
+                let count = 1;
                 Object.keys(data).map((key, i) => {
-                    let count = 1;
                     for(let j = 0; j < data[key].tripDetails.length; j++){
                         //console.log(data[key], j);  
-                        if(data[key].firstPaymentFields?.paymentDetails[j].bhadaKaunDalega === "NaveenKaka"){
+                        if(data[key].firstPayment[j].bhadaKaunDalega === "NaveenKaka"){
                             ds.push(
                                 {
                                     key: key+j,
                                     id: count,
                                     date: data[key].date,
                                     vehicleNo: data[key].vehicleNo,
-                                    partyName: data[key].firstPaymentFields?.paymentDetails[j].partyForNaveenKaka,
-                                    PohchDate: data[key].firstPaymentFields?.paymentDetails[j].pohchDate,
-                                    PohchAmt: data[key].firstPaymentFields?.paymentDetails[j].pohchAmount,
+                                    partyName: data[key].firstPayment[j].partyForNaveenKaka,
+                                    PohchDate: data[key].firstPayment[j].pohchDate,
+                                    PohchAmt: data[key].firstPayment[j].pohchAmount,
                                     from: data[key].tripDetails[j].from,
                                     to: data[key].tripDetails[j].to,
                                     transporter: data[key].tripDetails[j].transporter,
@@ -60,9 +61,9 @@ const PohchHisab = () => {
                                 }
                             )
                             count++;
-                            _totalPohchAmt += parseInt(data[key].firstPaymentFields?.paymentDetails[j].pohchAmount);
+                            _totalPohchAmt += parseInt(data[key].firstPayment[j].pohchAmount);
                             _totalRemaining += ds[ds.length - 1].remainingBalance;
-                            _partyList.push({label:data[key].firstPaymentFields?.paymentDetails[j].partyForNaveenKaka, value:data[key].firstPaymentFields?.paymentDetails[j].partyForNaveenKaka})
+                            _partyList.push({label:data[key].firstPayment[j].partyForNaveenKaka, value:data[key].firstPayment[j].partyForNaveenKaka})
                         }
                     }
                 });
