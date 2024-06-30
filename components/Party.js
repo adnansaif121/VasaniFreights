@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
-import { getDatabase, ref, set, onValue, push } from "firebase/database";
+import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
 import Highlighter from 'react-highlight-words';
 
@@ -361,7 +361,8 @@ const Party = () => {
         const starCountRef = ref(db, 'dailyEntry/');
         // console.log(starCountRef);
         let ds = []; // Data Source
-        onValue(starCountRef, (snapshot) => {
+        const dbref = ref(db);
+        get(child(dbref, 'dailyEntry')).then((snapshot) => {
             const data = snapshot.val();
             console.log(data);
             // updateStarCount(postElement, data);
@@ -419,7 +420,10 @@ const Party = () => {
             );
             setDisplayDataSource(ds);
             setDataSource(ds);
-        });
+        }).catch((error) => {
+            console.log(error);
+        })
+        
 
         // Find the number of transactions open and frequeny for each party
         let openTransactionFreq = {};
@@ -499,7 +503,7 @@ const Party = () => {
         for (let i = 0; i < dataSource.length; i++) {
             // console.log(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase(), party.toLowerCase());
             if (dataSource[i].firstPayment === undefined || dataSource[i].bhadaKaunDalega === undefined) continue;
-            if (dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase() === party.toLowerCase()) {
+            if (dataSource[i].bhadaKaunDalega?.toLowerCase() === party.toLowerCase()) {
                 ds.push(dataSource[i]);
             }
         }

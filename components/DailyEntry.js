@@ -478,12 +478,12 @@ const DailyEntry = () => {
             if (data) {
                 Object.keys(data).map((key, i) => {
                     for(let j = 0; j < data[key].tripDetails.length; j++){
-                        let receivedAmt = (data[key]?.firstPayment[j] !== undefined) ? 
+                        let receivedAmt = (data[key]?.firstPayment!==undefined && data[key]?.firstPayment[j] !== undefined) ? 
                             (
                                 parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
                                 parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
                                 parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
-                                parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
+                                // parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
                                 (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
                                 (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
                             )
@@ -629,7 +629,7 @@ const DailyEntry = () => {
                 payStatus: trip.payStatus || '',
                 
                 remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -  
-                    ((form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index]!==undefined) ?
+                    ((form3.getFieldsValue(['paymentDetails']).paymentDetails !== undefined && form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index]!==undefined) ?
                         parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
                         parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
                         parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0

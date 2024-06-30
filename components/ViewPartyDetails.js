@@ -23,7 +23,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
     useEffect(() => {
         console.log('data', data);
         let index = parseInt(data.key[data.key.length - 1]);
-        if (data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
+        if (data.tripDetails[index].furtherPayments !== undefined && data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
             let furtherPayments = data.tripDetails[index].furtherPayments;
             form4.setFieldsValue(furtherPayments);
         }
@@ -35,7 +35,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
             setFirstPaymentTotal(total);
         }
 
-        if (data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
+        if (data.tripDetails[index].furtherPayments !== undefined && data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
             updateTotal();
         }
 
@@ -426,7 +426,37 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                 </Card>
 
                 <Card title='Remaining Balance' style={{ margin: '20px' }}>
-                    <Row justify={'space-between'}>
+
+                    <table style={{border: '1px solid black', padding:'10px'}}>
+                        <tbody>
+                            <tr>
+                                <th style={{border: '1px solid black'}}>Total Freight</th>
+                                <th style={{border: '1px solid black'}}>First Payment Total</th>
+                                <th style={{border: '1px solid black'}}>Further Payment Total</th>
+                                <th style={{border: '1px solid black'}}>Extra Amount</th>
+                                <th style={{border: '1px solid black'}}>Remark</th>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <span>{data.tripDetails !== undefined ? data.tripDetails[parseInt(data.key[data.key.length - 1])].totalFreight: 0}</span>
+                                </td>
+                                <td>
+                                    <span>{firstPaymentTotal || 0}</span>
+                                </td>
+                                <td>
+                                    <span>{furtherPaymentTotal || 0}</span>
+                                </td>
+                                <td>
+                                    <Input type='number' value={extraAmount} onChange={(e) => setExtraAmount(e.target.value)}></Input>
+                                </td>
+                                <td>
+                                    <Input placeholder='remark' value={extraAmtRemark} onChange={(e) => setExtraAmtRemark(e.target.value)}></Input>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {/* <Row justify={'space-between'}>
                         <Col>
                             <Card title="Total Freight" size='small'>
                                 <span>{data.tripDetails[0].totalFreight}</span>
@@ -455,10 +485,10 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                         <Col>
                             <span style={{ fontSize: '50px' }}>{"}"}</span>
                         </Col>
-                    </Row>
+                    </Row> */}
 
                     <div style={{ border: '1px black dotted', marginTop: '20px', padding: '20px', fontSize: '20px' }}>
-                        Remaining : {data.tripDetails[0].totalFreight - firstPaymentTotal - (furtherPaymentTotal || 0) - extraAmount}
+                        Remaining : {data.tripDetails[parseInt(data.key[data.key.length - 1])].totalFreight - firstPaymentTotal - (furtherPaymentTotal || 0) - extraAmount}
                     </div>
                 </Card>
 

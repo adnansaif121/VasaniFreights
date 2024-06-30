@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
-import { getDatabase, ref, set, onValue, push } from "firebase/database";
+import { getDatabase, ref, set, onValue, get, child} from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
 import Highlighter from 'react-highlight-words';
 
@@ -361,7 +361,9 @@ const NaveenKakaParty = () => {
         const starCountRef = ref(db, 'dailyEntry/');
         // console.log(starCountRef);
         let ds = []; // Data Source
-        onValue(starCountRef, (snapshot) => {
+        const dbref = ref(db);
+        get(child(dbref, 'dailyEntry')).then(
+            (snapshot) => {
             const data = snapshot.val();
             console.log(data);
             // updateStarCount(postElement, data);
@@ -369,10 +371,21 @@ const NaveenKakaParty = () => {
                 setAllTableData(data);
                 Object.keys(data).map((key, i) => {
                     for(let j = 0; j < data[key].tripDetails.length; j++){
-                        if(data[key].firstPayment[j]. bhadaKaunDalega === "NaveenKaka"){
+                        if(data[key].firstPayment[j].bhadaKaunDalega === "NaveenKaka"){
+                            let receivedAmt = (data[key]?.firstPayment[j] !== undefined) ? 
+                            (
+                                parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
+                                parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
+                                parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
+                                parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
+                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
+                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
+                            )
+                            : 0;
+
                             ds.push(
                                 {
-                                    key: key,
+                                    key: key+j,
                                     id: i + 1,
                                     date: data[key].date,
                                     vehicleNo: data[key].vehicleNo,
@@ -388,7 +401,7 @@ const NaveenKakaParty = () => {
                                     qty: data[key].tripDetails[j].qty,
                                     rate: data[key].tripDetails[j].rate,
                                     totalFreight: data[key].tripDetails[j].totalFreight,
-                                    received: '100000',
+                                    received: receivedAmt,
                                     dieselAndKmDetails: data[key].dieselAndKmDetails,
                                     tripDetails: data[key].tripDetails,
                                     driversDetails: data[key].driversDetails,
@@ -411,7 +424,10 @@ const NaveenKakaParty = () => {
             );
             setDisplayDataSource(ds);
             setDataSource(ds);
-        });
+            }
+        ).catch((error) => {
+            console.log(error);
+        })
 
         // Find the number of transactions open and frequeny for each party
         let openTransactionFreq = {};
