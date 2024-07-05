@@ -344,6 +344,7 @@ const NaveenKakaParty = () => {
     const [partyDescription, setPartyDescription] = useState('');
     const [partyIds, setPartyIds] = useState([]);
     const [selectedPartyIndex, setSelectedPartyIndex] = useState(0);
+    const [partySelectedForEdit, setPartySelectedForEdit] = useState(0);
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
     const [allTableData, setAllTableData] = useState({});
@@ -798,6 +799,7 @@ const NaveenKakaParty = () => {
 
     const [open, setOpen] = useState(false);
     const showDrawer = (index) => {
+        setPartySelectedForEdit(index);
         setModelPartySelected(displayPartyList[index]);
         setPartyName(displayPartyList[index].label);
         setPartyLocation(displayPartyList[index].location);
@@ -815,7 +817,7 @@ const NaveenKakaParty = () => {
         console.log('Edit Party');
         console.log(partySelected);
         const db = getDatabase();
-        const partyRef = ref(db, 'parties/' + partyIds[selectedPartyIndex]);
+        const partyRef = ref(db, 'parties/' + partyIds[partySelectedForEdit]);
         set(partyRef, {
             label: partyName,
             value: partyName,
@@ -827,7 +829,7 @@ const NaveenKakaParty = () => {
 
         // let pl = partyList;
         let dpl = displayPartyList;
-        dpl[selectedPartyIndex] = {
+        dpl[partySelectedForEdit] = {
             label: partyName,
             value: partyName,
             location: (partyLocation || ''),
