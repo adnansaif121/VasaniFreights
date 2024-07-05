@@ -372,7 +372,7 @@ const NaveenKakaParty = () => {
                 setAllTableData(data);
                 Object.keys(data).map((key, i) => {
                     for(let j = 0; j < data[key].tripDetails.length; j++){
-                        if(data[key].firstPayment[j].bhadaKaunDalega === "NaveenKaka"){
+                        if(data[key].firstPayment !== undefined && data[key].firstPayment[j].bhadaKaunDalega === "NaveenKaka"){
                             let receivedAmt = (data[key]?.firstPayment[j] !== undefined) ? 
                             (
                                 parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
