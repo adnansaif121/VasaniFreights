@@ -811,10 +811,10 @@ const TransporterParty = () => {
         set(partyRef, {
             label: partyName,
             value: partyName,
-            location: partyLocation,
-            address: partyAddress,
-            contact: partyContact,
-            description: partyDescription
+            location: (partyLocation ||''),
+            address: (partyAddress || ''),
+            contact: (partyContact || ''),
+            description: (partyDescription || '')
         });
 
         // let pl = partyList;
