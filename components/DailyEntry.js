@@ -1201,7 +1201,7 @@ const DailyEntry = () => {
                                                                     optionFilterProp="children"
                                                                     // onChange={onChange}
                                                                     // onSearch={onSearch}
-                                                                    // filterOption={filterOption}
+                                                                    filterOption={filterOption}
                                                                     options={Locations}
                                                                     dropdownRender={(menu) => (
                                                                         <>
