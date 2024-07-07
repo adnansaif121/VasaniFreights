@@ -1129,6 +1129,12 @@ const DailyEntry = () => {
                                                                                 />
                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                     e.preventDefault();
+                                                                                    for(let i = 0; i < Locations.length; i++){
+                                                                                        if(Locations[i].label.toLowerCase() === newLocation.toLowerCase()){
+                                                                                            alert(`Location with name ${Locations[i].label} already exists.`);
+                                                                                            return;
+                                                                                        }
+                                                                                    }
                                                                                     setLocations([...Locations, { value: newLocation, label: newLocation }]);
                                                                                     setNewLocation('');
                                                                                 }}>
@@ -1224,6 +1230,12 @@ const DailyEntry = () => {
                                                                                 />
                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                     e.preventDefault();
+                                                                                    for(let i = 0; i < Locations.length; i++){
+                                                                                        if(Locations[i].label.toLowerCase() === newLocation.toLowerCase()){
+                                                                                            alert(`Location with name ${Locations[i].label} already exists.`);
+                                                                                            return;
+                                                                                        }
+                                                                                    }
                                                                                     setLocations([...Locations, { value: newLocation, label: newLocation }]);
                                                                                     setNewLocation('');
                                                                                 }}>
@@ -1317,6 +1329,12 @@ const DailyEntry = () => {
                                                                                 />
                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                     e.preventDefault();
+                                                                                    for(let i = 0; i < Locations.length; i++){
+                                                                                        if(MaalList[i].label.toLowerCase() === newMaal.toLowerCase()){
+                                                                                            alert(`Maal with name ${MaalList[i].label} already exists.`);
+                                                                                            return;
+                                                                                        }
+                                                                                    }
                                                                                     setMaalList([...MaalList, { value: newMaal, label: newMaal }]);
                                                                                     setNewMaal('');
                                                                                 }}>
