@@ -614,6 +614,11 @@ const DailyEntry = () => {
 
     const handleSave = () => {
         let tripDetails = form.getFieldsValue(['tripDetails']);
+        console.log(tripDetails);
+        if(tripDetails.tripDetails=== undefined){
+            alert("Trips are not added. Please add trips to create entry");
+            return;
+        }
         let listOfTrips = [];
         tripDetails?.tripDetails?.forEach((trip, index) => {
             listOfTrips.push({
