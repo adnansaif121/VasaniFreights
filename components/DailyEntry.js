@@ -1,359 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload } from 'antd';
-import { InboxOutlined,MinusCircleOutlined, PlusOutlined,  CloseOutlined, EyeOutlined } from '@ant-design/icons';
+import { InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import firebase from '../config/firebase'
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import ViewDailyEntry from './ViewDailyEntry';
+import { vehicleData } from './data';
 // const ViewDailyEntry = dynamic(() => import('../components/ViewDailyEntry'), {ssr: false});
 // import { render } from 'react-dom';
-let bankData = [
-    {
-        key: "0",
-        label: "CV ICICI",
-        value: "CV ICICI",
-    },
-    {
-        key: "1",
-        label: "CCV ICICI",
-        value: "CCV ICICI"
-    },
-    {
-        key: "2",
-        label: "BV ICICI",
-        value: "BV ICICI"
-    },
-    {
-        key: "3",
-        label: "RV ICICI",
-        value: "RV ICICI"
-    },
-    {
-        key: "4",
-        label: "NV ICICI",
-        value: "NV ICICI"
-    },
-    {
-        key: "5",
-        label: "NCV ICICI",
-        value: "NCV ICICI"
-    },
-    {
-        key: "6",
-        label: "AV ICICI",
-        value: "AV ICICI"
-    },
-    {
-        key: "7",
-        label: "VV ICICI",
-        value: "VV ICICI"
-    },
-    {
-        key: "8",
-        label: "KV ICICI",
-        value: "KV ICICI"
-    },
-    {
-        key: "9",
-        label: "JV ICICI",
-        value: "JV ICICI"
-    },
-    {
-        key: "10",
-        label: "CV HUF ICICI",
-        value: "CV HUF ICICI"
-    },
-    {
-        key: "11",
-        label: "CCV HUF ICICI",
-        value: "CCV HUF ICICI"
-    },
-    {
-        key: "12",
-        label: "BV HUF ICICI",
-        value: "BV HUF ICICI"
-    },
-    {
-        key: "13",
-        label: "RV HUF HDFC",
-        value: "RV HUF HDFC"
-    },
-    {
-        key: "14",
-        label: "RAMA ICICI",
-        value: "RAMA ICICI"
-    },
-    {
-        key: "15",
-        label: "HKL ICICI",
-        value: "HKL ICICI"
-    },
-    {
-        key: "16",
-        label: "BV HDFC",
-        value: "BV HDFC"
-    },
-    {
-        key: "17",
-        label: "KV HDFC",
-        value: "KV HDFC"
-    },
-    {
-        key: "18",
-        label: "JV HDFC",
-        value: "JV HDFC"
-    },
-    {
-        key: "19",
-        label: "RKV HDFC",
-        value: "RKV HDFC"
-    },
-    {
-        key: "20",
-        label: "SV HDFC",
-        value: "SV HDFC"
-    },
-    {
-        key: "21",
-        label: "DV HDFC",
-        value: "DV HDFC"
-    },
-    {
-        key: "22",
-        label: "UV GLOBAL HDFC",
-        value: "UV GLOBAL HDFC"
-    },
-    {
-        key: "23",
-        label: "UV LOGI HDFC",
-        value: "UV LOGI HDFC"
-    },
-    {
-        key: "24",
-        label: "CCV HDFC",
-        value: "CCV HDFC"
-    }
-];
-let vehicleData =
-    [{
-        key: 0,
-        owner: "Bhavesh Vasani",
-        vehicleNo: "MH 18 AC 1411",
-        value: "MH 18 AC 1411",
-        label: "MH 18 AC 1411"
-    },
-    {
-        key: 1,
-        owner: "Asha Vasani",
-        vehicleNo: "MH 18 AC 1511",
-        value: "MH 18 AC 1511",
-        label: "MH 18 AC 1511"
-    },
-    {
-        key: 2,
-        owner: "Neha Vasani",
-        vehicleNo: "MH 18 AP 1811",
-        value: "MH 18 AP 1811",
-        label: "MH 18 AP 1811"
-    },
-    {
-        key: 3,
-        owner: "Nita Vasani",
-        vehicleNo: "MH 18 AP 1911",
-        value: "MH 18 AP 1911",
-        label: "MH 18 AP 1911"
-    },
-    {
-        key: 4,
-        owner: "Bhavesh Vasani",
-        vehicleNo: "MH 18 BA 2011",
-        value: "MH 18 BA 2011",
-        label: "MH 18 BA 2011"
-    },
-    {
-        key: 5,
-        owner: "Kunal Vasani",
-        vehicleNo: "MH 18 BA 2111",
-        value: "MH 18 BA 2111",
-        label: "MH 18 BA 2111"
-    },
-    {
-        key: 6,
-        owner: "Chandresh Vasani",
-        vehicleNo: "MH 18 BA 2311",
-        value: "MH 18 BA 2311",
-        label: "MH 18 BA 2311"
-    },
-    {
-        key: 7,
-        owner: "Bhavesh Vasani",
-        vehicleNo: "MH 18 BA 2411",
-        value: "MH 18 BA 2411",
-        label: "MH 18 BA 2411"
-    },
-    {
-        key: 8,
-        owner: "Kunal Vasani",
-        vehicleNo: "MH 18 BA 2611",
-        value: "MH 18 BA 2611",
-        label: "MH 18 BA 2611"
-    },
-    {
-        key: 9,
-        owner: "Kunal Vasani",
-        vehicleNo: "MH 18 BA 2711",
-        value: "MH 18 BA 2711",
-        label: "MH 18 BA 2711"
-    },
-    {
-        key: 10,
-        owner: "Jayesh Vasani",
-        vehicleNo: "MH 18 BG 2811",
-        value: "MH 18 BG 2811",
-        label: "MH 18 BG 2811"
-    },
-    {
-        key: 11,
-        owner: "Jayesh Vasani",
-        vehicleNo: "MH 18 BG 2911",
-        value: "MH 18 BG 2911",
-        label: "MH 18 BG 2911"
-    },
-    {
-        key: 12,
-        owner: "Jayesh Vasani",
-        vehicleNo: "MH 18 BG 3011",
-        value: "MH 18 BG 3011",
-        label: "MH 18 BG 3011"
-    },
-    {
-        key: 13,
-        owner: "Nita Vasani",
-        vehicleNo: "MH 18 BG 3111",
-        value: "MH 18 BG 3111",
-        label: "MH 18 BG 3111"
-    },
-    {
-        key: 14,
-        owner: "Bhavesh Vasani HUF",
-        vehicleNo: "MP 46 H  3211",
-        value: "MP 46 H  3211",
-        label: "MP 46 H  3211"
-    },
-    {
-        key: 15,
-        owner: "Chandresh Vasani HUF",
-        vehicleNo: "MP 46 H  3311",
-        value: "MP 46 H  3311",
-        label: "MP 46 H  3311"
-    },
-    {
-        key: 16,
-        owner: "Chetan Vasani HUF",
-        vehicleNo: "MP 46 H  3411",
-        value: "MP 46 H  3411",
-        label: "MP 46 H  3411"
-    },
-    {
-        key: 17,
-        owner: "Rajesh Vasani HUF",
-        vehicleNo: "MP 46 H  3511",
-        value: "MP 46 H  3511",
-        label: "MP 46 H  3511"
-    },
-    {
-        key: 18,
-        owner: "Veena Vasani",
-        vehicleNo: "MH 18 BG 3711",
-        value: "MH 18 BG 3711",
-        label: "MH 18 BG 3711"
-    },
-    {
-        key: 19,
-        owner: "Rajesh Vasani",
-        vehicleNo: "MH 18 BG 3811",
-        value: "MH 18 BG 3811",
-        label: "MH 18 BG 3811"
-    },
-    {
-        key: 20,
-        owner: "Chetan Vasani",
-        vehicleNo: "MH 18 BH 3911",
-        value: "MH 18 BH 3911",
-        label: "MH 18 BH 3911"
-    },
-    {
-        key: 21,
-        owner: "Chetan Vasani",
-        vehicleNo: "MH 18 BH 4011",
-        value: "MH 18 BH 4011",
-        label: "MH 18 BH 4011"
-    },
-    {
-        key: 22,
-        owner: "Chandresh Vasani",
-        vehicleNo: "MH 18 BH 4211",
-        value: "MH 18 BH 4211",
-        label: "MH 18 BH 4211"
-    },
-    {
-        key: 23,
-        owner: "Chandresh Vasani",
-        vehicleNo: "MH 18 BH 4311",
-        value: "MH 18 BH 4311",
-        label: "MH 18 BH 4311"
-    },
-    {
-        key: 24,
-        owner: "Rajesh Vasani",
-        vehicleNo: "MH 18 BZ 4611",
-        value: "MH 18 BZ 4611",
-        label: "MH 18 BZ 4611"
-    },
-    {
-        key: 25,
-        owner: "Rajesh Vasani",
-        vehicleNo: "MH 18 BZ 4711",
-        value: "MH 18 BZ 4711",
-        label: "MH 18 BZ 4711"
-    },
-    {
-        key: 26,
-        owner: "Bhavesh Vasani",
-        vehicleNo: "MH 18 BZ 4811",
-        value: "MH 18 BZ 4811",
-        label: "MH 18 BZ 4811"
-    },
-    {
-        key: 27,
-        owner: "Bhavesh Vasani",
-        vehicleNo: "MH 18 BZ 4911",
-        value: "MH 18 BZ 4911",
-        label: "MH 18 BZ 4911"
-    }
-    ]
-
-    const { Dragger } = Upload;
-    const props = {
-        name: 'file',       
-        multiple: true,
-        action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-        onChange(info) {
-          const { status } = info.file;
-          if (status !== 'uploading') {
+const { Dragger } = Upload;
+const props = {
+    name: 'file',
+    multiple: true,
+    action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
+    onChange(info) {
+        const { status } = info.file;
+        if (status !== 'uploading') {
             console.log(info.file, info.fileList);
-          }
-          if (status === 'done') {
+        }
+        if (status === 'done') {
             message.success(`${info.file.name} file uploaded successfully.`);
-          } else if (status === 'error') {
+        } else if (status === 'error') {
             message.error(`${info.file.name} file upload failed.`);
-          }
-        },
-        onDrop(e) {
-          console.log('Dropped files', e.dataTransfer.files);
-        },
-      };
+        }
+    },
+    onDrop(e) {
+        console.log('Dropped files', e.dataTransfer.files);
+    },
+};
+
+let todayDate = (new Date()).toLocaleString("en-Us", {timeZone: 'Asia/Kolkata'}).split(',')[0].split('/');
+todayDate = todayDate[2]+'-'+(parseInt(todayDate[0])<10 ? '0'+todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1])<10 ? '0'+todayDate[1] : todayDate[1]);
+console.log(todayDate); 
 
 const DailyEntry = () => {
 
@@ -363,7 +42,7 @@ const DailyEntry = () => {
     const [form3] = Form.useForm();
     const [toggle, setToggle] = React.useState(false);
     const [vehicleNo, setVehicleNo] = useState('');
-    const [date, setDate] = useState((new Date()).toISOString().split('T')[0]);
+    const [date, setDate] = useState(todayDate);
     const [mt, setMT] = useState(false);
     const [vehicleStatus, setVehicleStatus] = useState('');
     const [payStatus, setPayStatus] = useState('Paid');
@@ -477,8 +156,8 @@ const DailyEntry = () => {
             let ds = []; // Data Source
             if (data) {
                 Object.keys(data).map((key, i) => {
-                    for(let j = 0; j < data[key].tripDetails.length; j++){
-                        let receivedAmt = (data[key]?.firstPayment!==undefined && data[key]?.firstPayment[j] !== undefined) ? 
+                    for (let j = 0; j < data[key].tripDetails.length; j++) {
+                        let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined) ?
                             (
                                 parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
                                 parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
@@ -494,7 +173,7 @@ const DailyEntry = () => {
                         ds.push(
                             {
                                 date: data[key].date,
-                                key: key+j,
+                                key: key + j,
                                 id: i + 1,
                                 vehicleNo: data[key].vehicleNo,
                                 mt: data[key].mt,
@@ -516,7 +195,7 @@ const DailyEntry = () => {
                                 firstPayment: data[key].firstPayment,
                                 vehicleStatus: data[key].vehicleStatus,
                                 bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
-    
+
                                 driver1: data[key].driver1 || null,
                                 driver2: data[key].driver2 || null,
                                 conductor: data[key].conductor || null,
@@ -600,7 +279,7 @@ const DailyEntry = () => {
         })
     }, [])
 
-    
+
     const applyDateSort = (ds) => {
         ds.sort(function (a, b) {
             // Turn your strings into dates, and then subtract them
@@ -615,7 +294,7 @@ const DailyEntry = () => {
     const handleSave = () => {
         let tripDetails = form.getFieldsValue(['tripDetails']);
         console.log(tripDetails);
-        if(tripDetails.tripDetails=== undefined){
+        if (tripDetails.tripDetails === undefined) {
             alert("Trips are not added. Please add trips to create entry");
             return;
         }
@@ -632,15 +311,15 @@ const DailyEntry = () => {
                 rate: trip.rate || 0,
                 totalFreight: parseInt(trip.rate) * parseInt(trip.qty) || 0,
                 payStatus: trip.payStatus || '',
-                
-                remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -  
-                    ((form3.getFieldsValue(['paymentDetails']).paymentDetails !== undefined && form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index]!==undefined) ?
+
+                remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
+                    ((form3.getFieldsValue(['paymentDetails']).paymentDetails !== undefined && form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index] !== undefined) ?
                         parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
                         parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
                         parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
                         :
                         0
-                )            
+                    )
             });
         }
         );
@@ -736,9 +415,9 @@ const DailyEntry = () => {
             firstPayment: listOfFirstPayment || null,
 
             //DRIVER DATA
-            driver1 : driver1 || null,
-            driver2 : driver2 || null,
-            conductor: conductor|| null, 
+            driver1: driver1 || null,
+            driver2: driver2 || null,
+            conductor: conductor || null,
 
             // FIELDS DATA  
             // tripDetailsFields: (form?.getFieldsValue(['tripDetails']) || null),
@@ -783,7 +462,7 @@ const DailyEntry = () => {
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
-            render: (text, record, index) => index + 1
+            render: (text, record, index) => {  return index + 1; }
         },
         {
             title: 'Date',
@@ -791,9 +470,9 @@ const DailyEntry = () => {
             key: 'date',
             render: (text) => {
                 let date = new Date(text);
-                console.log(date, date.getDay(), date.getMonth());
-                return(
-                    <span>{date.getDate()}/{date.getMonth()+1}/{date.getFullYear()}</span>
+                
+                return (
+                    <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
                 )
             }
         },
@@ -878,14 +557,14 @@ const DailyEntry = () => {
 
     const addNewParty = () => {
         // e.preventDefault();
-        if(partyModal.label === undefined){
+        if (partyModal.label === undefined) {
             alert('Please Enter Party name');
             return;
         }
         let _newParty = partyModal.label;
-        for(let i = 0; i < partyListAll.length; i++){
-            if(_newParty.toUpperCase() === partyListAll[i].value.toUpperCase()){
-                alert(`Party with name ${partyListAll[i].value} already exists.` );
+        for (let i = 0; i < partyListAll.length; i++) {
+            if (_newParty.toUpperCase() === partyListAll[i].value.toUpperCase()) {
+                alert(`Party with name ${partyListAll[i].value} already exists.`);
                 return;
             }
         }
@@ -896,8 +575,8 @@ const DailyEntry = () => {
         const partyListRef = ref(db, 'parties');
         const newPartyRef = push(partyListRef);
         set(newPartyRef, {
-           ...partyModal
-        }).then(()=>{
+            ...partyModal
+        }).then(() => {
             alert("Party Created Successfully!!");
             setPartyModal({});
             return;
@@ -907,8 +586,8 @@ const DailyEntry = () => {
     const addNewTransporter = (e) => {
 
         e.preventDefault();
-        for(let i = 0; i < transporterList.length; i++){
-            if(newTransporter.toUpperCase() === transporterList[i].value.toUpperCase()){
+        for (let i = 0; i < transporterList.length; i++) {
+            if (newTransporter.toUpperCase() === transporterList[i].value.toUpperCase()) {
                 alert(`Transporter with name ${transporterList[i].value} already exixts`);
                 return;
             }
@@ -945,12 +624,12 @@ const DailyEntry = () => {
     const addNewDriver = (e) => {
 
         // e.preventDefault();
-        if(driverModal.label === undefined){
+        if (driverModal.label === undefined) {
             alert("Please Enter Driver Name to submit")
         }
         let _newDriverName = driverModal.label;
-        for(let i = 0; i < driverList.length; i++){
-            if(_newDriverName.toUpperCase() === driverList[i].value.toUpperCase()){
+        for (let i = 0; i < driverList.length; i++) {
+            if (_newDriverName.toUpperCase() === driverList[i].value.toUpperCase()) {
                 alert("Driver with this name already exists");
                 return;
             }
@@ -1134,8 +813,8 @@ const DailyEntry = () => {
                                                                                 />
                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                     e.preventDefault();
-                                                                                    for(let i = 0; i < Locations.length; i++){
-                                                                                        if(Locations[i].label.toLowerCase() === newLocation.toLowerCase()){
+                                                                                    for (let i = 0; i < Locations.length; i++) {
+                                                                                        if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
                                                                                             alert(`Location with name ${Locations[i].label} already exists.`);
                                                                                             return;
                                                                                         }
@@ -1157,10 +836,11 @@ const DailyEntry = () => {
                                                                     showSearch
                                                                     placeholder="Bhejne waale"
                                                                     optionFilterProp="children"
-                                                                    onChange={(value) => {addPartyInPartyList(value, name); 
+                                                                    onChange={(value) => {
+                                                                        addPartyInPartyList(value, name);
                                                                         let _selectedPartyIndex = selectedPartyIndex;
-                                                                        for(let i = 0; i < partyListAll.length; i++){
-                                                                            if(partyListAll[i].value.toUpperCase() === value.toUpperCase()){
+                                                                        for (let i = 0; i < partyListAll.length; i++) {
+                                                                            if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
                                                                                 _selectedPartyIndex[name] = i;
                                                                                 break;
                                                                             }
@@ -1184,7 +864,7 @@ const DailyEntry = () => {
                                                                                     padding: '0 8px 4px',
                                                                                 }}
                                                                             >
-                                                                               <Button onClick={()=>setIsModalOpen(true)}>Add New</Button>
+                                                                                <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
                                                                             </Space>
                                                                         </>
                                                                     )}
@@ -1192,9 +872,9 @@ const DailyEntry = () => {
                                                             </Form.Item>
 
                                                             <div className='tooltip'>
-                                                                <Tooltip placement="top" 
-                                                                // title={partyDetailsList[name]?.party1Details}
-                                                                    title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}`: 'Not available'}
+                                                                <Tooltip placement="top"
+                                                                    // title={partyDetailsList[name]?.party1Details}
+                                                                    title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}` : 'Not available'}
                                                                 >
 
                                                                     <EyeOutlined />
@@ -1235,8 +915,8 @@ const DailyEntry = () => {
                                                                                 />
                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                     e.preventDefault();
-                                                                                    for(let i = 0; i < Locations.length; i++){
-                                                                                        if(Locations[i].label.toLowerCase() === newLocation.toLowerCase()){
+                                                                                    for (let i = 0; i < Locations.length; i++) {
+                                                                                        if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
                                                                                             alert(`Location with name ${Locations[i].label} already exists.`);
                                                                                             return;
                                                                                         }
@@ -1261,9 +941,9 @@ const DailyEntry = () => {
                                                                     onChange={(value) => {
                                                                         addPartyInPartyList(value, name)
                                                                         let _selectedPartyIndex = selectedPartyIndex;
-                                                                        for(let i = 0; i < partyListAll.length; i++){
-                                                                            if(partyListAll[i].value.toUpperCase() === value.toUpperCase()){
-                                                                                _selectedPartyIndex[name+1] = i;
+                                                                        for (let i = 0; i < partyListAll.length; i++) {
+                                                                            if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
+                                                                                _selectedPartyIndex[name + 1] = i;
                                                                                 break;
                                                                             }
                                                                         }
@@ -1286,7 +966,7 @@ const DailyEntry = () => {
                                                                                     padding: '0 8px 4px',
                                                                                 }}
                                                                             >
-                                                                                 <Button onClick={()=>setIsModalOpen(true)}>Add New</Button>
+                                                                                <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
                                                                             </Space>
                                                                         </>
                                                                     )}
@@ -1294,9 +974,9 @@ const DailyEntry = () => {
                                                             </Form.Item>
 
                                                             <div className='tooltip'>
-                                                                <Tooltip placement="top" 
-                                                                // title={partyDetailsList[name]?.party2Details}
-                                                                title={selectedPartyIndex[name+1] !== -1 ? `${partyListAll[selectedPartyIndex[name+1]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name+1]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name+1]].location || ' '}`: 'Not available'}
+                                                                <Tooltip placement="top"
+                                                                    // title={partyDetailsList[name]?.party2Details}
+                                                                    title={selectedPartyIndex[name + 1] !== -1 ? `${partyListAll[selectedPartyIndex[name + 1]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name + 1]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name + 1]].location || ' '}` : 'Not available'}
                                                                 >
                                                                     <EyeOutlined />
                                                                 </Tooltip>
@@ -1334,8 +1014,8 @@ const DailyEntry = () => {
                                                                                 />
                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                     e.preventDefault();
-                                                                                    for(let i = 0; i < Locations.length; i++){
-                                                                                        if(MaalList[i].label.toLowerCase() === newMaal.toLowerCase()){
+                                                                                    for (let i = 0; i < Locations.length; i++) {
+                                                                                        if (MaalList[i].label.toLowerCase() === newMaal.toLowerCase()) {
                                                                                             alert(`Maal with name ${MaalList[i].label} already exists.`);
                                                                                             return;
                                                                                         }
@@ -1391,8 +1071,8 @@ const DailyEntry = () => {
                                                                     onChange={(value) => {
                                                                         addPartyInPartyList(value, name);
                                                                         let _transporterList = transporterList;
-                                                                        for(let i = 0; i < _transporterList.length; i++){
-                                                                            if(_transporterList[i].value === value){
+                                                                        for (let i = 0; i < _transporterList.length; i++) {
+                                                                            if (_transporterList[i].value === value) {
                                                                                 setSelectedTransporterIndex(i);
                                                                                 break;
                                                                             }
@@ -1584,7 +1264,7 @@ const DailyEntry = () => {
                                                                     padding: '0 8px 4px',
                                                                 }}
                                                             >
-                                                               <Button onClick={()=>setIsDriverModalOpen(true)}>Add New</Button>
+                                                                <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
                                                             </Space>
                                                         </>
                                                     )}
@@ -1688,10 +1368,10 @@ const DailyEntry = () => {
                                                                     onKeyDown={(e) => e.stopPropagation()}
                                                                 />
                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}> */}
-                                                            
+
                                                                 {/* </Button> */}
 
-                                                                <Button onClick={()=>setIsDriverModalOpen(true)}>Add New</Button>
+                                                                <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
                                                             </Space>
                                                         </>
                                                     )}
@@ -1788,7 +1468,7 @@ const DailyEntry = () => {
                                                                     padding: '0 8px 4px',
                                                                 }}
                                                             >
-                                                               <Button onClick={()=>setIsDriverModalOpen(true)}>Add New</Button>
+                                                                <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
                                                             </Space>
                                                         </>
                                                     )}
@@ -2333,12 +2013,12 @@ const DailyEntry = () => {
             <Modal title="Create Party" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
                 footer={[
                     <Button key="back" onClick={handleCancel}>
-                      Return
+                        Return
                     </Button>,
-                    <Button key="submit" type="primary"  onClick={handleOk}>
-                      Submit
+                    <Button key="submit" type="primary" onClick={handleOk}>
+                        Submit
                     </Button>
-                  ]}
+                ]}
             >
                 <Form layout="vertical" >
                     <Row gutter={16}>
@@ -2358,7 +2038,7 @@ const DailyEntry = () => {
                                     obj.label = e.target.value;
                                     obj.value = e.target.value;
                                     setPartyModal(obj);
-                                }} placeholder="Please enter user name"  />
+                                }} placeholder="Please enter user name" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -2381,7 +2061,7 @@ const DailyEntry = () => {
                                         let obj = partyModal;
                                         obj.location = e.target.value;
                                         setPartyModal(obj);
-                                    }}  
+                                    }}
                                 />
                             </Form.Item>
                         </Col>
@@ -2464,12 +2144,12 @@ const DailyEntry = () => {
             <Modal title="Create Driver" open={isDriverModalOpen} onOk={handleDriverOk} onCancel={handleDriverCancel}
                 footer={[
                     <Button key="back" onClick={handleDriverCancel}>
-                      Return
+                        Return
                     </Button>,
-                    <Button key="submit" type="primary"  onClick={handleDriverOk}>
-                      Submit
+                    <Button key="submit" type="primary" onClick={handleDriverOk}>
+                        Submit
                     </Button>
-                  ]}
+                ]}
             >
                 <Form layout="vertical" >
                     <Row gutter={16}>
@@ -2489,7 +2169,7 @@ const DailyEntry = () => {
                                     obj.label = e.target.value;
                                     obj.value = e.target.value;
                                     setDriverModal(obj);
-                                }} placeholder="Please enter user name"  />
+                                }} placeholder="Please enter user name" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
@@ -2512,7 +2192,7 @@ const DailyEntry = () => {
                                         let obj = driverModal;
                                         obj.location = e.target.value;
                                         setDriverModal(obj);
-                                    }}  
+                                    }}
                                 />
                             </Form.Item>
                         </Col>
@@ -2593,7 +2273,15 @@ const DailyEntry = () => {
                 </Form>
             </Modal>
             <div>
-                <Button style={{ border: '2px solid black', marginLeft: '40px' }} onClick={() => setToggle(!toggle)}>Add New Details</Button>
+                {!toggle ? 
+                    <Button style={{ border: '2px solid black', marginLeft: '40px' }} onClick={() => setToggle(!toggle)}>
+                        Add new details                    
+                    </Button>
+                    :
+                    <Button style={{ border: '2px solid black', marginLeft: '40px' }} onClick={() => setToggle(!toggle)}>
+                        Show Table                    
+                    </Button>
+                }
                 <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
                 <Button onClick={() => {
                     setDataSource(completeDataSource);
@@ -2601,34 +2289,35 @@ const DailyEntry = () => {
                 }}>Clear Date</Button>
             </div>
             {/* {[...rate[0]]} */}
-            <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '60vh', backgroundColor: 'white' }}>
-                <Table size="small" dataSource={dataSource} columns={columns} expandable={{
-                    expandedRowRender: (record) =>
-                        <ViewDailyEntry
-                            data={record}
-                            Locations={Locations}
-                            partyListAll={partyListAll}
-                            transporterList={transporterList}
-                            driverList={driverList}
-                            vehicleData={vehicleData}
-                            MaalList={MaalList}
-                            bankData={bankData}
-                        />,
-                    rowExpandable: (record) => true,
-                }} pagination={'none'}
-                />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center', margin: 'auto', paddingTop: '10px', width: '90vw' }}>
-                
-            </div>
-            <div style={{ width: "95vw" }} className={styles.addNewDetails}>
-                {toggle &&
+
+            {!toggle && 
+                <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
+                    <Table size="small" dataSource={dataSource} columns={columns} expandable={{
+                        expandedRowRender: (record) =>
+                            <ViewDailyEntry
+                                data={record}
+                                Locations={Locations}
+                                partyListAll={partyListAll}
+                                transporterList={transporterList}
+                                driverList={driverList}
+                                vehicleData={vehicleData}
+                                MaalList={MaalList}
+                                bankData={bankData}
+                            />,
+                        rowExpandable: (record) => true,
+                    }} pagination={false}
+                    />
+                </div>
+            }
+           
+            {toggle &&
+                <div style={{ width: "95vw" }} className={styles.addNewDetails}>
                     <>
                         <Collapse items={items} defaultActiveKey={['1']} />
 
                     </>
-                }
-            </div>
+                </div>
+            }
         </>
     )
 }

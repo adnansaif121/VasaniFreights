@@ -47,7 +47,7 @@ export default function Dashboard() {
                 onClick={()=>setNav('Report')}>Report</div>
         </div>
 
-        <div style={{position:"absolute", top:"15%", width:'100vw' }}>
+        <div style={{position:"absolute", top:"11%", width:'100vw' }}>
             {nav == "DailyEntry" && 
                 <DailyEntry></DailyEntry>
             }

@@ -1,10 +1,11 @@
 import {useState, useEffect, useRef} from 'react';
-import {Row, Col, Select, Table, Input, Button, Space} from 'antd';
+import {Row, Col, Select, Table, Input, Button, Space, Menu} from 'antd';
 import {SearchOutlined}  from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import styles from '../styles/Party.module.css';
 import Highlighter from 'react-highlight-words';
 const TransporterTrips = () => {
+    const [displayPartyList, setDisplayPartyList] = useState([]);
     const [allTableData, setAllTableData] = useState({});
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
@@ -13,7 +14,7 @@ const TransporterTrips = () => {
     const [partySelected, setPartySelected] = useState('All');
     const [totalPohchAmt, setTotalPohchAmt] = useState(0);
     const [totalRemaining, setTotalRemaining] = useState(0);
-
+    const [selectedPartyIndex ,setSelectedPartyIndex] =useState();
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
@@ -29,12 +30,13 @@ const TransporterTrips = () => {
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
             Object.values(data).map((party, i)=> {
+                parties.push(party);
                 partyNameList.push(party.label);
             })
             // setPartyIds(Object.keys(data));
             // setPartyListAll([...parties]);
-            setPartyList([...parties]);
-            // setDisplayPartyList([...parties]);
+            setPartyList([...parties]); 
+            setDisplayPartyList([...parties]);
         });
 
         // Get data from database
@@ -53,8 +55,8 @@ const TransporterTrips = () => {
                 let count = 1;
                 Object.keys(data).map((key, i) => {
                     for(let j = 0; j < data[key].tripDetails.length; j++){
-                        //console.log(data[key], j);  
-                        if(data[key].firstPayment !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "none")){
+                        console.log(data[key], j);  
+                        if(data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "none")){
                             ds.push(
                                 {
                                     key: key+j,
@@ -384,73 +386,125 @@ const TransporterTrips = () => {
             setDisplayDataSource(ds);
         }
     }
+
+    const handleSearch = (e) => {
+        console.log(e.target.value);
+        if (e.target.value.trim() == '') setDisplayPartyList([...partyList]);
+        let query = e.target.value;
+        let parties = partyList;
+        let filtered = parties.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()));
+        setDisplayPartyList([...filtered]);
+        console.log(filtered, 'FILTERED');
+    }
+
+    const onClick = (e) => {
+        console.log('click ', e);
+        let partyIndex = parseInt(e.key.slice(4));
+        setPartySelected(displayPartyList[partyIndex]);
+        setSelectedPartyIndex(partyIndex);
+
+        console.log(displayPartyList[partyIndex]);
+        console.log(e.item.props.value);
+
+        let party = displayPartyList[partyIndex].label;
+        let ds = [];
+        console.log(dataSource);
+        for (let i = 0; i < dataSource.length; i++) {
+            // console.log(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase(), party.toLowerCase());
+            if (dataSource[i].firstPayment === undefined || dataSource[i].bhadaKaunDalega === undefined) continue;
+            if (dataSource[i].bhadaKaunDalega?.toLowerCase() === party.toLowerCase()) {
+                ds.push(dataSource[i]);
+            }
+        }
+        console.log(ds);
+        setDisplayDataSource([...ds]);
+    };
     return (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <div >
-                        {/* <div className={styles.part2}> */}
-                        <div >
-                            <Row justify={'space-between'} style={{ width: '95vw' }}>
-                                <Col>
-                                    <Select
-                                        defaultValue="none"
-                                        style={{
-                                            width: 120,
-                                        }}
-                                        onChange={handleFilterChange}
-                                        options={filterMenuItems}
-                                    />
-                                </Col>
-                                <Col>
-                                    {
-                                        filterType === 'custom' ? <Row>
-                                            <Col>
-                                                <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
-                                            </Col>
-                                            <Col>
-                                                <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
-                                            </Col>
-                                            <Col>
-                                                <Button onClick={handleCustomFilter}>Apply</Button>
-                                            </Col>
-                                        </Row> : null
-                                    }
-                                </Col>
-                                <Col>
-                                    <Select
-                                        defaultValue="All"
-                                        style={{
-                                            width: 120,
-                                        }}
-                                        onChange={onPartyChange}
-                                        options={partyList}
-                                    />
-                                </Col>
-                            </Row>
+        <div className={styles.container}> 
+            <div className={styles.part1}>
+                    <Input onChange={handleSearch} placeholder='Search' />
+                    <div className={styles.menu} style={{ display: 'flex' }}>
 
+                        <Menu
+                            onClick={onClick}
+                            style={{
+                                width: "100%",
+                            }}
+                            mode="inline"
+                            items={displayPartyList}
 
-                        </div>
-
-                        <div style={{height: '75vh', background: 'white', overflowX:'auto'}}>
-                            <Table size="small" className={styles.fullTable} dataSource={displayDataSource} columns={PohchHisabColumns} 
-                                pagination={'none'}
-                            />
-                        </div>
-                        <div style={{border: "1px solid black", padding: '5px', background:'white'}}>
-                            <Row justify={'space-evenly'}>
-                                <Col>
-                                    Count: {displayDataSource.length}
-                                </Col>
-                                <Col>
-                                    Pohch Amount Total: {totalPohchAmt}
-                                </Col>
-                                <Col>
-                                    Total Remaining : {totalRemaining}
-                                </Col>
-                            </Row>
-                        </div>
-                        {/* </div> */}
+                        />
                     </div>
                 </div>
+            <div className={styles.part2}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <div >
+                                {/* <div className={styles.part2}> */}
+                                <div >
+                                    <Row justify={'space-between'} style={{ width: '95vw' }}>
+                                        <Col>
+                                            <Select
+                                                defaultValue="none"
+                                                style={{
+                                                    width: 120,
+                                                }}
+                                                onChange={handleFilterChange}
+                                                options={filterMenuItems}
+                                            />
+                                        </Col>
+                                        <Col>
+                                            {
+                                                filterType === 'custom' ? <Row>
+                                                    <Col>
+                                                        <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
+                                                    </Col>
+                                                    <Col>
+                                                        <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
+                                                    </Col>
+                                                    <Col>
+                                                        <Button onClick={handleCustomFilter}>Apply</Button>
+                                                    </Col>
+                                                </Row> : null
+                                            }
+                                        </Col>
+                                        <Col>
+                                            <Select
+                                                defaultValue="All"
+                                                style={{
+                                                    width: 120,
+                                                }}
+                                                onChange={onPartyChange}
+                                                options={partyList}
+                                            />
+                                        </Col>
+                                    </Row>
+
+
+                                </div>
+
+                                <div style={{height: '75vh', background: 'white', overflowX:'auto'}}>
+                                    <Table size="small" className={styles.fullTable} dataSource={displayDataSource} columns={PohchHisabColumns} 
+                                        pagination={'none'}
+                                    />
+                                </div>
+                                <div style={{border: "1px solid black", padding: '5px', background:'white'}}>
+                                    <Row justify={'space-evenly'}>
+                                        <Col>
+                                            Count: {displayDataSource.length}
+                                        </Col>
+                                        <Col>
+                                            Pohch Amount Total: {totalPohchAmt}
+                                        </Col>
+                                        <Col>
+                                            Total Remaining : {totalRemaining}
+                                        </Col>
+                                    </Row>
+                                </div>
+                                {/* </div> */}
+                            </div>
+                        </div>
+            </div>
+        </div>
     )
 }
 
