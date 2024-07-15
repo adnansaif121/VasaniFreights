@@ -9,7 +9,7 @@ const NaveenKaka = () => {
 
     return (
         <>
-            <div style={{ marginTop: '-50px', marginBottom: '5px' }}>
+            <div style={{ marginTop: '-20px', marginBottom: '5px' }}>
                 <Segmented size='large' options={['Party Hisab', 'Pohch Hisab', 'Cash Hisab']} onChange={(value) => setPage(value)} block />
             </div>
             {page === "Party Hisab" &&

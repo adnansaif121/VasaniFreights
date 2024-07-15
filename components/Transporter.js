@@ -8,7 +8,7 @@ const Transporter = () => {
 
     return (
         <>
-            <div style={{ marginTop: '-50px', marginBottom: '5px' }}>
+            <div style={{ marginTop: '-20px', marginBottom: '5px' }}>
                 <Segmented size='large' options={['No. of trips detail', 'Payment Received Details']} onChange={(value) => setPage(value)} block />
             </div>
             {page === "No. of trips detail" &&

@@ -610,18 +610,22 @@ const DailyEntry = () => {
 
     const addNewBank = (e) => {
         e.preventDefault();
+        if(newBank.trim() === ''){
+            alert('Please enter bank name to add bank in the list. Field is empty');
+            return;
+        }
         let key = bankData.length;
-        setBankData([...bankData, { value: newBank, label: newBank, key: key }]);
-        setNewBank('');
-
+        setBankData([...bankData, { bankName: newBank, value: newBank, label: newBank, key: key }]);
+        
         const db = getDatabase();
         const bankRef = ref(db, 'bankData/data/' + key);
         // const newBankRef = push(bankRef);
         set(bankRef, {
-            value: newBank,
-            label: newBank,
+            bankName: newBank,
             key: key,
         })
+
+        setNewBank('');
     }
 
     const addNewDriver = (e) => {

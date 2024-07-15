@@ -38,7 +38,7 @@ const PohchHisab = () => {
                 Object.keys(data).map((key, i) => {
                     for(let j = 0; j < data[key].tripDetails.length; j++){
                         //console.log(data[key], j);  
-                        if(data[key].firstPayment !== undefined && data[key].firstPayment[j].bhadaKaunDalega === "NaveenKaka"){
+                        if(data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === "NaveenKaka"){
                             ds.push(
                                 {
                                     key: key+j,

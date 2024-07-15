@@ -12,7 +12,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
     const [extraAmount, setExtraAmount] = useState(0);
     const [extraAmtRemark, setExtraAmtRemark] = useState(null);
     const [transactionStatus, setTransactionStatus] = useState(null);
-    // const [bankData, setBankData] = useState([]);
+    // const [bankData, setBankData] = useState([..._bankData]);
 
     const [amountReceived, setAmountReceived] = useState((data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].pohchAmount || 0) +
         parseInt(data.firstPayment[0].cashAmount || 0) +
@@ -80,18 +80,23 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
 
     const addNewBank = (e) => {
         e.preventDefault();
+        if(newBank.trim() === ''){
+            alert('Please enter bank name to add bank in the list. Field is empty');
+            return;
+        }
         let key = bankData.length;
-        setBankData([...bankData, { value: newBank, label: newBank, key: key }]);
-        setNewBank('');
-
+        // setBankData([...bankData, { value: newBank, label: newBank, key: key }]);
+       
+        bankData = [...bankData, { value: newBank, label: newBank, key: key }];
         const db = getDatabase();
         const bankRef = ref(db, 'bankData/data/' + key);
         // const newBankRef = push(bankRef);
         set(bankRef, {
-            value: newBank,
-            label: newBank,
+            bankName: newBank,
             key: key,
         })
+
+        setNewBank('');
     }
 
     const updateTotal = () => {
