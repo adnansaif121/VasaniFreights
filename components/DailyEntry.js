@@ -584,7 +584,10 @@ const DailyEntry = () => {
     }
 
     const addNewTransporter = (e) => {
-
+        if(newTransporter.trim() === ""){
+            alert("please enter a value to add transporter.")
+            return;
+        }
         e.preventDefault();
         for (let i = 0; i < transporterList.length; i++) {
             if (newTransporter.toUpperCase() === transporterList[i].value.toUpperCase()) {
@@ -813,6 +816,10 @@ const DailyEntry = () => {
                                                                                 />
                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                     e.preventDefault();
+                                                                                    if(newLocation.trim() === ""){
+                                                                                        alert("Please enter a value to add location.")
+                                                                                        return;
+                                                                                    }
                                                                                     for (let i = 0; i < Locations.length; i++) {
                                                                                         if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
                                                                                             alert(`Location with name ${Locations[i].label} already exists.`);
@@ -915,6 +922,10 @@ const DailyEntry = () => {
                                                                                 />
                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                     e.preventDefault();
+                                                                                    if(newLocation.trim() === ""){
+                                                                                        alert("Please enter a value to add location.")
+                                                                                        return;
+                                                                                    }
                                                                                     for (let i = 0; i < Locations.length; i++) {
                                                                                         if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
                                                                                             alert(`Location with name ${Locations[i].label} already exists.`);
