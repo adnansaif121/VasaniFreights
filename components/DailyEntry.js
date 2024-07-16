@@ -133,6 +133,10 @@ const DailyEntry = () => {
     const [driver2, setDriver2] = useState({});
     const [conductor, setConductor] = useState({});
 
+    const [driver1Value, setDriver1Value] = useState();
+    const [driver2Value, setDriver2Value] = useState();
+    const [conductorValue, setConductorValue] = useState();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
 
@@ -428,6 +432,28 @@ const DailyEntry = () => {
         }).then(() => {
             console.log('Data saved');
             alert('Data Saved Successfully');
+            form.resetFields();
+            form1.resetFields();
+            form2.resetFields();
+            form3.resetFields();
+            setDate(todayDate);
+            setVehicleNo('');
+            setMT('');
+            setVehicleStatus('');
+            setDriver1({});
+            setDriver2({});
+            setConductor({});
+            // janaKm: janaKm || 0,
+            setJanaKm(0);
+            setAanaKm(0);
+            setMilometer(0);
+            setDieselQty(0);
+            setPumpName(null);
+            setAverage(0);
+            setMidwayDiesel(0);
+            setDriver1Value(null);
+            setDriver2Value(null);
+            setConductorValue(null);    
             // console.log({
             //     date: date,
             //     vehicleNo: vehicleNo || '',
@@ -1262,8 +1288,10 @@ const DailyEntry = () => {
                                                         }
                                                         setDriver1(option);
                                                         console.log(option);
+                                                        setDriver1Value(value);
                                                     }}
                                                     // onSearch={onSearch}
+                                                    value={driver1Value}
                                                     filterOption={filterOption}
                                                     options={driverList}
                                                     dropdownRender={(menu) => (
@@ -1359,8 +1387,10 @@ const DailyEntry = () => {
                                                         }
                                                         setDriver2(option);
                                                         console.log(option);
+                                                        setDriver2Value(value)
                                                     }}
                                                     // onSearch={onSearch}
+                                                    value={driver2Value}
                                                     filterOption={filterOption}
                                                     options={driverList}
                                                     dropdownRender={(menu) => (
@@ -1466,8 +1496,10 @@ const DailyEntry = () => {
                                                         }
                                                         setConductor(option);
                                                         console.log(option);
+                                                        setConductorValue(value);
                                                     }}
                                                     // onSearch={onSearch}
+                                                    value={conductorValue}
                                                     filterOption={filterOption}
                                                     options={driverList}
                                                     dropdownRender={(menu) => (
