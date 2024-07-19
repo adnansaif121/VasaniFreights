@@ -348,6 +348,9 @@ const Driver = () => {
     const [allTableData, setAllTableData] = useState({});
     const [customStartDate, setCustomStartDate] = useState(null);
     const [customEndDate, setCustomEndDate] = useState(null);
+    const [partySelectedForEdit, setPartySelectedForEdit] = useState(-1);
+    const [modelPartySelected, setModelPartySelected] = useState(null);
+    const [licenseDate, setLicenseDate] = useState(null);
 
     const { Dragger } = Upload;
     const props = {
@@ -462,8 +465,8 @@ const Driver = () => {
         setSelectedPartyIndex(partyIndex);
         setPartyName(displayPartyList[partyIndex].label);
         setPartyLocation(displayPartyList[partyIndex].location);
-        setPartyAddress(displayPartyList[partyIndex].address);
-        setPartyContact(displayPartyList[partyIndex].contact);
+        setLicenseDate(displayPartyList[partyIndex].LicenseDate);
+        setPartyContact(displayPartyList[partyIndex].Contact);
         setPartyDescription(displayPartyList[partyIndex].description);
         console.log(displayPartyList[partyIndex]);
         console.log(e.item.props.value);
@@ -473,9 +476,11 @@ const Driver = () => {
         console.log(dataSource);
         for (let i = 0; i < dataSource.length; i++) {
             // console.log(dataSource[i].driversDetails[0].?.toLowerCase(), party.toLowerCase());
-            for (let j = 0; j < dataSource[i].driversDetails.length; j++) {
-                if (dataSource[i].driversDetails[j].driverName?.toLowerCase() === driver.toLowerCase()) {
-                    ds.push(dataSource[i]);
+            if(dataSource[i].driversDetails !== undefined){
+                for (let j = 0; j < dataSource[i].driversDetails.length; j++) {
+                    if (dataSource[i].driversDetails[j].driverName?.toLowerCase() === driver.toLowerCase()) {
+                        ds.push(dataSource[i]);
+                    }
                 }
             }
         }
@@ -676,8 +681,15 @@ const Driver = () => {
     };
 
     const [open, setOpen] = useState(false);
-    const showDrawer = () => {
-        setOpen(true);
+    const showDrawer = (index) => {
+        setPartySelectedForEdit(index);
+        setModelPartySelected(displayPartyList[index]);
+        setPartyName(displayPartyList[index].label);
+        setPartyLocation(displayPartyList[index].location);
+        setLicenseDate(displayPartyList[index].LicenseDate);
+        setPartyContact(displayPartyList[index].Contact);
+        setPartyDescription(displayPartyList[index].description);
+        setOpen(true)
     };
 
     const onClose = () => {
@@ -688,19 +700,19 @@ const Driver = () => {
         console.log('Edit Party');
         console.log(partySelected);
         const db = getDatabase();
-        const partyRef = ref(db, 'parties/' + partyIds[selectedPartyIndex]);
+        const partyRef = ref(db, 'parties/' + partyIds[partySelectedForEdit]);
         set(partyRef, {
             label: partyName,
             value: partyName,
             location: partyLocation,
-            address: partyAddress,
+            LicenseDate: licenseDate,
             contact: partyContact,
             description: partyDescription
         });
 
         // let pl = partyList;
         let dpl = displayPartyList;
-        dpl[selectedPartyIndex] = {
+        dpl[partySelectedForEdit] = {
             label: partyName,
             value: partyName,
             location: (partyLocation || ''),
@@ -747,8 +759,12 @@ const Driver = () => {
                             {displayPartyList.map((item, index) => {
                                 return (
                                     <div key={index} style={{ padding: '6px 0px 6px 0px', color: 'blue' }}>
-                                        <Button onClick={showDrawer} icon={<UserOutlined />}></Button>
-
+                                        <Button onClick={() => showDrawer(index)} icon={
+                                            (item.contact === undefined || item.address === undefined) ?
+                                                <span style={{ color: 'red' }}><UserOutlined /></span>
+                                                :
+                                                <UserOutlined />
+                                        }></Button>
                                     </div>
                                 )
                             })}
@@ -892,8 +908,8 @@ const Driver = () => {
                                                     width: '100%',
                                                 }}
                                                 placeholder="Party Address"
-                                                value={partyAddress}
-                                                onChange={(e) => setPartyAddress(e.target.value)}
+                                                value={licenseDate}
+                                                onChange={(e) => setLicenseDate(e.target.value)}
                                             />
                                         </Form.Item>
                                     </Col>
