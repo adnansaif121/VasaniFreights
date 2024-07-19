@@ -895,7 +895,7 @@ const Driver = () => {
                                     <Col span={12}>
                                         <Form.Item
                                             // name="Address"
-                                            label="Address"
+                                            label="License Date"
                                             rules={[
                                                 {
                                                     required: true,
@@ -904,10 +904,11 @@ const Driver = () => {
                                             ]}
                                         >
                                             <Input
+                                                type='date'
                                                 style={{
                                                     width: '100%',
                                                 }}
-                                                placeholder="Party Address"
+                                                placeholder="License Date"
                                                 value={licenseDate}
                                                 onChange={(e) => setLicenseDate(e.target.value)}
                                             />
