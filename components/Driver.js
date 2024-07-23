@@ -433,12 +433,9 @@ const Driver = () => {
             // updateStarCount(postElement, data);
             let drivers = []; // Data Source
             Object.values(data).map((driver, i) => {
-                if (driver.contact === undefined || driver.address === undefined) {
-                    drivers.push({ ...driver, icon: <ExclamationCircleTwoTone twoToneColor="#eb2f96" /> });
-                }
-                else {
+                
                     drivers.push(driver);
-                }
+                
             })
             setPartyIds(Object.keys(data));
             // setPartyListAll([...parties]);
@@ -531,6 +528,7 @@ const Driver = () => {
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
+            render: (text, record, index) => {  return index + 1; }
         },
 
         {

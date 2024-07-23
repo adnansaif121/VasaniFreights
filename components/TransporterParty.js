@@ -330,7 +330,7 @@ const vehicleData =
         value: "MH 18 BZ 4911",
         label: "MH 18 BZ 4911"
     }
-    ]
+];
 const TransporterParty = () => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);

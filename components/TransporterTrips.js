@@ -72,7 +72,8 @@ const TransporterTrips = () => {
                                     totalFreight: data[key].tripDetails[j].totalFreight,
                                     //received: '100000',
                                     remainingBalance: parseInt(data[key].tripDetails[j].totalFreight) - (parseInt(data[key].firstPayment[j].cashAmount || 0)+parseInt(data[key].firstPayment[j].chequeAmount || 0)+parseInt(data[key].firstPayment[j].onlineAmount || 0)),//totalFreight-(firstPaymentTotal)
-                                    
+                                    firstPayment: data[key].firstPayment,
+                                    bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
                                 }
                             )
                             count++;
@@ -93,9 +94,6 @@ const TransporterTrips = () => {
             setTotalPohchAmt(_totalPohchAmt);
             setTotalRemaining(_totalRemaining);
         });
-
-        
-
     }, []);
 
     const filterMenuItems = [
@@ -322,6 +320,7 @@ const TransporterTrips = () => {
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
+            render: (text, record, index) => {  return index + 1; }
         },
         {
             title: 'Date',
@@ -408,7 +407,7 @@ const TransporterTrips = () => {
 
         let party = displayPartyList[partyIndex].label;
         let ds = [];
-        console.log(dataSource);
+        console.log(party, dataSource);
         for (let i = 0; i < dataSource.length; i++) {
             // console.log(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase(), party.toLowerCase());
             if (dataSource[i].firstPayment === undefined || dataSource[i].bhadaKaunDalega === undefined) continue;
@@ -419,6 +418,7 @@ const TransporterTrips = () => {
         console.log(ds);
         setDisplayDataSource([...ds]);
     };
+    
     return (
         <div className={styles.container}> 
             <div className={styles.part1}>

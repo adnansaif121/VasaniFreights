@@ -1059,7 +1059,7 @@ const Party = () => {
 
                     </div>
                     <Table size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
-                        expandedRowRender: (record) => <ViewPartyDetails data={record} vehicleData={vehicleData} bankData={bankData} />
+                        expandedRowRender: (record, index) => <ViewPartyDetails indexAtAllData={index} allDataAtDisplay={displayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} />
                         ,
                         rowExpandable: (record) => true,
                     }}

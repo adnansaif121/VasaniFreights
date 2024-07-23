@@ -398,8 +398,12 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                                                         className="dynamic-delete-button"
                                                         onClick={() => {
                                                             let confirmDelete = confirm("Are you sure to delete this Payment Entry?");
-                                                            if (confirmDelete)
+                                                            if (confirmDelete){
+                                                                let furtherPayments = form4.getFieldsValue(['FurtherPayments']);
+                                                                let amt = furtherPayments.FurtherPayments[name].amount
+                                                                setFurtherPaymentTotal(furtherPaymentTotal-amt);
                                                                 remove(name)
+                                                            }
 
                                                         }}
                                                     />
@@ -498,7 +502,7 @@ const ViewPartyDetails = ({ data, bankData, vehicleData }) => {
                 </Card>
 
                 <Card title="Transaction Status" style={{ margin: '20px' }}>
-                    <Radio.Group defaultValue="open" buttonStyle="solid" onChange={(e) => setTransactionStatus(e.target.value)}>
+                    <Radio.Group value={transactionStatus} defaultValue="open" buttonStyle="solid" onChange={(e) => setTransactionStatus(e.target.value)}>
                         <Radio.Button value="open">Open</Radio.Button>
                         <Radio.Button value="close">Close</Radio.Button>
                     </Radio.Group>
