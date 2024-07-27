@@ -330,7 +330,8 @@ const vehicleData =
         value: "MH 18 BZ 4911",
         label: "MH 18 BZ 4911"
     }
-    ]
+]
+
 const Party = () => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
@@ -363,6 +364,35 @@ const Party = () => {
         // console.log(starCountRef);
         let ds = []; // Data Source
         const dbref = ref(db);
+
+        const partyRef = ref(db, 'parties/');
+        let partyNameList = [];
+        onValue(partyRef, (snapshot) => {
+            const data = snapshot.val();
+            console.log(data, 'parties');
+            // updateStarCount(postElement, data);
+            let parties = []; // Data Source
+            Object.values(data).map((party, i) => {
+                // if (openTransactionFreq[party.label] !== undefined)
+                //     parties.push(
+                //         {
+                //             ...party,
+                //             // openTransactions: openTransactionFreq[party.label],
+                //             icon: <Badge count={openTransactionFreq[party.label]}>
+                //                 <BellOutlined />
+                //             </Badge>
+                //         }
+                //     );
+                // else
+                    parties.push(party);
+                    partyNameList.push(party.label);
+            })
+            setPartyIds(Object.keys(data));
+            // setPartyListAll([...parties]);
+            setPartyList([...parties]);
+            setDisplayPartyList([...parties]);
+        });
+
         get(child(dbref, 'dailyEntry')).then((snapshot) => {
             const data = snapshot.val();
             console.log(data);
@@ -372,7 +402,7 @@ const Party = () => {
                 Object.keys(data).map((key, i) => {
                     for(let j = 0; j < data[key].tripDetails.length; j++){
 
-                        let receivedAmt = (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined) ? 
+                        let receivedAmt = (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "nn")) ? 
                             (
                                 parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
                                 parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
@@ -383,36 +413,38 @@ const Party = () => {
                             )
                             : 0;
 
-                        ds.push(
-                            {
-                                key: key+j,
-                                id: i + 1,
-                                date: data[key].date,
-                                vehicleNo: data[key].vehicleNo,
-                                transactionStatus: data[key].tripDetails[j].transactionStatus || 'open',
-                                mt: data[key].mt,
-                                from: data[key].tripDetails[j].from,
-                                to: data[key].tripDetails[j].to,
-                                paid: data[key].tripDetails[j].payStatus,
-                                bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
-                                paaneWaliParty: data[key].tripDetails[j].paaneWaala,
-                                transporter: data[key].tripDetails[j].transporter,
-                                maal: data[key].tripDetails[j].maal,
-                                qty: data[key].tripDetails[j].qty,
-                                rate: data[key].tripDetails[j].rate,
-                                totalFreight: data[key].tripDetails[j].totalFreight,
-                                received: receivedAmt,
-                                dieselAndKmDetails: data[key].dieselAndKmDetails,
-                                tripDetails: data[key].tripDetails,
-                                driversDetails: data[key].driversDetails,
-                                kaataParchi: data[key].kaataParchi,
-                                firstPayment: data[key].firstPayment,
-                                bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
-                                vehicleStatus: data[key].vehicleStatus,
-                                furtherPayments: data[key].furtherPayments || {},
-                                remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance)
-                            }
-                        )
+                        if((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "nn"))){
+                            ds.push(
+                                {
+                                    key: key+j,
+                                    id: i + 1,
+                                    date: data[key].date,
+                                    vehicleNo: data[key].vehicleNo,
+                                    transactionStatus: data[key].tripDetails[j].transactionStatus || 'open',
+                                    mt: data[key].mt,
+                                    from: data[key].tripDetails[j].from,
+                                    to: data[key].tripDetails[j].to,
+                                    paid: data[key].tripDetails[j].payStatus,
+                                    bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                    paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                    transporter: data[key].tripDetails[j].transporter,
+                                    maal: data[key].tripDetails[j].maal,
+                                    qty: data[key].tripDetails[j].qty,
+                                    rate: data[key].tripDetails[j].rate,
+                                    totalFreight: data[key].tripDetails[j].totalFreight,
+                                    received: receivedAmt,
+                                    dieselAndKmDetails: data[key].dieselAndKmDetails,
+                                    tripDetails: data[key].tripDetails,
+                                    driversDetails: data[key].driversDetails,
+                                    kaataParchi: data[key].kaataParchi,
+                                    firstPayment: data[key].firstPayment,
+                                    bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
+                                    vehicleStatus: data[key].vehicleStatus,
+                                    furtherPayments: data[key].furtherPayments || {},
+                                    remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance)
+                                }
+                            )
+                        }
                     }
                 });
             }
@@ -428,45 +460,19 @@ const Party = () => {
         
 
         // Find the number of transactions open and frequeny for each party
-        let openTransactionFreq = {};
-        for (let i = 0; i < ds.length; i++) {
-            if (ds[i].bhadaKaunDalega !== null && ds[i].bhadaKaunDalega !== undefined) {
-                console.log(openTransactionFreq);
-                if (openTransactionFreq[ds[i].bhadaKaunDalega] === undefined)
-                    openTransactionFreq[ds[i].bhadaKaunDalega] = 0;
-                if (ds[i].transactionStatus === 'open')
-                    openTransactionFreq[ds[i].bhadaKaunDalega]++;
-            }
-        }
+        // let openTransactionFreq = {};
+        // for (let i = 0; i < ds.length; i++) {
+        //     if (ds[i].bhadaKaunDalega !== null && ds[i].bhadaKaunDalega !== undefined) {
+        //         console.log(openTransactionFreq);
+        //         if (openTransactionFreq[ds[i].bhadaKaunDalega] === undefined)
+        //             openTransactionFreq[ds[i].bhadaKaunDalega] = 0;
+        //         if (ds[i].transactionStatus === 'open')
+        //             openTransactionFreq[ds[i].bhadaKaunDalega]++;
+        //     }
+        // }
 
-        console.log(openTransactionFreq);
+        // console.log(openTransactionFreq);
         // create dummy party List
-
-        const partyRef = ref(db, 'parties/');
-        onValue(partyRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'parties');
-            // updateStarCount(postElement, data);
-            let parties = []; // Data Source
-            Object.values(data).map((party, i) => {
-                if (openTransactionFreq[party.label] !== undefined)
-                    parties.push(
-                        {
-                            ...party,
-                            // openTransactions: openTransactionFreq[party.label],
-                            icon: <Badge count={openTransactionFreq[party.label]}>
-                                <BellOutlined />
-                            </Badge>
-                        }
-                    );
-                else
-                    parties.push(party);
-            })
-            setPartyIds(Object.keys(data));
-            // setPartyListAll([...parties]);
-            setPartyList([...parties]);
-            setDisplayPartyList([...parties]);
-        });
 
     }, []);
 
@@ -873,7 +879,7 @@ const Party = () => {
             <div className={styles.container}>
                 <div className={styles.part1}>
                     <Input onChange={handleSearch} placeholder='Search' />
-                    <div className={styles.menu} style={{ display: 'flex' }}>
+                    <div className={styles.menu} style={{ display: 'flex', height: '80vh', overflowY: "auto", backgroundColor: 'white' }}>
 
                         <div style={{ backgroundColor: 'white', marginLeft: '2px', borderRadius: '5px', padding: '0px 5px 0px 5px' }}>
                             {displayPartyList.map((item, index) => {
@@ -895,7 +901,9 @@ const Party = () => {
                             onClick={onClick}
                             style={{
                                 width: "100%",
+                                backgroundColor: 'white'
                             }}
+                            theme='light'
                             mode="inline"
                             items={displayPartyList}
 
@@ -1059,7 +1067,7 @@ const Party = () => {
 
                     </div>
                     <Table size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
-                        expandedRowRender: (record, index) => <ViewPartyDetails indexAtAllData={index} allDataAtDisplay={displayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} />
+                        expandedRowRender: (record, index) => <ViewPartyDetails indexAtAllData={index} allDataAtDisplay={displayDataSource} setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} />
                         ,
                         rowExpandable: (record) => true,
                     }}
