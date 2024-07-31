@@ -331,6 +331,7 @@ const vehicleData =
         label: "MH 18 BZ 4911"
     }
 ];
+
 const TransporterParty = () => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
@@ -468,6 +469,7 @@ const TransporterParty = () => {
         setSearchText(selectedKeys[0]);
         setSearchedColumn(dataIndex);
     };
+    
     const handleReset = (clearFilters) => {
         clearFilters();
         setSearchText('');

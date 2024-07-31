@@ -13,7 +13,7 @@
   flex-grow: 1;
   /* border: 1px solid black; */
   padding: 5px;
-  
+
 }
 
 .table{
@@ -23,7 +23,7 @@
 }
 .fullTable{
   overflow-x: auto;
-  width: 95vw;
+  width: 85vw;
   background: white;
 }
 .summary{

@@ -8,7 +8,7 @@ import { CloseOutlined, EyeOutlined } from '@ant-design/icons';
 const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
-const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverList, vehicleData, MaalList, bankData}) => {
+const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverList, vehicleData, MaalList, bankData, addNewMaal}) => {
     const [form] = Form.useForm();
     const [form1] = Form.useForm();
     const [form2] = Form.useForm();
@@ -56,6 +56,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
     const [driver1, setDriver1] = useState({});
     const [driver2, setDriver2] = useState({});
     const [conductor, setConductor] = useState({});
+    // const [MaalList, setMaalList] = useState([]);
 
     useEffect(()=>{
         console.log(data, Locations, transporterList, partyListAll, driverList)
@@ -252,7 +253,6 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
 
         console.log('Save button clicked');
     }
-
     
     const addPartyInPartyList = (value, index) => {
         let pl = partyList;
@@ -604,9 +604,10 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                                                                                     onKeyDown={(e) => e.stopPropagation()}
                                                                                 />
                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                    e.preventDefault();
-                                                                                    setMaalList([...MaalList, { value: newMaal, label: newMaal }]);
-                                                                                    setNewMaal('');
+                                                                                    addNewMaal(e, newMaal);
+                                                                                    // e.preventDefault();
+                                                                                    // setMaalList([...MaalList, { value: newMaal, label: newMaal }]);
+                                                                                    // setNewMaal('');
                                                                                 }}>
 
                                                                                 </Button>
@@ -1562,7 +1563,31 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
         }
     ];
 
-    
+    // const addNewMaal = (e) => {
+    //     if(newMaal.trim() === ""){
+    //         alert("please enter a value to add maal.")
+    //         return;
+    //     }
+    //     e.preventDefault();
+    //     for (let i = 0; i < MaalList.length; i++) {
+    //         if (newMaal.toUpperCase() === MaalList[i].value.toUpperCase()) {
+    //             alert(`Maal with name ${MaalList[i].value} already exixts`);
+    //             return;
+    //         }
+    //     }
+    //     setMaalList([...MaalList, { value: newMaal, label: newMaal }]);
+    //     setNewMaal('');
+
+    //     // Create a new party reference with an auto-generated id
+    //     const db = getDatabase();
+    //     const maalListRef = ref(db, 'maal');
+    //     const newMaalRef = push(maalListRef);
+    //     set(newMaalRef, {
+    //         value: newMaal,
+    //         label: newMaal, 
+    //     });
+    // }
+
     return (
         <Collapse items={items} activeKey={['1', '3', '4', '5']}></Collapse>
     )

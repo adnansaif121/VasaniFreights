@@ -281,6 +281,19 @@ const DailyEntry = () => {
             setBankData([..._bankData]);
             // console.log(data, 'Bankdata');
         })
+
+        const maalRef = ref(db, 'maal/');
+        onValue(maalRef, (snapshot) => {
+            const data = snapshot.val();
+            const _maal = [];
+            if (data) {
+                Object.values(data).map((maal, i) => {
+                    _maal.push({label: maal.label, value: maal.value})
+                })
+                setMaalList([..._maal]);
+            }
+            console.log(data);
+        })
     }, [])
 
 
@@ -631,6 +644,34 @@ const DailyEntry = () => {
         set(newTransporterRef, {
             value: newTransporter,
             label: newTransporter,
+        });
+    }
+
+    const addNewMaal = (e, _newMaal) => {
+        if(_newMaal === undefined){
+            _newMaal = newMaal;
+        }
+        if(_newMaal.trim() === ""){
+            alert("please enter a value to add maal.")
+            return;
+        }
+        e.preventDefault();
+        for (let i = 0; i < MaalList.length; i++) {
+            if (_newMaal.toUpperCase() === MaalList[i].value.toUpperCase()) {
+                alert(`Maal with name ${MaalList[i].value} already exixts`);
+                return;
+            }
+        }
+        setMaalList([...MaalList, { value: _newMaal, label: _newMaal }]);
+        setNewMaal('');
+
+        // Create a new party reference with an auto-generated id
+        const db = getDatabase();
+        const maalListRef = ref(db, 'maal');
+        const newMaalRef = push(maalListRef);
+        set(newMaalRef, {
+            value: _newMaal,
+            label: _newMaal, 
         });
     }
 
@@ -1054,15 +1095,17 @@ const DailyEntry = () => {
                                                                                     onKeyDown={(e) => e.stopPropagation()}
                                                                                 />
                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                    e.preventDefault();
-                                                                                    for (let i = 0; i < Locations.length; i++) {
-                                                                                        if (MaalList[i].label.toLowerCase() === newMaal.toLowerCase()) {
-                                                                                            alert(`Maal with name ${MaalList[i].label} already exists.`);
-                                                                                            return;
-                                                                                        }
-                                                                                    }
-                                                                                    setMaalList([...MaalList, { value: newMaal, label: newMaal }]);
-                                                                                    setNewMaal('');
+                                                                                    // e.preventDefault();
+                                                                                    // console.log(MaalList);
+                                                                                    // for (let i = 0; i < MaalList.length; i++) {
+                                                                                    //     if (MaalList[i].label.toLowerCase() === newMaal.toLowerCase()) {
+                                                                                    //         alert(`Maal with name ${MaalList[i].label} already exists.`);
+                                                                                    //         return;
+                                                                                    //     }
+                                                                                    // }
+                                                                                    // setMaalList([...MaalList, { value: newMaal, label: newMaal }]);
+                                                                                    // setNewMaal('');
+                                                                                    addNewMaal(e);
                                                                                 }}>
 
                                                                                 </Button>
@@ -2350,6 +2393,7 @@ const DailyEntry = () => {
                                 vehicleData={vehicleData}
                                 MaalList={MaalList}
                                 bankData={bankData}
+                                addNewMaal={addNewMaal}
                             />,
                         rowExpandable: (record) => true,
                     }} pagination={false}
