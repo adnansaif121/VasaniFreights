@@ -4,7 +4,7 @@ import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdo
 import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 const { Meta } = Card;
-const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSource, data, bankData, vehicleData }) => {
+const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSource, data, bankData, vehicleData, handleDisplayTableChange, setDataUpdateFlag }) => {
     const [newBank, setNewBank] = useState('');
 
     const [furtherPaymentTotal, setFurtherPaymentTotal] = useState(0);
@@ -67,14 +67,17 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
         // let dataToSave = data;
         // data.furtherPayments = form4.getFieldsValue(['FurtherPayments'])
         set(ref(db, 'dailyEntry/' + data_key + '/tripDetails/' + index + '/'), {
-            ...obj_to_save    
+            ...obj_to_save
         }).then(() => {
             console.log('Data saved');
             alert('Data Saved Successfully');
             let dataList = allDataAtDisplay;
-            dataList[indexAtAllData] = {...obj_to_save};
+            dataList[indexAtAllData].tripDetails[index] = {...obj_to_save };
             console.log(dataList);
             // setDisplayDataSource([...dataList]);
+            handleDisplayTableChange(dataList)
+            let num =Math.floor(Math.random()*100 + 1) ;
+            // setDataUpdateFlag(num);
         }).catch((error) => {
             console.error('Error:', error);
         });

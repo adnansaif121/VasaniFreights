@@ -352,6 +352,7 @@ const Party = () => {
     const [customStartDate, setCustomStartDate] = useState(null);
     const [customEndDate, setCustomEndDate] = useState(null);
     const [modelPartySelected, setModelPartySelected] = useState(null);
+    const [dataUpdateFlag, setDataUpdateFlag] = useState(0);
 
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
@@ -476,6 +477,15 @@ const Party = () => {
 
     }, []);
 
+    // useEffect(()=>{
+    //     console.log(displayPartyList, selectedPartyIndex);
+    //     console.log("DATA UPDATE FLAG CHANGED")
+    //     if(dataUpdateFlag !== 0){
+    //         console.log("DATA UPDATE FLAG CHANGED !== 0")
+    //         onClick(selectedPartyIndex);
+    //     }
+    // }, [dataUpdateFlag])
+
     const handle_Search = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
@@ -497,14 +507,14 @@ const Party = () => {
         console.log(filtered, 'FILTERED');
     }
 
-    const onClick = (e) => {
-        console.log('click ', e);
-        let partyIndex = parseInt(e.key.slice(4));
+    const onClick = (index) => {
+        console.log('click ', index);
+        let partyIndex = parseInt(index);
         setPartySelected(displayPartyList[partyIndex]);
         setSelectedPartyIndex(partyIndex);
 
         console.log(displayPartyList[partyIndex]);
-        console.log(e.item.props.value);
+        // console.log(e.item.props.value);
 
         let party = displayPartyList[partyIndex].label;
         let ds = [];
@@ -875,6 +885,9 @@ const Party = () => {
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
+    const handleDisplayTableChange = (list) => {
+        setDisplayDataSource([...list]);
+    }
     return (
         <>
             <div className={styles.container}>
@@ -899,7 +912,7 @@ const Party = () => {
                         </div>
 
                         <Menu
-                            onClick={onClick}
+                            onClick={(e)=>onClick(e.key.slice(4))}
                             style={{
                                 width: "100%",
                                 backgroundColor: 'white'
@@ -1068,7 +1081,7 @@ const Party = () => {
 
                     </div>
                     <Table size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
-                        expandedRowRender: (record, index) => <ViewPartyDetails indexAtAllData={index} allDataAtDisplay={displayDataSource} setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} />
+                        expandedRowRender: (record, index) => <ViewPartyDetails indexAtAllData={index} allDataAtDisplay={displayDataSource} setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag}/>
                         ,
                         rowExpandable: (record) => true,
                     }}

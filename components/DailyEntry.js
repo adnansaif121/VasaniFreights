@@ -30,9 +30,9 @@ const props = {
     },
 };
 
-let todayDate = (new Date()).toLocaleString("en-Us", {timeZone: 'Asia/Kolkata'}).split(',')[0].split('/');
-todayDate = todayDate[2]+'-'+(parseInt(todayDate[0])<10 ? '0'+todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1])<10 ? '0'+todayDate[1] : todayDate[1]);
-console.log(todayDate); 
+let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
+todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
+console.log(todayDate);
 
 const DailyEntry = () => {
 
@@ -288,7 +288,7 @@ const DailyEntry = () => {
             const _maal = [];
             if (data) {
                 Object.values(data).map((maal, i) => {
-                    _maal.push({label: maal.label, value: maal.value})
+                    _maal.push({ label: maal.label, value: maal.value })
                 })
                 setMaalList([..._maal]);
             }
@@ -466,7 +466,7 @@ const DailyEntry = () => {
             setMidwayDiesel(0);
             setDriver1Value(null);
             setDriver2Value(null);
-            setConductorValue(null);    
+            setConductorValue(null);
             // console.log({
             //     date: date,
             //     vehicleNo: vehicleNo || '',
@@ -501,7 +501,7 @@ const DailyEntry = () => {
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
-            render: (text, record, index) => {  return index + 1; }
+            render: (text, record, index) => { return index + 1; }
         },
         {
             title: 'Date',
@@ -509,7 +509,7 @@ const DailyEntry = () => {
             key: 'date',
             render: (text) => {
                 let date = new Date(text);
-                
+
                 return (
                     <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
                 )
@@ -623,7 +623,7 @@ const DailyEntry = () => {
     }
 
     const addNewTransporter = (e) => {
-        if(newTransporter.trim() === ""){
+        if (newTransporter.trim() === "") {
             alert("please enter a value to add transporter.")
             return;
         }
@@ -648,10 +648,10 @@ const DailyEntry = () => {
     }
 
     const addNewMaal = (e, _newMaal) => {
-        if(_newMaal === undefined){
+        if (_newMaal === undefined) {
             _newMaal = newMaal;
         }
-        if(_newMaal.trim() === ""){
+        if (_newMaal.trim() === "") {
             alert("please enter a value to add maal.")
             return;
         }
@@ -671,19 +671,19 @@ const DailyEntry = () => {
         const newMaalRef = push(maalListRef);
         set(newMaalRef, {
             value: _newMaal,
-            label: _newMaal, 
+            label: _newMaal,
         });
     }
 
     const addNewBank = (e) => {
         e.preventDefault();
-        if(newBank.trim() === ''){
+        if (newBank.trim() === '') {
             alert('Please enter bank name to add bank in the list. Field is empty');
             return;
         }
         let key = bankData.length;
         setBankData([...bankData, { bankName: newBank, value: newBank, label: newBank, key: key }]);
-        
+
         const db = getDatabase();
         const bankRef = ref(db, 'bankData/data/' + key);
         // const newBankRef = push(bankRef);
@@ -754,1015 +754,21 @@ const DailyEntry = () => {
             key: '1',
             label: 'Trip Details',
             children: <>
-                <div>
-                    <Form
-                        name="Trip Details"
-                        style={{
-                            // maxWidth: 1200,
-                        }}
-                        initialValues={{
-                            remember: true,
-                        }}
-                        autoComplete="off"
-                        form={form}
-                    >
 
-                        <Flex gap="middle" align="start" vertical>
-                            <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
-                                <Form.Item style={{ width: '20%' }} label="Date">
-                                    <Input type='date' value={date} onChange={(e) => setDate(e.target.value)} ></Input>
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '30%' }} label="Vehicle No."
-                                    name="vehicleNo">
-                                    <Select
-                                        showSearch
-                                        placeholder="Vehicle No."
-                                        optionFilterProp="children"
-                                        onChange={(value) => setVehicleNo(value)}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={vehicleData}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '30%' }}
-                                    label="Status"
-                                    name="status"
-                                >
-                                    <Select
-                                        showSearch
-                                        placeholder="Status"
-                                        optionFilterProp="children"
-                                        onChange={(value) => setVehicleStatus(value)}
-                                        // onSearch={onSearch}
-                                        // filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'standing',
-                                                label: 'Standing',
-                                            },
-                                            {
-                                                value: 'inProcess',
-                                                label: 'In Process',
-                                            },
-                                            {
-                                                value: 'running',
-                                                label: 'Running',
-                                            },
-                                        ]}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '15%' }}
-                                    // label="MT"
-                                    name="mt"
-                                >
-                                    <Checkbox onChange={onMTCheck} >MT</Checkbox>
-                                </Form.Item>
-
-                            </Flex>
-
-                            {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
-                            <Form.List name="tripDetails" >
-                                {(fields, { add, remove }) => (
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            rowGap: 16,
-                                            flexDirection: 'column',
-                                            width: "-webkit-fill-available",
-                                        }}
-                                    >
-                                        {fields.map(({ key, name, ...restField }) => (
-
-                                            <Card size="small"
-                                                title={`Trip ${name + 1}`}
-                                                key={key}
-                                                extra={
-                                                    <CloseOutlined
-                                                        onClick={() => {
-                                                            remove(name);
-                                                            setTripCount(tripCount - 1);
-                                                        }}
-                                                    />}>
-                                                {/* <h3 style={{ padding: '10px' }}>UNIT {name + 1} {console.log(fields)}</h3> */}
-                                                <div
-                                                    key={key}
-                                                >
-                                                    <Flex gap="middle" align="start" vertical>
-
-                                                        <Flex style={{ width: "100%", height: 30, marginTop: '10px' }} justify={'space-around'} align='center'>
-                                                            <Form.Item style={{ width: '20%' }} label="From"
-                                                                name={[name, 'from']}>
-                                                                <Select
-                                                                    showSearch
-                                                                    placeholder="from"
-                                                                    optionFilterProp="children"
-                                                                    // onChange={onChange}
-                                                                    // onSearch={onSearch}
-                                                                    filterOption={filterOption}
-                                                                    options={Locations}
-                                                                    dropdownRender={(menu) => (
-                                                                        <>
-                                                                            {menu}
-                                                                            <Divider
-                                                                                style={{
-                                                                                    margin: '8px 0',
-                                                                                }}
-                                                                            />
-                                                                            <Space
-                                                                                style={{
-                                                                                    padding: '0 8px 4px',
-                                                                                }}
-                                                                            >
-                                                                                <Input
-                                                                                    placeholder="Please enter item"
-                                                                                    value={newLocation}
-                                                                                    onChange={(e) => setNewLocation(e.target.value)}
-                                                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                                                />
-                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                    e.preventDefault();
-                                                                                    if(newLocation.trim() === ""){
-                                                                                        alert("Please enter a value to add location.")
-                                                                                        return;
-                                                                                    }
-                                                                                    for (let i = 0; i < Locations.length; i++) {
-                                                                                        if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
-                                                                                            alert(`Location with name ${Locations[i].label} already exists.`);
-                                                                                            return;
-                                                                                        }
-                                                                                    }
-                                                                                    setLocations([...Locations, { value: newLocation, label: newLocation }]);
-                                                                                    setNewLocation('');
-                                                                                }}>
-
-                                                                                </Button>
-                                                                            </Space>
-                                                                        </>
-                                                                    )}
-                                                                />
-                                                            </Form.Item>
-
-                                                            <Form.Item style={{ width: '20%' }} label="Bhejne waale"
-                                                                name={[name, 'bhejneWaala']}>
-                                                                <Select
-                                                                    showSearch
-                                                                    placeholder="Bhejne waale"
-                                                                    optionFilterProp="children"
-                                                                    onChange={(value) => {
-                                                                        addPartyInPartyList(value, name);
-                                                                        let _selectedPartyIndex = selectedPartyIndex;
-                                                                        for (let i = 0; i < partyListAll.length; i++) {
-                                                                            if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
-                                                                                _selectedPartyIndex[name] = i;
-                                                                                break;
-                                                                            }
-                                                                        }
-                                                                        // console.log(_selectedPartyIndex);
-                                                                        setSelectedPartyIndex([..._selectedPartyIndex]);
-                                                                    }}
-                                                                    // onSearch={onSearch}
-                                                                    filterOption={filterOption}
-                                                                    options={partyListAll}
-                                                                    dropdownRender={(menu) => (
-                                                                        <>
-                                                                            {menu}
-                                                                            <Divider
-                                                                                style={{
-                                                                                    margin: '8px 0',
-                                                                                }}
-                                                                            />
-                                                                            <Space
-                                                                                style={{
-                                                                                    padding: '0 8px 4px',
-                                                                                }}
-                                                                            >
-                                                                                <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
-                                                                            </Space>
-                                                                        </>
-                                                                    )}
-                                                                />
-                                                            </Form.Item>
-
-                                                            <div className='tooltip'>
-                                                                <Tooltip placement="top"
-                                                                    // title={partyDetailsList[name]?.party1Details}
-                                                                    title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}` : 'Not available'}
-                                                                >
-
-                                                                    <EyeOutlined />
-                                                                </Tooltip>
-                                                            </div>
-
-
-                                                            <Form.Item style={{ width: '20%' }}
-                                                                label="To"
-                                                                name={[name, 'to']}
-                                                            >
-                                                                <Select
-                                                                    showSearch
-                                                                    placeholder="To/Unloading Point"
-                                                                    optionFilterProp="children"
-                                                                    // onChange={onChange}
-                                                                    // onSearch={onSearch}
-                                                                    filterOption={filterOption}
-                                                                    options={Locations}
-                                                                    dropdownRender={(menu) => (
-                                                                        <>
-                                                                            {menu}
-                                                                            <Divider
-                                                                                style={{
-                                                                                    margin: '8px 0',
-                                                                                }}
-                                                                            />
-                                                                            <Space
-                                                                                style={{
-                                                                                    padding: '0 8px 4px',
-                                                                                }}
-                                                                            >
-                                                                                <Input
-                                                                                    placeholder="Please enter item"
-                                                                                    value={newLocation}
-                                                                                    onChange={(e) => setNewLocation(e.target.value)}
-                                                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                                                />
-                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                    e.preventDefault();
-                                                                                    if(newLocation.trim() === ""){
-                                                                                        alert("Please enter a value to add location.")
-                                                                                        return;
-                                                                                    }
-                                                                                    for (let i = 0; i < Locations.length; i++) {
-                                                                                        if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
-                                                                                            alert(`Location with name ${Locations[i].label} already exists.`);
-                                                                                            return;
-                                                                                        }
-                                                                                    }
-                                                                                    setLocations([...Locations, { value: newLocation, label: newLocation }]);
-                                                                                    setNewLocation('');
-                                                                                }}>
-
-                                                                                </Button>
-                                                                            </Space>
-                                                                        </>
-                                                                    )}
-                                                                />
-                                                            </Form.Item>
-
-                                                            <Form.Item style={{ width: '20%' }} label="Paane Waala"
-                                                                name={[name, 'paaneWaala']}>
-                                                                <Select
-                                                                    showSearch
-                                                                    placeholder="Paane waala"
-                                                                    optionFilterProp="children"
-                                                                    onChange={(value) => {
-                                                                        addPartyInPartyList(value, name)
-                                                                        let _selectedPartyIndex = selectedPartyIndex;
-                                                                        for (let i = 0; i < partyListAll.length; i++) {
-                                                                            if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
-                                                                                _selectedPartyIndex[name + 1] = i;
-                                                                                break;
-                                                                            }
-                                                                        }
-                                                                        // console.log(_selectedPartyIndex);
-                                                                        setSelectedPartyIndex([..._selectedPartyIndex]);
-                                                                    }}
-                                                                    // onSearch={onSearch}
-                                                                    filterOption={filterOption}
-                                                                    options={partyListAll}
-                                                                    dropdownRender={(menu) => (
-                                                                        <>
-                                                                            {menu}
-                                                                            <Divider
-                                                                                style={{
-                                                                                    margin: '8px 0',
-                                                                                }}
-                                                                            />
-                                                                            <Space
-                                                                                style={{
-                                                                                    padding: '0 8px 4px',
-                                                                                }}
-                                                                            >
-                                                                                <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
-                                                                            </Space>
-                                                                        </>
-                                                                    )}
-                                                                />
-                                                            </Form.Item>
-
-                                                            <div className='tooltip'>
-                                                                <Tooltip placement="top"
-                                                                    // title={partyDetailsList[name]?.party2Details}
-                                                                    title={selectedPartyIndex[name + 1] !== -1 ? `${partyListAll[selectedPartyIndex[name + 1]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name + 1]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name + 1]].location || ' '}` : 'Not available'}
-                                                                >
-                                                                    <EyeOutlined />
-                                                                </Tooltip>
-                                                            </div>
-                                                        </Flex>
-                                                        <Flex style={{ width: "100%", height: 30 }} justify={'space-around'} align='center'>
-                                                            <Form.Item style={{ width: '15%' }} label="Maal"
-                                                                name={[name, 'Maal']}>
-                                                                <Select
-                                                                    showSearch
-                                                                    placeholder="Maal"
-                                                                    optionFilterProp="children"
-                                                                    // onChange={onChange}
-                                                                    // onSearch={onSearch}
-                                                                    filterOption={filterOption}
-                                                                    options={MaalList}
-                                                                    dropdownRender={(menu) => (
-                                                                        <>
-                                                                            {menu}
-                                                                            <Divider
-                                                                                style={{
-                                                                                    margin: '8px 0',
-                                                                                }}
-                                                                            />
-                                                                            <Space
-                                                                                style={{
-                                                                                    padding: '0 8px 4px',
-                                                                                }}
-                                                                            >
-                                                                                <Input
-                                                                                    placeholder="Please enter item"
-                                                                                    value={newMaal}
-                                                                                    onChange={(e) => setNewMaal(e.target.value)}
-                                                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                                                />
-                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                    // e.preventDefault();
-                                                                                    // console.log(MaalList);
-                                                                                    // for (let i = 0; i < MaalList.length; i++) {
-                                                                                    //     if (MaalList[i].label.toLowerCase() === newMaal.toLowerCase()) {
-                                                                                    //         alert(`Maal with name ${MaalList[i].label} already exists.`);
-                                                                                    //         return;
-                                                                                    //     }
-                                                                                    // }
-                                                                                    // setMaalList([...MaalList, { value: newMaal, label: newMaal }]);
-                                                                                    // setNewMaal('');
-                                                                                    addNewMaal(e);
-                                                                                }}>
-
-                                                                                </Button>
-                                                                            </Space>
-                                                                        </>
-                                                                    )}
-                                                                />
-                                                            </Form.Item>
-
-                                                            <Form.Item style={{ width: '15%' }}
-                                                                label="Qty"
-                                                                name={[name, 'qty']}
-                                                            >
-                                                                <Input type='number'
-                                                                    value={qty}
-                                                                    onChange={(e) => { let q = qty; q[name] = e.target.value; setQty([...q]) }}>
-
-                                                                </Input>
-                                                            </Form.Item>
-
-                                                            <Form.Item style={{ width: '15%' }}
-                                                                label="Rate"
-                                                                name={[name, 'rate']}
-                                                            >
-                                                                <Input type='number'
-                                                                    value={rate}
-                                                                    onChange={(e) => { let r = rate; r[name] = e.target.value; setRate([...r]) }}
-                                                                ></Input>
-                                                            </Form.Item>
-                                                            {/* {console.log((form.getFieldValue(['tripDetails', name, 'rate']) || 0) * (form.getFieldValue(['tripDetails', name, 'qty']) || 0))} */}
-                                                            <Form.Item style={{ width: '15%' }}
-                                                                label="Total Freight"
-                                                            // name={[name, 'totalFreight']}
-                                                            >
-                                                                {parseInt(rate[name]) * parseInt(qty[name])}
-                                                                {/* <Input value={rate[name]*qty[name]}></Input> */}
-                                                            </Form.Item>
-
-                                                            <Form.Item style={{ width: '20%' }}
-                                                                label="Transporter"
-                                                                name={[name, 'transporter']}
-                                                            >
-                                                                <Select
-                                                                    showSearch
-                                                                    placeholder="Transporter Name"
-                                                                    optionFilterProp="children"
-                                                                    onChange={(value) => {
-                                                                        addPartyInPartyList(value, name);
-                                                                        let _transporterList = transporterList;
-                                                                        for (let i = 0; i < _transporterList.length; i++) {
-                                                                            if (_transporterList[i].value === value) {
-                                                                                setSelectedTransporterIndex(i);
-                                                                                break;
-                                                                            }
-                                                                        }
-
-                                                                    }}
-                                                                    // onSearch={onSearch}
-                                                                    filterOption={filterOption}
-                                                                    options={transporterList}
-                                                                    dropdownRender={(menu) => (
-                                                                        <>
-                                                                            {menu}
-                                                                            <Divider
-                                                                                style={{
-                                                                                    margin: '8px 0',
-                                                                                }}
-                                                                            />
-                                                                            <Space
-                                                                                style={{
-                                                                                    padding: '0 8px 4px',
-                                                                                }}
-                                                                            >
-                                                                                <Input
-                                                                                    placeholder="Please enter item"
-                                                                                    value={newTransporter}
-                                                                                    onChange={(e) => setNewTransporter(e.target.value)}
-                                                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                                                />
-                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewTransporter(e)}>
-
-                                                                                </Button>
-                                                                            </Space>
-                                                                        </>
-                                                                    )}
-                                                                />
-                                                            </Form.Item>
-
-                                                            {/* <div className='tooltip'>
-                                                                <Tooltip placement="top" 
-                                                                    // title={transporterList[selectedTransporterIndex].address}
-                                                                    title={'Hello'}
-                                                                    // title={selectedTransporterIndex[name+1] !== -1 ? `${transporterList[selectedTransporterIndex[name+1]].address || 'Address not available'} ${transporterList[selectedTransporterIndex[name+1]].contact || 'Contact Not Available'} ${transporterList[selectedTransporterIndex[name+1]].location || ' '}`: 'Not available'}
-                                                                    >
-                                                                    <EyeOutlined />
-                                                                </Tooltip>
-                                                            </div> */}
-                                                            {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
-
-                                                        </Flex>
-
-                                                        <Form.Item style={{ margin: 'auto' }}
-                                                            label="To Pay/ Paid"
-                                                            name={[name, 'payStatus']}
-                                                        >
-                                                            <Radio.Group
-                                                                options={[{ label: 'To Pay', value: 'To Pay' }, { label: 'Paid', value: 'Paid' }]}
-                                                                // onChange={(e) => { setPayStatus(e.target.value) }}
-                                                                value={'Paid'}
-                                                                optionType="button"
-                                                                buttonStyle="solid"
-                                                            />
-                                                        </Form.Item>
-                                                    </Flex>
-
-
-
-                                                </div>
-                                            </Card>
-
-
-                                        ))}
-                                        <Form.Item style={{ margin: 'auto' }}>
-                                            <Button type="dashed"
-                                                onClick={
-                                                    () => {
-                                                        add();
-                                                        setTripCount(tripCount + 1);
-                                                        document.getElementById('FPDAdd').click();
-                                                    }}
-                                                block icon={<PlusOutlined />}>
-                                                Add new
-                                            </Button>
-                                        </Form.Item>
-                                    </div>
-                                )}
-                            </Form.List>
-
-
-                            {/* </Flex> */}
-
-                            <Flex style={{
-                                width: '100%',
-                                height: 60,
-                                // border: '1px solid #40a9ff',
-                            }} justify={'space-around'} align={'center'}>
-
-
-                            </Flex>
-                        </Flex>
-                        <Button type="primary" onClick={handleSave}>Save</Button>
-
-                    </Form>
-                </div>
             </>,
         },
         {
             key: '3',
             label: 'Driver | Diesel | Km | Milometer | Avg Details',
             children: <>
-                <div>
-                    <Form name="Driver | Diesel | Km | Milometer | Avg Details"
-                        style={{
-                            maxWidth: 1200,
-                        }}
-                        initialValues={{
-                            remember: true,
-                        }}
-                        autoComplete="off"
-                        form={form1}
-                    >
-                        <Flex gap="middle" align="start" vertical>
-                            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                                <table style={{ border: '1px solid black', width: '100%' }}>
-                                    <tbody>
-                                        <tr style={{ border: '1px solid black' }}>
-                                            <th>*</th>
-                                            <th style={{ width: '20%' }}>Name</th>
-                                            <th>Contact</th>
-                                            <th>License Date</th>
-                                            <th>Cash</th>
-                                            <th>View</th>
-                                        </tr>
-                                        <tr style={{ border: '1px solid black' }}>
-                                            <th>Driver 1</th>
-                                            {/* Name */}
-                                            <td >
-                                                <Select
-                                                    style={{ width: '100%' }}
-                                                    showSearch
-                                                    placeholder="Driver"
-                                                    optionFilterProp="children"
-                                                    onChange={(value, option) => {
-                                                        if (driver1.label !== undefined) {
-                                                            let _driverList = driverList;
-                                                            // Enable Last selected Option:
-                                                            for (let i = 0; i < _driverList.length; i++) {
-                                                                if (_driverList[i].label === driver1.label) {
-                                                                    _driverList[i].disabled = false;
-                                                                    break;
-                                                                }
-                                                            }
-                                                            // Disable Currently Selected Option:
-                                                            for (let i = 0; i < _driverList.length; i++) {
-                                                                if (_driverList[i].label === value) {
-                                                                    _driverList[i].disabled = true;
-                                                                    break;
-                                                                }
-                                                            }
 
-                                                            setDriverList([..._driverList]);
-                                                        }
-                                                        else {
-                                                            let _driverList = driverList;
-                                                            for (let i = 0; i < _driverList.length; i++) {
-                                                                if (_driverList[i].label === value) {
-                                                                    _driverList[i].disabled = true;
-                                                                    break;
-                                                                }
-                                                            }
-                                                            setDriverList([..._driverList]);
-
-                                                        }
-                                                        setDriver1(option);
-                                                        console.log(option);
-                                                        setDriver1Value(value);
-                                                    }}
-                                                    // onSearch={onSearch}
-                                                    value={driver1Value}
-                                                    filterOption={filterOption}
-                                                    options={driverList}
-                                                    dropdownRender={(menu) => (
-                                                        <>
-                                                            {menu}
-                                                            <Divider
-                                                                style={{
-                                                                    margin: '8px 0',
-                                                                }}
-                                                            />
-                                                            <Space
-                                                                style={{
-                                                                    padding: '0 8px 4px',
-                                                                }}
-                                                            >
-                                                                <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
-                                                            </Space>
-                                                        </>
-                                                    )}
-                                                />
-                                            </td>
-                                            {/* Contact */}
-                                            <td>
-                                                <Input value={driver1.Contact} onChange={(e) => {
-                                                    let obj = driver1;
-                                                    obj.Contact = e.target.value;
-                                                    setDriver1(obj);
-                                                }} placeholder='contact' />
-                                            </td>
-                                            {/* License Date */}
-                                            <td>
-                                                <Input value={driver1.LicenseDate} onChange={(e) => {
-                                                    let obj = driver1;
-                                                    obj.LicenseDate = e.target.value;
-                                                    setDriver1(obj);
-                                                }} placeholder='License Date' type='date' />
-                                            </td>
-                                            {/* Trip Cash */}
-                                            <td>
-                                                <Input onChange={(e) => {
-                                                    let _obj = driver1;
-                                                    _obj.TripCash = e.target.value;
-                                                    setDriver1(_obj);
-                                                }} placeholder='Trip Cash' type='number' />
-                                            </td>
-                                            {/* View */}
-                                            <td>
-                                                <Tooltip placement="top" title={'Driver Image'} >
-                                                    <Button style={{ marginBottom: '22px' }}>View</Button>
-                                                </Tooltip>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>Driver 2</th>
-                                            {/* Name */}
-                                            <td>
-                                                <Select
-                                                    style={{ width: '100%' }}
-                                                    showSearch
-                                                    placeholder="Driver"
-                                                    optionFilterProp="children"
-                                                    onChange={(value, option) => {
-                                                        if (driver2.label !== undefined) {
-                                                            let _driverList = driverList;
-                                                            // Enable Last selected Option:
-                                                            for (let i = 0; i < _driverList.length; i++) {
-                                                                if (_driverList[i].label === driver2.label) {
-                                                                    _driverList[i].disabled = false;
-                                                                    break;
-                                                                }
-                                                            }
-                                                            // Disable Currently Selected Option:
-                                                            for (let i = 0; i < _driverList.length; i++) {
-                                                                if (_driverList[i].label === value) {
-                                                                    _driverList[i].disabled = true;
-                                                                    break;
-                                                                }
-                                                            }
-
-                                                            setDriverList([..._driverList]);
-                                                        }
-                                                        else {
-                                                            let _driverList = driverList;
-                                                            for (let i = 0; i < _driverList.length; i++) {
-                                                                if (_driverList[i].label === value) {
-                                                                    _driverList[i].disabled = true;
-                                                                    break;
-                                                                }
-                                                            }
-                                                            setDriverList([..._driverList]);
-
-                                                        }
-                                                        setDriver2(option);
-                                                        console.log(option);
-                                                        setDriver2Value(value)
-                                                    }}
-                                                    // onSearch={onSearch}
-                                                    value={driver2Value}
-                                                    filterOption={filterOption}
-                                                    options={driverList}
-                                                    dropdownRender={(menu) => (
-                                                        <>
-                                                            {menu}
-                                                            <Divider
-                                                                style={{
-                                                                    margin: '8px 0',
-                                                                }}
-                                                            />
-                                                            <Space
-                                                                style={{
-                                                                    padding: '0 8px 4px',
-                                                                }}
-                                                            >
-                                                                {/* <Input
-                                                                    placeholder="Please enter item"
-                                                                    value={newDriverName}
-                                                                    onChange={(e) => setNewDriverName(e.target.value)}
-                                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                                />
-                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}> */}
-
-                                                                {/* </Button> */}
-
-                                                                <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
-                                                            </Space>
-                                                        </>
-                                                    )}
-                                                />
-                                            </td>
-                                            {/* Contact */}
-                                            <td>
-                                                <Input value={driver2.Contact} onChange={(e) => {
-                                                    let obj = driver2;
-                                                    driver2.Contact = e.target.value;
-                                                    setDriver2(obj);
-                                                }} placeholder='contact' />
-                                            </td>
-                                            {/* License Date */}
-                                            <td>
-                                                <Input value={driver2.LicenseDate} onChange={(e) => {
-                                                    let obj = driver2;
-                                                    driver2.LicenseDate = e.target.value;
-                                                    setDriver2(obj);
-                                                }} placeholder='License Date' type='date' />
-                                            </td>
-                                            {/* Trip Cash */}
-                                            <td>
-                                                <Input onChange={(e) => {
-                                                    let _obj = driver2;
-                                                    _obj.TripCash = e.target.value;
-                                                    setDriver2(_obj);
-                                                }} placeholder='Trip Cash' type='number' />
-                                            </td>
-                                            {/* View */}
-                                            <td>
-                                                <Tooltip placement="top" title={'Driver Image'} >
-                                                    <Button style={{ marginBottom: '22px' }}>View</Button>
-                                                </Tooltip>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>Conductor</th>
-                                            {/* Name */}
-                                            <td >
-                                                <Select
-                                                    style={{ width: '100%' }}
-                                                    showSearch
-                                                    placeholder="Driver"
-                                                    optionFilterProp="children"
-                                                    onChange={(value, option) => {
-                                                        if (conductor.label !== undefined) {
-                                                            let _driverList = driverList;
-                                                            // Enable Last selected Option:
-                                                            for (let i = 0; i < _driverList.length; i++) {
-                                                                if (_driverList[i].label === conductor.label) {
-                                                                    _driverList[i].disabled = false;
-                                                                    break;
-                                                                }
-                                                            }
-                                                            // Disable Currently Selected Option:
-                                                            for (let i = 0; i < _driverList.length; i++) {
-                                                                if (_driverList[i].label === value) {
-                                                                    _driverList[i].disabled = true;
-                                                                    break;
-                                                                }
-                                                            }
-
-                                                            setDriverList([..._driverList]);
-                                                        }
-                                                        else {
-                                                            let _driverList = driverList;
-                                                            for (let i = 0; i < _driverList.length; i++) {
-                                                                if (_driverList[i].label === value) {
-                                                                    _driverList[i].disabled = true;
-                                                                    break;
-                                                                }
-                                                            }
-                                                            setDriverList([..._driverList]);
-
-                                                        }
-                                                        setConductor(option);
-                                                        console.log(option);
-                                                        setConductorValue(value);
-                                                    }}
-                                                    // onSearch={onSearch}
-                                                    value={conductorValue}
-                                                    filterOption={filterOption}
-                                                    options={driverList}
-                                                    dropdownRender={(menu) => (
-                                                        <>
-                                                            {menu}
-                                                            <Divider
-                                                                style={{
-                                                                    margin: '8px 0',
-                                                                }}
-                                                            />
-                                                            <Space
-                                                                style={{
-                                                                    padding: '0 8px 4px',
-                                                                }}
-                                                            >
-                                                                <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
-                                                            </Space>
-                                                        </>
-                                                    )}
-                                                />
-                                            </td>
-                                            {/* Contact */}
-                                            <td>
-                                                <Input value={conductor.Contact} onChange={(e) => {
-                                                    let obj = conductor;
-                                                    obj.Contact = e.target.value;
-                                                    setConductor(obj);
-                                                }} placeholder='contact' />
-                                            </td>
-                                            {/* License Date */}
-                                            <td>
-                                                <Input value={conductor.LicenseDate} onChange={(e) => {
-                                                    let obj = conductor;
-                                                    obj.LicenseDate = e.target.value;
-                                                    setConductor(obj);
-                                                }} placeholder='License Date' type='date' />
-                                            </td>
-                                            {/* Trip Cash */}
-                                            <td>
-                                                <Input onChange={(e) => {
-                                                    let _obj = conductor;
-                                                    _obj.TripCash = e.target.value;
-                                                    setConductor(_obj);
-                                                }} placeholder='Trip Cash' type='number' />
-                                            </td>
-                                            {/* View */}
-                                            <td>
-                                                <Tooltip placement="top" title={'Driver Image'} >
-                                                    <Button style={{ marginBottom: '22px' }}>View</Button>
-                                                </Tooltip>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* KM */}
-                            <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
-                                <Form.Item style={{ width: '20%' }} label="Jana KM">
-                                    <Input value={janaKm} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number'></Input>
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '20%' }} label="Aana KM">
-                                    <Input value={aanaKm} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number'></Input>
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '20%' }} label="Trip KM">
-                                    {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))} onChange={(e) => { setTripKm(e.target.value) }} placeholder='Trip KM' type='number'></Input> */}
-                                    {Math.abs(parseInt(janaKm) - parseInt(aanaKm))}
-                                </Form.Item>
-                                <Form.Item style={{ width: '20%' }} label="Milometer">
-                                    <Input value={milometer} onChange={(e) => { setMilometer(e.target.value) }} placeholder='Milometer'></Input>
-                                </Form.Item>
-                            </Flex>
-
-                            {/* Diesel */}
-                            <Flex style={{
-                                width: '100%',
-                                height: 60,
-                            }} justify={'space-around'} align={'center'}>
-                                <Form.Item style={{ width: '20%' }} label="Diesel">
-                                    <Input value={dieselQty} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number'></Input>
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '20%' }} label="Pump Name">
-                                    <Select
-                                        showSearch
-                                        placeholder="Pump Name"
-                                        optionFilterProp="children"
-                                        onChange={(e) => { setPumpName(e) }}
-                                        value={pumpName}
-                                        // onSearch={onSearch}
-                                        filterOption={filterOption}
-                                        options={[
-                                            {
-                                                value: 'ABC',
-                                                label: 'ABC',
-                                            },
-                                            {
-                                                value: 'XYZ',
-                                                label: 'XYZ',
-                                            },
-                                            {
-                                                value: 'PQR',
-                                                label: 'PQR',
-                                            },
-                                        ]}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '20%' }} label="Average">
-                                    {(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0}
-                                    {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))/((parseInt(dieselQty)||0) + (parseInt(midwayDiesel)||0))} onChange={(e) => { setAverage(e.target.value) }} placeholder='Average' type='number'></Input> */}
-                                </Form.Item>
-
-                                <Form.Item style={{ width: '20%' }} label="Midway Diesel">
-                                    <Input value={midwayDiesel} onChange={(e) => setMidwayDiesel(e.target.value)} placeholder='Midway Diesel'></Input>
-                                </Form.Item>
-                            </Flex>
-                        </Flex>
-                        <Button type="primary" onClick={handleSave}>Save</Button>
-                    </Form>
-                </div>
             </>,
         },
         {
             key: '4',
             label: 'Kaata Parchi Details',
             children: <>
-                <div>
-                    <Form name='Kaata Parchi Details'
-                        style={{
-                            maxWidth: 1200,
-                        }}
-                        initialValues={{
-                            remember: true,
-                        }}
-                        // onFinish={onFinish}
-                        // onFinishFailed={onFinishFailed}
-                        autoComplete="off"
-                        form={form2}
-                    >
-                        <Flex gap="middle" align="start" vertical>
 
-
-                            {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
-                            <Form.List name="kaataParchi" >
-                                {(fields, { add, remove }) => (
-                                    <>
-                                        {fields.map(({ key, name, ...restField }) => (
-                                            <Flex key={key} style={{ width: '100%' }} justify={'space-around'} align={'center'}>
-                                                <div style={{ borderRadius: '10px', border: '1px solid green' }}>
-                                                    <h3 style={{ padding: '10px' }}>Kaata Parchi {name + 1} </h3>
-                                                    <div
-                                                        key={key}
-                                                    >
-                                                        <Flex gap="middle" align="start" vertical>
-
-                                                            <Flex style={{
-                                                                width: '100%',
-                                                                height: 60,
-                                                            }} justify={'space-around'} align={'center'} >
-                                                                <Form.Item style={{ width: '20%' }} name={[name, 'unloadingDate']} label="Unloading Date">
-                                                                    <Input placeholder='Unloading Date' type='date'></Input>
-                                                                </Form.Item>
-
-                                                                <Form.Item style={{ width: '20%' }} name={[name, 'khaliGadiWajan']} label="Khaali Gadi wajan">
-                                                                    <Input placeholder='Weight' type='number'></Input>
-                                                                </Form.Item>
-
-                                                                <Form.Item style={{ width: '20%' }} name={[name, 'bhariGadiWajan']} label="Bhari Gaadi Wajan">
-                                                                    <Input placeholder='Weight' type='number'></Input>
-                                                                </Form.Item>
-
-                                                                <Form.Item style={{ width: '20%' }} name={[name, "maalKaWajan"]} label="Maal Ka Wajan">
-                                                                    <Input placeholder='weight' type='number'></Input>
-                                                                </Form.Item>
-                                                            </Flex>
-
-                                                            <Flex style={{
-                                                                width: '100%',
-                                                                height: 60,
-                                                            }} justify={'space-around'} align={'center'}>
-                                                                <Form.Item style={{ width: '30%' }} name={[name, "ghaateAllowed"]} label="Ghaate Allowed">
-                                                                    <Input placeholder='input' ></Input>
-                                                                </Form.Item>
-
-                                                                <Form.Item style={{ width: '30%' }} name={[name, "ghaateActual"]} label="Ghaate Actual">
-                                                                    <Input placeholder='input' ></Input>
-                                                                </Form.Item>
-
-                                                                <Form.Item style={{ width: '30%' }} name={[name, "remarks"]} label="Remarks">
-                                                                    <Input placeholder='remarks' ></Input>
-                                                                </Form.Item>
-
-                                                                <MinusCircleOutlined onClick={() => remove(name)} />
-                                                            </Flex>
-                                                        </Flex>
-
-
-
-                                                    </div>
-                                                </div>
-                                            </Flex>
-                                        ))}
-                                        <Form.Item style={{ margin: 'auto' }}>
-                                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                                Add new Kaata Parchi
-                                            </Button>
-                                        </Form.Item>
-                                    </>
-                                )}
-                            </Form.List>
-                        </Flex>
-                        <Button type="primary" onClick={handleSave}>Save</Button>
-                    </Form>
-                </div>
             </>,
         },
         {
@@ -1770,312 +776,7 @@ const DailyEntry = () => {
             label: 'First Payment Details',
             forceRender: true,
             children: <>
-                <div>
-                    <h3>Trip se kya mila</h3>
-                    <Form name='Trip se kya mila'
-                        style={{
-                            maxWidth: 1500,
-                        }}
-                        initialValues={{
-                            remember: true,
-                        }}
-                        autoComplete="off"
-                        form={form3}
-                    >
 
-                        <Flex gap="middle" align="start" vertical>
-                            {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
-                            <Form.List name="paymentDetails" >
-                                {(fields, { add, remove }) => (
-                                    <>
-                                        {fields.map(({ key, name, ...restField }) => (
-                                            <Flex key={key} style={{ width: '100%' }} justify={'space-around'} align={'center'}>
-                                                <Card style={{ borderRadius: '10px', border: '1px solid green', padding: '5px', width: '100%' }}>
-                                                    <Row justify={'space-between'}>
-                                                        <Col>
-                                                            <h3 style={{ padding: '10px' }}>Trip {name + 1} </h3>
-                                                        </Col>
-                                                        <Col span={12}>
-                                                            <Form.Item label="Bhada kaun dalega" name={[name, 'bhadaKaunDalega']}>
-
-                                                                <Select
-                                                                    showSearch
-                                                                    placeholder="Bhada Kaun Dalega"
-                                                                    optionFilterProp="children"
-                                                                    onChange={() => setFlag(!flag)}
-                                                                    // onSearch={onSearch}
-                                                                    filterOption={filterOption}
-                                                                    options={[
-                                                                        ...partyList[name],
-                                                                        // {label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.bhejneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.bhejneWaala},
-                                                                        // { label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.paaneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.paaneWaala},
-                                                                        // {label: form.getFieldValue(['tripDetails'])?.tripDetails[name]?.transporter, value: form.getFieldValue(['tripDetails']).tripDetails[name]?.transporter},
-                                                                        { label: 'UV Logistics', value: 'UvLogs' },
-                                                                        { label: 'Naveen Kaka', value: 'NaveenKaka' }
-                                                                    ]}
-                                                                />
-                                                            </Form.Item>
-
-                                                        </Col>
-
-                                                        {flag && form3.getFieldsValue(['paymentDetails']).paymentDetails[name]?.bhadaKaunDalega === 'NaveenKaka' ?
-                                                            <Col>
-                                                                <Form.Item label="Select Party" name={[name, 'partyForNaveenKaka']}>
-                                                                    <Select
-                                                                        showSearch
-                                                                        placeholder="Bhada Kaun Dalega"
-                                                                        optionFilterProp="children"
-                                                                        // onChange={onChange}
-                                                                        // onSearch={onSearch}
-                                                                        filterOption={filterOption}
-                                                                        options={[
-                                                                            ...partyList[name]
-                                                                        ]}
-                                                                    />
-                                                                </Form.Item>
-                                                            </Col>
-                                                            :
-                                                            null
-                                                        }
-                                                        <Col>
-                                                            <CloseOutlined
-                                                                onClick={() => {
-                                                                    remove(name);
-                                                                }}
-                                                            />
-                                                        </Col>
-                                                    </Row>
-                                                    <div
-                                                        key={key}
-                                                    >
-
-                                                        <table style={{ border: '1px solid black', padding: '5px', borderRadius: '10px', width: '100%' }}>
-                                                            <thead>
-                                                                <tr style={{ border: '1px solid black' }}>
-                                                                    <th style={{ border: '1px solid black' }}>Type</th>
-                                                                    <th style={{ border: '1px solid black' }}>Amount</th>
-                                                                    <th style={{ border: '1px solid black' }}>Bank/Courier Date</th>
-                                                                    <th style={{ border: '1px solid black' }}>Bank</th>
-                                                                    <th style={{ border: '1px solid black' }}>Remarks</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr style={{ border: '1px solid black' }}>
-                                                                    <td ><h3>Pohch</h3></td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'pohchAmount']} >
-                                                                            <Input placeholder='amount' type='number' />
-                                                                        </Form.Item>
-                                                                    </td >
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'pohchDate']}>
-                                                                            <Input placeholder='date' type='date' />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'pohchSendTo']} >
-
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="Pohch Send To"
-                                                                                optionFilterProp="children"
-                                                                                // onChange={onChange}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={[
-                                                                                    ...partyList[name],
-                                                                                    { label: 'UV Logistics', value: 'UvLogs' },
-                                                                                    { label: 'Naveen Kaka', value: 'NaveenKaka' }
-                                                                                ]}
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'pohchRemarks']}>
-                                                                            <Input placeholder='remarks' />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr style={{ border: '1px solid black' }}>
-                                                                    <td ><h3>Cash</h3></td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'cashAmount']}>
-                                                                            <Input placeholder='amount' type='number' />
-                                                                        </Form.Item>
-                                                                    </td >
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'cashDate']}>
-                                                                            <Input placeholder='date' type='date' />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                    <td >
-                                                                        {/* <Form.Item name={[name, 'cashBank']}>
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="Bank"
-                                                                                optionFilterProp="children"
-                                                                                // onChange={onChange}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={[
-                                                                                    {
-                                                                                        value: 'ABC',
-                                                                                        label: 'ABC',
-                                                                                    },
-                                                                                    {
-                                                                                        value: 'XYZ',
-                                                                                        label: 'XYZ',
-                                                                                    },
-                                                                                    {
-                                                                                        value: 'PQR',
-                                                                                        label: 'PQR',
-                                                                                    },
-                                                                                ]}
-                                                                            />
-                                                                        </Form.Item> */}
-                                                                    </td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'cashRemarks']}>
-                                                                            <Input placeholder='remarks' />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr style={{ border: '1px solid black' }}>
-                                                                    <td ><h3>Online</h3></td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'onlineAmount']}>
-                                                                            <Input placeholder='amount' type='number' />
-                                                                        </Form.Item>
-                                                                    </td >
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'onlineDate']}>
-                                                                            <Input placeholder='date' type='date' />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'onlineBank']}>
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="Bank"
-                                                                                optionFilterProp="children"
-                                                                                // onChange={onChange}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={[...bankData]}
-                                                                                dropdownRender={(menu) => (
-                                                                                    <>
-                                                                                        {menu}
-                                                                                        <Divider
-                                                                                            style={{
-                                                                                                margin: '8px 0',
-                                                                                            }}
-                                                                                        />
-                                                                                        <Space
-                                                                                            style={{
-                                                                                                padding: '0 8px 4px',
-                                                                                            }}
-                                                                                        >
-                                                                                            <Input
-                                                                                                placeholder="Please enter item"
-                                                                                                value={newBank}
-                                                                                                onChange={(e) => setNewBank(e.target.value)}
-                                                                                                onKeyDown={(e) => e.stopPropagation()}
-                                                                                            />
-                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
-
-                                                                                            </Button>
-                                                                                        </Space>
-                                                                                    </>
-                                                                                )}
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'onlineRemarks']}>
-                                                                            <Input placeholder='remarks' />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr style={{ border: '1px solid black' }}>
-                                                                    <td ><h3>Cheque</h3></td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'chequeAmount']}>
-                                                                            <Input placeholder='amount' type='number' />
-                                                                        </Form.Item>
-                                                                    </td >
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'chequeDate']}>
-                                                                            <Input placeholder='date' type='date' />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'chequeBank']}>
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="Bank"
-                                                                                optionFilterProp="children"
-                                                                                // onChange={onChange}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={[...bankData]}
-                                                                                dropdownRender={(menu) => (
-                                                                                    <>
-                                                                                        {menu}
-                                                                                        <Divider
-                                                                                            style={{
-                                                                                                margin: '8px 0',
-                                                                                            }}
-                                                                                        />
-                                                                                        <Space
-                                                                                            style={{
-                                                                                                padding: '0 8px 4px',
-                                                                                            }}
-                                                                                        >
-                                                                                            <Input
-                                                                                                placeholder="Please enter item"
-                                                                                                value={newBank}
-                                                                                                onChange={(e) => setNewBank(e.target.value)}
-                                                                                                onKeyDown={(e) => e.stopPropagation()}
-                                                                                            />
-                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
-
-                                                                                            </Button>
-                                                                                        </Space>
-                                                                                    </>
-                                                                                )}
-                                                                            />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                    <td >
-                                                                        <Form.Item name={[name, 'chequeRemarks']}>
-                                                                            <Input placeholder='remarks' />
-                                                                        </Form.Item>
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-
-
-
-                                                    </div>
-
-                                                </Card>
-                                            </Flex>
-                                        ))}
-
-                                        <Form.Item style={{ margin: 'auto' }}>
-                                            <Button id='FPDAdd' type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                                Add new Trip
-                                            </Button>
-                                        </Form.Item>
-
-                                    </>
-                                )}
-                            </Form.List>
-                        </Flex>
-                        <Button type="primary" onClick={handleSave}>Save</Button>
-                    </Form>
-                </div>
             </>,
         }
     ];
@@ -2363,13 +1064,13 @@ const DailyEntry = () => {
                 </Form>
             </Modal>
             <div>
-                {!toggle ? 
+                {!toggle ?
                     <Button style={{ border: '2px solid black', marginLeft: '40px' }} onClick={() => setToggle(!toggle)}>
-                        Add new details                    
+                        Add new details
                     </Button>
                     :
                     <Button style={{ border: '2px solid black', marginLeft: '40px' }} onClick={() => setToggle(!toggle)}>
-                        Show Table                    
+                        Show Table
                     </Button>
                 }
                 <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
@@ -2380,7 +1081,7 @@ const DailyEntry = () => {
             </div>
             {/* {[...rate[0]]} */}
 
-            {!toggle && 
+            {!toggle &&
                 <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
                     <Table size="small" dataSource={dataSource} columns={columns} expandable={{
                         expandedRowRender: (record) =>
@@ -2400,13 +1101,1330 @@ const DailyEntry = () => {
                     />
                 </div>
             }
-           
-            {toggle &&
-                <div style={{ width: "95vw" }} className={styles.addNewDetails}>
-                    <>
-                        <Collapse items={items} defaultActiveKey={['1']} />
 
-                    </>
+            {toggle &&
+                <div className={styles.addNewDetails}>
+                    <div style={{width: '90%', marginTop: '10px'}}>
+
+                  
+                        {/* <Collapse items={items} defaultActiveKey={['1']} /> */}
+                        <Card title="Trip Details" style={{marginBottom: '10px'}}>
+                            <div>
+                                <Form
+                                    name="Trip Details"
+                                    style={{
+                                        // maxWidth: 1200,
+                                    }}
+                                    initialValues={{
+                                        remember: true,
+                                    }}
+                                    autoComplete="off"
+                                    form={form}
+                                >
+
+                                    <Flex gap="middle" align="start" vertical>
+                                        <Flex style={{
+                                            width: '100%',
+                                            height: 60,
+                                        }} justify={'space-around'} align={'center'}>
+                                            <Form.Item style={{ width: '20%' }} label="Date">
+                                                <Input type='date' value={date} onChange={(e) => setDate(e.target.value)} ></Input>
+                                            </Form.Item>
+
+                                            <Form.Item style={{ width: '30%' }} label="Vehicle No."
+                                                name="vehicleNo">
+                                                <Select
+                                                    showSearch
+                                                    placeholder="Vehicle No."
+                                                    optionFilterProp="children"
+                                                    onChange={(value) => setVehicleNo(value)}
+                                                    // onSearch={onSearch}
+                                                    filterOption={filterOption}
+                                                    options={vehicleData}
+                                                />
+                                            </Form.Item>
+
+                                            <Form.Item style={{ width: '30%' }}
+                                                label="Status"
+                                                name="status"
+                                            >
+                                                <Select
+                                                    showSearch
+                                                    placeholder="Status"
+                                                    optionFilterProp="children"
+                                                    onChange={(value) => setVehicleStatus(value)}
+                                                    // onSearch={onSearch}
+                                                    // filterOption={filterOption}
+                                                    options={[
+                                                        {
+                                                            value: 'standing',
+                                                            label: 'Standing',
+                                                        },
+                                                        {
+                                                            value: 'inProcess',
+                                                            label: 'In Process',
+                                                        },
+                                                        {
+                                                            value: 'running',
+                                                            label: 'Running',
+                                                        },
+                                                    ]}
+                                                />
+                                            </Form.Item>
+
+                                            <Form.Item style={{ width: '15%' }}
+                                                // label="MT"
+                                                name="mt"
+                                            >
+                                                <Checkbox onChange={onMTCheck} >MT</Checkbox>
+                                            </Form.Item>
+
+                                        </Flex>
+
+                                        {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
+                                        <Form.List name="tripDetails" >
+                                            {(fields, { add, remove }) => (
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        rowGap: 16,
+                                                        flexDirection: 'column',
+                                                        width: "-webkit-fill-available",
+                                                    }}
+                                                >
+                                                    {fields.map(({ key, name, ...restField }) => (
+
+                                                        <Card size="small"
+                                                            title={`Trip ${name + 1}`}
+                                                            key={key}
+                                                            extra={
+                                                                <CloseOutlined
+                                                                    onClick={() => {
+                                                                        remove(name);
+                                                                        setTripCount(tripCount - 1);
+                                                                    }}
+                                                                />}>
+                                                            {/* <h3 style={{ padding: '10px' }}>UNIT {name + 1} {console.log(fields)}</h3> */}
+                                                            <div
+                                                                key={key}
+                                                            >
+                                                                <Flex gap="middle" align="start" vertical>
+
+                                                                    <Flex style={{ width: "100%", height: 30, marginTop: '10px' }} justify={'space-around'} align='center'>
+                                                                        <Form.Item style={{ width: '20%' }} label="From"
+                                                                            name={[name, 'from']}>
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="from"
+                                                                                optionFilterProp="children"
+                                                                                // onChange={onChange}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={Locations}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Input
+                                                                                                placeholder="Please enter item"
+                                                                                                value={newLocation}
+                                                                                                onChange={(e) => setNewLocation(e.target.value)}
+                                                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                                            />
+                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+                                                                                                e.preventDefault();
+                                                                                                if (newLocation.trim() === "") {
+                                                                                                    alert("Please enter a value to add location.")
+                                                                                                    return;
+                                                                                                }
+                                                                                                for (let i = 0; i < Locations.length; i++) {
+                                                                                                    if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
+                                                                                                        alert(`Location with name ${Locations[i].label} already exists.`);
+                                                                                                        return;
+                                                                                                    }
+                                                                                                }
+                                                                                                setLocations([...Locations, { value: newLocation, label: newLocation }]);
+                                                                                                setNewLocation('');
+                                                                                            }}>
+
+                                                                                            </Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                        <Form.Item style={{ width: '20%' }} label="Bhejne waale"
+                                                                            name={[name, 'bhejneWaala']}>
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="Bhejne waale"
+                                                                                optionFilterProp="children"
+                                                                                onChange={(value) => {
+                                                                                    addPartyInPartyList(value, name);
+                                                                                    let _selectedPartyIndex = selectedPartyIndex;
+                                                                                    for (let i = 0; i < partyListAll.length; i++) {
+                                                                                        if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
+                                                                                            _selectedPartyIndex[name] = i;
+                                                                                            break;
+                                                                                        }
+                                                                                    }
+                                                                                    // console.log(_selectedPartyIndex);
+                                                                                    setSelectedPartyIndex([..._selectedPartyIndex]);
+                                                                                }}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={partyListAll}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                        <div className='tooltip'>
+                                                                            <Tooltip placement="top"
+                                                                                // title={partyDetailsList[name]?.party1Details}
+                                                                                title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}` : 'Not available'}
+                                                                            >
+
+                                                                                <EyeOutlined />
+                                                                            </Tooltip>
+                                                                        </div>
+
+
+                                                                        <Form.Item style={{ width: '20%' }}
+                                                                            label="To"
+                                                                            name={[name, 'to']}
+                                                                        >
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="To/Unloading Point"
+                                                                                optionFilterProp="children"
+                                                                                // onChange={onChange}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={Locations}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Input
+                                                                                                placeholder="Please enter item"
+                                                                                                value={newLocation}
+                                                                                                onChange={(e) => setNewLocation(e.target.value)}
+                                                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                                            />
+                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+                                                                                                e.preventDefault();
+                                                                                                if (newLocation.trim() === "") {
+                                                                                                    alert("Please enter a value to add location.")
+                                                                                                    return;
+                                                                                                }
+                                                                                                for (let i = 0; i < Locations.length; i++) {
+                                                                                                    if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
+                                                                                                        alert(`Location with name ${Locations[i].label} already exists.`);
+                                                                                                        return;
+                                                                                                    }
+                                                                                                }
+                                                                                                setLocations([...Locations, { value: newLocation, label: newLocation }]);
+                                                                                                setNewLocation('');
+                                                                                            }}>
+
+                                                                                            </Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                        <Form.Item style={{ width: '20%' }} label="Paane Waala"
+                                                                            name={[name, 'paaneWaala']}>
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="Paane waala"
+                                                                                optionFilterProp="children"
+                                                                                onChange={(value) => {
+                                                                                    addPartyInPartyList(value, name)
+                                                                                    let _selectedPartyIndex = selectedPartyIndex;
+                                                                                    for (let i = 0; i < partyListAll.length; i++) {
+                                                                                        if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
+                                                                                            _selectedPartyIndex[name + 1] = i;
+                                                                                            break;
+                                                                                        }
+                                                                                    }
+                                                                                    // console.log(_selectedPartyIndex);
+                                                                                    setSelectedPartyIndex([..._selectedPartyIndex]);
+                                                                                }}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={partyListAll}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                        <div className='tooltip'>
+                                                                            <Tooltip placement="top"
+                                                                                // title={partyDetailsList[name]?.party2Details}
+                                                                                title={selectedPartyIndex[name + 1] !== -1 ? `${partyListAll[selectedPartyIndex[name + 1]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name + 1]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name + 1]].location || ' '}` : 'Not available'}
+                                                                            >
+                                                                                <EyeOutlined />
+                                                                            </Tooltip>
+                                                                        </div>
+                                                                    </Flex>
+                                                                    <Flex style={{ width: "100%", height: 30 }} justify={'space-around'} align='center'>
+                                                                        <Form.Item style={{ width: '15%' }} label="Maal"
+                                                                            name={[name, 'Maal']}>
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="Maal"
+                                                                                optionFilterProp="children"
+                                                                                // onChange={onChange}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={MaalList}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Input
+                                                                                                placeholder="Please enter item"
+                                                                                                value={newMaal}
+                                                                                                onChange={(e) => setNewMaal(e.target.value)}
+                                                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                                            />
+                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+                                                                                                // e.preventDefault();
+                                                                                                // console.log(MaalList);
+                                                                                                // for (let i = 0; i < MaalList.length; i++) {
+                                                                                                //     if (MaalList[i].label.toLowerCase() === newMaal.toLowerCase()) {
+                                                                                                //         alert(`Maal with name ${MaalList[i].label} already exists.`);
+                                                                                                //         return;
+                                                                                                //     }
+                                                                                                // }
+                                                                                                // setMaalList([...MaalList, { value: newMaal, label: newMaal }]);
+                                                                                                // setNewMaal('');
+                                                                                                addNewMaal(e);
+                                                                                            }}>
+
+                                                                                            </Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                        <Form.Item style={{ width: '15%' }}
+                                                                            label="Qty"
+                                                                            name={[name, 'qty']}
+                                                                        >
+                                                                            <Input type='number'
+                                                                                value={qty}
+                                                                                onChange={(e) => { let q = qty; q[name] = e.target.value; setQty([...q]) }}>
+
+                                                                            </Input>
+                                                                        </Form.Item>
+
+                                                                        <Form.Item style={{ width: '15%' }}
+                                                                            label="Rate"
+                                                                            name={[name, 'rate']}
+                                                                        >
+                                                                            <Input type='number'
+                                                                                value={rate}
+                                                                                onChange={(e) => { let r = rate; r[name] = e.target.value; setRate([...r]) }}
+                                                                            ></Input>
+                                                                        </Form.Item>
+                                                                        {/* {console.log((form.getFieldValue(['tripDetails', name, 'rate']) || 0) * (form.getFieldValue(['tripDetails', name, 'qty']) || 0))} */}
+                                                                        <Form.Item style={{ width: '15%' }}
+                                                                            label="Total Freight"
+                                                                        // name={[name, 'totalFreight']}
+                                                                        >
+                                                                            {parseInt(rate[name]) * parseInt(qty[name])}
+                                                                            {/* <Input value={rate[name]*qty[name]}></Input> */}
+                                                                        </Form.Item>
+
+                                                                        <Form.Item style={{ width: '20%' }}
+                                                                            label="Transporter"
+                                                                            name={[name, 'transporter']}
+                                                                        >
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="Transporter Name"
+                                                                                optionFilterProp="children"
+                                                                                onChange={(value) => {
+                                                                                    addPartyInPartyList(value, name);
+                                                                                    let _transporterList = transporterList;
+                                                                                    for (let i = 0; i < _transporterList.length; i++) {
+                                                                                        if (_transporterList[i].value === value) {
+                                                                                            setSelectedTransporterIndex(i);
+                                                                                            break;
+                                                                                        }
+                                                                                    }
+
+                                                                                }}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={transporterList}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Input
+                                                                                                placeholder="Please enter item"
+                                                                                                value={newTransporter}
+                                                                                                onChange={(e) => setNewTransporter(e.target.value)}
+                                                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                                            />
+                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewTransporter(e)}>
+
+                                                                                            </Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                        {/* <div className='tooltip'>
+                                                                <Tooltip placement="top" 
+                                                                    // title={transporterList[selectedTransporterIndex].address}
+                                                                    title={'Hello'}
+                                                                    // title={selectedTransporterIndex[name+1] !== -1 ? `${transporterList[selectedTransporterIndex[name+1]].address || 'Address not available'} ${transporterList[selectedTransporterIndex[name+1]].contact || 'Contact Not Available'} ${transporterList[selectedTransporterIndex[name+1]].location || ' '}`: 'Not available'}
+                                                                    >
+                                                                    <EyeOutlined />
+                                                                </Tooltip>
+                                                            </div> */}
+                                                                        {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
+
+                                                                    </Flex>
+
+                                                                    <Form.Item style={{ margin: 'auto' }}
+                                                                        label="To Pay/ Paid"
+                                                                        name={[name, 'payStatus']}
+                                                                    >
+                                                                        <Radio.Group
+                                                                            options={[{ label: 'To Pay', value: 'To Pay' }, { label: 'Paid', value: 'Paid' }]}
+                                                                            // onChange={(e) => { setPayStatus(e.target.value) }}
+                                                                            value={'Paid'}
+                                                                            optionType="button"
+                                                                            buttonStyle="solid"
+                                                                        />
+                                                                    </Form.Item>
+                                                                </Flex>
+
+
+
+                                                            </div>
+                                                        </Card>
+
+
+                                                    ))}
+                                                    <Form.Item style={{ margin: 'auto' }}>
+                                                        <Button type="dashed"
+                                                            onClick={
+                                                                () => {
+                                                                    add();
+                                                                    setTripCount(tripCount + 1);
+                                                                    document.getElementById('FPDAdd').click();
+                                                                }}
+                                                            block icon={<PlusOutlined />}>
+                                                            Add new
+                                                        </Button>
+                                                    </Form.Item>
+                                                </div>
+                                            )}
+                                        </Form.List>
+
+
+                                        {/* </Flex> */}
+
+                                        <Flex style={{
+                                            width: '100%',
+                                            height: 60,
+                                            // border: '1px solid #40a9ff',
+                                        }} justify={'space-around'} align={'center'}>
+
+
+                                        </Flex>
+                                    </Flex>
+                                   
+
+                                </Form>
+                            </div>
+                        </Card>
+
+                        <Card title="Driver | Diesel | Km | Milometer | Avg Details" style={{marginBottom: '10px'}}>
+                            <div>
+                                <Form name="Driver | Diesel | Km | Milometer | Avg Details"
+                                    style={{
+                                        maxWidth: 1200,
+                                    }}
+                                    initialValues={{
+                                        remember: true,
+                                    }}
+                                    autoComplete="off"
+                                    form={form1}
+                                >
+                                    <Flex gap="middle" align="start" vertical>
+                                        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                                            <table style={{ border: '1px solid black', width: '100%' }}>
+                                                <tbody>
+                                                    <tr style={{ border: '1px solid black' }}>
+                                                        <th>*</th>
+                                                        <th style={{ width: '20%' }}>Name</th>
+                                                        <th>Contact</th>
+                                                        <th>License Date</th>
+                                                        <th>Cash</th>
+                                                        <th>View</th>
+                                                    </tr>
+                                                    <tr style={{ border: '1px solid black' }}>
+                                                        <th>Driver 1</th>
+                                                        {/* Name */}
+                                                        <td >
+                                                            <Select
+                                                                style={{ width: '100%' }}
+                                                                showSearch
+                                                                placeholder="Driver"
+                                                                optionFilterProp="children"
+                                                                onChange={(value, option) => {
+                                                                    if (driver1.label !== undefined) {
+                                                                        let _driverList = driverList;
+                                                                        // Enable Last selected Option:
+                                                                        for (let i = 0; i < _driverList.length; i++) {
+                                                                            if (_driverList[i].label === driver1.label) {
+                                                                                _driverList[i].disabled = false;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        // Disable Currently Selected Option:
+                                                                        for (let i = 0; i < _driverList.length; i++) {
+                                                                            if (_driverList[i].label === value) {
+                                                                                _driverList[i].disabled = true;
+                                                                                break;
+                                                                            }
+                                                                        }
+
+                                                                        setDriverList([..._driverList]);
+                                                                    }
+                                                                    else {
+                                                                        let _driverList = driverList;
+                                                                        for (let i = 0; i < _driverList.length; i++) {
+                                                                            if (_driverList[i].label === value) {
+                                                                                _driverList[i].disabled = true;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        setDriverList([..._driverList]);
+
+                                                                    }
+                                                                    setDriver1(option);
+                                                                    console.log(option);
+                                                                    setDriver1Value(value);
+                                                                }}
+                                                                // onSearch={onSearch}
+                                                                value={driver1Value}
+                                                                filterOption={filterOption}
+                                                                options={driverList}
+                                                                dropdownRender={(menu) => (
+                                                                    <>
+                                                                        {menu}
+                                                                        <Divider
+                                                                            style={{
+                                                                                margin: '8px 0',
+                                                                            }}
+                                                                        />
+                                                                        <Space
+                                                                            style={{
+                                                                                padding: '0 8px 4px',
+                                                                            }}
+                                                                        >
+                                                                            <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
+                                                                        </Space>
+                                                                    </>
+                                                                )}
+                                                            />
+                                                        </td>
+                                                        {/* Contact */}
+                                                        <td>
+                                                            <Input value={driver1.Contact} onChange={(e) => {
+                                                                let obj = driver1;
+                                                                obj.Contact = e.target.value;
+                                                                setDriver1(obj);
+                                                            }} placeholder='contact' />
+                                                        </td>
+                                                        {/* License Date */}
+                                                        <td>
+                                                            <Input value={driver1.LicenseDate} onChange={(e) => {
+                                                                let obj = driver1;
+                                                                obj.LicenseDate = e.target.value;
+                                                                setDriver1(obj);
+                                                            }} placeholder='License Date' type='date' />
+                                                        </td>
+                                                        {/* Trip Cash */}
+                                                        <td>
+                                                            <Input onChange={(e) => {
+                                                                let _obj = driver1;
+                                                                _obj.TripCash = e.target.value;
+                                                                setDriver1(_obj);
+                                                            }} placeholder='Trip Cash' type='number' />
+                                                        </td>
+                                                        {/* View */}
+                                                        <td>
+                                                            <Tooltip placement="top" title={'Driver Image'} >
+                                                                <Button style={{ marginBottom: '22px' }}>View</Button>
+                                                            </Tooltip>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th>Driver 2</th>
+                                                        {/* Name */}
+                                                        <td>
+                                                            <Select
+                                                                style={{ width: '100%' }}
+                                                                showSearch
+                                                                placeholder="Driver"
+                                                                optionFilterProp="children"
+                                                                onChange={(value, option) => {
+                                                                    if (driver2.label !== undefined) {
+                                                                        let _driverList = driverList;
+                                                                        // Enable Last selected Option:
+                                                                        for (let i = 0; i < _driverList.length; i++) {
+                                                                            if (_driverList[i].label === driver2.label) {
+                                                                                _driverList[i].disabled = false;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        // Disable Currently Selected Option:
+                                                                        for (let i = 0; i < _driverList.length; i++) {
+                                                                            if (_driverList[i].label === value) {
+                                                                                _driverList[i].disabled = true;
+                                                                                break;
+                                                                            }
+                                                                        }
+
+                                                                        setDriverList([..._driverList]);
+                                                                    }
+                                                                    else {
+                                                                        let _driverList = driverList;
+                                                                        for (let i = 0; i < _driverList.length; i++) {
+                                                                            if (_driverList[i].label === value) {
+                                                                                _driverList[i].disabled = true;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        setDriverList([..._driverList]);
+
+                                                                    }
+                                                                    setDriver2(option);
+                                                                    console.log(option);
+                                                                    setDriver2Value(value)
+                                                                }}
+                                                                // onSearch={onSearch}
+                                                                value={driver2Value}
+                                                                filterOption={filterOption}
+                                                                options={driverList}
+                                                                dropdownRender={(menu) => (
+                                                                    <>
+                                                                        {menu}
+                                                                        <Divider
+                                                                            style={{
+                                                                                margin: '8px 0',
+                                                                            }}
+                                                                        />
+                                                                        <Space
+                                                                            style={{
+                                                                                padding: '0 8px 4px',
+                                                                            }}
+                                                                        >
+                                                                            {/* <Input
+                                                                    placeholder="Please enter item"
+                                                                    value={newDriverName}
+                                                                    onChange={(e) => setNewDriverName(e.target.value)}
+                                                                    onKeyDown={(e) => e.stopPropagation()}
+                                                                />
+                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewDriver(e)}> */}
+
+                                                                            {/* </Button> */}
+
+                                                                            <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
+                                                                        </Space>
+                                                                    </>
+                                                                )}
+                                                            />
+                                                        </td>
+                                                        {/* Contact */}
+                                                        <td>
+                                                            <Input value={driver2.Contact} onChange={(e) => {
+                                                                let obj = driver2;
+                                                                driver2.Contact = e.target.value;
+                                                                setDriver2(obj);
+                                                            }} placeholder='contact' />
+                                                        </td>
+                                                        {/* License Date */}
+                                                        <td>
+                                                            <Input value={driver2.LicenseDate} onChange={(e) => {
+                                                                let obj = driver2;
+                                                                driver2.LicenseDate = e.target.value;
+                                                                setDriver2(obj);
+                                                            }} placeholder='License Date' type='date' />
+                                                        </td>
+                                                        {/* Trip Cash */}
+                                                        <td>
+                                                            <Input onChange={(e) => {
+                                                                let _obj = driver2;
+                                                                _obj.TripCash = e.target.value;
+                                                                setDriver2(_obj);
+                                                            }} placeholder='Trip Cash' type='number' />
+                                                        </td>
+                                                        {/* View */}
+                                                        <td>
+                                                            <Tooltip placement="top" title={'Driver Image'} >
+                                                                <Button style={{ marginBottom: '22px' }}>View</Button>
+                                                            </Tooltip>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <th>Conductor</th>
+                                                        {/* Name */}
+                                                        <td >
+                                                            <Select
+                                                                style={{ width: '100%' }}
+                                                                showSearch
+                                                                placeholder="Driver"
+                                                                optionFilterProp="children"
+                                                                onChange={(value, option) => {
+                                                                    if (conductor.label !== undefined) {
+                                                                        let _driverList = driverList;
+                                                                        // Enable Last selected Option:
+                                                                        for (let i = 0; i < _driverList.length; i++) {
+                                                                            if (_driverList[i].label === conductor.label) {
+                                                                                _driverList[i].disabled = false;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        // Disable Currently Selected Option:
+                                                                        for (let i = 0; i < _driverList.length; i++) {
+                                                                            if (_driverList[i].label === value) {
+                                                                                _driverList[i].disabled = true;
+                                                                                break;
+                                                                            }
+                                                                        }
+
+                                                                        setDriverList([..._driverList]);
+                                                                    }
+                                                                    else {
+                                                                        let _driverList = driverList;
+                                                                        for (let i = 0; i < _driverList.length; i++) {
+                                                                            if (_driverList[i].label === value) {
+                                                                                _driverList[i].disabled = true;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        setDriverList([..._driverList]);
+
+                                                                    }
+                                                                    setConductor(option);
+                                                                    console.log(option);
+                                                                    setConductorValue(value);
+                                                                }}
+                                                                // onSearch={onSearch}
+                                                                value={conductorValue}
+                                                                filterOption={filterOption}
+                                                                options={driverList}
+                                                                dropdownRender={(menu) => (
+                                                                    <>
+                                                                        {menu}
+                                                                        <Divider
+                                                                            style={{
+                                                                                margin: '8px 0',
+                                                                            }}
+                                                                        />
+                                                                        <Space
+                                                                            style={{
+                                                                                padding: '0 8px 4px',
+                                                                            }}
+                                                                        >
+                                                                            <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
+                                                                        </Space>
+                                                                    </>
+                                                                )}
+                                                            />
+                                                        </td>
+                                                        {/* Contact */}
+                                                        <td>
+                                                            <Input value={conductor.Contact} onChange={(e) => {
+                                                                let obj = conductor;
+                                                                obj.Contact = e.target.value;
+                                                                setConductor(obj);
+                                                            }} placeholder='contact' />
+                                                        </td>
+                                                        {/* License Date */}
+                                                        <td>
+                                                            <Input value={conductor.LicenseDate} onChange={(e) => {
+                                                                let obj = conductor;
+                                                                obj.LicenseDate = e.target.value;
+                                                                setConductor(obj);
+                                                            }} placeholder='License Date' type='date' />
+                                                        </td>
+                                                        {/* Trip Cash */}
+                                                        <td>
+                                                            <Input onChange={(e) => {
+                                                                let _obj = conductor;
+                                                                _obj.TripCash = e.target.value;
+                                                                setConductor(_obj);
+                                                            }} placeholder='Trip Cash' type='number' />
+                                                        </td>
+                                                        {/* View */}
+                                                        <td>
+                                                            <Tooltip placement="top" title={'Driver Image'} >
+                                                                <Button style={{ marginBottom: '22px' }}>View</Button>
+                                                            </Tooltip>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        {/* KM */}
+                                        <Flex style={{
+                                            width: '100%',
+                                            height: 60,
+                                        }} justify={'space-around'} align={'center'}>
+                                            <Form.Item style={{ width: '20%' }} label="Jana KM">
+                                                <Input value={janaKm} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number'></Input>
+                                            </Form.Item>
+
+                                            <Form.Item style={{ width: '20%' }} label="Aana KM">
+                                                <Input value={aanaKm} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number'></Input>
+                                            </Form.Item>
+
+                                            <Form.Item style={{ width: '20%' }} label="Trip KM">
+                                                {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))} onChange={(e) => { setTripKm(e.target.value) }} placeholder='Trip KM' type='number'></Input> */}
+                                                {Math.abs(parseInt(janaKm) - parseInt(aanaKm))}
+                                            </Form.Item>
+                                            <Form.Item style={{ width: '20%' }} label="Milometer">
+                                                <Input value={milometer} onChange={(e) => { setMilometer(e.target.value) }} placeholder='Milometer'></Input>
+                                            </Form.Item>
+                                        </Flex>
+
+                                        {/* Diesel */}
+                                        <Flex style={{
+                                            width: '100%',
+                                            height: 60,
+                                        }} justify={'space-around'} align={'center'}>
+                                            <Form.Item style={{ width: '20%' }} label="Diesel">
+                                                <Input value={dieselQty} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number'></Input>
+                                            </Form.Item>
+
+                                            <Form.Item style={{ width: '20%' }} label="Pump Name">
+                                                <Select
+                                                    showSearch
+                                                    placeholder="Pump Name"
+                                                    optionFilterProp="children"
+                                                    onChange={(e) => { setPumpName(e) }}
+                                                    value={pumpName}
+                                                    // onSearch={onSearch}
+                                                    filterOption={filterOption}
+                                                    options={[
+                                                        {
+                                                            value: 'ABC',
+                                                            label: 'ABC',
+                                                        },
+                                                        {
+                                                            value: 'XYZ',
+                                                            label: 'XYZ',
+                                                        },
+                                                        {
+                                                            value: 'PQR',
+                                                            label: 'PQR',
+                                                        },
+                                                    ]}
+                                                />
+                                            </Form.Item>
+
+                                            <Form.Item style={{ width: '20%' }} label="Average">
+                                                {(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0}
+                                                {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))/((parseInt(dieselQty)||0) + (parseInt(midwayDiesel)||0))} onChange={(e) => { setAverage(e.target.value) }} placeholder='Average' type='number'></Input> */}
+                                            </Form.Item>
+
+                                            <Form.Item style={{ width: '20%' }} label="Midway Diesel">
+                                                <Input value={midwayDiesel} onChange={(e) => setMidwayDiesel(e.target.value)} placeholder='Midway Diesel'></Input>
+                                            </Form.Item>
+                                        </Flex>
+                                    </Flex>
+                                    
+                                </Form>
+                            </div>
+                        </Card>
+
+                        <Card title="Kaata Parchi Details" style={{marginBottom: '10px'}}>
+                            <div>
+                                <Form name='Kaata Parchi Details'
+                                    style={{
+                                        maxWidth: 1200,
+                                    }}
+                                    initialValues={{
+                                        remember: true,
+                                    }}
+                                    // onFinish={onFinish}
+                                    // onFinishFailed={onFinishFailed}
+                                    autoComplete="off"
+                                    form={form2}
+                                >
+                                    <Flex gap="middle" align="start" vertical>
+
+
+                                        {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
+                                        <Form.List name="kaataParchi" >
+                                            {(fields, { add, remove }) => (
+                                                <>
+                                                    {fields.map(({ key, name, ...restField }) => (
+                                                        <Flex key={key} style={{ width: '100%' }} justify={'space-around'} align={'center'}>
+                                                            <div style={{ borderRadius: '10px', border: '1px solid green' }}>
+                                                                <h3 style={{ padding: '10px' }}>Kaata Parchi {name + 1} </h3>
+                                                                <div
+                                                                    key={key}
+                                                                >
+                                                                    <Flex gap="middle" align="start" vertical>
+
+                                                                        <Flex style={{
+                                                                            width: '100%',
+                                                                            height: 60,
+                                                                        }} justify={'space-around'} align={'center'} >
+                                                                            <Form.Item style={{ width: '20%' }} name={[name, 'unloadingDate']} label="Unloading Date">
+                                                                                <Input placeholder='Unloading Date' type='date'></Input>
+                                                                            </Form.Item>
+
+                                                                            <Form.Item style={{ width: '20%' }} name={[name, 'khaliGadiWajan']} label="Khaali Gadi wajan">
+                                                                                <Input placeholder='Weight' type='number'></Input>
+                                                                            </Form.Item>
+
+                                                                            <Form.Item style={{ width: '20%' }} name={[name, 'bhariGadiWajan']} label="Bhari Gaadi Wajan">
+                                                                                <Input placeholder='Weight' type='number'></Input>
+                                                                            </Form.Item>
+
+                                                                            <Form.Item style={{ width: '20%' }} name={[name, "maalKaWajan"]} label="Maal Ka Wajan">
+                                                                                <Input placeholder='weight' type='number'></Input>
+                                                                            </Form.Item>
+                                                                        </Flex>
+
+                                                                        <Flex style={{
+                                                                            width: '100%',
+                                                                            height: 60,
+                                                                        }} justify={'space-around'} align={'center'}>
+                                                                            <Form.Item style={{ width: '30%' }} name={[name, "ghaateAllowed"]} label="Ghaate Allowed">
+                                                                                <Input placeholder='input' ></Input>
+                                                                            </Form.Item>
+
+                                                                            <Form.Item style={{ width: '30%' }} name={[name, "ghaateActual"]} label="Ghaate Actual">
+                                                                                <Input placeholder='input' ></Input>
+                                                                            </Form.Item>
+
+                                                                            <Form.Item style={{ width: '30%' }} name={[name, "remarks"]} label="Remarks">
+                                                                                <Input placeholder='remarks' ></Input>
+                                                                            </Form.Item>
+
+                                                                            <MinusCircleOutlined onClick={() => remove(name)} />
+                                                                        </Flex>
+                                                                    </Flex>
+
+
+
+                                                                </div>
+                                                            </div>
+                                                        </Flex>
+                                                    ))}
+                                                    <Form.Item style={{ margin: 'auto' }}>
+                                                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                            Add new Kaata Parchi
+                                                        </Button>
+                                                    </Form.Item>
+                                                </>
+                                            )}
+                                        </Form.List>
+                                    </Flex>
+                                   
+                                </Form>
+                            </div>
+                        </Card>
+
+                        <Card title="First Payment Details" style={{marginBottom: '10px'}}>
+                            <div>
+                                <h3>Trip se kya mila</h3>
+                                <Form name='Trip se kya mila'
+                                    style={{
+                                        maxWidth: 1500,
+                                    }}
+                                    initialValues={{
+                                        remember: true,
+                                    }}
+                                    autoComplete="off"
+                                    form={form3}
+                                >
+
+                                    <Flex gap="middle" align="start" vertical>
+                                        {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
+                                        <Form.List name="paymentDetails" >
+                                            {(fields, { add, remove }) => (
+                                                <>
+                                                    {fields.map(({ key, name, ...restField }) => (
+                                                        <Flex key={key} style={{ width: '100%' }} justify={'space-around'} align={'center'}>
+                                                            <Card style={{ borderRadius: '10px', border: '1px solid green', padding: '5px', width: '100%' }}>
+                                                                <Row justify={'space-between'}>
+                                                                    <Col>
+                                                                        <h3 style={{ padding: '10px' }}>Trip {name + 1} </h3>
+                                                                    </Col>
+                                                                    <Col span={12}>
+                                                                        <Form.Item label="Bhada kaun dalega" name={[name, 'bhadaKaunDalega']}>
+
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="Bhada Kaun Dalega"
+                                                                                optionFilterProp="children"
+                                                                                onChange={() => setFlag(!flag)}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={[
+                                                                                    ...partyList[name],
+                                                                                    // {label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.bhejneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.bhejneWaala},
+                                                                                    // { label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.paaneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.paaneWaala},
+                                                                                    // {label: form.getFieldValue(['tripDetails'])?.tripDetails[name]?.transporter, value: form.getFieldValue(['tripDetails']).tripDetails[name]?.transporter},
+                                                                                    { label: 'UV Logistics', value: 'UvLogs' },
+                                                                                    { label: 'Naveen Kaka', value: 'NaveenKaka' }
+                                                                                ]}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                    </Col>
+
+                                                                    {flag && form3.getFieldsValue(['paymentDetails']).paymentDetails[name]?.bhadaKaunDalega === 'NaveenKaka' ?
+                                                                        <Col>
+                                                                            <Form.Item label="Select Party" name={[name, 'partyForNaveenKaka']}>
+                                                                                <Select
+                                                                                    showSearch
+                                                                                    placeholder="Bhada Kaun Dalega"
+                                                                                    optionFilterProp="children"
+                                                                                    // onChange={onChange}
+                                                                                    // onSearch={onSearch}
+                                                                                    filterOption={filterOption}
+                                                                                    options={[
+                                                                                        ...partyList[name]
+                                                                                    ]}
+                                                                                />
+                                                                            </Form.Item>
+                                                                        </Col>
+                                                                        :
+                                                                        null
+                                                                    }
+                                                                    <Col>
+                                                                        <CloseOutlined
+                                                                            onClick={() => {
+                                                                                remove(name);
+                                                                            }}
+                                                                        />
+                                                                    </Col>
+                                                                </Row>
+                                                                <div
+                                                                    key={key}
+                                                                >
+
+                                                                    <table style={{ border: '1px solid black', padding: '5px', borderRadius: '10px', width: '100%' }}>
+                                                                        <thead>
+                                                                            <tr style={{ border: '1px solid black' }}>
+                                                                                <th style={{ border: '1px solid black' }}>Type</th>
+                                                                                <th style={{ border: '1px solid black' }}>Amount</th>
+                                                                                <th style={{ border: '1px solid black' }}>Bank/Courier Date</th>
+                                                                                <th style={{ border: '1px solid black' }}>Bank</th>
+                                                                                <th style={{ border: '1px solid black' }}>Remarks</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr style={{ border: '1px solid black' }}>
+                                                                                <td ><h3>Pohch</h3></td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'pohchAmount']} >
+                                                                                        <Input placeholder='amount' type='number' />
+                                                                                    </Form.Item>
+                                                                                </td >
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'pohchDate']}>
+                                                                                        <Input placeholder='date' type='date' />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'pohchSendTo']} >
+
+                                                                                        <Select
+                                                                                            showSearch
+                                                                                            placeholder="Pohch Send To"
+                                                                                            optionFilterProp="children"
+                                                                                            // onChange={onChange}
+                                                                                            // onSearch={onSearch}
+                                                                                            filterOption={filterOption}
+                                                                                            options={[
+                                                                                                ...partyList[name],
+                                                                                                { label: 'UV Logistics', value: 'UvLogs' },
+                                                                                                { label: 'Naveen Kaka', value: 'NaveenKaka' }
+                                                                                            ]}
+                                                                                        />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'pohchRemarks']}>
+                                                                                        <Input placeholder='remarks' />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr style={{ border: '1px solid black' }}>
+                                                                                <td ><h3>Cash</h3></td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'cashAmount']}>
+                                                                                        <Input placeholder='amount' type='number' />
+                                                                                    </Form.Item>
+                                                                                </td >
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'cashDate']}>
+                                                                                        <Input placeholder='date' type='date' />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                                <td >
+                                                                                    {/* <Form.Item name={[name, 'cashBank']}>
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="Bank"
+                                                                                optionFilterProp="children"
+                                                                                // onChange={onChange}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={[
+                                                                                    {
+                                                                                        value: 'ABC',
+                                                                                        label: 'ABC',
+                                                                                    },
+                                                                                    {
+                                                                                        value: 'XYZ',
+                                                                                        label: 'XYZ',
+                                                                                    },
+                                                                                    {
+                                                                                        value: 'PQR',
+                                                                                        label: 'PQR',
+                                                                                    },
+                                                                                ]}
+                                                                            />
+                                                                        </Form.Item> */}
+                                                                                </td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'cashRemarks']}>
+                                                                                        <Input placeholder='remarks' />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr style={{ border: '1px solid black' }}>
+                                                                                <td ><h3>Online</h3></td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'onlineAmount']}>
+                                                                                        <Input placeholder='amount' type='number' />
+                                                                                    </Form.Item>
+                                                                                </td >
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'onlineDate']}>
+                                                                                        <Input placeholder='date' type='date' />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'onlineBank']}>
+                                                                                        <Select
+                                                                                            showSearch
+                                                                                            placeholder="Bank"
+                                                                                            optionFilterProp="children"
+                                                                                            // onChange={onChange}
+                                                                                            // onSearch={onSearch}
+                                                                                            filterOption={filterOption}
+                                                                                            options={[...bankData]}
+                                                                                            dropdownRender={(menu) => (
+                                                                                                <>
+                                                                                                    {menu}
+                                                                                                    <Divider
+                                                                                                        style={{
+                                                                                                            margin: '8px 0',
+                                                                                                        }}
+                                                                                                    />
+                                                                                                    <Space
+                                                                                                        style={{
+                                                                                                            padding: '0 8px 4px',
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <Input
+                                                                                                            placeholder="Please enter item"
+                                                                                                            value={newBank}
+                                                                                                            onChange={(e) => setNewBank(e.target.value)}
+                                                                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                                                                        />
+                                                                                                        <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
+
+                                                                                                        </Button>
+                                                                                                    </Space>
+                                                                                                </>
+                                                                                            )}
+                                                                                        />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'onlineRemarks']}>
+                                                                                        <Input placeholder='remarks' />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <tr style={{ border: '1px solid black' }}>
+                                                                                <td ><h3>Cheque</h3></td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'chequeAmount']}>
+                                                                                        <Input placeholder='amount' type='number' />
+                                                                                    </Form.Item>
+                                                                                </td >
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'chequeDate']}>
+                                                                                        <Input placeholder='date' type='date' />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'chequeBank']}>
+                                                                                        <Select
+                                                                                            showSearch
+                                                                                            placeholder="Bank"
+                                                                                            optionFilterProp="children"
+                                                                                            // onChange={onChange}
+                                                                                            // onSearch={onSearch}
+                                                                                            filterOption={filterOption}
+                                                                                            options={[...bankData]}
+                                                                                            dropdownRender={(menu) => (
+                                                                                                <>
+                                                                                                    {menu}
+                                                                                                    <Divider
+                                                                                                        style={{
+                                                                                                            margin: '8px 0',
+                                                                                                        }}
+                                                                                                    />
+                                                                                                    <Space
+                                                                                                        style={{
+                                                                                                            padding: '0 8px 4px',
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <Input
+                                                                                                            placeholder="Please enter item"
+                                                                                                            value={newBank}
+                                                                                                            onChange={(e) => setNewBank(e.target.value)}
+                                                                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                                                                        />
+                                                                                                        <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
+
+                                                                                                        </Button>
+                                                                                                    </Space>
+                                                                                                </>
+                                                                                            )}
+                                                                                        />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                                <td >
+                                                                                    <Form.Item name={[name, 'chequeRemarks']}>
+                                                                                        <Input placeholder='remarks' />
+                                                                                    </Form.Item>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+
+
+
+                                                                </div>
+
+                                                            </Card>
+                                                        </Flex>
+                                                    ))}
+
+                                                    <Form.Item style={{ margin: 'auto' }}>
+                                                        <Button id='FPDAdd' type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                            Add new Trip
+                                                        </Button>
+                                                    </Form.Item>
+
+                                                </>
+                                            )}
+                                        </Form.List>
+                                    </Flex>
+                                    
+                                </Form>
+                            </div>
+                        </Card>
+
+                        <Button type="primary" onClick={handleSave} style={{width: '95vw'}} >Save</Button>
+                    </div>
                 </div>
             }
         </>
