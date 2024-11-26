@@ -40,6 +40,7 @@ const DailyEntry = () => {
     const [form1] = Form.useForm();
     const [form2] = Form.useForm();
     const [form3] = Form.useForm();
+    const [driverForm] = Form.useForm();
     const [toggle, setToggle] = React.useState(false);
     const [vehicleNo, setVehicleNo] = useState('');
     const [date, setDate] = useState(todayDate);
@@ -739,6 +740,8 @@ const DailyEntry = () => {
     const handleDriverOk = () => {
         addNewDriver();
         setIsDriverModalOpen(false);
+        setDriverModal({});
+        driverForm.resetFields();
     }
 
     const handleCancel = () => {
@@ -747,6 +750,8 @@ const DailyEntry = () => {
 
     const handleDriverCancel = () => {
         setIsDriverModalOpen(false);
+        setDriverModal({});
+        driverForm.resetFields();
     }
 
     const items = [
@@ -942,7 +947,7 @@ const DailyEntry = () => {
                     </Button>
                 ]}
             >
-                <Form layout="vertical" >
+                <Form name="DriverForm" layout="vertical" form={driverForm}>
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
