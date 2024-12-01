@@ -35,7 +35,6 @@ todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[
 console.log(todayDate);
 
 const DailyEntry = () => {
-
     const [form] = Form.useForm();
     const [form1] = Form.useForm();
     const [form2] = Form.useForm();
@@ -296,7 +295,6 @@ const DailyEntry = () => {
             console.log(data);
         })
     }, [])
-
 
     const applyDateSort = (ds) => {
         ds.sort(function (a, b) {
@@ -1088,7 +1086,7 @@ const DailyEntry = () => {
 
             {!toggle &&
                 <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
-                    <Table size="small" dataSource={dataSource} columns={columns} expandable={{
+                    <Table size="small"  scroll={{ y: 400 }}  dataSource={dataSource} columns={columns} expandable={{
                         expandedRowRender: (record) =>
                             <ViewDailyEntry
                                 data={record}
