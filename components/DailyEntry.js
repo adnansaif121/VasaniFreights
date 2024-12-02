@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload } from 'antd';
+import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message } from 'antd';
 import { InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import firebase from '../config/firebase'
@@ -142,7 +142,16 @@ const DailyEntry = () => {
 
     // MODAL VARIABLES:
     const [partyModal, setPartyModal] = useState({});
-    const [driverModal, setDriverModal] = useState({});
+    // const [driverModal, setDriverModal] = useState({});
+
+    const [driverModal, setDriverModal] = useState({
+        label: '',
+        value: '',
+        location: '',
+        LicenseDate: '',
+        contact: '',
+        licenseDocument: null, // Add this new field
+    });
 
     useEffect(() => {
         const db = getDatabase();
@@ -938,7 +947,7 @@ const DailyEntry = () => {
             <Modal title="Create Driver" open={isDriverModalOpen} onOk={handleDriverOk} onCancel={handleDriverCancel}
                 footer={[
                     <Button key="back" onClick={handleDriverCancel}>
-                        Return
+                        Cancel
                     </Button>,
                     <Button key="submit" type="primary" onClick={handleDriverOk}>
                         Submit
@@ -1064,8 +1073,62 @@ const DailyEntry = () => {
                         </Col>
                     </Row>
 
+                    {/* // Add this inside your Driver Modal Form, you can place it after the Contact Number Form.Item */}
+                    <Row gutter={16}>
+                        <Col span={24}>
+                            <Form.Item
+                                label="Driver's License Document"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please upload driver license document',
+                                    },
+                                ]}
+                            >
+                                <Upload.Dragger
+                                    name="licenseDocument"
+                                    accept="image/*,.pdf"
+                                    multiple={false}
+                                    beforeUpload={(file) => {
+                                        // Check file size (example: max 5MB)
+                                        const isLt5M = file.size / 1024 / 1024 < 5;
+                                        if (!isLt5M) {
+                                            message.error('Image must be smaller than 5MB!');
+                                            return Upload.LIST_IGNORE;
+                                        }
+
+                                        // Handle the file
+                                        const reader = new FileReader();
+                                        reader.readAsDataURL(file);
+                                        reader.onload = () => {
+                                            let obj = driverModal;
+                                            obj.licenseDocument = reader.result; // stores base64 string
+                                            setDriverModal(obj);
+                                        };
+
+                                        // Prevent default upload
+                                        return false;
+                                    }}
+                                    onRemove={() => {
+                                        let obj = driverModal;
+                                        obj.licenseDocument = null;
+                                        setDriverModal(obj);
+                                    }}
+                                >
+                                    <p className="ant-upload-drag-icon">
+                                        <InboxOutlined />
+                                    </p>
+                                    <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                                    <p className="ant-upload-hint">
+                                        Support for a single image upload. Please upload driver's license document.
+                                    </p>
+                                </Upload.Dragger>
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 </Form>
             </Modal>
+
             <div>
                 {!toggle ?
                     <Button style={{ border: '2px solid black', marginLeft: '40px' }} onClick={() => setToggle(!toggle)}>
@@ -1086,7 +1149,7 @@ const DailyEntry = () => {
 
             {!toggle &&
                 <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
-                    <Table size="small"  scroll={{ y: 400 }}  dataSource={dataSource} columns={columns} expandable={{
+                    <Table style={{zIndex: '100'}} size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} expandable={{
                         expandedRowRender: (record) =>
                             <ViewDailyEntry
                                 data={record}
@@ -1107,11 +1170,11 @@ const DailyEntry = () => {
 
             {toggle &&
                 <div className={styles.addNewDetails}>
-                    <div style={{width: '90%', marginTop: '10px'}}>
+                    <div style={{ width: '90%', marginTop: '10px' }}>
 
-                  
+
                         {/* <Collapse items={items} defaultActiveKey={['1']} /> */}
-                        <Card title="Trip Details" style={{marginBottom: '10px'}}>
+                        <Card title="Trip Details" style={{ marginBottom: '10px' }}>
                             <div>
                                 <Form
                                     name="Trip Details"
@@ -1614,13 +1677,13 @@ const DailyEntry = () => {
 
                                         </Flex>
                                     </Flex>
-                                   
+
 
                                 </Form>
                             </div>
                         </Card>
 
-                        <Card title="Driver | Diesel | Km | Milometer | Avg Details" style={{marginBottom: '10px'}}>
+                        <Card title="Driver | Diesel | Km | Milometer | Avg Details" style={{ marginBottom: '10px' }}>
                             <div>
                                 <Form name="Driver | Diesel | Km | Milometer | Avg Details"
                                     style={{
@@ -2021,12 +2084,12 @@ const DailyEntry = () => {
                                             </Form.Item>
                                         </Flex>
                                     </Flex>
-                                    
+
                                 </Form>
                             </div>
                         </Card>
 
-                        <Card title="Kaata Parchi Details" style={{marginBottom: '10px'}}>
+                        <Card title="Kaata Parchi Details" style={{ marginBottom: '10px' }}>
                             <div>
                                 <Form name='Kaata Parchi Details'
                                     style={{
@@ -2112,12 +2175,12 @@ const DailyEntry = () => {
                                             )}
                                         </Form.List>
                                     </Flex>
-                                   
+
                                 </Form>
                             </div>
                         </Card>
 
-                        <Card title="First Payment Details" style={{marginBottom: '10px'}}>
+                        <Card title="First Payment Details" style={{ marginBottom: '10px' }}>
                             <div>
                                 <h3>Trip se kya mila</h3>
                                 <Form name='Trip se kya mila'
@@ -2421,12 +2484,12 @@ const DailyEntry = () => {
                                             )}
                                         </Form.List>
                                     </Flex>
-                                    
+
                                 </Form>
                             </div>
                         </Card>
 
-                        <Button type="primary" onClick={handleSave} style={{width: '95vw'}} >Save</Button>
+                        <Button type="primary" onClick={handleSave} style={{ width: '95vw' }} >Save</Button>
                     </div>
                 </div>
             }
