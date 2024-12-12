@@ -330,7 +330,7 @@ const vehicleData =
         value: "MH 18 BZ 4911",
         label: "MH 18 BZ 4911"
     }
-]
+    ]
 
 const Party = () => {
     const [partyList, setPartyList] = useState([]);
@@ -357,6 +357,7 @@ const Party = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
         const db = getDatabase();
@@ -373,22 +374,25 @@ const Party = () => {
             console.log(data, 'parties');
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
-            Object.values(data).map((party, i) => {
-                // if (openTransactionFreq[party.label] !== undefined)
-                //     parties.push(
-                //         {
-                //             ...party,
-                //             // openTransactions: openTransactionFreq[party.label],
-                //             icon: <Badge count={openTransactionFreq[party.label]}>
-                //                 <BellOutlined />
-                //             </Badge>
-                //         }
-                //     );
-                // else
+            if (data !== null) {
+                Object.values(data).map((party, i) => {
+                    // if (openTransactionFreq[party.label] !== undefined)
+                    //     parties.push(
+                    //         {
+                    //             ...party,
+                    //             // openTransactions: openTransactionFreq[party.label],
+                    //             icon: <Badge count={openTransactionFreq[party.label]}>
+                    //                 <BellOutlined />
+                    //             </Badge>
+                    //         }
+                    //     );
+                    // else
                     parties.push(party);
                     partyNameList.push(party.label);
-            })
-            setPartyIds(Object.keys(data));
+                })
+                setPartyIds(Object.keys(data));
+            }
+
             // setPartyListAll([...parties]);
             setPartyList([...parties]);
             setDisplayPartyList([...parties]);
@@ -401,9 +405,9 @@ const Party = () => {
             if (data) {
                 setAllTableData(data);
                 Object.keys(data).map((key, i) => {
-                    for(let j = 0; j < data[key].tripDetails.length; j++){
+                    for (let j = 0; j < data[key].tripDetails.length; j++) {
 
-                        let receivedAmt = (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "nn")) ? 
+                        let receivedAmt = (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "nn")) ?
                             (
                                 parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
                                 parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
@@ -414,10 +418,10 @@ const Party = () => {
                             )
                             : 0;
 
-                        if((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "nn"))){
+                        if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "nn"))) {
                             ds.push(
                                 {
-                                    key: key+j,
+                                    key: key + j,
                                     id: i + 1,
                                     date: data[key].date,
                                     vehicleNo: data[key].vehicleNo,
@@ -442,7 +446,8 @@ const Party = () => {
                                     bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
                                     vehicleStatus: data[key].vehicleStatus,
                                     furtherPayments: data[key].furtherPayments || {},
-                                    remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance)
+                                    remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance),
+                                    extraAmtRemark: data[key].tripDetails[j].extraAmtRemark
                                 }
                             )
                         }
@@ -458,7 +463,7 @@ const Party = () => {
         }).catch((error) => {
             console.log(error);
         })
-        
+
 
         // Find the number of transactions open and frequeny for each party
         // let openTransactionFreq = {};
@@ -475,7 +480,7 @@ const Party = () => {
         // console.log(openTransactionFreq);
         // create dummy party List
 
-    }, []);
+    }, [refreshKey]);
 
     // useEffect(()=>{
     //     console.log(displayPartyList, selectedPartyIndex);
@@ -491,7 +496,7 @@ const Party = () => {
         setSearchText(selectedKeys[0]);
         setSearchedColumn(dataIndex);
     };
-    
+
     const handleReset = (clearFilters) => {
         clearFilters();
         setSearchText('');
@@ -695,6 +700,11 @@ const Party = () => {
             title: 'Remaining Balance',
             dataIndex: 'remainingBalance',
             key: 'remainingBalance',
+        },
+        {
+            title: 'Remark',
+            dataIndex: 'extraAmtRemark',
+            key: 'extraAmtRemark',
         }
     ];
 
@@ -887,6 +897,7 @@ const Party = () => {
 
     const handleDisplayTableChange = (list) => {
         setDisplayDataSource([...list]);
+        setRefreshKey(prevKey => prevKey + 1); // Force table refresh
     }
     return (
         <>
@@ -912,7 +923,7 @@ const Party = () => {
                         </div>
 
                         <Menu
-                            onClick={(e)=>onClick(e.key.slice(4))}
+                            onClick={(e) => onClick(e.key.slice(4))}
                             style={{
                                 width: "100%",
                                 backgroundColor: 'white'
@@ -953,7 +964,7 @@ const Party = () => {
                                     </Row> : null
                                 }
                             </Col>
-                            
+
                         </Row>
 
                         <Drawer
@@ -1080,8 +1091,11 @@ const Party = () => {
 
 
                     </div>
-                    <Table size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
-                        expandedRowRender: (record, index) => <ViewPartyDetails indexAtAllData={index} allDataAtDisplay={displayDataSource} setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag}/>
+                    <Table  key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
+                        expandedRowRender: (record, index) => <ViewPartyDetails
+                            indexAtAllData={index}
+                            allDataAtDisplay={displayDataSource} 
+                            setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag} />
                         ,
                         rowExpandable: (record) => true,
                     }}

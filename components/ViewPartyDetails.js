@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
+import '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Divider } from 'antd';
 import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
@@ -24,7 +25,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
         console.log('data', data);
         console.log(indexAtAllData, allDataAtDisplay);
         let index = parseInt(data.key[data.key.length - 1]);
-        if (data.tripDetails[index].furtherPayments !== undefined && data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
+        if (data.tripDetails[index].furtherPayments !== undefined && data.tripDetails[index].furtherPayments !== null && data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
             let furtherPayments = data.tripDetails[index].furtherPayments;
             form4.setFieldsValue(furtherPayments);
         }
@@ -36,7 +37,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
             setFirstPaymentTotal(total);
         }
 
-        if (data.tripDetails[index].furtherPayments !== undefined && data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
+        if (data.tripDetails[index].furtherPayments !== undefined && data.tripDetails[index].furtherPayments !== null && data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
             updateTotal();
         }
 
@@ -55,43 +56,44 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
         let index = parseInt(data.key[data.key.length - 1]);
         console.log(data.key, index);
         let data_key = data.key.slice(0, -1);
-
+        console.log(form4.getFieldsValue(['FurtherPayments']));
         let obj_to_save = data.tripDetails[index];
-        obj_to_save.furtherPayments = form4.getFieldsValue(['FurtherPayments']);
+        obj_to_save.furtherPayments = form4.getFieldsValue(['FurtherPayments']).FurtherPayments === undefined ? null : form4.getFieldsValue(['FurtherPayments']) || null;
         obj_to_save.firstPaymentTotal = firstPaymentTotal;
         obj_to_save.furtherPaymentTotal = furtherPaymentTotal;
         obj_to_save.extraAmount = extraAmount;
         obj_to_save.extraAmtRemark = extraAmtRemark;
         obj_to_save.transactionStatus = (transactionStatus !== null ? transactionStatus : 'open');
-        obj_to_save.remainingBalance = data.tripDetails[index].totalFreight - firstPaymentTotal - (furtherPaymentTotal||0) - extraAmount;
+        obj_to_save.remainingBalance = data.tripDetails[index].totalFreight - firstPaymentTotal - (furtherPaymentTotal || 0) - extraAmount;
         // let dataToSave = data;
         // data.furtherPayments = form4.getFieldsValue(['FurtherPayments'])
+        console.log(obj_to_save);
         set(ref(db, 'dailyEntry/' + data_key + '/tripDetails/' + index + '/'), {
             ...obj_to_save
         }).then(() => {
             console.log('Data saved');
             alert('Data Saved Successfully');
             let dataList = allDataAtDisplay;
-            dataList[indexAtAllData].tripDetails[index] = {...obj_to_save };
+            dataList[indexAtAllData].tripDetails[index] = { ...obj_to_save };
             console.log(dataList);
             // setDisplayDataSource([...dataList]);
             handleDisplayTableChange(dataList)
-            let num =Math.floor(Math.random()*100 + 1) ;
+            let num = Math.floor(Math.random() * 100 + 1);
             // setDataUpdateFlag(num);
         }).catch((error) => {
-            console.error('Error:', error);
+            console.error('Error:', error, obj_to_save);
         });
     }
 
     const addNewBank = (e) => {
         e.preventDefault();
-        if(newBank.trim() === ''){
+        if (newBank.trim() === '') {
             alert('Please enter bank name to add bank in the list. Field is empty');
             return;
         }
         let key = bankData.length;
         // setBankData([...bankData, { value: newBank, label: newBank, key: key }]);
-       
+
         bankData = [...bankData, { value: newBank, label: newBank, key: key }];
         const db = getDatabase();
         const bankRef = ref(db, 'bankData/data/' + key);
@@ -113,6 +115,20 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
         setFurtherPaymentTotal(total);
         // console.log(f_payment);
     }
+
+    const radioStyle = {
+        '.ant-radio-button-wrapper-checked[value="open"]': {
+          backgroundColor: '#52c41a !important',
+          borderColor: '#52c41a !important',
+          color: 'white !important'
+        },
+        '.ant-radio-button-wrapper-checked[value="close"]': {
+          backgroundColor: '#ff4d4f !important',
+          borderColor: '#ff4d4f !important',
+          color: 'white !important'
+        }
+      };
+      
     return (
         <>
             <div>
@@ -403,10 +419,10 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                                         className="dynamic-delete-button"
                                                         onClick={() => {
                                                             let confirmDelete = confirm("Are you sure to delete this Payment Entry?");
-                                                            if (confirmDelete){
+                                                            if (confirmDelete) {
                                                                 let furtherPayments = form4.getFieldsValue(['FurtherPayments']);
                                                                 let amt = furtherPayments.FurtherPayments[name].amount
-                                                                setFurtherPaymentTotal(furtherPaymentTotal-amt);
+                                                                setFurtherPaymentTotal(furtherPaymentTotal - amt);
                                                                 remove(name)
                                                             }
 
@@ -441,19 +457,19 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
 
                 <Card title='Remaining Balance' style={{ margin: '20px' }}>
 
-                    <table style={{border: '1px solid black', padding:'10px'}}>
+                    <table style={{ border: '1px solid black', padding: '10px' }}>
                         <tbody>
                             <tr>
-                                <th style={{border: '1px solid black'}}>Total Freight</th>
-                                <th style={{border: '1px solid black'}}>First Payment Total</th>
-                                <th style={{border: '1px solid black'}}>Further Payment Total</th>
-                                <th style={{border: '1px solid black'}}>Extra Amount</th>
-                                <th style={{border: '1px solid black'}}>Remark</th>
+                                <th style={{ border: '1px solid black' }}>Total Freight</th>
+                                <th style={{ border: '1px solid black' }}>First Payment Total</th>
+                                <th style={{ border: '1px solid black' }}>Further Payment Total</th>
+                                <th style={{ border: '1px solid black' }}>Extra Amount</th>
+
                             </tr>
 
                             <tr>
                                 <td>
-                                    <span>{data.tripDetails !== undefined ? data.tripDetails[parseInt(data.key[data.key.length - 1])].totalFreight: 0}</span>
+                                    <span>{data.tripDetails !== undefined ? data.tripDetails[parseInt(data.key[data.key.length - 1])].totalFreight : 0}</span>
                                 </td>
                                 <td>
                                     <span>{firstPaymentTotal || 0}</span>
@@ -464,9 +480,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                 <td>
                                     <Input type='number' value={extraAmount} onChange={(e) => setExtraAmount(e.target.value)}></Input>
                                 </td>
-                                <td>
-                                    <Input placeholder='remark' value={extraAmtRemark} onChange={(e) => setExtraAmtRemark(e.target.value)}></Input>
-                                </td>
+
                             </tr>
                         </tbody>
                     </table>
@@ -507,10 +521,23 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                 </Card>
 
                 <Card title="Transaction Status" style={{ margin: '20px' }}>
-                    <Radio.Group value={transactionStatus} defaultValue="open" buttonStyle="solid" onChange={(e) => setTransactionStatus(e.target.value)}>
-                        <Radio.Button value="open">Open</Radio.Button>
-                        <Radio.Button value="close">Close</Radio.Button>
-                    </Radio.Group>
+                    <Row>
+                        <Col span={5}>
+                            <Radio.Group className="transaction-radio-group" value={transactionStatus} defaultValue="open" buttonStyle="solid" onChange={(e) => setTransactionStatus(e.target.value)}  style={radioStyle}>
+                                <Radio.Button value="open">Open</Radio.Button>
+                                <Radio.Button value="close">Close</Radio.Button>
+                            </Radio.Group>
+                        </Col>
+
+                        <Col span={5}>
+                            <Form layout="inline">
+                                <Form.Item label="Remark">
+                                    <Input placeholder='remark' value={extraAmtRemark} onChange={(e) => setExtraAmtRemark(e.target.value)}></Input>
+                                </Form.Item>
+                            </Form>
+                        </Col>
+                    </Row>
+
                 </Card>
 
                 <Button style={{ marginTop: '5px' }} type='primary' onClick={handleSave}>Save</Button>

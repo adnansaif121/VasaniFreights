@@ -70,6 +70,7 @@ export default function Dashboard() {
         console.log(key);
       };
     return (
-        <Tabs centered defaultActiveKey="1" items={items} onChange={onChange} />
+        <Tabs centered defaultActiveKey="1" items={items} onChange={onChange} style={{    zIndex: "1200",
+            backgroundColor: "white"}} />
     )
 }

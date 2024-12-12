@@ -30,3 +30,15 @@
     padding: 5px;
 }
 
+.transaction-radio-group .ant-radio-button-wrapper-checked[value="open"] {
+  background-color: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+  color: white !important;
+}
+
+.transaction-radio-group .ant-radio-button-wrapper-checked[value="close"] {
+  background-color: #52c41a !important;
+  border-color: #52c41a !important;
+  color: white !important;
+}
+

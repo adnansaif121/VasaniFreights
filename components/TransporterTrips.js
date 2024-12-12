@@ -29,10 +29,12 @@ const TransporterTrips = () => {
             console.log(data, 'transporters');
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
-            Object.values(data).map((party, i)=> {
-                parties.push(party);
-                partyNameList.push(party.label);
-            })
+            if(data !== null){
+                Object.values(data).map((party, i)=> {
+                    parties.push(party);
+                    partyNameList.push(party.label);
+                })
+            }
             // setPartyIds(Object.keys(data));
             // setPartyListAll([...parties]);
             setPartyList([...parties]); 

@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message } from 'antd';
-import { InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
+import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import firebase from '../config/firebase'
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import ViewDailyEntry from './ViewDailyEntry';
 import { vehicleData } from './data';
+import CreatePartyForm from './common/CreatePartyForm';
+import Highlighter from 'react-highlight-words';
 // const ViewDailyEntry = dynamic(() => import('../components/ViewDailyEntry'), {ssr: false});
 // import { render } from 'react-dom';
 const { Dragger } = Upload;
@@ -40,6 +42,7 @@ const DailyEntry = () => {
     const [form2] = Form.useForm();
     const [form3] = Form.useForm();
     const [driverForm] = Form.useForm();
+    const [createPartyForm] = Form.useForm();
     const [toggle, setToggle] = React.useState(false);
     const [vehicleNo, setVehicleNo] = useState('');
     const [date, setDate] = useState(todayDate);
@@ -70,6 +73,9 @@ const DailyEntry = () => {
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
     // Locations list
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef(null);
     const [Locations, setLocations] = useState([
         {
             value: 'mumbai',
@@ -208,7 +214,7 @@ const DailyEntry = () => {
                                 firstPayment: data[key].firstPayment,
                                 vehicleStatus: data[key].vehicleStatus,
                                 bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
-
+                                driver: data[key].driver1.value || null,
                                 driver1: data[key].driver1 || null,
                                 driver2: data[key].driver2 || null,
                                 conductor: data[key].conductor || null,
@@ -217,6 +223,7 @@ const DailyEntry = () => {
                     }
                 });
             }
+            console.log(ds);
             applyDateSort(ds);
             // setDataSource(ds);
             // setCompleteDataSource(ds);
@@ -242,9 +249,11 @@ const DailyEntry = () => {
             console.log(data, 'parties');
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
-            Object.values(data).map((party, i) => {
-                parties.push(party);
-            })
+            if (data !== null) {
+                Object.values(data).map((party, i) => {
+                    parties.push(party);
+                })
+            }
             setPartyListAll([...parties]);
         });
 
@@ -280,12 +289,14 @@ const DailyEntry = () => {
         onValue(bankRef, (snapshot) => {
             const data = snapshot.val();
             let _bankData = [];
-            for (let i = 0; i < data.data.length; i++) {
-                _bankData.push({
-                    label: data.data[i].bankName,
-                    value: data.data[i].bankName,
-                    key: data.data[i].key
-                })
+            if (data !== null) {
+                for (let i = 0; i < data.data.length; i++) {
+                    _bankData.push({
+                        label: data.data[i].bankName,
+                        value: data.data[i].bankName,
+                        key: data.data[i].key
+                    })
+                }
             }
             setBankData([..._bankData]);
             // console.log(data, 'Bankdata');
@@ -316,6 +327,15 @@ const DailyEntry = () => {
         setCompleteDataSource(ds);
     }
 
+    const resetDriverList = () => {
+        let _driverList = driverList;
+        // Enable all selected Option:
+        for (let i = 0; i < _driverList.length; i++) {
+            _driverList[i].disabled = false;
+        }
+
+        setDriverList([..._driverList]);
+    }
     const handleSave = () => {
         let tripDetails = form.getFieldsValue(['tripDetails']);
         console.log(tripDetails);
@@ -475,6 +495,7 @@ const DailyEntry = () => {
             setDriver1Value(null);
             setDriver2Value(null);
             setConductorValue(null);
+            resetDriverList();
             // console.log({
             //     date: date,
             //     vehicleNo: vehicleNo || '',
@@ -504,6 +525,112 @@ const DailyEntry = () => {
         setMT(e.target.checked);
     }
 
+    const handle_Search = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+
+    const handleReset = (clearFilters) => {
+        clearFilters();
+        setSearchText('');
+    };
+
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            <div
+                style={{
+                    padding: 8,
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            >
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                    style={{
+                        marginBottom: 8,
+                        display: 'block',
+                    }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Search
+                    </Button>
+                    <Button
+                        onClick={() => clearFilters && handleReset(clearFilters)}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            confirm({
+                                closeDropdown: false,
+                            });
+                            setSearchText(selectedKeys[0]);
+                            setSearchedColumn(dataIndex);
+                        }}
+                    >
+                        Filter
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            close();
+                        }}
+                    >
+                        close
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <SearchOutlined
+                style={{
+                    color: filtered ? '#1677ff' : undefined,
+                }}
+            />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownOpenChange: (visible) => {
+            if (visible) {
+                setTimeout(() => searchInput.current?.select(), 100);
+            }
+        },
+        render: (text) =>
+            searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{
+                        backgroundColor: '#ffc069',
+                        padding: 0,
+                    }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
+
     const columns = [
         {
             title: 'Sr no.',
@@ -515,6 +642,7 @@ const DailyEntry = () => {
             title: 'Date',
             dataIndex: 'date',
             key: 'date',
+            ...getColumnSearchProps('date'),
             render: (text) => {
                 let date = new Date(text);
 
@@ -527,6 +655,7 @@ const DailyEntry = () => {
             title: 'Truck No.',
             dataIndex: 'vehicleNo',
             key: 'vehicleNo',
+            ...getColumnSearchProps('vehicleNo'),
         },
         {
             title: 'From',
@@ -557,6 +686,12 @@ const DailyEntry = () => {
             title: 'Transporter',
             dataIndex: 'transporter',
             key: 'transporter',
+        },
+        {
+            title: 'Driver',
+            dataIndex: 'driver',
+            key: 'driver',
+            ...getColumnSearchProps('driver'),
         },
         {
             title: 'Maal',
@@ -740,6 +875,7 @@ const DailyEntry = () => {
     };
 
     const handleOk = () => {
+        createPartyForm.resetFields();
         addNewParty();
         setIsModalOpen(false);
     };
@@ -752,6 +888,7 @@ const DailyEntry = () => {
     }
 
     const handleCancel = () => {
+        createPartyForm.resetFields();
         setIsModalOpen(false);
     };
 
@@ -813,136 +950,14 @@ const DailyEntry = () => {
 
     return (
         <>
-            <Modal title="Create Party" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}
-                footer={[
-                    <Button key="back" onClick={handleCancel}>
-                        Return
-                    </Button>,
-                    <Button key="submit" type="primary" onClick={handleOk}>
-                        Submit
-                    </Button>
-                ]}
-            >
-                <Form layout="vertical" >
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                // name="name"
-                                label="Name"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter user name',
-                                    },
-                                ]}
-                            >
-                                <Input onChange={(e) => {
-                                    let obj = partyModal;
-                                    obj.label = e.target.value;
-                                    obj.value = e.target.value;
-                                    setPartyModal(obj);
-                                }} placeholder="Please enter user name" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                // name="Party Location"
-                                label="Party Location"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter url',
-                                    },
-                                ]}
-                            >
-                                <Input
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    placeholder="Party Location"
-                                    onChange={(e) => {
-                                        let obj = partyModal;
-                                        obj.location = e.target.value;
-                                        setPartyModal(obj);
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                // name="Address"
-                                label="Address"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please select an owner',
-                                    },
-                                ]}
-                            >
-                                <Input
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    placeholder="Party Address"
-                                    onChange={(e) => {
-                                        let obj = partyModal;
-                                        obj.address = e.target.value;
-                                        setPartyModal(obj);
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                // name="ContactNumber"
-                                label="Contact Number"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Provide Contact Number',
-                                    },
-                                ]}
-                            >
-                                <Input
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    placeholder="Contact Number"
-                                    onChange={(e) => {
-                                        let obj = partyModal;
-                                        obj.contact = e.target.value;
-                                        setPartyModal(obj);
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <Form.Item
-                                // name="description"
-                                label="Description"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'please enter url description',
-                                    },
-                                ]}
-                            >
-                                <Input.TextArea rows={4} placeholder="please enter url description" onChange={(e) => {
-                                    let obj = partyModal;
-                                    obj.description = e.target.value;
-                                    setPartyModal(obj);
-                                }} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                </Form>
-            </Modal>
+            <CreatePartyForm
+                isModalOpen={isModalOpen}
+                handleOk={handleOk}
+                handleCancel={handleCancel}
+                createPartyForm={createPartyForm}
+                partyModal={partyModal}
+                setPartyModal={setPartyModal}
+            />
 
             <Modal title="Create Driver" open={isDriverModalOpen} onOk={handleDriverOk} onCancel={handleDriverCancel}
                 footer={[
@@ -1001,7 +1016,7 @@ const DailyEntry = () => {
                         </Col>
                     </Row>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col span={8}>
                             <Form.Item
                                 // name="Address"
                                 label="License Date"
@@ -1026,7 +1041,35 @@ const DailyEntry = () => {
                                 />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+
+                        <Col span={8}>
+                            <Form.Item 
+                                label="License type"
+                                name="License type"
+                            >
+                                <Select
+                                    placeholder="License type"
+                                    optionFilterProp="children"
+                                    onChange={(value) => {
+                                        let obj = driverModal;
+                                        obj.LicenseType = value;
+                                        setDriverModal(obj);
+                                    }}
+                                    options={[
+                                        {
+                                            value: 'Heavy Vehicle',
+                                            label: 'Heavy Vehicle',
+                                        },
+                                        {
+                                            value: 'Light Vehicle',
+                                            label: 'Light Vehicle',
+                                        }
+                                    ]}
+                                />
+                            </Form.Item>
+
+                        </Col>
+                        <Col span={8}>
                             <Form.Item
                                 // name="ContactNumber"
                                 label="Contact Number"
@@ -1149,7 +1192,7 @@ const DailyEntry = () => {
 
             {!toggle &&
                 <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
-                    <Table style={{zIndex: '100'}} size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} expandable={{
+                    <Table style={{ zIndex: '100' }} size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} expandable={{
                         expandedRowRender: (record) =>
                             <ViewDailyEntry
                                 data={record}

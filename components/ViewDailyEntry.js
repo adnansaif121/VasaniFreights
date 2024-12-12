@@ -59,7 +59,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
     // const [MaalList, setMaalList] = useState([]);
 
     useEffect(()=>{
-        console.log(data, Locations, transporterList, partyListAll, driverList)
+        // console.log(data, Locations, transporterList, partyListAll, driverList)
 
 
         // setFieldsValue of tripDetails:
@@ -127,7 +127,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
         setVehicleNo(data.vehicleNo);  
         setDate(data.date)
 
-    }, [])
+    }, [ ])
     
     const onMTCheck = (e) => {
         setMT(e.target.checked);

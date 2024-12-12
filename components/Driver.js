@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Upload } from 'antd';
-import { InboxOutlined ,UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
+import { InboxOutlined, UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
 import ViewDriverDetails from './ViewDriverDetails';
@@ -34,20 +34,20 @@ const Driver = () => {
         multiple: true,
         action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
         onChange(info) {
-          const { status } = info.file;
-          if (status !== 'uploading') {
-            console.log(info.file, info.fileList);
-          }
-          if (status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully.`);
-          } else if (status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
-          }
+            const { status } = info.file;
+            if (status !== 'uploading') {
+                console.log(info.file, info.fileList);
+            }
+            if (status === 'done') {
+                message.success(`${info.file.name} file uploaded successfully.`);
+            } else if (status === 'error') {
+                message.error(`${info.file.name} file upload failed.`);
+            }
         },
         onDrop(e) {
-          console.log('Dropped files', e.dataTransfer.files);
+            console.log('Dropped files', e.dataTransfer.files);
         },
-      };
+    };
     useEffect(() => {
         const db = getDatabase();
         // Get data from database
@@ -99,7 +99,7 @@ const Driver = () => {
             setDisplayDataSource(ds);
             setDataSource(ds);
         });
-        
+
         // create dummy party List
 
         const driverRef = ref(db, 'drivers/');
@@ -108,11 +108,13 @@ const Driver = () => {
             console.log(data, 'drivers');
             // updateStarCount(postElement, data);
             let drivers = []; // Data Source
-            Object.values(data).map((driver, i) => {
-                
+            if (data !== null) {
+                Object.values(data).map((driver, i) => {
+
                     drivers.push(driver);
-                
-            })
+
+                })
+            }
             setPartyIds(Object.keys(data));
             // setPartyListAll([...parties]);
             setPartyList([...drivers]);
@@ -149,7 +151,7 @@ const Driver = () => {
         console.log(dataSource);
         for (let i = 0; i < dataSource.length; i++) {
             // console.log(dataSource[i].driversDetails[0].?.toLowerCase(), party.toLowerCase());
-            if(dataSource[i].driversDetails !== undefined){
+            if (dataSource[i].driversDetails !== undefined) {
                 for (let j = 0; j < dataSource[i].driversDetails.length; j++) {
                     if (dataSource[i].driversDetails[j].driverName?.toLowerCase() === driver.toLowerCase()) {
                         ds.push(dataSource[i]);
@@ -204,7 +206,7 @@ const Driver = () => {
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
-            render: (text, record, index) => {  return index + 1; }
+            render: (text, record, index) => { return index + 1; }
         },
 
         {
@@ -427,7 +429,7 @@ const Driver = () => {
             <div className={styles.container}>
                 <div className={styles.part1}>
                     <Input onChange={handleSearch} placeholder='Search' />
-                    <div className={styles.menu} style={{ display: 'flex',  height: '80vh', overflowY: "auto", backgroundColor: 'white'  }}>
+                    <div className={styles.menu} style={{ display: 'flex', height: '80vh', overflowY: "auto", backgroundColor: 'white' }}>
 
                         <div style={{ backgroundColor: 'white', marginLeft: '2px', borderRadius: '5px', padding: '0px 5px 0px 5px' }}>
                             {displayPartyList.map((item, index) => {

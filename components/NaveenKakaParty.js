@@ -127,21 +127,23 @@ const NaveenKakaParty = () => {
             console.log(data, 'parties');
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
-            Object.values(data).map((party, i) => {
-                if (openTransactionFreq[party.label] !== undefined)
-                    parties.push(
-                        {
-                            ...party,
-                            // openTransactions: openTransactionFreq[party.label],
-                            icon: <Badge count={openTransactionFreq[party.label]}>
-                                <BellOutlined />
-                            </Badge>
-                        }
-                    );
-                else
-                    parties.push(party);
-            })
-            setPartyIds(Object.keys(data));
+            if(data !== null){
+                Object.values(data).map((party, i) => {
+                    if (openTransactionFreq[party.label] !== undefined)
+                        parties.push(
+                            {
+                                ...party,
+                                // openTransactions: openTransactionFreq[party.label],
+                                icon: <Badge count={openTransactionFreq[party.label]}>
+                                    <BellOutlined />
+                                </Badge>
+                            }
+                        );
+                    else
+                        parties.push(party);
+                })
+                setPartyIds(Object.keys(data));
+            }  
             // setPartyListAll([...parties]);
             setPartyList([...parties]);
             setDisplayPartyList([...parties]);
