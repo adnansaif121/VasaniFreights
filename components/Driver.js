@@ -27,6 +27,7 @@ const Driver = () => {
     const [partySelectedForEdit, setPartySelectedForEdit] = useState(-1);
     const [modelPartySelected, setModelPartySelected] = useState(null);
     const [licenseDate, setLicenseDate] = useState(null);
+    const [licenseType, setLicenseType] = useState(null);
 
     const { Dragger } = Upload;
     const props = {
@@ -88,6 +89,7 @@ const Driver = () => {
                             bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
                             vehicleStatus: data[key].vehicleStatus,
                             furtherPayments: data[key].furtherPayments || {},
+                            driver: data[key].driver1.value || null,
                         }
                     )
                 });
@@ -119,6 +121,7 @@ const Driver = () => {
             // setPartyListAll([...parties]);
             setPartyList([...drivers]);
             setDisplayPartyList([...drivers]);
+            console.log("Display Party list", [...drivers])
         });
 
     }, []);
@@ -134,13 +137,14 @@ const Driver = () => {
     }
 
     const onClick = (e) => {
-        console.log('click ', e);
-        let partyIndex = parseInt(e.key.slice(4));
+        let partyIndex = parseInt(e.key);
+        console.log('click ', e, displayPartyList, partyIndex);
         setPartySelected(displayPartyList[partyIndex]);
         setSelectedPartyIndex(partyIndex);
         setPartyName(displayPartyList[partyIndex].label);
         setPartyLocation(displayPartyList[partyIndex].location);
         setLicenseDate(displayPartyList[partyIndex].LicenseDate);
+        setLicenseType(displayPartyList[partyIndex].LicenseType || null);
         setPartyContact(displayPartyList[partyIndex].Contact);
         setPartyDescription(displayPartyList[partyIndex].description);
         console.log(displayPartyList[partyIndex]);
@@ -151,12 +155,12 @@ const Driver = () => {
         console.log(dataSource);
         for (let i = 0; i < dataSource.length; i++) {
             // console.log(dataSource[i].driversDetails[0].?.toLowerCase(), party.toLowerCase());
-            if (dataSource[i].driversDetails !== undefined) {
-                for (let j = 0; j < dataSource[i].driversDetails.length; j++) {
-                    if (dataSource[i].driversDetails[j].driverName?.toLowerCase() === driver.toLowerCase()) {
+            if (dataSource[i].driver !== undefined) {
+                // for (let j = 0; j < dataSource[i].driversDetails.length; j++) {
+                    if (dataSource[i].driver.toLowerCase() === driver.toLowerCase()) {
                         ds.push(dataSource[i]);
                     }
-                }
+                // }
             }
         }
         console.log(ds);
@@ -208,7 +212,6 @@ const Driver = () => {
             key: 'id',
             render: (text, record, index) => { return index + 1; }
         },
-
         {
             title: 'Date',
             dataIndex: 'date',
@@ -363,6 +366,7 @@ const Driver = () => {
         setPartyName(displayPartyList[index].label);
         setPartyLocation(displayPartyList[index].location);
         setLicenseDate(displayPartyList[index].LicenseDate);
+        setLicenseType(displayPartyList[index].LicenseType || null);
         setPartyContact(displayPartyList[index].Contact);
         setPartyDescription(displayPartyList[index].description);
         setOpen(true)
@@ -452,7 +456,7 @@ const Driver = () => {
                                 width: "100%",
                             }}
                             mode="inline"
-                            items={displayPartyList}
+                            items={displayPartyList.map(({label}, index) => ({label, key: index}))}
                         />
                     </div>
                 </div>
@@ -568,7 +572,7 @@ const Driver = () => {
                                     </Col>
                                 </Row>
                                 <Row gutter={16}>
-                                    <Col span={12}>
+                                    <Col span={8}>
                                         <Form.Item
                                             // name="Address"
                                             label="License Date"
@@ -590,7 +594,31 @@ const Driver = () => {
                                             />
                                         </Form.Item>
                                     </Col>
-                                    <Col span={12}>
+                                    <Col span={8}>
+                                        <Form.Item
+                                            label="License type"
+                                            name="License type"
+                                        >
+                                            <Select
+                                                placeholder="License type"
+                                                optionFilterProp="children"
+                                                value={licenseType}
+                                                onChange={(e) => setLicenseType(e)}
+                                                options={[
+                                                    {
+                                                        value: 'Heavy Vehicle',
+                                                        label: 'Heavy Vehicle',
+                                                    },
+                                                    {
+                                                        value: 'Light Vehicle',
+                                                        label: 'Light Vehicle',
+                                                    }
+                                                ]}
+                                            />
+                                        </Form.Item>
+
+                                    </Col>
+                                    <Col span={8}>
                                         <Form.Item
                                             // name="ContactNumber"
                                             label="Contact Number"

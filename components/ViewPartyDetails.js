@@ -524,8 +524,8 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                     <Row>
                         <Col span={5}>
                             <Radio.Group className="transaction-radio-group" value={transactionStatus} defaultValue="open" buttonStyle="solid" onChange={(e) => setTransactionStatus(e.target.value)}  style={radioStyle}>
-                                <Radio.Button value="open">Open</Radio.Button>
-                                <Radio.Button value="close">Close</Radio.Button>
+                                <Radio.Button value="open" style={ transactionStatus === 'open' ? {backgroundColor: 'red'} : {backgroundColor: 'white'}}>Open</Radio.Button>
+                                <Radio.Button value="close" style={ transactionStatus === 'close' ? {backgroundColor: 'green'} : {backgroundColor: 'white'}}>Close</Radio.Button>
                             </Radio.Group>
                         </Col>
 

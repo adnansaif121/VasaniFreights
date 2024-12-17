@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";    
-import {Input, Button} from 'antd';
+import { useEffect, useState } from "react";
+import { Input, Button } from 'antd';
 const ViewDriverDetails = () => {
     return (
         <div>
@@ -9,22 +9,25 @@ const ViewDriverDetails = () => {
 
             <h3>Expenses : </h3>
             <table>
-                <tr>
-                    <th>Expense</th>
-                    <th>Amount</th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <td>
-                        <Input placeholder="Expense name"></Input>
-                    </td>
-                    <td>
-                        <Input placeholder="Amount"></Input>
-                    </td>
-                    <td>
-                        <Button>Add Expense</Button>
-                    </td>
-                </tr>
+                <tbody>
+                    <tr>
+                        <th>Expense</th>
+                        <th>Amount</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Input placeholder="Expense name"></Input>
+                        </td>
+                        <td>
+                            <Input placeholder="Amount"></Input>
+                        </td>
+                        <td>
+                            <Button>Add Expense</Button>
+                        </td>
+                    </tr>
+                </tbody>
+
             </table>
         </div>
     )
