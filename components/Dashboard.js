@@ -11,8 +11,15 @@ import NaveenKaka from './NaveenKaka';
 import Driver from './Driver';
 import NavLabel from './common/NavLabel';
 import EmptyPage from './common/EmptyPage';
+import AddDetails from './AddDetails';
+import Pohch from './Pohch';
 
 const items = [
+    {
+        key: '0',
+        label: <NavLabel label={'Add New Entry'}/>,
+        children: <AddDetails />,
+    },
     {
         key: '1',
         label: <NavLabel label={'Daily Entry'}/>,
@@ -31,7 +38,7 @@ const items = [
     {
         key: '4',
         label: <NavLabel label={'Pohch'}/>,
-        children: <EmptyPage text={'Pohch'}/>,
+        children: <Pohch text={'Pohch'}/>,
     },
     {
         key: '5',

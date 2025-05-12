@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
-import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
+import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined,CheckCircleFilled  , WarningFilled } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import firebase from '../config/firebase'
-import { getDatabase, ref, set, onValue, push } from "firebase/database";
+import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
 import ViewDailyEntry from './ViewDailyEntry';
 // import { vehicleData } from './data';
 import CreatePartyForm from './common/CreatePartyForm';
@@ -36,7 +36,7 @@ let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' 
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
 console.log(todayDate);
 
-const DailyEntry = () => {
+const Pohch = () => {
     const [form] = Form.useForm();
     const [form1] = Form.useForm();
     const [form2] = Form.useForm();
@@ -161,6 +161,7 @@ const DailyEntry = () => {
         contact: '',
         licenseDocument: null, // Add this new field
     });
+    const [key, setKey] = useState('');
 
     useEffect(() => {
         const db = getDatabase();
@@ -179,50 +180,34 @@ const DailyEntry = () => {
             if (data) {
                 Object.keys(data).map((key, i) => {
                     for (let j = 0; j < data[key].tripDetails.length; j++) {
-                        let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined) ?
-                            (
-                                parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
-                                parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
-                                parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
-                                // parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
-                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
-                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
+                        if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].pohchAmount !== null && data[key].firstPayment[j].pohchAmount !== '') {
+                            console.log(data[key]);
+                            // let _pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
+                            // updatePohchId(key, _pohchId);
+                            ds.push(
+                                {
+                                    date: data[key].date,
+                                    key: key,
+                                    id: i + 1,
+                                    vehicleNo: data[key].vehicleNo,
+                                    from: data[key].tripDetails[j].from,
+                                    to: data[key].tripDetails[j].to,
+                                    paid: data[key].tripDetails[j].payStatus,
+                                    bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                    paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                    maal: data[key].tripDetails[j].maal,
+                                    qty: data[key].tripDetails[j].qty,
+                                    rate: data[key].tripDetails[j].rate,
+                                    totalFreight: data[key].tripDetails[j].totalFreight,
+                                    pohchRecievedDate: data[key].firstPayment[j].pohchDate,
+                                    pohchAmt: data[key].firstPayment[j].pohchAmount,
+                                    paymentStatus: data[key].tripDetails[j].transactionStatus,
+                                    courierStatus: data[key].tripDetails[j].courierStatus,
+                                    courierSentDate: data[key].tripDetails[j].courierSentDate,
+                                    pohchId: data[key].firstPayment[j].pohchId,
+                                }
                             )
-                            : 0;
-
-                        console.log(receivedAmt);
-
-                        ds.push(
-                            {
-                                date: data[key].date,
-                                key: key + j,
-                                id: i + 1,
-                                vehicleNo: data[key].vehicleNo,
-                                mt: data[key].mt,
-                                from: data[key].tripDetails[j].from,
-                                to: data[key].tripDetails[j].to,
-                                paid: data[key].tripDetails[j].payStatus,
-                                bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
-                                paaneWaliParty: data[key].tripDetails[j].paaneWaala,
-                                transporter: data[key].tripDetails[j].transporter,
-                                maal: data[key].tripDetails[j].maal,
-                                qty: data[key].tripDetails[j].qty,
-                                rate: data[key].tripDetails[j].rate,
-                                totalFreight: data[key].tripDetails[j].totalFreight,
-                                received: receivedAmt,
-                                dieselAndKmDetails: data[key].dieselAndKmDetails,
-                                tripDetails: data[key].tripDetails,
-                                driversDetails: data[key].driversDetails,
-                                kaataParchi: data[key].kaataParchi,
-                                firstPayment: data[key].firstPayment,
-                                vehicleStatus: data[key].vehicleStatus,
-                                bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
-                                driver: data[key].driver1?.value || null,
-                                driver1: data[key].driver1 || null,
-                                driver2: data[key].driver2 || null,
-                                conductor: data[key].conductor || null,
-                            }
-                        )
+                        }
                     }
                 });
             }
@@ -231,103 +216,20 @@ const DailyEntry = () => {
             // setDataSource(ds);
             // setCompleteDataSource(ds);
         });
-
-        const locationsRef = ref(db, 'locations/');
-        onValue(locationsRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'Locations');
-            // updateStarCount(postElement, data);
-            let locations = []; // Data Source
-            if (data) {
-                Object.values(data).map((location, i) => {
-                    locations.push(location);
-                })
-                setLocations([...locations]);
-            }
-        });
-
-        const partyRef = ref(db, 'parties/');
-        onValue(partyRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'parties');
-            // updateStarCount(postElement, data);
-            let parties = []; // Data Source
-            if (data !== null) {
-                Object.values(data).map((party, i) => {
-                    parties.push(party);
-                })
-            }
-            setPartyListAll([...parties]);
-        });
-
-        const transporterRef = ref(db, 'transporters/');
-        onValue(transporterRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'transporters');
-            // updateStarCount(postElement, data);
-            let transporters = []; // Data Source
-            if (data) {
-                Object.values(data).map((transporter, i) => {
-                    transporters.push(transporter);
-                })
-                setTransporterList([...transporters]);
-            }
-        });
-
-        const driversRef = ref(db, 'drivers/');
-        onValue(driversRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'drivers');
-            // updateStarCount(postElement, data);
-            let drivers = []; // Data Source
-            if (data) {
-                Object.values(data).map((driver, i) => {
-                    drivers.push(driver)
-                })
-                setDriverList([...drivers]);
-            }
-        });
-
-        const bankRef = ref(db, 'bankData/');
-        onValue(bankRef, (snapshot) => {
-            const data = snapshot.val();
-            let _bankData = [];
-            if (data !== null) {
-                for (let i = 0; i < data.data.length; i++) {
-                    _bankData.push({
-                        label: data.data[i].bankName,
-                        value: data.data[i].bankName,
-                        key: data.data[i].key
-                    })
-                }
-            }
-            setBankData([..._bankData]);
-            // console.log(data, 'Bankdata');
-        })
-
-        const maalRef = ref(db, 'maal/');
-        onValue(maalRef, (snapshot) => {
-            const data = snapshot.val();
-            const _maal = [];
-            if (data) {
-                Object.values(data).map((maal, i) => {
-                    _maal.push({ label: maal.label, value: maal.value })
-                })
-                setMaalList([..._maal]);
-            }
-            console.log(data);
-        })
-
-        const vehicleDataRef = ref(db, 'Vehicles/');
-        onValue(vehicleDataRef, (snapshot) => {
-            const data = snapshot.val();
-            const _vehicleData = snapshot.val();
-            if (data) {
-                console.log('VEHICLE DATA', data);
-                setVehicleData(data);
-            }
-        })
     }, [])
+
+    const updatePohchId = async (key) => {
+        const pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
+        
+        const db = getDatabase();
+        const starCountRef = ref(db, 'dailyEntry/' + key + '/firstPayment/0/');
+        await update(starCountRef, {
+            pohchId: pohchId
+        }).then(() => {
+            // alert("Pohch Id Updated Successfully!!");
+            return;
+        })
+    }
 
     const applyDateSort = (ds) => {
         ds.sort(function (a, b) {
@@ -338,205 +240,6 @@ const DailyEntry = () => {
 
         setDataSource(ds);
         setCompleteDataSource(ds);
-    }
-
-    const resetDriverList = () => {
-        let _driverList = driverList;
-        // Enable all selected Option:
-        for (let i = 0; i < _driverList.length; i++) {
-            _driverList[i].disabled = false;
-        }
-
-        setDriverList([..._driverList]);
-    }
-    
-    const handleSave = () => {
-        let tripDetails = form.getFieldsValue(['tripDetails']);
-        console.log(tripDetails);
-        if (tripDetails.tripDetails === undefined) {
-            alert("Trips are not added. Please add trips to create entry");
-            return;
-        }
-        let listOfTrips = [];
-        tripDetails?.tripDetails?.forEach((trip, index) => {
-            listOfTrips.push({
-                from: trip.from || '',
-                to: trip.to || '',
-                bhejneWaala: trip.bhejneWaala || '',
-                paaneWaala: trip.paaneWaala || '',
-                transporter: trip.transporter || '',
-                maal: trip.Maal || '',
-                qty: trip.qty || 0,
-                rate: trip.rate || 0,
-                totalFreight: parseInt(trip.rate) * parseInt(trip.qty) || 0,
-                payStatus: trip.payStatus || '',
-
-                remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
-                    ((form3.getFieldsValue(['paymentDetails']).paymentDetails !== undefined && form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index] !== undefined) ?
-                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
-                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
-                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
-                        :
-                        0
-                    )
-            });
-        }
-        );
-
-        // let driversDetails = form1.getFieldsValue(['DriversDetails']);
-        // let listOfDrivers = [];
-        // driversDetails?.DriversDetails?.forEach((driver) => {
-        //     listOfDrivers.push({
-        //         driverName: driver?.driverName || '',
-        //         driverContact: driver?.driverContact || '',
-        //         driverLicenseDate: driver?.driverLicenseDate || '',
-        //         driverTripCash: driver?.driverTripCash || ''
-        //     });
-        // }
-        // );
-        // let driversDetails = [{...driver1}, {...driver2}, {...conductor}];
-
-        // if (form1?.getFieldsValue(['DriversDetails']).DriversDetails === undefined || driversDetails.length === 0) listOfDrivers = null;
-
-        let kaataParchi = form2.getFieldsValue(['kaataParchi']);
-        let listOfKaataParchi = [];
-        kaataParchi?.kaataParchi?.forEach((parchi) => {
-            listOfKaataParchi.push({
-                unloadingDate: parchi?.unloadingDate || '',
-                khaliGadiWajan: parchi?.khaliGadiWajan || '',
-                bhariGadiWajan: parchi?.bhariGadiWajan || '',
-                maalKaWajan: parchi?.maalKaWajan || '',
-                ghaateAllowed: parchi?.ghaateAllowed || '',
-                ghaateActual: parchi?.ghaateActual || '',
-                remarks: parchi?.remarks || ''
-            });
-        }
-        );
-
-        if (form2.getFieldsValue(['kaataParchi']).kaataParchi === undefined || kaataParchi.length === 0) listOfKaataParchi = null;
-
-        let firstPayment = form3.getFieldsValue(['paymentDetails']);
-        let listOfFirstPayment = [];
-        firstPayment?.paymentDetails?.forEach((payment) => {
-            listOfFirstPayment.push({
-                bhadaKaunDalega: payment?.bhadaKaunDalega || '',
-                partyForNaveenKaka: payment?.partyForNaveenKaka || '',
-                pohchAmount: payment?.pohchAmount || '',
-                pohchDate: payment?.pohchDate || '',
-                pohchSendTo: payment?.pohchSendTo || '',
-                pohchRemarks: payment?.pohchRemarks || '',
-                cashAmount: payment?.cashAmount || '',
-                cashDate: payment?.cashDate || '',
-                cashRemarks: payment?.cashRemarks || '',
-                onlineAmount: payment?.onlineAmount || '',
-                onlineDate: payment?.onlineDate || '',
-                onlineBank: payment?.onlineBank || '',
-                onlineRemarks: payment?.onlineRemarks || '',
-                chequeAmount: payment?.chequeAmount || '',
-                chequeDate: payment?.chequeDate || '',
-                chequeBank: payment?.chequeBank || '',
-                chequeRemarks: payment?.chequeRemarks || '',
-            });
-        }
-        );
-
-        // console.log(form3.getFieldsValue(['paymentDetails']));
-
-        if (form3.getFieldsValue(['paymentDetails']).paymentDetails === undefined || form3.getFieldsValue(['paymentDetails']).paymentDetails[0] === undefined || firstPayment.length === 0) listOfFirstPayment = null;
-
-        let dieselAndKmDetails = {
-            janaKm: janaKm || 0,
-            aanaKm: aanaKm || 0,
-            tripKm: Math.abs(janaKm - aanaKm) || '',
-            milometer: milometer || '',
-            dieselQty: dieselQty || '',
-            pumpName: pumpName || '',
-            average: (Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0,
-            midwayDiesel: midwayDiesel || ''
-        }
-
-        if (dieselAndKmDetails === undefined || dieselAndKmDetails.length === 0) dieselAndKmDetails = null;
-        console.log(listOfTrips, listOfKaataParchi, listOfFirstPayment);
-
-        // console.log(form1?.getFieldsValue(['DriversDetails']));
-        const db = getDatabase();
-        let id = guidGenerator();
-        set(ref(db, 'dailyEntry/' + id), {
-            date: date,
-            vehicleNo: vehicleNo || '',
-            mt: mt,
-            vehicleStatus: vehicleStatus || '',
-            // payStatus: payStatus || '',
-            dieselAndKmDetails: { ...dieselAndKmDetails } || null,
-            tripDetails: listOfTrips || null,
-            // driversDetails: listOfDrivers || null,
-            kaataParchi: listOfKaataParchi || null,
-            firstPayment: listOfFirstPayment || null,
-
-            //DRIVER DATA
-            driver1: driver1 || null,
-            driver2: driver2 || null,
-            conductor: conductor || null,
-
-            // FIELDS DATA  
-            // tripDetailsFields: (form?.getFieldsValue(['tripDetails']) || null),
-            // driversDetailsFields: (listOfDrivers === null) ? null : (form1?.getFieldsValue(['DriversDetails']) || null),
-            // kaataParchiFields: (listOfKaataParchi === null) ? null : (form2?.getFieldsValue(['kaataParchi']) || null),
-            // firstPaymentFields: (listOfFirstPayment === null) ? null : (form3?.getFieldsValue(['paymentDetails']) || null),
-
-        }).then(() => {
-            console.log('Data saved');
-            alert('Data Saved Successfully');
-            form.resetFields();
-            form1.resetFields();
-            form2.resetFields();
-            form3.resetFields();
-            setDate(todayDate);
-            setVehicleNo('');
-            setMT('');
-            setVehicleStatus('');
-            setDriver1({});
-            setDriver2({});
-            setConductor({});
-            // janaKm: janaKm || 0,
-            setJanaKm(0);
-            setAanaKm(0);
-            setMilometer(0);
-            setDieselQty(0);
-            setPumpName(null);
-            setAverage(0);
-            setMidwayDiesel(0);
-            setDriver1Value(null);
-            setDriver2Value(null);
-            setConductorValue(null);
-            resetDriverList();
-            // console.log({
-            //     date: date,
-            //     vehicleNo: vehicleNo || '',
-            //     mt: mt,
-            //     vehicleStatus: vehicleStatus || '',
-            //     // payStatus: payStatus || '',
-            //     dieselAndKmDetails: { ...dieselAndKmDetails },
-            //     tripDetails: listOfTrips,
-            //     driversDetails: listOfDrivers,
-            //     kaataParchi: listOfKaataParchi,
-            //     firstPayment: listOfFirstPayment,
-
-            //     // FIELDS DATA
-            //     tripDetailsFields: form.getFieldsValue(['tripDetails']),
-            //     driversDetailsFields: form1.getFieldsValue(['DriversDetails']),
-            //     kaataParchiFields: form2.getFieldsValue(['kaataParchi']),
-            //     firstPaymentFields: form3.getFieldsValue(['paymentDetails'])
-            // });
-        }).catch((error) => {
-            console.error('Error:', error);
-        });
-
-        console.log('Save button clicked');
-    }
-
-    const onMTCheck = (e) => {
-        setMT(e.target.checked);
     }
 
     const handle_Search = (selectedKeys, confirm, dataIndex) => {
@@ -647,13 +350,124 @@ const DailyEntry = () => {
 
     const columns = [
         {
+            width:'3%',
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
             render: (text, record, index) => { return index + 1; }
         },
         {
-            title: 'Date',
+            width:'4%',
+            title: 'Pay Status',
+            dataIndex: 'paymentStatus',
+            key: 'paymentStatus',
+            render: (text, record, index) => { 
+                if(text === undefined || text === null || text === '') {
+                    return <span style={{color: 'red'}}><WarningFilled /></span>
+                }
+                if(text === 'close') {
+                    return <span style={{color: 'green'}}><CheckCircleFilled /></span>
+                } else if(text === 'open') {
+                    return <span style={{color: 'red'}}><WarningFilled /></span>
+                } else {
+                    return <span style={{color: 'orange'}}>{text}</span>
+                }
+                return index + 1; 
+            }
+        },
+        {
+            title: 'Courier Status',
+            dataIndex: 'courierStatus',
+            key: 'courierStatus',
+            // Increase the width of this column
+            width: '8%',
+            render: (text, record, index) => { 
+                if(text === undefined || text === null || text === '') {
+                    // return a radio button as Sent or Pending
+                    return (
+                        <>
+                        {/* <Radio.Group onChange={(e) => text=e.target.value} options={[{label: 'Sent', value: 'Sent'}, {label: 'Pending', value: 'Pending'}]} defaultValue="sent" block buttonStyle="solid"/> */}
+                        <span style={{color: 'red'}}><WarningFilled />Pending</span>
+                        <Button
+                        type='primary'
+                        size='small'
+                        onClick={() => {
+                            // Ask for Confirmation
+                            if(!confirm("Are you sure you want to update the courier status?")) {
+                                return;
+                            }
+                            // update the courier status in the database
+                            const db = getDatabase();
+                            const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                            update(starCountRef, {
+                                courierStatus: 'Sent'
+                            }).then(() => {
+                                alert("Courier Status Updated Successfully!!");
+                                return;
+                            })
+                        }}>Click For Sent</Button>
+                        </>
+
+                    )
+                }
+                return (
+                   text === 'Sent' ? 
+                    <span style={{color: 'green'}}><CheckCircleFilled />Sent</span> : <span style={{color: 'red'}}><WarningFilled />Pending</span>
+
+                )
+             }
+        },
+        {
+            title: 'Courier Date',
+            dataIndex: 'courierSentDate',
+            key: 'courierSentDate',
+            width: '12%',
+            render: (text, record, index) => { 
+                if(text === undefined || text === null || text === '') {
+                    return <>
+                        <Input size='small' type="date" onChange={(e) => text=e.target.value}></Input>
+                        <Button 
+                        // type='primary'
+                        size='small'
+                        onClick={() => {
+                            // check if the text is empty
+                            if(text === undefined || text === null || text === '') {
+                                alert("Please select a date");
+                                return;
+                            }
+                            // Ask for Confirmation
+                            if(!confirm("Are you sure you want to update the courier date?")) {
+                                return;
+                            }
+                            // update the courier status in the database
+                            const db = getDatabase();
+                            const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                            update(starCountRef, {
+                                courierSentDate: text
+                            }).then(() => {
+                                alert("Courier Date Updated Successfully!!");
+                                return;
+                            })
+                        }}>Save</Button>
+                    </>
+                }
+                let date = new Date(text);
+                return (
+                    <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
+                )
+             }
+        },
+        {
+            
+            width:'7%',
+            title: 'Pohch Id',
+            dataIndex: 'pohchId',
+            key: 'pohchId',
+            // render: (text, record, index) => { return index + 1; }
+        },
+        {
+            width:'7%',
+            title: 'Trip Start Date',
             dataIndex: 'date',
             key: 'date',
             ...getColumnSearchProps('date'),
@@ -666,15 +480,59 @@ const DailyEntry = () => {
             }
         },
         {
+            width:'7%',
+            title: 'Received Date',
+            dataIndex: 'pohchRecievedDate',
+            key: 'pohchRecievedDate',
+            ...getColumnSearchProps('pohchRecievedDate'),
+            render: (text) => {
+                if(text === undefined || text === null || text === '') {
+                    return <span>None</span>
+                }
+                let date = new Date(text);
+                console.log(date);
+
+                return (
+                    <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
+                )
+            }
+        },
+        {
+            width:'9%',
             title: 'Truck No.',
             dataIndex: 'vehicleNo',
             key: 'vehicleNo',
             ...getColumnSearchProps('vehicleNo'),
         },
         {
+            title: 'Pohch Amt',
+            dataIndex: 'pohchAmt',
+            key: 'pohchAmt',
+            render: (text) => {
+                console.log(text);
+                if(text === undefined || text === null || text === '') {
+                    return <span>Not Available</span>
+                }
+                return (
+                    <span>{text}</span>
+                )
+            }
+            // ...getColumnSearchProps('vehicleNo'),
+        },
+        {
+            width:'6%',
             title: 'From',
             dataIndex: 'from',
             key: 'from',
+            render: (text) => {
+                // make 1st letter capital and other small and return
+                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+            }
+        },
+        {
+            title: 'Sender',
+            dataIndex: 'bhejneWaliParty',
+            key: 'bhejneWaliParty',
             render: (text) => {
                 // make 1st letter capital and other small and return
                 return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
@@ -690,45 +548,13 @@ const DailyEntry = () => {
             }
         },
         {
-            title: 'Paid/To Pay',
-            dataIndex: 'paid',
-            key: 'paid',
-        },
-        {
-            title: 'Bhejne Wali Party',
-            dataIndex: 'bhejneWaliParty',
-            key: 'bhejneWaliParty',
-            render: (text) => {
-                // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-            }
-        },
-        {
-            title: 'Paane Wali Party',
+            width:'6%',
+            title: 'Receiver',
             dataIndex: 'paaneWaliParty',
             key: 'paaneWaliParty',
             render: (text) => {
                 // make 1st letter capital and other small and return
                 return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-            }
-        },
-        {
-            title: 'Transporter',
-            dataIndex: 'transporter',
-            key: 'transporter',
-            render: (text) => {
-                // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-            }
-        },
-        {
-            title: 'Driver',
-            dataIndex: 'driver',
-            key: 'driver',
-            ...getColumnSearchProps('driver'),
-            render: (text) => {
-                // make 1st letter capital and other small and return
-                return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -741,6 +567,7 @@ const DailyEntry = () => {
             }
         },
         {
+            width:'3%',
             title: 'Qty',
             dataIndex: 'qty',
             key: 'qty',
@@ -752,16 +579,13 @@ const DailyEntry = () => {
             key: 'rate',
 
         },
+        
         {
             title: 'Total Freight',
             dataIndex: 'totalFreight',
             key: 'totalFreight',
         },
-        {
-            title: 'Received',
-            dataIndex: 'received',
-            key: 'received',
-        },
+
 
     ];
 
@@ -902,26 +726,6 @@ const DailyEntry = () => {
         });
     }
 
-    const addNewVehicle = (e) => {
-        e.preventDefault();
-        if (newVehicleNo.trim() === '') {
-            alert('Please enter vehicle no. to add vehicle in the list. Field is empty');
-            return;
-        }
-        let key = vehicleData.length;
-        setVehicleData([...vehicleData, { vehicleNo: newVehicleNo, value: newVehicleNo, label: newVehicleNo, key: key }]);
-        const db = getDatabase();
-        const vehicleRef = ref(db, 'Vehicles/' + key);
-        // const newBankRef = push(bankRef);
-        set(vehicleRef, {
-            vehicleNo: newVehicleNo,
-            key: key,
-            label: newVehicleNo,
-            value: newVehicleNo
-        })
-        setNewVehicleNo('');
-
-    }
     // Filter `option.label` match the user type `input`
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
@@ -974,6 +778,8 @@ const DailyEntry = () => {
 
     return (
         <>
+            {/* <Input onChange={(e)=>setKey(e.target.value)}/>
+            <Button onClick={() => {console.log(key); updatePohchId(key)}}>Update Pohch Id</Button> */}
             <CreatePartyForm
                 isModalOpen={isModalOpen}
                 handleOk={handleOk}
@@ -1196,32 +1002,21 @@ const DailyEntry = () => {
                 </Form>
             </Modal>
 
+            From Date: 
             <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
-                <Button onClick={() => {
-                    setDataSource(completeDataSource);
-                    setDateFilter(null);
-                }}>Clear Date</Button>
-                <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
-                    <Table style={{ zIndex: '100' }} size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} expandable={{
-                        expandedRowRender: (record) =>
-                            <ViewDailyEntry
-                                data={record}
-                                Locations={Locations}
-                                partyListAll={partyListAll}
-                                transporterList={transporterList}
-                                driverList={driverList}
-                                vehicleData={vehicleData}
-                                MaalList={MaalList}
-                                bankData={bankData}
-                                addNewMaal={addNewMaal}
-                            />,
-                        rowExpandable: (record) => true,
-                    }} pagination={false}
-                    />
-                </div>
+            To Date: 
+            <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
+            <Button onClick={() => {
+                setDataSource(completeDataSource);
+                setDateFilter(null);
+            }}>Clear Date</Button>
+            <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
+                <Table style={{ zIndex: '100' }} size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} pagination={false}
+                />
+            </div>
 
         </>
     )
 }
 
-export default DailyEntry;
+export default Pohch;
