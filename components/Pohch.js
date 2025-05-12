@@ -162,6 +162,8 @@ const Pohch = () => {
         licenseDocument: null, // Add this new field
     });
     const [key, setKey] = useState('');
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
 
     useEffect(() => {
         const db = getDatabase();
@@ -526,7 +528,7 @@ const Pohch = () => {
             key: 'from',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -535,7 +537,7 @@ const Pohch = () => {
             key: 'bhejneWaliParty',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -544,7 +546,7 @@ const Pohch = () => {
             key: 'to',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -554,7 +556,7 @@ const Pohch = () => {
             key: 'paaneWaliParty',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -563,7 +565,7 @@ const Pohch = () => {
             key: 'maal',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -1002,10 +1004,10 @@ const Pohch = () => {
                 </Form>
             </Modal>
 
-            From Date: 
-            <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
-            To Date: 
-            <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
+            <span style={{marginLeft: '40px'}}>From Date:</span> 
+            <Input style={{ width: "20%",marginLeft: '10px'}} type='date' value={dateFilter} onChange={(e)=>setFromDate(e.target.value)} />
+            <span style={{ marginLeft: '40px'}}>To Date:</span> 
+            <Input style={{ width: "20%",marginLeft: '10px'}} type='date' value={dateFilter} onChange={(e)=>setToDate(e.target.value)} />
             <Button onClick={() => {
                 setDataSource(completeDataSource);
                 setDateFilter(null);

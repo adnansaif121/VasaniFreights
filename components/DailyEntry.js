@@ -217,10 +217,10 @@ const DailyEntry = () => {
                                 firstPayment: data[key]?.firstPayment || null,
                                 vehicleStatus: data[key]?.vehicleStatus || null,
                                 bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
-                                driver: data[key].driver1?.value || null,
-                                driver1: data[key].driver1 || null,
-                                driver2: data[key].driver2 || null,
-                                conductor: data[key].conductor || null,
+                                driver: data[key]?.driver1?.value || null,
+                                driver1: data[key]?.driver1 || null,
+                                driver2: data[key]?.driver2 || null,
+                                conductor: data[key]?.conductor || null,
                             }
                         )
                     }
@@ -677,7 +677,7 @@ const DailyEntry = () => {
             key: 'from',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text !== null ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -686,7 +686,7 @@ const DailyEntry = () => {
             key: 'to',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text !== null ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -700,7 +700,7 @@ const DailyEntry = () => {
             key: 'bhejneWaliParty',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text !== null ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -709,7 +709,7 @@ const DailyEntry = () => {
             key: 'paaneWaliParty',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text !== null ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -718,7 +718,7 @@ const DailyEntry = () => {
             key: 'transporter',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text !== null ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
@@ -737,7 +737,7 @@ const DailyEntry = () => {
             key: 'maal',
             render: (text) => {
                 // make 1st letter capital and other small and return
-                return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+                return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {

@@ -89,7 +89,7 @@ const Driver = () => {
                             bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
                             vehicleStatus: data[key].vehicleStatus,
                             furtherPayments: data[key].furtherPayments || {},
-                            driver: data[key].driver1.value || null,
+                            driver: data[key]?.driver1?.value || null,
                         }
                     )
                 });
