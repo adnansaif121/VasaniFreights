@@ -1078,6 +1078,7 @@ const AddDetails = () => {
                                                                         </div>
 
                                                                     </Flex>
+
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
                                                                         <Form.Item style={{ width: '45%' }}
                                                                             label="To"
@@ -1489,7 +1490,7 @@ const AddDetails = () => {
 
                                                 {/* Radio button for debit and credit */}
                                                 <Form.Item style={{ width: '30%' }} label="Debit/Credit">
-                                                    
+
                                                     {/* Replacing Radio group with the Select Component */}
                                                     <Select
                                                         style={{ width: '100%' }}
@@ -1862,11 +1863,7 @@ const AddDetails = () => {
                                                                 </div>
                                                             </Flex>
                                                         ))}
-                                                        {/* <Form.Item style={{ margin: 'auto' }}>
-                                                                <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                                                    Add new Kaata Parchi
-                                                                </Button>
-                                                            </Form.Item> */}
+
                                                     </>
                                                 )}
                                             </Form.List>
