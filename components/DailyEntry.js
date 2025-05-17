@@ -581,16 +581,16 @@ const DailyEntry = () => {
                     >
                         Search
                     </Button>
-                    <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
+                    {/* <Button
+                        onClick={() => clearFilters && handleReset(clearFilters) && handle_Search([''], confirm, dataIndex)}
                         size="small"
                         style={{
                             width: 90,
                         }}
                     >
                         Reset
-                    </Button>
-                    <Button
+                    </Button> */}
+                    {/* <Button
                         type="link"
                         size="small"
                         onClick={() => {
@@ -611,7 +611,7 @@ const DailyEntry = () => {
                         }}
                     >
                         close
-                    </Button>
+                    </Button> */}
                 </Space>
             </div>
         ),

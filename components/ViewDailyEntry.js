@@ -148,6 +148,13 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                 rate: trip.rate || 0,
                 totalFreight: parseInt(trip.rate) * parseInt(trip.qty) || 0,
                 payStatus: trip.payStatus || '',
+                courierSentDate: trip.courierSentDate || '',
+                courierStatus: trip.courierStatus || '',
+                extraAmount: trip.extraAmount || 0,
+                firstPaymentTotal: trip.firstPaymentTotal || 0,
+                furtherPaymentTotal: trip.furtherPaymentTotal || 0,
+                furtherPayments: trip.furtherPayments || 0,
+                transactionStatus: trip.transactionStatus || '',
                 remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -  
                 ((form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index]!==undefined) ?
                     parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
@@ -195,6 +202,7 @@ const ViewDailyEntry = ({data, Locations, transporterList, partyListAll, driverL
                 partyForNaveenKaka: payment.partyForNaveenKaka || '',
                 pohchAmount: payment.pohchAmount || '',
                 pohchDate: payment.pohchDate || '',
+                pohchId: payment.pohchId || '',
                 pohchSendTo: payment?.pohchSendTo || '',
                 pohchRemarks: payment.pohchRemarks || '',
                 cashAmount: payment.cashAmount || '',

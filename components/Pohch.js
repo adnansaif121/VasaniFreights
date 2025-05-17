@@ -255,6 +255,30 @@ const Pohch = () => {
         setSearchText('');
     };
 
+    const applyDateFilter = (e) => {
+        let startDate = fromDate;
+        let endDate = toDate;
+        console.log(startDate, endDate);
+        if (startDate === null || endDate === null) {
+            alert("Please select start and end date");
+            return;
+        }
+        let _startDate = new Date(startDate).getTime();
+        let _endDate = new Date(endDate).getTime();
+        console.log(completeDataSource);
+        let _displayDataSource = completeDataSource.filter(
+            (item) => {
+                let itemDate = new Date(item.date).getTime();
+                console.log(item.date, itemDate);
+                return itemDate >= _startDate && itemDate <= _endDate;
+            }
+        )
+        setDataSource(_displayDataSource);
+        setDateFilter(e.target.value);
+        // setDisplayDataSource(_displayDataSource);
+        // setFromDate(null);
+
+    }
     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
@@ -286,7 +310,7 @@ const Pohch = () => {
                     >
                         Search
                     </Button>
-                    <Button
+                    {/* <Button
                         onClick={() => clearFilters && handleReset(clearFilters)}
                         size="small"
                         style={{
@@ -316,7 +340,7 @@ const Pohch = () => {
                         }}
                     >
                         close
-                    </Button>
+                    </Button> */}
                 </Space>
             </div>
         ),
@@ -328,7 +352,8 @@ const Pohch = () => {
             />
         ),
         onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+            dataIndex === 'courierStatus' && value === 'pending' ? record[dataIndex] === null || record[dataIndex] === undefined || record[dataIndex] === '' : record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()) ||  
+            record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
         onFilterDropdownOpenChange: (visible) => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -360,9 +385,10 @@ const Pohch = () => {
         },
         {
             width:'4%',
-            title: 'Pay Status',
+            title: 'Pay',
             dataIndex: 'paymentStatus',
             key: 'paymentStatus',
+            ...getColumnSearchProps('paymentStatus'),
             render: (text, record, index) => { 
                 if(text === undefined || text === null || text === '') {
                     return <span style={{color: 'red'}}><WarningFilled /></span>
@@ -381,6 +407,7 @@ const Pohch = () => {
             title: 'Courier Status',
             dataIndex: 'courierStatus',
             key: 'courierStatus',
+            ...getColumnSearchProps('courierStatus'),
             // Increase the width of this column
             width: '8%',
             render: (text, record, index) => { 
@@ -423,6 +450,7 @@ const Pohch = () => {
             title: 'Courier Date',
             dataIndex: 'courierSentDate',
             key: 'courierSentDate',
+            // ...getColumnSearchProps('courierSentDate'),
             width: '12%',
             render: (text, record, index) => { 
                 if(text === undefined || text === null || text === '') {
@@ -465,6 +493,7 @@ const Pohch = () => {
             title: 'Pohch Id',
             dataIndex: 'pohchId',
             key: 'pohchId',
+            ...getColumnSearchProps('pohchId'),
             // render: (text, record, index) => { return index + 1; }
         },
         {
@@ -532,9 +561,11 @@ const Pohch = () => {
             }
         },
         {
+            width:'6%',
             title: 'Sender',
             dataIndex: 'bhejneWaliParty',
             key: 'bhejneWaliParty',
+            ...getColumnSearchProps('bhejneWaliParty'),
             render: (text) => {
                 // make 1st letter capital and other small and return
                 return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
@@ -550,10 +581,11 @@ const Pohch = () => {
             }
         },
         {
-            width:'6%',
+            width:'7%',
             title: 'Receiver',
             dataIndex: 'paaneWaliParty',
             key: 'paaneWaliParty',
+            ...getColumnSearchProps('paaneWaliParty'),
             render: (text) => {
                 // make 1st letter capital and other small and return
                 return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
@@ -1005,15 +1037,18 @@ const Pohch = () => {
             </Modal>
 
             <span style={{marginLeft: '40px'}}>From Date:</span> 
-            <Input style={{ width: "20%",marginLeft: '10px'}} type='date' value={dateFilter} onChange={(e)=>setFromDate(e.target.value)} />
+            <Input style={{ width: "20%",marginLeft: '10px'}} type='date' value={fromDate} onChange={(e)=>setFromDate(e.target.value)} />
             <span style={{ marginLeft: '40px'}}>To Date:</span> 
-            <Input style={{ width: "20%",marginLeft: '10px'}} type='date' value={dateFilter} onChange={(e)=>setToDate(e.target.value)} />
+            <Input style={{ width: "20%",marginLeft: '10px'}} type='date' value={toDate} onChange={(e)=>setToDate(e.target.value)} />
+            <Button onClick={applyDateFilter}>Apply Filter</Button>
             <Button onClick={() => {
                 setDataSource(completeDataSource);
+                setFromDate(null);
+                setToDate(null);
                 setDateFilter(null);
             }}>Clear Date</Button>
             <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
-                <Table style={{ zIndex: '100' }} size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} pagination={false}
+                <Table bordered style={{ zIndex: '100' }} size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} pagination={false}
                 />
             </div>
 

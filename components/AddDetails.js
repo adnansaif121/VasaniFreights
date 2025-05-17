@@ -162,7 +162,7 @@ const AddDetails = () => {
     });
     const [pohchAmount, setPohchAmount] = useState(0);
 
-    const PohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
+    const PohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
 
     console.log(PohchId);
     useEffect(() => {
@@ -298,7 +298,7 @@ const AddDetails = () => {
                 qty: trip.qty || 0,
                 rate: trip.rate || 0,
                 totalFreight: parseInt(trip.rate) * parseInt(trip.qty) || 0,
-                payStatus: trip.payStatus || '',
+                payStatus: payStatus || '',
 
                 remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
                     ((form3.getFieldsValue(['paymentDetails']).paymentDetails !== undefined && form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index] !== undefined) ?
@@ -351,7 +351,7 @@ const AddDetails = () => {
                 bhadaKaunDalega: payment?.bhadaKaunDalega || '',
                 partyForNaveenKaka: payment?.partyForNaveenKaka || '',
                 pohchAmount: payment?.pohchAmount || '',
-                pohchId: (payment?.pohchAmount !== undefined || payment?.pohchAmount !== '')  ? PohchId : '',
+                pohchId: (payment?.pohchAmount !== undefined || payment?.pohchAmount !== '') ? PohchId : '',
                 pohchDate: payment?.pohchDate || '',
                 pohchSendTo: payment?.pohchSendTo || '',
                 pohchRemarks: payment?.pohchRemarks || '',
@@ -1189,13 +1189,33 @@ const AddDetails = () => {
                                                                             label="To Pay/ Paid"
                                                                             name={[name, 'payStatus']}
                                                                         >
-                                                                            <Radio.Group
+                                                                            {/* <Radio.Group
                                                                                 options={[{ label: 'To Pay', value: 'To Pay' }, { label: 'Paid', value: 'Paid' }]}
                                                                                 // onChange={(e) => { setPayStatus(e.target.value) }}
                                                                                 value={'Paid'}
                                                                                 optionType="button"
                                                                                 buttonStyle="solid"
+                                                                            /> */}
+                                                                            {/* Provide a Select component replacing Radio Group */}
+                                                                            <Select
+                                                                                style={{ width: '100%' }}
+                                                                                showSearch
+                                                                                placeholder="To Pay/Paid"
+                                                                                optionFilterProp="children"
+                                                                                defaultValue="Paid"
+                                                                                // value={'Paid'}
+                                                                                // set default value as 'Paid'
+                                                                                onChange={(value) => { setPayStatus(value) }}
+                                                                                // onChange={(value) => {
+                                                                                //     let _obj = tripDetails;
+                                                                                //     _obj[name].payStatus = value;
+                                                                                //     setTripDetails([..._obj]);
+                                                                                // }}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={[{ label: 'To Pay', value: 'To Pay' }, { label: 'Paid', value: 'Paid' }]}
                                                                             />
+
                                                                         </Form.Item>
 
                                                                         <Form.Item style={{ width: '45%' }}
@@ -1277,11 +1297,13 @@ const AddDetails = () => {
                                                                     </Flex>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                                        <Form.Item style={{ width: '45%', backgroundColor: '#f0f0f0', borderRadius: '5px', border: '1px solid #d9d9d9' }} 
+                                                                        <Form.Item style={{ width: '45%' }}
                                                                             label="Total Freight"
                                                                         // name={[name, 'totalFreight']}
                                                                         >
-                                                                            {parseInt(rate[name]) * parseInt(qty[name])}
+                                                                            <Input value={parseInt(rate[name]) * parseInt(qty[name])}>
+                                                                            </Input>
+                                                                            {/* {parseInt(rate[name]) * parseInt(qty[name])} */}
                                                                             {/* <Input value={rate[name]*qty[name]}></Input> */}
                                                                         </Form.Item>
 
@@ -1453,8 +1475,8 @@ const AddDetails = () => {
                                                 </Form.Item>
 
                                                 <Tooltip placement="top" title={driver1.Contact + '\n' + driver1.LicenseDate} >
-                                                        <EyeOutlined />
-                                                    </Tooltip>
+                                                    <EyeOutlined />
+                                                </Tooltip>
 
                                                 <Form.Item style={{ width: '30%' }} label="Trip Cash">
                                                     <Input onChange={(e) => {
@@ -1464,20 +1486,24 @@ const AddDetails = () => {
                                                     }} placeholder='Trip Cash' type='number' />
                                                 </Form.Item>
                                                 {/* View */}
-                                                
+
                                                 {/* Radio button for debit and credit */}
-                                                <Form.Item style={{ width: '60%' }} label="Debit/Credit">
-                                                    <Radio.Group
-                                                        block
-                                                        options={[{ label: 'Debit', value: 'Debit' }, { label: 'Credit', value: 'Credit' }]}
-                                                        onChange={(e) => {
+                                                <Form.Item style={{ width: '30%' }} label="Debit/Credit">
+                                                    
+                                                    {/* Replacing Radio group with the Select Component */}
+                                                    <Select
+                                                        style={{ width: '100%' }}
+                                                        showSearch
+                                                        // placeholder="To Pay/Paid"
+                                                        optionFilterProp="children"
+                                                        defaultValue="Debit"
+                                                        onChange={(value) => {
                                                             let _obj = driver1;
-                                                            _obj.DebitCredit = e.target.value;
+                                                            _obj.DebitCredit = value;
                                                             setDriver1(_obj);
                                                         }}
-                                                        value={driver1.DebitCredit}
-                                                        // optionType="button"
-                                                        buttonStyle="solid"
+                                                        filterOption={filterOption}
+                                                        options={[{ label: 'Debit', value: 'Debit' }, { label: 'Credit', value: 'Credit' }]}
                                                     />
                                                 </Form.Item>
 
@@ -1565,12 +1591,12 @@ const AddDetails = () => {
                                                 {/* View */}
                                                 <td>
                                                     <Tooltip placement="top" title={driver2.Contact + '\n' + driver2.LicenseDate} >
-                                                    <EyeOutlined />
+                                                        <EyeOutlined />
                                                     </Tooltip>
                                                 </td>
 
-                                                  {/* Name */}
-                                                  <Form.Item style={{ width: '40%' }} label="Conductor">
+                                                {/* Name */}
+                                                <Form.Item style={{ width: '40%' }} label="Conductor">
                                                     <Select
                                                         style={{ width: '100%' }}
                                                         showSearch
@@ -1634,11 +1660,11 @@ const AddDetails = () => {
                                                         )}
                                                     />
                                                 </Form.Item>
-                                            
+
                                                 {/* View */}
                                                 <td>
                                                     <Tooltip placement="top" title={conductor.Contact + '\n' + conductor.LicenseDate} >
-                                                    <EyeOutlined />
+                                                        <EyeOutlined />
                                                     </Tooltip>
                                                 </td>
 
@@ -1649,19 +1675,25 @@ const AddDetails = () => {
                                                 width: '100%',
                                                 height: 30,
                                             }} justify={'space-around'} align={'center'}>
-                                                <Form.Item style={{ width: '28%' }} label="Jana KM">
+                                                <Form.Item style={{ width: '45%' }} label="Jana KM">
                                                     <Input value={janaKm} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number'></Input>
                                                 </Form.Item>
 
-                                                <Form.Item style={{ width: '28%' }} label="Aana KM">
+                                                <Form.Item style={{ width: '45%' }} label="Aana KM">
                                                     <Input value={aanaKm} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number'></Input>
                                                 </Form.Item>
 
-                                                <Form.Item style={{ width: '15%' }} label="Trip KM">
+                                            </Flex>
+
+                                            <Flex style={{
+                                                width: '100%',
+                                                height: 30,
+                                            }} justify={'space-around'} align={'center'}>
+                                                <Form.Item style={{ width: '45%' }} label="Trip KM">
                                                     {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))} onChange={(e) => { setTripKm(e.target.value) }} placeholder='Trip KM' type='number'></Input> */}
-                                                    {Math.abs(parseInt(janaKm) - parseInt(aanaKm))}
+                                                    <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))}></Input>
                                                 </Form.Item>
-                                                <Form.Item style={{ width: '28%' }} label="Milometer">
+                                                <Form.Item style={{ width: '45%' }} label="Milometer">
                                                     <Input value={milometer} onChange={(e) => { setMilometer(e.target.value) }} placeholder='Milometer'></Input>
                                                 </Form.Item>
                                             </Flex>
@@ -1671,11 +1703,11 @@ const AddDetails = () => {
                                                 width: '100%',
                                                 height: 30,
                                             }} justify={'space-around'} align={'center'}>
-                                                <Form.Item style={{ width: '28%' }} label="Diesel">
+                                                <Form.Item style={{ width: '45%' }} label="Diesel">
                                                     <Input value={dieselQty} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number'></Input>
                                                 </Form.Item>
 
-                                                <Form.Item style={{ width: '28%' }} label="Pump Name">
+                                                <Form.Item style={{ width: '45%' }} label="Pump Name">
                                                     <Select
                                                         showSearch
                                                         placeholder="Pump Name"
@@ -1701,12 +1733,17 @@ const AddDetails = () => {
                                                     />
                                                 </Form.Item>
 
-                                                <Form.Item style={{ width: '15%' }} label="Average">
-                                                    {(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0}
+                                            </Flex>
+                                            <Flex style={{
+                                                width: '100%',
+                                                height: 30,
+                                            }} justify={'space-around'} align={'center'}>
+                                                <Form.Item style={{ width: '45%' }} label="Average">
+                                                    <Input value={(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0}></Input>
                                                     {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))/((parseInt(dieselQty)||0) + (parseInt(midwayDiesel)||0))} onChange={(e) => { setAverage(e.target.value) }} placeholder='Average' type='number'></Input> */}
                                                 </Form.Item>
 
-                                                <Form.Item style={{ width: '28%' }} label="Midway Diesel">
+                                                <Form.Item style={{ width: '45%' }} label="Midway Diesel">
                                                     <Input value={midwayDiesel} onChange={(e) => setMidwayDiesel(e.target.value)} placeholder='Midway Diesel'></Input>
                                                 </Form.Item>
                                             </Flex>
@@ -1717,7 +1754,7 @@ const AddDetails = () => {
                             </Card>
                         </Col>
                         <Col span={12}>
-                            <Card style={{ marginBottom: '10px' }}>
+                            <Card style={{ marginBottom: '10px' }} size="small">
                                 <div>
                                     <Form name='Kaata Parchi Details'
                                         style={{
@@ -1750,20 +1787,20 @@ const AddDetails = () => {
 
                                                                             <Flex style={{
                                                                                 width: '100%',
-                                                                                // height: 40,
+                                                                                height: 40,
                                                                             }} justify={'space-around'} align={'center'} >
-                                                                                
-                                                                                        <Form.Item style={{ width: '40%' }} name={[name, "remarks"]} label="Kaata Parchi Remarks">
-                                                                                            <Input placeholder='remarks' ></Input>
-                                                                                        </Form.Item>
 
-                                                                                        <Form.Item style={{ width: '30%' }} name={[name, "kaataParchiAmount"]} label="Amount">
-                                                                                            <Input placeholder='amount' ></Input>
-                                                                                        </Form.Item>
-                                                                                    
-                                                                                        <Button style={{ width: '30%', marginTop: '-25px' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
+                                                                                <Form.Item style={{ width: '40%' }} name={[name, "remarks"]} label="Kaata Parchi Remarks">
+                                                                                    <Input placeholder='remarks' ></Input>
+                                                                                </Form.Item>
 
-                                                                                    
+                                                                                <Form.Item style={{ width: '30%' }} name={[name, "kaataParchiAmount"]} label="Amount">
+                                                                                    <Input placeholder='amount' ></Input>
+                                                                                </Form.Item>
+
+                                                                                <Button style={{ width: '25%', marginTop: '-25px' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
+
+
 
                                                                             </Flex>
 
@@ -1941,7 +1978,7 @@ const AddDetails = () => {
                                                                                 <td ><h3>Pohch</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'pohchAmount']} >
-                                                                                        <Input placeholder='amount' type='number' onChange={(e)=>{setPohchAmount(e.target.value)}}/>
+                                                                                        <Input placeholder='amount' type='number' onChange={(e) => { setPohchAmount(e.target.value) }} />
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
