@@ -9,6 +9,7 @@ import ViewDailyEntry from './ViewDailyEntry';
 // import { vehicleData } from './data';
 import CreatePartyForm from './common/CreatePartyForm';
 import Highlighter from 'react-highlight-words';
+import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 // const ViewDailyEntry = dynamic(() => import('../components/ViewDailyEntry'), {ssr: false});
 // import { render } from 'react-dom';
 const { Dragger } = Upload;
@@ -165,6 +166,8 @@ const AddDetails = () => {
     const PohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
 
     console.log(PohchId);
+
+    useDisableNumberInputScroll();
     useEffect(() => {
         const db = getDatabase();
         // set(ref(db, 'users/' + '0'), {

@@ -351,8 +351,9 @@ const Pohch = () => {
                 }}
             />
         ),
-        onFilter: (value, record) =>
+        onFilter: (value, record) => 
             dataIndex === 'courierStatus' && value === 'pending' ? record[dataIndex] === null || record[dataIndex] === undefined || record[dataIndex] === '' : record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()) ||  
+            // dataIndex === 'pohchRecievedDate' && value !== null ?  `${new Date(record[dataIndex]).getDate()}/${new Date(record[dataIndex]).getMonth()+1}/${new Date(record[dataIndex]).getFullYear()}` : 
             record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
         onFilterDropdownOpenChange: (visible) => {
             if (visible) {
