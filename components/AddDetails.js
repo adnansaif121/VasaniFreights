@@ -1761,9 +1761,9 @@ const AddDetails = () => {
                             <Card style={{ marginBottom: '10px' }} size="small">
                                 <div>
                                     <Form name='Kaata Parchi Details'
-                                        style={{
-                                            maxWidth: 1200,
-                                        }}
+                                        // style={{
+                                        //     maxWidth: 1200,
+                                        // }}
                                         initialValues={{
                                             remember: true,
                                             kaataParchi: [{}]
@@ -1791,21 +1791,25 @@ const AddDetails = () => {
 
                                                                             <Flex style={{
                                                                                 width: '100%',
-                                                                                height: 40,
+                                                                                height: 30,
                                                                             }} justify={'space-around'} align={'center'} >
 
-                                                                                <Form.Item style={{ width: '40%' }} name={[name, "remarks"]} label="Kaata Parchi Remarks">
+                                                                                <Form.Item style={{ width: '100%' }} name={[name, "remarks"]} label="Kaata Parchi Remarks">
                                                                                     <Input placeholder='remarks' ></Input>
                                                                                 </Form.Item>
 
-                                                                                <Form.Item style={{ width: '30%' }} name={[name, "kaataParchiAmount"]} label="Amount">
+
+
+                                                                            </Flex>
+                                                                            <Flex style={{
+                                                                                width: '100%',
+                                                                                height: 40,
+                                                                            }} justify={'space-around'} align={'center'} >
+                                                                                <Form.Item style={{ width: '50%' }} name={[name, "kaataParchiAmount"]} label="Amount">
                                                                                     <Input placeholder='amount' ></Input>
                                                                                 </Form.Item>
 
-                                                                                <Button style={{ width: '25%', marginTop: '-25px' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
-
-
-
+                                                                                <Button style={{ width: '55%', marginTop: '-25px' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
                                                                             </Flex>
 
 

@@ -2118,7 +2118,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                     />
                                                 </Form.Item>
 
-                                                <Tooltip placement="top" title={driver1.Contact + '\n' + driver1.LicenseDate} >
+                                                <Tooltip placement="top" title={driver1?.Contact + '\n' + driver1?.LicenseDate} >
                                                     <EyeOutlined />
                                                 </Tooltip>
 
@@ -2198,7 +2198,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 </Form.Item>
 
                                                 <td>
-                                                    <Tooltip placement="top" title={driver2.Contact + '\n' + driver2.LicenseDate} >
+                                                    <Tooltip placement="top" title={driver2?.Contact + '\n' + driver2?.LicenseDate} >
                                                         <EyeOutlined />
                                                     </Tooltip>
                                                 </td>
@@ -2252,7 +2252,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 </Form.Item>
 
                                                 <td>
-                                                    <Tooltip placement="top" title={conductor.Contact + '\n' + conductor.LicenseDate} >
+                                                    <Tooltip placement="top" title={conductor?.Contact + '\n' + conductor?.LicenseDate} >
                                                         <EyeOutlined />
                                                     </Tooltip>
                                                 </td>
