@@ -13,6 +13,7 @@ import NavLabel from './common/NavLabel';
 import EmptyPage from './common/EmptyPage';
 import AddDetails from './AddDetails';
 import Pohch from './Pohch';
+import Uvlogistics from './Uvlogistics';
 
 const items = [
     {
@@ -58,7 +59,7 @@ const items = [
     {
         key: '8',
         label: <NavLabel label={'UV Logistics'}/>,
-        children: <EmptyPage text={'UV Logistics'}/>,
+        children: <Uvlogistics text={'UV Logistics'}/>,
     },
     {
         key: '9',
