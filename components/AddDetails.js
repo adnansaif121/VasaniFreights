@@ -59,11 +59,8 @@ const AddDetails = () => {
     const [midwayDiesel, setMidwayDiesel] = useState('');
     const [rate, setRate] = useState([0, 0, 0, 0]);
     const [qty, setQty] = useState([0, 0, 0, 0]);
-    const [totalFreight, setTotalFreight] = useState(0);
-    const [khaliGadiWajan, setKhaliGadiWajan] = useState([0, 0, 0, 0]);
-    const [bhariGadiWajan, setBhariGadiWajan] = useState([0, 0, 0, 0]);
-    // To Track number of trips
-    const [tripCount, setTripCount] = useState(0);
+    const [bhadaKaunDalega, setBhadaKaunDalega] = useState(null);
+
     // to display dynamic Bhada Kaun Dalega list
     const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
     const [partyDetailsList, setPartyDetailsList] = useState([[], [], [], [], [], []]);
@@ -73,9 +70,6 @@ const AddDetails = () => {
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
     // Locations list
-    const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
-    const searchInput = useRef(null);
     const [Locations, setLocations] = useState([
         {
             value: 'mumbai',
@@ -125,6 +119,7 @@ const AddDetails = () => {
     // All Transporter List for Transporter Select
     const [transporterList, setTransporterList] = useState([]);
     const [newTransporter, setNewTransporter] = useState('');
+    const [transporterSelected, setTransporterSelected] = useState(false);
     // Data to display in the table
     const [completeDataSource, setCompleteDataSource] = useState([]);
     const [dataSource, setDataSource] = useState([]); // Table Data
@@ -315,21 +310,6 @@ const AddDetails = () => {
         }
         );
 
-        // let driversDetails = form1.getFieldsValue(['DriversDetails']);
-        // let listOfDrivers = [];
-        // driversDetails?.DriversDetails?.forEach((driver) => {
-        //     listOfDrivers.push({
-        //         driverName: driver?.driverName || '',
-        //         driverContact: driver?.driverContact || '',
-        //         driverLicenseDate: driver?.driverLicenseDate || '',
-        //         driverTripCash: driver?.driverTripCash || ''
-        //     });
-        // }
-        // );
-        // let driversDetails = [{...driver1}, {...driver2}, {...conductor}];
-
-        // if (form1?.getFieldsValue(['DriversDetails']).DriversDetails === undefined || driversDetails.length === 0) listOfDrivers = null;
-
         let kaataParchi = form2.getFieldsValue(['kaataParchi']);
         let listOfKaataParchi = [];
         kaataParchi?.kaataParchi?.forEach((parchi) => {
@@ -353,6 +333,7 @@ const AddDetails = () => {
             listOfFirstPayment.push({
                 bhadaKaunDalega: payment?.bhadaKaunDalega || '',
                 partyForNaveenKaka: payment?.partyForNaveenKaka || '',
+                partyForTransporterPayment: payment?.partyForTransporterPayment || '',
                 pohchAmount: payment?.pohchAmount || '',
                 pohchId: (payment?.pohchAmount !== undefined || payment?.pohchAmount !== '') ? PohchId : '',
                 pohchDate: payment?.pohchDate || '',
@@ -372,6 +353,7 @@ const AddDetails = () => {
             });
         }
         );
+        // IF bhadaKaunDalega is 'NaveenKaka' or 'HareKrishna' or transporterSelected, AND partyForTransporterPayment is not empty, then set or update the entry in database at '/'
 
         // console.log(form3.getFieldsValue(['paymentDetails']));
 
@@ -443,24 +425,6 @@ const AddDetails = () => {
             setDriver2Value(null);
             setConductorValue(null);
             resetDriverList();
-            // console.log({
-            //     date: date,
-            //     vehicleNo: vehicleNo || '',
-            //     mt: mt,
-            //     vehicleStatus: vehicleStatus || '',
-            //     // payStatus: payStatus || '',
-            //     dieselAndKmDetails: { ...dieselAndKmDetails },
-            //     tripDetails: listOfTrips,
-            //     driversDetails: listOfDrivers,
-            //     kaataParchi: listOfKaataParchi,
-            //     firstPayment: listOfFirstPayment,
-
-            //     // FIELDS DATA
-            //     tripDetailsFields: form.getFieldsValue(['tripDetails']),
-            //     driversDetailsFields: form1.getFieldsValue(['DriversDetails']),
-            //     kaataParchiFields: form2.getFieldsValue(['kaataParchi']),
-            //     firstPaymentFields: form3.getFieldsValue(['paymentDetails'])
-            // });
         }).catch((error) => {
             console.error('Error:', error);
         });
@@ -1232,6 +1196,7 @@ const AddDetails = () => {
                                                                                 optionFilterProp="children"
                                                                                 onChange={(value) => {
                                                                                     addPartyInPartyList(value, name);
+                                                                                    setTransporterSelected(value);
                                                                                     let _transporterList = transporterList;
                                                                                     for (let i = 0; i < _transporterList.length; i++) {
                                                                                         if (_transporterList[i].value === value) {
@@ -1901,7 +1866,7 @@ const AddDetails = () => {
                                                 showSearch
                                                 placeholder="Bhada Kaun Dalega"
                                                 optionFilterProp="children"
-                                                onChange={() => setFlag(!flag)}
+                                                onChange={(value) => setBhadaKaunDalega(value)}
                                                 // onSearch={onSearch}
                                                 filterOption={filterOption}
                                                 options={[
@@ -1909,11 +1874,28 @@ const AddDetails = () => {
                                                     // {label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.bhejneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.bhejneWaala},
                                                     // { label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.paaneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.paaneWaala},
                                                     // {label: form.getFieldValue(['tripDetails'])?.tripDetails[name]?.transporter, value: form.getFieldValue(['tripDetails']).tripDetails[name]?.transporter},
+                                                    { label: 'Hare Krishna', value: 'HareKrishna' },
                                                     { label: 'UV Logistics', value: 'UvLogs' },
                                                     { label: 'Naveen Kaka', value: 'NaveenKaka' }
                                                 ]}
                                             />
                                         </Form.Item>
+                                            
+                                         {(bhadaKaunDalega === 'HareKrishna' || bhadaKaunDalega === 'NaveenKaka' || bhadaKaunDalega === transporterSelected) &&
+                                            <Form.Item label="Select Party" name={[0, 'partyForTransporterPayment']}>
+                                                <Select
+                                                    showSearch
+                                                    placeholder="Bhada Kaun Dalega"
+                                                    optionFilterProp="children"
+                                                    // onChange={onChange}
+                                                    // onSearch={onSearch}
+                                                    filterOption={filterOption}
+                                                    options={[
+                                                        ...partyList[0]
+                                                    ]}
+                                                />
+                                            </Form.Item>
+                                         }   
 
                                         <Flex gap="middle" align="start" vertical>
                                             {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
@@ -1923,36 +1905,7 @@ const AddDetails = () => {
                                                         {fields.map(({ key, name, ...restField }) => (
                                                             <Flex key={key} style={{ width: '100%' }} justify={'space-around'} align={'center'}>
 
-                                                                <Row justify={'space-between'}>
 
-
-                                                                    {flag && form3.getFieldsValue(['paymentDetails']).paymentDetails[name]?.bhadaKaunDalega === 'NaveenKaka' ?
-                                                                        <Col>
-                                                                            <Form.Item label="Select Party" name={[name, 'partyForNaveenKaka']}>
-                                                                                <Select
-                                                                                    showSearch
-                                                                                    placeholder="Bhada Kaun Dalega"
-                                                                                    optionFilterProp="children"
-                                                                                    // onChange={onChange}
-                                                                                    // onSearch={onSearch}
-                                                                                    filterOption={filterOption}
-                                                                                    options={[
-                                                                                        ...partyList[name]
-                                                                                    ]}
-                                                                                />
-                                                                            </Form.Item>
-                                                                        </Col>
-                                                                        :
-                                                                        null
-                                                                    }
-                                                                    {/* <Col>
-                                                                                <CloseOutlined
-                                                                                    onClick={() => {
-                                                                                        remove(name);
-                                                                                    }}
-                                                                                />
-                                                                            </Col> */}
-                                                                </Row>
                                                                 <div
                                                                     key={key}
                                                                     style={{ border: '1px solid grey', borderRadius: '5px', padding: '10px' }}

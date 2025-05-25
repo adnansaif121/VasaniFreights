@@ -9,6 +9,8 @@ import ViewDailyEntry from './ViewDailyEntry';
 // import { vehicleData } from './data';
 import CreatePartyForm from './common/CreatePartyForm';
 import Highlighter from 'react-highlight-words';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 // const ViewDailyEntry = dynamic(() => import('../components/ViewDailyEntry'), {ssr: false});
 // import { render } from 'react-dom';
 const { Dragger } = Upload;
@@ -171,12 +173,14 @@ const Uvlogistics = () => {
                                     vehicleNo: data[key].vehicleNo,
                                     from: data[key].tripDetails[j].from,
                                     to: data[key].tripDetails[j].to,
+                                    revisedTo: data[key].tripDetails[j].revisedTo,
                                     paid: data[key].tripDetails[j].payStatus,
-                                    bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                    // bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
                                     paaneWaliParty: data[key].tripDetails[j].paaneWaala,
                                     maal: data[key].tripDetails[j].maal,
                                     qty: data[key].tripDetails[j].qty,
                                     rate: data[key].tripDetails[j].rate,
+                                    revisedRate: data[key].tripDetails[j].revisedRate,
                                     totalFreight: data[key].tripDetails[j].totalFreight,
                                     // pohchRecievedDate: data[key].firstPayment[j].pohchDate,
                                     // pohchAmt: data[key].firstPayment[j].pohchAmount,
@@ -184,8 +188,8 @@ const Uvlogistics = () => {
                                     courierStatus: data[key].tripDetails[j].courierStatus,
                                     courierSentDate: data[key].tripDetails[j].courierSentDate,
                                     pohchId: data[key].firstPayment[j].pohchId,
-                                    revisedRate: data[key].tripDetails[j].revisedRate,
-                                    revisedTo: data[key].tripDetails[j].revisedTo,
+                                    
+                                    
                                     tripExpense: data[key]?.driver1?.TripCash,
                                     tollExpense: data[key].tripDetails[j].tollExpense,
                                     UVLogsPaymentStatus: data[key].tripDetails[j].UVLogsPaymentStatus,
@@ -216,6 +220,21 @@ const Uvlogistics = () => {
         });
 
     }, [])
+
+    const exportToExcel = () => {
+        // Prepare data: remove unwanted fields if needed
+        const exportData = dataSource.map(row => {
+            const { key, ...rest } = row; // remove key if you don't want it in Excel
+            return rest;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "Uvlogistics.xlsx");
+    };
 
     const updatePohchId = async (key) => {
         const pohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
@@ -1229,9 +1248,11 @@ const Uvlogistics = () => {
                 setToDate(null);
                 setDateFilter(null);
             }}>Clear Date</Button>
+            <Button type="primary" style={{ margin: '20px' }} onClick={exportToExcel}>
+                Export to Excel
+            </Button>
             <div style={{ width: "100vw", overflowX: 'scroll', overflowY: 'scroll', height: '84vh', backgroundColor: 'white' }}>
-                <Table scroll={{ x: 2000, y: 400 }} bordered style={{ zIndex: '100', height: '100%' }} size="small" dataSource={dataSource} columns={columns} pagination={false}
-                />
+                <Table scroll={{ x: 2000, y: 400 }} bordered style={{ zIndex: '100', height: '100%' }} size="small" dataSource={dataSource} columns={columns} pagination={false} />
             </div>
 
         </>

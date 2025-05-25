@@ -14,6 +14,7 @@ import EmptyPage from './common/EmptyPage';
 import AddDetails from './AddDetails';
 import Pohch from './Pohch';
 import Uvlogistics from './Uvlogistics';
+import HareKrishna from './HareKrishna';
 
 const items = [
     {
@@ -64,7 +65,7 @@ const items = [
     {
         key: '9',
         label: <NavLabel label={'Hare Krishna'}/>,
-        children: <EmptyPage text={'Hare Krishna'}/>,
+        children: <HareKrishna text={'Hare Krishna'}/>,
     },
     {
         key: '10',
