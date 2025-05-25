@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
-import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, CheckCircleFilled, WarningFilled } from '@ant-design/icons';
+import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, CheckCircleFilled, WarningFilled, EditOutlined, SaveOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import firebase from '../config/firebase'
 import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
@@ -128,7 +128,20 @@ const Uvlogistics = () => {
             label: 'Pending',
         },
     ]);
-
+    // For Editing Toll Expense
+    const [editingTollKey, setEditingTollKey] = useState(null);
+    const [editingTollValues, setEditingTollValues] = useState({});
+    // For Editing Payment Status
+    const [editingPaymentStatusKey, setEditingPaymentStatusKey] = useState(null);
+    const [editingPaymentStatusValues, setEditingPaymentStatusValues] = useState({});
+    const [newPaymentStatus, setNewPaymentStatus] = useState('');
+    // For Editing Revised Rate
+    const [editingRevisedRateKey, setEditingRevisedRateKey] = useState(null);
+    const [editingRevisedRateValues, setEditingRevisedRateValues] = useState({});
+    // For Editing Revised To   
+    const [editingRevisedToKey, setEditingRevisedToKey] = useState(null);
+    const [editingRevisedToValues, setEditingRevisedToValues] = useState({});
+    const [newLocation, setNewLocation] = useState('');
     useEffect(() => {
         const db = getDatabase();
         // set(ref(db, 'users/' + '0'), {
@@ -361,19 +374,22 @@ const Uvlogistics = () => {
     });
 
     const columns = [
-        {
-            width: '9%',
-            title: 'Truck No.',
-            dataIndex: 'vehicleNo',
-            key: 'vehicleNo',
-            ...getColumnSearchProps('vehicleNo'),
-        },
+
         {
             width: '3%',
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
+            fixed: 'left',
             render: (text, record, index) => { return index + 1; }
+        },
+        {
+            width: '9%',
+            title: 'Truck No.',
+            dataIndex: 'vehicleNo',
+            key: 'vehicleNo',
+            fixed: 'left',
+            ...getColumnSearchProps('vehicleNo'),
         },
         {
             width: '7%',
@@ -400,97 +416,186 @@ const Uvlogistics = () => {
             }
         },
         {
-            width: '10%',
+            width: 200,
             title: 'Revised To',
             dataIndex: 'revisedTo',
             key: 'revisedTo',
             render: (text, record) => {
-                // create a input field to edit the value
-                if (text === undefined || text === null || text === '') {
+                // Add editing state for Revised To
+                if (editingRevisedToKey === record.key) {
                     return (
                         <>
                             <Select
                                 showSearch
+                                style={{ width: 140 }}
                                 placeholder="Revised To"
+                                value={editingRevisedToValues[record.key] ?? text}
                                 optionFilterProp="children"
-                                // onChange={onChange}
-                                // onSearch={onSearch}
+                                onChange={(value) => setEditingRevisedToValues(prev => ({ ...prev, [record.key]: value }))}
                                 filterOption={filterOption}
                                 options={Locations}
                                 dropdownRender={(menu) => (
                                     <>
                                         {menu}
-                                        <Divider
-                                            style={{
-                                                margin: '8px 0',
-                                            }}
-                                        />
-                                        <Space
-                                            style={{
-                                                padding: '0 8px 4px',
-                                            }}
-                                        >
+                                        <Divider style={{ margin: '8px 0' }} />
+                                        <Space style={{ padding: '0 8px 4px' }}>
                                             <Input
                                                 placeholder="Please enter item"
-                                                // value={newLocation}
-                                                onChange={(e) => text = e.target.value}
+                                                value={newLocation}
+                                                onChange={(e) => setNewLocation(e.target.value)}
                                                 onKeyDown={(e) => e.stopPropagation()}
                                             />
-                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                e.preventDefault();
-                                                if (text === "") {
-                                                    alert("Please enter a value to add location.")
-                                                    return;
-                                                }
-                                                for (let i = 0; i < Locations.length; i++) {
-                                                    if (Locations[i].label.toLowerCase() === text.toLowerCase()) {
-                                                        alert(`Location with name ${Locations[i].label} already exists.`);
+                                            <Button
+                                                type="text"
+                                                icon={<PlusOutlined />}
+                                                onClick={() => {
+                                                    if (!newLocation) {
+                                                        alert("Please enter a value to add location.");
                                                         return;
                                                     }
-                                                }
-                                                setLocations([...Locations, { value: text, label: text }]);
-                                                // setNewLocation('');
-                                            }}>
-
-                                            </Button>
+                                                    if (Locations.some(loc => loc.label.toLowerCase() === newLocation.toLowerCase())) {
+                                                        alert(`Location with name ${newLocation} already exists.`);
+                                                        return;
+                                                    }
+                                                    setLocations([...Locations, { value: newLocation, label: newLocation }]);
+                                                    setNewLocation('');
+                                                }}
+                                            />
                                         </Space>
                                     </>
                                 )}
                             />
                             <Button
+                                icon={<SaveOutlined />}
                                 onClick={() => {
-
-                                    if (text === undefined || text === null || text === '') {
-                                        alert('Please enter a value to save');
+                                    const value = editingRevisedToValues[record.key];
+                                    if (!value) {
+                                        alert('Please select a value to save');
                                         return;
                                     }
-                                    // Ask for Confirmation
                                     if (!confirm("Are you sure you want to save the changes?")) {
                                         return;
                                     }
-                                    // update the status in the database
                                     const db = getDatabase();
                                     const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
                                     update(starCountRef, {
-                                        revisedTo: text
+                                        revisedTo: value
                                     }).then(() => {
-                                        alert("To Updated Successfully!!");
+                                        alert("Revised To Updated Successfully!!");
+                                        setEditingRevisedToKey(null);
+                                        setEditingRevisedToValues(prev => ({ ...prev, [record.key]: '' }));
                                         return;
                                     })
-
                                 }}
-                            >Save</Button>
+                                style={{ marginLeft: 8 }}
+                            />
+                            <Button
+                                onClick={() => {
+                                    setEditingRevisedToKey(null);
+                                    setEditingRevisedToValues(prev => ({ ...prev, [record.key]: '' }));
+                                }}
+                                style={{ marginLeft: 8 }}
+                            >Cancel</Button>
                         </>
-                    )
+                    );
                 }
-                else {
+
+                // If value is empty, show select directly
+                if (text === undefined || text === null || text === '') {
                     return (
-                        <span>{text}</span>
-                    )
+                        <>
+                            <Select
+                                showSearch
+                                style={{ width: 140 }}
+                                placeholder="Revised To"
+                                value={editingRevisedToValues[record.key] ?? text}
+                                optionFilterProp="children"
+                                onChange={(value) => setEditingRevisedToValues(prev => ({ ...prev, [record.key]: value }))}
+                                filterOption={filterOption}
+                                options={Locations}
+                                dropdownRender={(menu) => (
+                                    <>
+                                        {menu}
+                                        <Divider style={{ margin: '8px 0' }} />
+                                        <Space style={{ padding: '0 8px 4px' }}>
+                                            <Input
+                                                placeholder="Please enter item"
+                                                value={newLocation}
+                                                onChange={(e) => setNewLocation(e.target.value)}
+                                                onKeyDown={(e) => e.stopPropagation()}
+                                            />
+                                            <Button
+                                                type="text"
+                                                icon={<PlusOutlined />}
+                                                onClick={() => {
+                                                    if (!newLocation) {
+                                                        alert("Please enter a value to add location.");
+                                                        return;
+                                                    }
+                                                    if (Locations.some(loc => loc.label.toLowerCase() === newLocation.toLowerCase())) {
+                                                        alert(`Location with name ${newLocation} already exists.`);
+                                                        return;
+                                                    }
+                                                    setLocations([...Locations, { value: newLocation, label: newLocation }]);
+                                                    setNewLocation('');
+                                                }}
+                                            />
+                                        </Space>
+                                    </>
+                                )}
+                            />
+                            <Button
+                                icon={<SaveOutlined />}
+                                onClick={() => {
+                                    const value = editingRevisedToValues[record.key];
+                                    if (!value) {
+                                        alert('Please select a value to save');
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to save the changes?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        revisedTo: value
+                                    }).then(() => {
+                                        alert("Revised To Updated Successfully!!");
+                                        setEditingRevisedToValues(prev => ({ ...prev, [record.key]: '' }));
+                                        return;
+                                    })
+                                }}
+                                style={{ marginLeft: 8 }}
+                            />
+                        </>
+                    );
                 }
+
+                // Otherwise, show value and edit button
+                return (
+                    <>
+                        <span>{text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null}</span>
+                        <Button
+                            icon={<EditOutlined />}
+                            size="small"
+                            style={{ marginLeft: 8 }}
+                            onClick={() => {
+                                setEditingRevisedToKey(record.key);
+                                setEditingRevisedToValues(prev => ({ ...prev, [record.key]: '' }));
+                            }}
+                        />
+                    </>
+                );
             }
         },
         {
+            width: 100,
+            title: 'Receiver',
+            dataIndex: 'paaneWaliParty',
+            key: 'paaneWaliParty',
+        },
+        {
+            width: 100,
             title: 'Maal',
             dataIndex: 'maal',
             key: 'maal',
@@ -500,67 +605,127 @@ const Uvlogistics = () => {
             }
         },
         {
-            width: '3%',
+            width: 100,
             title: 'Qty',
             dataIndex: 'qty',
             key: 'qty',
 
         },
         {
+            width: 100,
             title: 'Rate',
             dataIndex: 'rate',
             key: 'rate',
 
         },
         {
+            width: 180,
             title: 'Revised Rate',
             dataIndex: 'revisedRate',
             key: 'revisedRate',
             render: (text, record) => {
-                // create a input field to edit the value
+                if (editingRevisedRateKey === record.key) {
+                    return (
+                        <>
+                            <Input
+                                style={{ width: 120 }}
+                                type="number"
+                                onWheel={e => e.target.blur()}
+                                value={editingRevisedRateValues[record.key] ?? text}
+                                onChange={e =>
+                                    setEditingRevisedRateValues(prev => ({ ...prev, [record.key]: e.target.value }))
+                                }
+                                placeholder="Revised Rate"
+                            />
+                            <Button
+                                icon={<SaveOutlined />}
+                                onClick={() => {
+                                    const value = editingRevisedRateValues[record.key];
+                                    if (!value) {
+                                        alert('Please enter a value to save');
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to save the changes?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        revisedRate: value
+                                    }).then(() => {
+                                        alert("Revised Rate Updated Successfully!!");
+                                        setEditingRevisedRateKey(null);
+                                        setEditingRevisedRateValues(prev => ({ ...prev, [record.key]: '' }));
+                                        return;
+                                    })
+                                }}
+                                style={{ marginLeft: 8 }}
+                            />
+                            <Button
+                                onClick={() => {
+                                    setEditingRevisedRateKey(null);
+                                    setEditingRevisedRateValues(prev => ({ ...prev, [record.key]: '' }));
+                                }}
+                                style={{ marginLeft: 8 }}
+                            >Cancel</Button>
+                        </>
+                    );
+                }
+
                 if (text === undefined || text === null || text === '') {
                     return (
                         <>
                             <Input
-                                style={{
-                                    width: '100%',
-                                }}
+                                style={{ width: 120 }}
+                                type="number"
+                                onWheel={e => e.target.blur()}
+                                value={editingRevisedRateValues[record.key] ?? text}
+                                onChange={e =>
+                                    setEditingRevisedRateValues(prev => ({ ...prev, [record.key]: e.target.value }))
+                                }
                                 placeholder="Revised Rate"
-                                onChange={(e) => {
-                                    text = e.target.value;
-                                }}
                             />
                             <Button
+                                icon={<SaveOutlined />}
                                 onClick={() => {
-
-                                    if (text === undefined || text === null || text === '') {
+                                    const value = editingRevisedRateValues[record.key];
+                                    if (!value) {
                                         alert('Please enter a value to save');
                                         return;
                                     }
-                                    // Ask for Confirmation
                                     if (!confirm("Are you sure you want to save the changes?")) {
                                         return;
                                     }
-                                    // update the status in the database
                                     const db = getDatabase();
                                     const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
                                     update(starCountRef, {
-                                        revisedRate: text
+                                        revisedRate: value
                                     }).then(() => {
-                                        alert("Rate Updated Successfully!!");
+                                        alert("Revised Rate Updated Successfully!!");
+                                        setEditingRevisedRateValues(prev => ({ ...prev, [record.key]: '' }));
                                         return;
                                     })
-
                                 }}
-                            >Save</Button>
+                                style={{ marginLeft: 8 }}
+                            />
                         </>
-                    )
+                    );
                 }
 
                 return (
-                    <span>{text}</span>
-                )
-
+                    <>
+                        <span>{text}</span>
+                        <Button
+                            icon={<EditOutlined />}
+                            size="small"
+                            style={{ marginLeft: 8 }}
+                            onClick={() => {
+                                setEditingRevisedRateKey(record.key);
+                                setEditingRevisedRateValues(prev => ({ ...prev, [record.key]: text }));
+                            }}
+                        />
+                    </>
+                );
             }
         },
         {
@@ -582,84 +747,142 @@ const Uvlogistics = () => {
             }
         },
         {
+            width: 100,
             title: 'Trip Expense',
             dataIndex: 'tripExpense',
             key: 'tripExpense',
         },
         {
+            width: 200,
             title: 'Toll Expense',
             dataIndex: 'tollExpense',
             key: 'tollExpense',
             render: (text, record) => {
-                // create a input field to edit the value
+                // If editing this row
+                if (editingTollKey === record.key) {
+                    return (
+                        <>
+                            <Input
+                                style={{ width: 140 }}
+                                type="number"
+                                onWheel={e => e.target.blur()}
+                                value={editingTollValues[record.key] ?? text}
+                                onChange={e => setEditingTollValues(prev => ({ ...prev, [record.key]: e.target.value }))}
+                                placeholder="Toll Expense"
+                            />
+                            <Button
+                                icon={<SaveOutlined />}
+                                onClick={() => {
+                                    const value = editingTollValues[record.key];
+                                    if (!value) {
+                                        alert('Please enter a value to save');
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to save the changes?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        tollExpense: value
+                                    }).then(() => {
+                                        alert("Toll Expense Updated Successfully!!");
+                                        setEditingTollKey(null);
+                                        setEditingTollValues(prev => ({ ...prev, [record.key]: '' }));
+                                        return;
+                                    })
+                                }}
+                                style={{ marginLeft: 8 }}
+                            />
+                            <Button
+                                onClick={() => {
+                                    setEditingTollKey(null);
+                                    setEditingTollValues(prev => ({ ...prev, [record.key]: '' }));
+                                }}
+                                style={{ marginLeft: 8 }}
+                            >Cancel</Button>
+                        </>
+                    );
+                }
+
+                // If value is empty, show input directly
                 if (text === undefined || text === null || text === '') {
                     return (
                         <>
                             <Input
-                                style={{
-                                    width: '100%',
-                                }}
+                                style={{ width: 140 }}
+                                type="number"
+                                onWheel={e => e.target.blur()}
+                                value={editingTollValues[record.key] ?? text}
+                                onChange={e => setEditingTollValues(prev => ({ ...prev, [record.key]: e.target.value }))}
                                 placeholder="Toll Expense"
-                                onChange={(e) => {
-                                    text = e.target.value;
-                                }}
                             />
                             <Button
+                                icon={<SaveOutlined />}
                                 onClick={() => {
-
-                                    if (text === undefined || text === null || text === '') {
+                                    const value = editingTollValues[record.key];
+                                    if (!value) {
                                         alert('Please enter a value to save');
                                         return;
                                     }
-                                    // Ask for Confirmation
                                     if (!confirm("Are you sure you want to save the changes?")) {
                                         return;
                                     }
-                                    // update the status in the database
                                     const db = getDatabase();
                                     const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
                                     update(starCountRef, {
-                                        tollExpense: text
+                                        tollExpense: value
                                     }).then(() => {
                                         alert("Toll Expense Updated Successfully!!");
+                                        setEditingTollValues(prev => ({ ...prev, [record.key]: '' }));
                                         return;
                                     })
-
                                 }}
-                            >Save</Button>
+                                style={{ marginLeft: 8 }}
+                            />
                         </>
-                    )
+                    );
                 }
 
+                // Otherwise, show value and edit button
                 return (
-                    <span>{text}</span>
-                )
-
+                    <>
+                        <span>{text}</span>
+                        <Button
+                            icon={<EditOutlined />}
+                            size="small"
+                            style={{ marginLeft: 8 }}
+                            onClick={() => {
+                                setEditingTollKey(record.key);
+                                setEditingTollValues(prev => ({ ...prev, [record.key]: text }));
+                            }}
+                        />
+                    </>
+                );
             }
         },
         {
+            width: 100,
             title: 'Diesel Amount',
             dataIndex: 'dieselExpense',
             key: 'dieselExpense',
         },
         {
-            width: '10%',
+            width: 200,
             title: 'Payment Status',
             dataIndex: 'UVLogsPaymentStatus',
             key: 'UVLogsPaymentStatus',
+            fixed: 'right',
             render: (text, record) => {
-                // Dropdown with options received, pending, not paid
-                if (text === undefined || text === null || text === '') {
+                if (editingPaymentStatusKey === record.key) {
                     return (
                         <>
                             <Select
-                                defaultValue={text}
-                                style={{
-                                    width: 120,
-                                }}
-                                onChange={(value) => {
-                                    text = value;
-                                }}
+                                style={{ width: 120 }}
+                                value={editingPaymentStatusValues[record.key] ?? text}
+                                onChange={(value) =>
+                                    setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: value }))
+                                }
                                 options={uvPaymentStatusList}
                                 placeholder="Select Payment Status"
                                 dropdownRender={menu => (
@@ -670,55 +893,135 @@ const Uvlogistics = () => {
                                             <Input
                                                 style={{ width: '100px' }}
                                                 placeholder="Add new status"
-                                                value={text}
-                                                onChange={(e) => {
-                                                    text = e.target.value;
-                                                }}
+                                                value={newPaymentStatus}
+                                                onChange={(e) => setNewPaymentStatus(e.target.value)}
                                             />
-                                        </Space>
                                             <Button
                                                 type="text"
                                                 icon={<PlusOutlined />}
                                                 onClick={() => {
-                                                    setUvPaymentStatusList([...uvPaymentStatusList, { value: text, label: text }]);
+                                                    if (!newPaymentStatus) return;
+                                                    setUvPaymentStatusList([...uvPaymentStatusList, { value: newPaymentStatus, label: newPaymentStatus }]);
+                                                    setNewPaymentStatus('');
                                                 }}
-                                            >
-                                                {/* <PlusOutlined /> */}
-                                            </Button>
+                                            />
+                                        </Space>
                                     </div>
                                 )}
                             />
-                            <Button onClick={() => {
-                                if (text === undefined || text === null || text === '') {
-                                    alert('Please select a value to save');
-                                    return;
-                                }
-                                // Ask for Confirmation
-                                if (!confirm("Are you sure you want to save the changes?")) {
-                                    return;
-                                }
-                                // update the status in the database
-                                const db = getDatabase();
-                                const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
-                                update(starCountRef, {
-                                    UVLogsPaymentStatus: text
-                                }).then(() => {
-                                    alert("Payment Status Updated Successfully!!");
-                                    return;
-                                })
-                            }
-                            }>Save
-                            </Button>
+                            <Button
+                                icon={<SaveOutlined />}
+                                onClick={() => {
+                                    const value = editingPaymentStatusValues[record.key];
+                                    if (!value) {
+                                        alert('Please select a value to save');
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to save the changes?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        UVLogsPaymentStatus: value
+                                    }).then(() => {
+                                        alert("Payment Status Updated Successfully!!");
+                                        setEditingPaymentStatusKey(null);
+                                        setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: '' }));
+                                        return;
+                                    })
+                                }}
+                                style={{ marginLeft: 8 }}
+                            />
+                            <Button
+                                onClick={() => {
+                                    setEditingPaymentStatusKey(null);
+                                    setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: '' }));
+                                }}
+                                style={{ marginLeft: 8 }}
+                            >Cancel</Button>
                         </>
-                    )
+                    );
                 }
-                else {
+
+                if (text === undefined || text === null || text === '') {
                     return (
-                        <span>{text}</span>
-                    )
+                        <>
+                            <Select
+                                style={{ width: 120 }}
+                                value={editingPaymentStatusValues[record.key] ?? text}
+                                onChange={(value) =>
+                                    setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: value }))
+                                }
+                                options={uvPaymentStatusList}
+                                placeholder="Select Payment Status"
+                                dropdownRender={menu => (
+                                    <div>
+                                        {menu}
+                                        <Divider style={{ margin: '8px 0' }} />
+                                        <Space style={{ padding: '0 8px 4px' }}>
+                                            <Input
+                                                style={{ width: '100px' }}
+                                                placeholder="Add new status"
+                                                value={newPaymentStatus}
+                                                onChange={(e) => setNewPaymentStatus(e.target.value)}
+                                            />
+                                            <Button
+                                                type="text"
+                                                icon={<PlusOutlined />}
+                                                onClick={() => {
+                                                    if (!newPaymentStatus) return;
+                                                    setUvPaymentStatusList([...uvPaymentStatusList, { value: newPaymentStatus, label: newPaymentStatus }]);
+                                                    setNewPaymentStatus('');
+                                                }}
+                                            />
+                                        </Space>
+                                    </div>
+                                )}
+                            />
+                            <Button
+                                icon={<SaveOutlined />}
+                                onClick={() => {
+                                    const value = editingPaymentStatusValues[record.key];
+                                    if (!value) {
+                                        alert('Please select a value to save');
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to save the changes?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        UVLogsPaymentStatus: value
+                                    }).then(() => {
+                                        alert("Payment Status Updated Successfully!!");
+                                        setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: '' }));
+                                        return;
+                                    })
+                                }}
+                                style={{ marginLeft: 8 }}
+                            />
+                        </>
+                    );
                 }
+
+                return (
+                    <>
+                        <span>{text}</span>
+                        <Button
+                            icon={<EditOutlined />}
+                            size="small"
+                            style={{ marginLeft: 8 }}
+                            onClick={() => {
+                                setEditingPaymentStatusKey(record.key);
+                                setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: text }));
+                            }}
+                        />
+                    </>
+                );
             }
-        }
+        },
 
 
 
@@ -914,229 +1217,6 @@ const Uvlogistics = () => {
 
     return (
         <>
-            {/* <Input onChange={(e)=>setKey(e.target.value)}/>
-            <Button onClick={() => {console.log(key); updatePohchId(key)}}>Update Pohch Id</Button> */}
-            <CreatePartyForm
-                isModalOpen={isModalOpen}
-                handleOk={handleOk}
-                handleCancel={handleCancel}
-                createPartyForm={createPartyForm}
-                partyModal={partyModal}
-                setPartyModal={setPartyModal}
-            />
-
-            <Modal title="Create Driver" open={isDriverModalOpen} onOk={handleDriverOk} onCancel={handleDriverCancel}
-                footer={[
-                    <Button key="back" onClick={handleDriverCancel}>
-                        Cancel
-                    </Button>,
-                    <Button key="submit" type="primary" onClick={handleDriverOk}>
-                        Submit
-                    </Button>
-                ]}
-            >
-                <Form name="DriverForm" layout="vertical" form={driverForm}>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                // name="name"
-                                label="Name"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter user name',
-                                    },
-                                ]}
-                            >
-                                <Input onChange={(e) => {
-                                    let obj = driverModal;
-                                    obj.label = e.target.value;
-                                    obj.value = e.target.value;
-                                    setDriverModal(obj);
-                                }} placeholder="Please enter user name" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                // name="Party Location"
-                                label="Driver Location"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter url',
-                                    },
-                                ]}
-                            >
-                                <Input
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    placeholder="Driver Location"
-                                    onChange={(e) => {
-                                        let obj = driverModal;
-                                        obj.location = e.target.value;
-                                        setDriverModal(obj);
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={8}>
-                            <Form.Item
-                                // name="Address"
-                                label="License Date"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please select an owner',
-                                    },
-                                ]}
-                            >
-                                <Input
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    type='date'
-                                    placeholder="License Date"
-                                    onChange={(e) => {
-                                        let obj = driverModal;
-                                        obj.LicenseDate = e.target.value;
-                                        setDriverModal(obj);
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={8}>
-                            <Form.Item
-                                label="License type"
-                                name="License type"
-                            >
-                                <Select
-                                    placeholder="License type"
-                                    optionFilterProp="children"
-                                    onChange={(value) => {
-                                        let obj = driverModal;
-                                        obj.LicenseType = value;
-                                        setDriverModal(obj);
-                                    }}
-                                    options={[
-                                        {
-                                            value: 'Heavy Vehicle',
-                                            label: 'Heavy Vehicle',
-                                        },
-                                        {
-                                            value: 'Light Vehicle',
-                                            label: 'Light Vehicle',
-                                        }
-                                    ]}
-                                />
-                            </Form.Item>
-
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                // name="ContactNumber"
-                                label="Contact Number"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Provide Contact Number',
-                                    },
-                                ]}
-                            >
-                                <Input
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    placeholder="Contact Number"
-                                    onChange={(e) => {
-                                        let obj = driverModal;
-                                        obj.Contact = e.target.value;
-                                        setDriverModal(obj);
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <Form.Item
-                                // name="description"
-                                label="Description"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'please enter url description',
-                                    },
-                                ]}
-                            >
-                                <Input.TextArea rows={4} placeholder="please enter url description" onChange={(e) => {
-                                    let obj = driverModal;
-                                    obj.description = e.target.value;
-                                    setDriverModal(obj);
-                                }} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    {/* // Add this inside your Driver Modal Form, you can place it after the Contact Number Form.Item */}
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <Form.Item
-                                label="Driver's License Document"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please upload driver license document',
-                                    },
-                                ]}
-                            >
-                                <Upload.Dragger
-                                    name="licenseDocument"
-                                    accept="image/*,.pdf"
-                                    multiple={false}
-                                    beforeUpload={(file) => {
-                                        // Check file size (example: max 5MB)
-                                        const isLt5M = file.size / 1024 / 1024 < 5;
-                                        if (!isLt5M) {
-                                            message.error('Image must be smaller than 5MB!');
-                                            return Upload.LIST_IGNORE;
-                                        }
-
-                                        // Handle the file
-                                        const reader = new FileReader();
-                                        reader.readAsDataURL(file);
-                                        reader.onload = () => {
-                                            let obj = driverModal;
-                                            obj.licenseDocument = reader.result; // stores base64 string
-                                            setDriverModal(obj);
-                                        };
-
-                                        // Prevent default upload
-                                        return false;
-                                    }}
-                                    onRemove={() => {
-                                        let obj = driverModal;
-                                        obj.licenseDocument = null;
-                                        setDriverModal(obj);
-                                    }}
-                                >
-                                    <p className="ant-upload-drag-icon">
-                                        <InboxOutlined />
-                                    </p>
-                                    <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                                    <p className="ant-upload-hint">
-                                        Support for a single image upload. Please upload drivers license document.
-                                    </p>
-                                </Upload.Dragger>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Form>
-            </Modal>
 
             <span style={{ marginLeft: '40px' }}>From Date:</span>
             <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
@@ -1149,8 +1229,8 @@ const Uvlogistics = () => {
                 setToDate(null);
                 setDateFilter(null);
             }}>Clear Date</Button>
-            <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
-                <Table bordered style={{ zIndex: '100' }} size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} pagination={false}
+            <div style={{ width: "100vw", overflowX: 'scroll', overflowY: 'scroll', height: '84vh', backgroundColor: 'white' }}>
+                <Table scroll={{ x: 2000, y: 400 }} bordered style={{ zIndex: '100', height: '100%' }} size="small" dataSource={dataSource} columns={columns} pagination={false}
                 />
             </div>
 
