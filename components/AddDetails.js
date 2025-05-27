@@ -60,6 +60,7 @@ const AddDetails = () => {
     const [rate, setRate] = useState([0, 0, 0, 0]);
     const [qty, setQty] = useState([0, 0, 0, 0]);
     const [bhadaKaunDalega, setBhadaKaunDalega] = useState(null);
+    const [partyForTransporterPayment, setPartyForTransporterPayment] = useState('');
 
     // to display dynamic Bhada Kaun Dalega list
     const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
@@ -331,9 +332,9 @@ const AddDetails = () => {
         let listOfFirstPayment = [];
         firstPayment?.paymentDetails?.forEach((payment) => {
             listOfFirstPayment.push({
-                bhadaKaunDalega: payment?.bhadaKaunDalega || '',
+                bhadaKaunDalega: bhadaKaunDalega || '',
                 partyForNaveenKaka: payment?.partyForNaveenKaka || '',
-                partyForTransporterPayment: payment?.partyForTransporterPayment || '',
+                partyForTransporterPayment: partyForTransporterPayment || '',
                 pohchAmount: payment?.pohchAmount || '',
                 pohchId: (payment?.pohchAmount !== undefined || payment?.pohchAmount !== '') ? PohchId : '',
                 pohchDate: payment?.pohchDate || '',
@@ -1874,7 +1875,6 @@ const AddDetails = () => {
                                                     // {label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.bhejneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.bhejneWaala},
                                                     // { label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.paaneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.paaneWaala},
                                                     // {label: form.getFieldValue(['tripDetails'])?.tripDetails[name]?.transporter, value: form.getFieldValue(['tripDetails']).tripDetails[name]?.transporter},
-                                                    { label: 'Hare Krishna', value: 'HareKrishna' },
                                                     { label: 'UV Logistics', value: 'UvLogs' },
                                                     { label: 'Naveen Kaka', value: 'NaveenKaka' }
                                                 ]}
@@ -1887,7 +1887,7 @@ const AddDetails = () => {
                                                     showSearch
                                                     placeholder="Bhada Kaun Dalega"
                                                     optionFilterProp="children"
-                                                    // onChange={onChange}
+                                                    onChange={(value) => setPartyForTransporterPayment(value)}
                                                     // onSearch={onSearch}
                                                     filterOption={filterOption}
                                                     options={[

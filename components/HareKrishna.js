@@ -3,7 +3,7 @@ import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
-import ViewPartyDetails from './ViewPartyDetails';
+import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
 
 const bankData = [
@@ -360,104 +360,110 @@ const HareKrishna = () => {
     const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
-        const db = getDatabase();
-        // Get data from database
-        const starCountRef = ref(db, 'dailyEntry/');
-        // console.log(starCountRef);
-        let ds = []; // Data Source
-        const dbref = ref(db);
+        const getData = async () => {
 
-        const partyRef = ref(db, 'parties/');
-        let partyNameList = [];
-
-        get(child(dbref, 'dailyEntry')).then((snapshot) => {
-            const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
-            if (data) {
-                setAllTableData(data);
-                Object.keys(data).map((key, i) => {
-                    for (let j = 0; j < data[key].tripDetails.length; j++) {
-
-                        partyNameList.push(data[key].firstPayment[j]?.partyForTransporterPayment || null);
-
-                        let receivedAmt = (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'HareKrishna') ?
-                            (
-                                parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
-                                parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
-                                parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
-                                parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
-                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
-                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
-                            )
-                            : 0;
-
-                        if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'HareKrishna')) {
-                            ds.push(
-                                {
-                                    key: key + j,
-                                    id: i + 1,
-                                    date: data[key].date,
-                                    vehicleNo: data[key].vehicleNo,
-                                    transactionStatus: data[key].tripDetails[j].transactionStatus || 'open',
-                                    mt: data[key].mt,
-                                    from: data[key].tripDetails[j].from,
-                                    to: data[key].tripDetails[j].to,
-                                    paid: data[key].tripDetails[j].payStatus,
-                                    bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
-                                    paaneWaliParty: data[key].tripDetails[j].paaneWaala,
-                                    transporter: data[key].tripDetails[j].transporter,
-                                    maal: data[key].tripDetails[j].maal,
-                                    qty: data[key].tripDetails[j].qty,
-                                    rate: data[key].tripDetails[j].rate,
-                                    totalFreight: data[key].tripDetails[j].totalFreight,
-                                    received: receivedAmt,
-                                    dieselAndKmDetails: data[key].dieselAndKmDetails,
-                                    tripDetails: data[key].tripDetails,
-                                    driversDetails: data[key].driversDetails,
-                                    kaataParchi: data[key].kaataParchi,
-                                    firstPayment: data[key].firstPayment,
-                                    bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
-                                    vehicleStatus: data[key].vehicleStatus,
-                                    furtherPayments: data[key].furtherPayments || {},
-                                    remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance),
-                                    extraAmtRemark: data[key].tripDetails[j].extraAmtRemark
-                                }
-                            )
+            const db = getDatabase();
+            // Get data from database
+            const starCountRef = ref(db, 'dailyEntry/');
+            // console.log(starCountRef);
+            let ds = []; // Data Source
+            const dbref = ref(db);
+    
+            const partyRef = ref(db, 'parties/');
+            let partyNameList = [];
+    
+            await get(child(dbref, 'dailyEntry')).then((snapshot) => {
+                const data = snapshot.val();
+                console.log(data);
+                // updateStarCount(postElement, data);
+                if (data) {
+                    setAllTableData(data);
+                    Object.keys(data).map((key, i) => {
+                        for (let j = 0; j < data[key].tripDetails.length; j++) {
+                            console.log(data[key].firstPayment, 'firstPayment');
+                            if(data[key].firstPayment === undefined || data[key].firstPayment[j] === undefined) continue;
+                            partyNameList.push(data[key]?.firstPayment[j]?.partyForTransporterPayment || null);
+    
+                            let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'Hare Krishna') ?
+                                (
+                                    parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
+                                    parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
+                                    parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
+                                    parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
+                                    (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
+                                    (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
+                                )
+                                : 0;
+    
+                            if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'Hare Krishna')) {
+                                ds.push(
+                                    {
+                                        key: key + j,
+                                        id: i + 1,
+                                        lrno: data[key]?.firstPayment[j]?.lrno || '',
+                                        date: data[key]?.date,
+                                        vehicleNo: data[key]?.vehicleNo,
+                                        transactionStatus: data[key]?.tripDetails[j].transactionStatus || 'open',
+                                        mt: data[key]?.mt,
+                                        from: data[key].tripDetails[j].from,
+                                        to: data[key].tripDetails[j].to,
+                                        paid: data[key].tripDetails[j].payStatus,
+                                        bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                        paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                        transporter: data[key].tripDetails[j].transporter,
+                                        maal: data[key].tripDetails[j].maal,
+                                        qty: data[key].tripDetails[j].qty,
+                                        rate: data[key].tripDetails[j].rate,
+                                        totalFreight: data[key].tripDetails[j].totalFreight,
+                                        received: receivedAmt,
+                                        dieselAndKmDetails: data[key].dieselAndKmDetails,
+                                        tripDetails: data[key].tripDetails,
+                                        driversDetails: data[key].driversDetails,
+                                        kaataParchi: data[key].kaataParchi,
+                                        firstPayment: data[key].firstPayment,
+                                        bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
+                                        vehicleStatus: data[key].vehicleStatus,
+                                        furtherPayments: data[key].furtherPayments || {},
+                                        remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance),
+                                        extraAmtRemark: data[key].tripDetails[j].extraAmtRemark
+                                    }
+                                )
+                            }
                         }
-                    }
-                });
-            }
-            console.log(ds);
-            ds = ds.sort(
-                (a, b) => Number(new Date(a.date)) - Number(new Date(b.date)),
-            );
-            setDisplayDataSource(ds);
-            setDataSource(ds);
-        }).catch((error) => {
-            console.log(error);
-        })
+                    });
+                }
+                console.log(ds);
+                ds = ds.sort(
+                    (a, b) => Number(new Date(a.date)) - Number(new Date(b.date)),
+                );
+                setDisplayDataSource(ds);
+                setDataSource(ds);
+            }).catch((error) => {
+                console.log(error);
+            })
+    
+            await onValue(partyRef, (snapshot) => {
+                const data = snapshot.val();
+                console.log(data, 'parties');
+                // updateStarCount(postElement, data);
+                let parties = []; // Data Source
+                if (data !== null) {
+                    Object.values(data).map((party, i) => {
+                        if(partyNameList.includes(party.label)){
+                            parties.push(party);
+                        }
+                        // partyNameList.push(party.label);
+                    })
+                    setPartyIds(Object.keys(data));
+                }
+    
+                // setPartyListAll([...parties]);
+                setPartyList([...parties]);
+                setDisplayPartyList([...parties]);
+            });
+        }
 
-        onValue(partyRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'parties');
-            // updateStarCount(postElement, data);
-            let parties = []; // Data Source
-            if (data !== null) {
-                Object.values(data).map((party, i) => {
-                    if(partyNameList.includes(party.label)){
-                        parties.push(party);
-                    }
-                    // partyNameList.push(party.label);
-                })
-                setPartyIds(Object.keys(data));
-            }
-
-            // setPartyListAll([...parties]);
-            setPartyList([...parties]);
-            setDisplayPartyList([...parties]);
-        });
-
+        getData();
     }, [refreshKey]);
 
     const handle_Search = (selectedKeys, confirm, dataIndex) => {
@@ -607,6 +613,12 @@ const HareKrishna = () => {
             render: (text, record, index) => index + 1
         },
         {
+            title: 'LR No.',
+            dataIndex: 'lrno',
+            key: 'lrno',
+            ...getColumnSearchProps('lrno'),
+        },
+        {
             title: 'Payment Status',
             dataIndex: 'transactionStatus',
             key: 'transactionStatus',
@@ -636,14 +648,21 @@ const HareKrishna = () => {
             key: 'from',
         },
         {
+            title: 'Sender',
+            dataIndex: 'bhejneWaliParty',
+            key: 'bhejneWaliParty',
+            ...getColumnSearchProps('bhejneWaliParty'),
+        },
+        {
             title: 'To',
             dataIndex: 'to',
             key: 'to',
         },
         {
-            title: 'Transporter',
-            dataIndex: 'transporter',
-            key: 'transporter',
+            title: 'Receiver',
+            dataIndex: 'paaneWaliParty',
+            key: 'paaneWaliParty',
+            ...getColumnSearchProps('paaneWaliParty'),
         },
         {
             title: 'Maal',
@@ -664,6 +683,16 @@ const HareKrishna = () => {
             title: 'Total Freight',
             dataIndex: 'totalFreight',
             key: 'totalFreight',
+        },
+        {
+            title: 'Commission',
+            dataIndex: 'transporterCommission',
+            key: 'transporterCommission',
+        },
+        {
+            title: 'Advance',
+            dataIndex: 'advanceReceived',
+            key: 'advanceReceived',
         },
         {
             title: 'Remaining Balance',
