@@ -208,7 +208,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
             listOfFirstPayment.push({
                 bhadaKaunDalega: bhadaKaunDalega || '',
                 partyForNaveenKaka: payment.partyForNaveenKaka || '',
-                partyForTransporterPayment: payment.partyForTransporterPayment || '',
+                partyForTransporterPayment: partyForTransporterPayment || '',
                 pohchAmount: payment.pohchAmount || '',
                 pohchDate: payment.pohchDate || '',
                 pohchId: payment.pohchId || '',
@@ -1195,7 +1195,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 showSearch
                                                 placeholder="Bhada Kaun Dalega"
                                                 optionFilterProp="children"
-                                                onChange={() => setFlag(!flag)}
+                                                onChange={(value) => {setFlag(!flag); setBhadaKaunDalega(value)}}
                                                 // onSearch={onSearch}
                                                 filterOption={filterOption}
                                                 options={[
@@ -1206,9 +1206,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                             />
                                         </Form.Item>
 
-                                        {form3.getFieldValue(['paymentDetails', 0, 'bhadaKaunDalega']) === transporter ||
-                                            form3.getFieldValue(['paymentDetails', 0, 'bhadaKaunDalega']) === 'NaveenKaka' ||
-                                            form3.getFieldValue(['paymentDetails', 0, 'bhadaKaunDalega']) === 'Hare Krishna' ? (
+                                        {bhadaKaunDalega === transporter || bhadaKaunDalega === 'NaveenKaka' ||bhadaKaunDalega === 'Hare Krishna' ? (
                                             <Form.Item label="Select Party" name={[0, 'partyForTransporterPayment']}>
                                                 <Select
                                                     showSearch
