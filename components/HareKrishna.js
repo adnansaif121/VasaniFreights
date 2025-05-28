@@ -359,6 +359,9 @@ const HareKrishna = () => {
     const searchInput = useRef(null);
     const [refreshKey, setRefreshKey] = useState(0);
 
+    // const [dateFilter, setDateFilter] = useState('');
+    // const [filteredRows, setFilteredRows] = useState(allRows);
+
     useEffect(() => {
         const getData = async () => {
 
@@ -368,10 +371,10 @@ const HareKrishna = () => {
             // console.log(starCountRef);
             let ds = []; // Data Source
             const dbref = ref(db);
-    
+
             const partyRef = ref(db, 'parties/');
             let partyNameList = [];
-    
+
             await get(child(dbref, 'dailyEntry')).then((snapshot) => {
                 const data = snapshot.val();
                 console.log(data);
@@ -381,9 +384,13 @@ const HareKrishna = () => {
                     Object.keys(data).map((key, i) => {
                         for (let j = 0; j < data[key].tripDetails.length; j++) {
                             console.log(data[key].firstPayment, 'firstPayment');
-                            if(data[key].firstPayment === undefined || data[key].firstPayment[j] === undefined) continue;
-                            partyNameList.push(data[key]?.firstPayment[j]?.partyForTransporterPayment || null);
-    
+                            if (data[key].firstPayment === undefined || data[key].firstPayment[j] === undefined) continue;
+                            let partyName = data[key]?.firstPayment[j]?.partyForTransporterPayment || '';
+                            if (partyName !== '' && !partyNameList.includes(partyName)) {
+                                partyNameList.push(partyName);
+                            }
+                            // partyNameList.push(data[key]?.firstPayment[j]?.partyForTransporterPayment || null);
+
                             let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'Hare Krishna') ?
                                 (
                                     parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
@@ -394,10 +401,11 @@ const HareKrishna = () => {
                                     (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
                                 )
                                 : 0;
-    
+
                             if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'Hare Krishna')) {
                                 ds.push(
                                     {
+                                        partyForTransporterPayment: data[key]?.firstPayment[j]?.partyForTransporterPayment || '',
                                         key: key + j,
                                         id: i + 1,
                                         lrno: data[key]?.firstPayment[j]?.lrno || '',
@@ -441,7 +449,7 @@ const HareKrishna = () => {
             }).catch((error) => {
                 console.log(error);
             })
-    
+
             await onValue(partyRef, (snapshot) => {
                 const data = snapshot.val();
                 console.log(data, 'parties');
@@ -449,14 +457,14 @@ const HareKrishna = () => {
                 let parties = []; // Data Source
                 if (data !== null) {
                     Object.values(data).map((party, i) => {
-                        if(partyNameList.includes(party.label)){
+                        if (partyNameList.includes(party.label)) {
                             parties.push(party);
                         }
                         // partyNameList.push(party.label);
                     })
                     setPartyIds(Object.keys(data));
                 }
-    
+
                 // setPartyListAll([...parties]);
                 setPartyList([...parties]);
                 setDisplayPartyList([...parties]);
@@ -502,11 +510,13 @@ const HareKrishna = () => {
         for (let i = 0; i < dataSource.length; i++) {
             // console.log(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase(), party.toLowerCase());
             if (dataSource[i].firstPayment === undefined || dataSource[i].bhadaKaunDalega === undefined) continue;
-            if (dataSource[i].bhadaKaunDalega?.toLowerCase() === party.toLowerCase()) {
+            if (dataSource[i].partyForTransporterPayment?.toLowerCase() === party.toLowerCase()) {
                 ds.push(dataSource[i]);
             }
         }
         console.log(ds);
+        console.log(displayPartyList);
+        console.log('Selected Party: ', party, 'Index: ', partyIndex);
         setDisplayDataSource([...ds]);
     };
 
@@ -888,6 +898,12 @@ const HareKrishna = () => {
         setDisplayDataSource([...list]);
         setRefreshKey(prevKey => prevKey + 1); // Force table refresh
     }
+
+    // Function to clear the filter
+    const handleClearFilter = () => {
+        setDisplayDataSource([...dataSource]);
+        setFilterType('none');
+    };
     return (
         <>
             <div className={styles.container}>
@@ -952,6 +968,9 @@ const HareKrishna = () => {
                                         </Col>
                                     </Row> : null
                                 }
+                            </Col>
+                            <Col>
+                                <Button onClick={handleClearFilter}>Clear Filter</Button>
                             </Col>
 
                         </Row>
@@ -1080,10 +1099,10 @@ const HareKrishna = () => {
 
 
                     </div>
-                    <Table  key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
+                    <Table key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
                         expandedRowRender: (record, index) => <ViewPartyDetails
                             indexAtAllData={index}
-                            allDataAtDisplay={displayDataSource} 
+                            allDataAtDisplay={displayDataSource}
                             setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag} />
                         ,
                         rowExpandable: (record) => true,
