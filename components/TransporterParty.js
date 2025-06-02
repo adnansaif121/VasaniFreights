@@ -3,8 +3,11 @@ import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
-import ViewPartyDetails from './ViewPartyDetails';
+import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import Transporter from './Transporter';
 
 const bankData = [
     {
@@ -343,54 +346,65 @@ const TransporterParty = () => {
     const [partyAddress, setPartyAddress] = useState('');
     const [partyContact, setPartyContact] = useState('');
     const [partyDescription, setPartyDescription] = useState('');
+    const [partySelectedForEdit, setPartySelectedForEdit] = useState(-1);
     const [partyIds, setPartyIds] = useState([]);
     const [selectedPartyIndex, setSelectedPartyIndex] = useState(0);
-    const [partySelectedForEdit, setPartySelectedForEdit] = useState(0);
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
     const [allTableData, setAllTableData] = useState({});
     const [customStartDate, setCustomStartDate] = useState(null);
     const [customEndDate, setCustomEndDate] = useState(null);
     const [modelPartySelected, setModelPartySelected] = useState(null);
+    const [dataUpdateFlag, setDataUpdateFlag] = useState(0);
 
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
+    const [refreshKey, setRefreshKey] = useState(0);
+    const [transporterParties, setTransporterParties] = useState({});
+
+    // const [dateFilter, setDateFilter] = useState('');
+    // const [filteredRows, setFilteredRows] = useState(allRows);
 
     useEffect(() => {
-        const db = getDatabase();
-        
-        const partyRef = ref(db, 'transporters/');
-        let partyNameList = [];
-        onValue(partyRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'transporters');
-            // updateStarCount(postElement, data);
-            let parties = []; // Data Source
-            Object.values(data).map((party, i) => {
-                    parties.push(party);
-                    partyNameList.push(party.label);
-            })
-            setPartyIds(Object.keys(data));
-            // setPartyListAll([...parties]);
-            setPartyList([...parties]);
-            setDisplayPartyList([...parties]);
-        });
-        // Get data from database
-        const starCountRef = ref(db, 'dailyEntry/');
-        // console.log(starCountRef);
-        let ds = []; // Data Source
-        const dbref = ref(db);
-        get(child(dbref, 'dailyEntry')).then((snapshot) => {
-            const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
-            if (data) {
-                setAllTableData(data);
-                Object.keys(data).map((key, i) => {
-                    for(let j = 0; j < data[key].tripDetails.length; j++){
-                        if(data[key].firstPayment !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "none")){
-                            let receivedAmt = (data[key]?.firstPayment[j] !== undefined) ? 
+        const getData = async () => {
+
+            const db = getDatabase();
+            // Get data from database
+            const starCountRef = ref(db, 'dailyEntry/');
+            // console.log(starCountRef);
+            let ds = []; // Data Source
+            const dbref = ref(db);
+
+            const partyRef = ref(db, 'transporters/');
+            let partyNameList = [];
+            let _transporterParties = {}
+            await get(child(dbref, 'dailyEntry')).then((snapshot) => {
+                const data = snapshot.val();
+                console.log(data);
+                // updateStarCount(postElement, data);
+                if (data) {
+                    setAllTableData(data);
+                    Object.keys(data).map((key, i) => {
+                        for (let j = 0; j < data[key].tripDetails.length; j++) {
+                            const transporter = data[key].tripDetails[j].transporter || '';
+                             if (transporter !== '' && !partyNameList.includes(transporter)) {
+                                partyNameList.push(transporter);
+                            }
+                            
+                            if (data[key].firstPayment === undefined || data[key].firstPayment[j] === undefined) continue;
+                            let partyName = data[key]?.firstPayment[j]?.partyForTransporterPayment || '';
+                            if(_transporterParties[transporter] !== undefined && partyName !== ''){
+                                _transporterParties[transporter] = [..._transporterParties[transporter], partyName];
+                            }
+                            else{
+                                if(partyName !== '') _transporterParties[transporter] = ['All',partyName];
+                                // _transporterParties[transporter] = ['All', partyName];
+                            }
+
+                            // partyNameList.push(data[key]?.firstPayment[j]?.partyForTransporterPayment || null);
+
+                            let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === transporter) ?
                                 (
                                     parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
                                     parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
@@ -400,76 +414,102 @@ const TransporterParty = () => {
                                     (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
                                 )
                                 : 0;
-    
-                            ds.push(
-                                {
-                                    key: key+j,
-                                    id: i + 1,
-                                    date: data[key].date,
-                                    vehicleNo: data[key].vehicleNo,
-                                    transactionStatus: data[key].tripDetails[j].transactionStatus || 'open',
-                                    mt: data[key].mt,
-                                    from: data[key].tripDetails[j].from,
-                                    to: data[key].tripDetails[j].to,
-                                    paid: data[key].tripDetails[j].payStatus,
-                                    bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
-                                    paaneWaliParty: data[key].tripDetails[j].paaneWaala,
-                                    transporter: data[key].tripDetails[j].transporter,
-                                    maal: data[key].tripDetails[j].maal,
-                                    qty: data[key].tripDetails[j].qty,
-                                    rate: data[key].tripDetails[j].rate,
-                                    totalFreight: data[key].tripDetails[j].totalFreight,
-                                    received: receivedAmt,
-                                    dieselAndKmDetails: data[key].dieselAndKmDetails,
-                                    tripDetails: data[key].tripDetails,
-                                    driversDetails: data[key].driversDetails,
-                                    kaataParchi: data[key].kaataParchi,
-                                    firstPayment: data[key].firstPayment,
-                                    bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
-                                    vehicleStatus: data[key].vehicleStatus,
-                                    furtherPayments: data[key].furtherPayments || {},
-                                    remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance)
-                                }
-                            )
-                        }
-                    }
-                });
-            }
-            console.log(ds);
-            ds = ds.sort(
-                (a, b) => Number(new Date(a.date)) - Number(new Date(b.date)),
-            );
-            setDisplayDataSource(ds);
-            setDataSource(ds);
-        }).catch((error) => {
-            console.log(error);
-        })
-        
 
-        // Find the number of transactions open and frequeny for each party
-        let openTransactionFreq = {};
-        for (let i = 0; i < ds.length; i++) {
-            if (ds[i].bhadaKaunDalega !== null && ds[i].bhadaKaunDalega !== undefined) {
-                console.log(openTransactionFreq);
-                if (openTransactionFreq[ds[i].bhadaKaunDalega] === undefined)
-                    openTransactionFreq[ds[i].bhadaKaunDalega] = 0;
-                if (ds[i].transactionStatus === 'open')
-                    openTransactionFreq[ds[i].bhadaKaunDalega]++;
-            }
+                            if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === transporter)) {
+                                ds.push(
+                                    {
+                                        partyForTransporterPayment: data[key]?.firstPayment[j]?.partyForTransporterPayment || '',
+                                        key: key + j,
+                                        id: i + 1,
+                                        lrno: data[key]?.firstPayment[j]?.lrno || '',
+                                        date: data[key]?.date,
+                                        vehicleNo: data[key]?.vehicleNo,
+                                        transactionStatus: data[key]?.tripDetails[j].transactionStatus || 'open',
+                                        mt: data[key]?.mt,
+                                        from: data[key].tripDetails[j].from,
+                                        to: data[key].tripDetails[j].to,
+                                        paid: data[key].tripDetails[j].payStatus,
+                                        bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                        paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                        transporter: data[key].tripDetails[j].transporter,
+                                        maal: data[key].tripDetails[j].maal,
+                                        qty: data[key].tripDetails[j].qty,
+                                        rate: data[key].tripDetails[j].rate,
+                                        totalFreight: data[key].tripDetails[j].totalFreight,
+                                        received: receivedAmt,
+                                        dieselAndKmDetails: data[key].dieselAndKmDetails,
+                                        tripDetails: data[key].tripDetails,
+                                        driversDetails: data[key].driversDetails,
+                                        kaataParchi: data[key].kaataParchi,
+                                        firstPayment: data[key].firstPayment,
+                                        bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
+                                        vehicleStatus: data[key].vehicleStatus,
+                                        furtherPayments: data[key].furtherPayments || {},
+                                        remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance),
+                                        extraAmtRemark: data[key].tripDetails[j].extraAmtRemark
+                                    }
+                                )
+                            }
+                        }
+                    });
+                }
+                console.log(ds);
+                ds = ds.sort(
+                    (a, b) => Number(new Date(a.date)) - Number(new Date(b.date)),
+                );
+                setDisplayDataSource(ds);
+                setDataSource(ds);
+                setTransporterParties(_transporterParties);
+            }).catch((error) => {
+                console.log(error);
+            })
+
+            await onValue(partyRef, (snapshot) => {
+                const data = snapshot.val();
+                console.log(data, 'transporters');
+                // updateStarCount(postElement, data);
+                let parties = []; // Data Source
+                if (data !== null) {
+                    Object.values(data).map((party, i) => {
+                        if (partyNameList.includes(party.label)) {
+                            parties.push(party);
+                        }
+                        // partyNameList.push(party.label);
+                    })
+                    setPartyIds(Object.keys(data));
+                }
+
+                // setPartyListAll([...parties]);
+                setPartyList([...parties]);
+                setDisplayPartyList([...parties]);
+            });
         }
 
-        console.log(openTransactionFreq);
-        // create dummy party List
+        getData();
+    }, [refreshKey]);
 
+    const exportToExcel = () => {
+        // Prepare data: remove unwanted fields if needed
+        const exportData = displayDataSource.map(row => {
+            const { key, ...rest } = row; // remove key if you don't want it in Excel
+            return rest;
+        });
 
-    }, []);
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "HareKrishna.xlsx");
+    };
+
 
     const handle_Search = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
         setSearchedColumn(dataIndex);
     };
-    
+
     const handleReset = (clearFilters) => {
         clearFilters();
         setSearchText('');
@@ -485,26 +525,29 @@ const TransporterParty = () => {
         console.log(filtered, 'FILTERED');
     }
 
-    const onClick = (e) => {
-        console.log('click ', e);
-        let partyIndex = parseInt(e.key.slice(4));
+    const onClick = (index) => {
+        console.log('click ', index);
+        let partyIndex = parseInt(index);
         setPartySelected(displayPartyList[partyIndex]);
         setSelectedPartyIndex(partyIndex);
 
         console.log(displayPartyList[partyIndex]);
-        console.log(e.item.props.value);
+        // console.log(e.item.props.value);
 
         let party = displayPartyList[partyIndex].label;
         let ds = [];
         console.log(dataSource);
         for (let i = 0; i < dataSource.length; i++) {
+            console.log(dataSource[i].transporter, party);
             // console.log(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase(), party.toLowerCase());
             if (dataSource[i].firstPayment === undefined || dataSource[i].bhadaKaunDalega === undefined) continue;
-            if (dataSource[i].bhadaKaunDalega?.toLowerCase() === party.toLowerCase()) {
+            if (dataSource[i].transporter?.toLowerCase() === party.toLowerCase()) {
                 ds.push(dataSource[i]);
             }
         }
         console.log(ds);
+        console.log(displayPartyList);
+        console.log('Selected Party: ', party, 'Index: ', partyIndex);
         setDisplayDataSource([...ds]);
     };
 
@@ -611,6 +654,12 @@ const TransporterParty = () => {
             render: (text, record, index) => index + 1
         },
         {
+            title: 'LR No.',
+            dataIndex: 'lrno',
+            key: 'lrno',
+            ...getColumnSearchProps('lrno'),
+        },
+        {
             title: 'Payment Status',
             dataIndex: 'transactionStatus',
             key: 'transactionStatus',
@@ -640,14 +689,21 @@ const TransporterParty = () => {
             key: 'from',
         },
         {
+            title: 'Sender',
+            dataIndex: 'bhejneWaliParty',
+            key: 'bhejneWaliParty',
+            ...getColumnSearchProps('bhejneWaliParty'),
+        },
+        {
             title: 'To',
             dataIndex: 'to',
             key: 'to',
         },
         {
-            title: 'Transporter',
-            dataIndex: 'transporter',
-            key: 'transporter',
+            title: 'Receiver',
+            dataIndex: 'paaneWaliParty',
+            key: 'paaneWaliParty',
+            ...getColumnSearchProps('paaneWaliParty'),
         },
         {
             title: 'Maal',
@@ -670,9 +726,24 @@ const TransporterParty = () => {
             key: 'totalFreight',
         },
         {
+            title: 'Commission',
+            dataIndex: 'transporterCommission',
+            key: 'transporterCommission',
+        },
+        {
+            title: 'Advance',
+            dataIndex: 'advanceReceived',
+            key: 'advanceReceived',
+        },
+        {
             title: 'Remaining Balance',
             dataIndex: 'remainingBalance',
             key: 'remainingBalance',
+        },
+        {
+            title: 'Remark',
+            dataIndex: 'extraAmtRemark',
+            key: 'extraAmtRemark',
         }
     ];
 
@@ -809,14 +880,14 @@ const TransporterParty = () => {
         console.log('Edit Party');
         console.log(partySelected);
         const db = getDatabase();
-        const partyRef = ref(db, 'transporters/' + partyIds[partySelectedForEdit]);
+        const partyRef = ref(db, 'parties/' + partyIds[partySelectedForEdit]);
         set(partyRef, {
             label: partyName,
             value: partyName,
-            location: (partyLocation ||''),
-            address: (partyAddress || ''),
-            contact: (partyContact || ''),
-            description: (partyDescription || '')
+            location: partyLocation,
+            address: partyAddress,
+            contact: partyContact,
+            description: partyDescription
         });
 
         // let pl = partyList;
@@ -854,21 +925,46 @@ const TransporterParty = () => {
         setDisplayDataSource(_displayDataSource);
     }
 
-    const truckFilter = (truckno) => {
-        // let data = displayDataSource;
-        // let newData = [];
-        // newData = data.filter((item) => item.vehicleNo.includes(truckno))
+    const handleDisplayTableChange = (list) => {
+        setDisplayDataSource([...list]);
+        setRefreshKey(prevKey => prevKey + 1); // Force table refresh
     }
 
-    const filterOption = (input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+    // Function to clear the filter
+    const handleClearFilter = () => {
+        setDisplayDataSource([...dataSource]);
+        setFilterType('none');
+    };
 
+    const handlePartyFilterChange = (value) => { 
+        let displayedData = dataSource;
+        let transporterSelected = partySelected.label;
+        console.log('Selected Party: ', transporterSelected, 'Party for Transporter: ', value);
+        let partyForTransporterSelected = value;
+        let ds = [];
+        if( partyForTransporterSelected === 'All') {
+            for(let i = 0; i < displayedData.length; i++) {
+                if (displayedData[i].transporter === transporterSelected) {
+                    ds.push(displayedData[i]);
+                }
+            }
+        }
+        else {
+            for (let i = 0; i < displayedData.length; i++) {
+                if (displayedData[i].transporter === transporterSelected && displayedData[i].partyForTransporterPayment === partyForTransporterSelected) {
+                    ds.push(displayedData[i]);
+                }
+            }
+        }
+        console.log(ds);
+        setDisplayDataSource([...ds]);
+    }
     return (
         <>
             <div className={styles.container}>
                 <div className={styles.part1}>
                     <Input onChange={handleSearch} placeholder='Search' />
-                    <div className={styles.menu} style={{ display: 'flex' }}>
+                    <div className={styles.menu} style={{ display: 'flex', height: '80vh', overflowY: "auto", backgroundColor: 'white' }}>
 
                         <div style={{ backgroundColor: 'white', marginLeft: '2px', borderRadius: '5px', padding: '0px 5px 0px 5px' }}>
                             {displayPartyList.map((item, index) => {
@@ -887,10 +983,12 @@ const TransporterParty = () => {
                         </div>
 
                         <Menu
-                            onClick={onClick}
+                            onClick={(e) => onClick(e.key.slice(4))}
                             style={{
                                 width: "100%",
+                                backgroundColor: 'white'
                             }}
+                            theme='light'
                             mode="inline"
                             items={displayPartyList}
 
@@ -926,7 +1024,30 @@ const TransporterParty = () => {
                                     </Row> : null
                                 }
                             </Col>
-                            
+                            <Col>
+                                <Button onClick={handleClearFilter}>Clear Filter</Button>
+                            </Col>
+                            <Col>
+                                <Button type="primary" style={{ marginLeft: '20px' }} onClick={exportToExcel}>
+                                    Export to Excel
+                                </Button>
+                            </Col>
+                            <Col>
+                                <Select 
+                                    defaultValue="none"
+                                    style={{
+                                        width: 120,
+                                    }}
+                                    onChange={handlePartyFilterChange}
+                                    options={transporterParties[partySelected.label] ? transporterParties[partySelected.label].map((party, index) => ({
+                                        label: party,
+                                        value: party,
+                                        key: index
+                                    })) : []}
+                                    placeholder="Select Party"
+                                />
+                            </Col>
+
                         </Row>
 
                         <Drawer
@@ -1053,8 +1174,11 @@ const TransporterParty = () => {
 
 
                     </div>
-                    <Table size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
-                        expandedRowRender: (record) => <ViewPartyDetails data={record} vehicleData={vehicleData} bankData={bankData} />
+                    <Table key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
+                        expandedRowRender: (record, index) => <ViewPartyDetails
+                            indexAtAllData={index}
+                            allDataAtDisplay={displayDataSource}
+                            setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag} />
                         ,
                         rowExpandable: (record) => true,
                     }}

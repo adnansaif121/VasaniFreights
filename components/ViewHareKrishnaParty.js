@@ -425,7 +425,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                     </Col>
                 </Row>
 
-                {/* <Card title="Add Further Payment Details" style={{ margin: '20px' }} >
+                <Card title="Add Further Payment Details" style={{ margin: '20px' }} >
 
                     <Form
                         name=' Further Payment Details'
@@ -622,7 +622,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                         </Col>
                     </Row>
 
-                </Card> */}
+                </Card>
 
                 <Button style={{ marginTop: '5px' }} type='primary' onClick={handleSave}>Save</Button>
 
