@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge } from 'antd';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
@@ -361,8 +361,19 @@ const HareKrishna = () => {
     const searchInput = useRef(null);
     const [refreshKey, setRefreshKey] = useState(0);
 
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [selectedRow, setSelectedRow] = useState(null);
+
+
     // const [dateFilter, setDateFilter] = useState('');
     // const [filteredRows, setFilteredRows] = useState(allRows);
+
+    // Add a handler to open the modal
+    const handleViewClick = (record, index) => {
+        setSelectedRow({ record, index });
+        setViewModalOpen(true);
+    };
+
 
     useEffect(() => {
         const getData = async () => {
@@ -634,6 +645,15 @@ const HareKrishna = () => {
     });
 
     const columns = [
+        {
+            title: 'Action',
+            key: 'action',
+            render: (text, record, index) => (
+                <Button type="link" onClick={() => handleViewClick(record, index)}>
+                    View
+                </Button>
+            ),
+        },
         {
             title: 'Sr no.',
             dataIndex: 'id',
@@ -1122,16 +1142,39 @@ const HareKrishna = () => {
 
 
                     </div>
-                    <Table key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
-                        expandedRowRender: (record, index) => <ViewPartyDetails
-                            indexAtAllData={index}
-                            allDataAtDisplay={displayDataSource}
-                            setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag} />
-                        ,
-                        rowExpandable: (record) => true,
-                    }}
+                    <Table key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns}
+                        // expandable={{
+                        //     expandedRowRender: (record, index) => <ViewPartyDetails
+                        //         indexAtAllData={index}
+                        //         allDataAtDisplay={displayDataSource}
+                        //         setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag} />
+                        //     ,
+                        //     rowExpandable: (record) => true,
+                        // }}
                         pagination={'none'}
                     />
+
+                    <Modal
+                        open={viewModalOpen}
+                        onCancel={() => setViewModalOpen(false)}
+                        footer={null}
+                        width={1200}
+                        title="Party Details"
+                        destroyOnClose
+                    >
+                        {selectedRow && (
+                            <ViewPartyDetails
+                                indexAtAllData={selectedRow.index}
+                                allDataAtDisplay={displayDataSource}
+                                setDisplayDataSource={setDisplayDataSource}
+                                data={selectedRow.record}
+                                vehicleData={vehicleData}
+                                bankData={bankData}
+                                handleDisplayTableChange={handleDisplayTableChange}
+                                setDataUpdateFlag={setDataUpdateFlag}
+                            />
+                        )}
+                    </Modal>
                 </div>
             </div>
         </>

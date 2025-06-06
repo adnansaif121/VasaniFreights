@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge } from 'antd';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
@@ -333,7 +333,7 @@ const vehicleData =
         value: "MH 18 BZ 4911",
         label: "MH 18 BZ 4911"
     }
-];
+    ];
 
 const TransporterParty = () => {
     const [partyList, setPartyList] = useState([]);
@@ -363,6 +363,9 @@ const TransporterParty = () => {
     const [refreshKey, setRefreshKey] = useState(0);
     const [transporterParties, setTransporterParties] = useState({});
 
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [selectedRow, setSelectedRow] = useState(null);
+
     // const [dateFilter, setDateFilter] = useState('');
     // const [filteredRows, setFilteredRows] = useState(allRows);
 
@@ -388,17 +391,17 @@ const TransporterParty = () => {
                     Object.keys(data).map((key, i) => {
                         for (let j = 0; j < data[key].tripDetails.length; j++) {
                             const transporter = data[key].tripDetails[j].transporter || '';
-                             if (transporter !== '' && !partyNameList.includes(transporter)) {
+                            if (transporter !== '' && !partyNameList.includes(transporter)) {
                                 partyNameList.push(transporter);
                             }
-                            
+
                             if (data[key].firstPayment === undefined || data[key].firstPayment[j] === undefined) continue;
                             let partyName = data[key]?.firstPayment[j]?.partyForTransporterPayment || '';
-                            if(_transporterParties[transporter] !== undefined && partyName !== ''){
+                            if (_transporterParties[transporter] !== undefined && partyName !== '') {
                                 _transporterParties[transporter] = [..._transporterParties[transporter], partyName];
                             }
-                            else{
-                                if(partyName !== '') _transporterParties[transporter] = ['All',partyName];
+                            else {
+                                if (partyName !== '') _transporterParties[transporter] = ['All', partyName];
                                 // _transporterParties[transporter] = ['All', partyName];
                             }
 
@@ -647,6 +650,15 @@ const TransporterParty = () => {
     });
 
     const columns = [
+        {
+            title: 'Action',
+            key: 'action',
+            render: (text, record, index) => (
+                <Button type="link" onClick={() => handleViewClick(record, index)}>
+                    View
+                </Button>
+            ),
+        },
         {
             title: 'Sr no.',
             dataIndex: 'id',
@@ -936,14 +948,14 @@ const TransporterParty = () => {
         setFilterType('none');
     };
 
-    const handlePartyFilterChange = (value) => { 
+    const handlePartyFilterChange = (value) => {
         let displayedData = dataSource;
         let transporterSelected = partySelected.label;
         console.log('Selected Party: ', transporterSelected, 'Party for Transporter: ', value);
         let partyForTransporterSelected = value;
         let ds = [];
-        if( partyForTransporterSelected === 'All') {
-            for(let i = 0; i < displayedData.length; i++) {
+        if (partyForTransporterSelected === 'All') {
+            for (let i = 0; i < displayedData.length; i++) {
                 if (displayedData[i].transporter === transporterSelected) {
                     ds.push(displayedData[i]);
                 }
@@ -959,6 +971,12 @@ const TransporterParty = () => {
         console.log(ds);
         setDisplayDataSource([...ds]);
     }
+
+    // Add a handler to open the modal
+    const handleViewClick = (record, index) => {
+        setSelectedRow({ record, index });
+        setViewModalOpen(true);
+    };
     return (
         <>
             <div className={styles.container}>
@@ -1033,7 +1051,7 @@ const TransporterParty = () => {
                                 </Button>
                             </Col>
                             <Col>
-                                <Select 
+                                <Select
                                     defaultValue="none"
                                     style={{
                                         width: 120,
@@ -1174,16 +1192,40 @@ const TransporterParty = () => {
 
 
                     </div>
-                    <Table key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
-                        expandedRowRender: (record, index) => <ViewPartyDetails
-                            indexAtAllData={index}
-                            allDataAtDisplay={displayDataSource}
-                            setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag} />
-                        ,
-                        rowExpandable: (record) => true,
-                    }}
+                    <Table key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns}
+                        // expandable={{
+                        //     expandedRowRender: (record, index) => <ViewPartyDetails
+                        //         indexAtAllData={index}
+                        //         allDataAtDisplay={displayDataSource}
+                        //         setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag} />
+                        //     ,
+                        //     rowExpandable: (record) => true,
+                        // }}
                         pagination={'none'}
                     />
+
+                    <Modal
+                        open={viewModalOpen}
+                        onCancel={() => setViewModalOpen(false)}
+                        footer={null}
+                        width={'90vw'}
+                        title="Party Details"
+                        destroyOnClose
+                    >
+                        {selectedRow && (
+                            <ViewPartyDetails
+                                indexAtAllData={selectedRow.index}
+                                allDataAtDisplay={displayDataSource}
+                                setDisplayDataSource={setDisplayDataSource}
+                                data={selectedRow.record}
+                                vehicleData={vehicleData}
+                                bankData={bankData}
+                                handleDisplayTableChange={handleDisplayTableChange}
+                                setDataUpdateFlag={setDataUpdateFlag}
+                            />
+                        )}
+                    </Modal>
+
                 </div>
             </div>
         </>

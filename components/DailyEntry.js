@@ -161,6 +161,9 @@ const DailyEntry = () => {
         contact: '',
         licenseDocument: null, // Add this new field
     });
+    const [viewModalOpen, setViewModalOpen] = useState(false);
+    const [selectedRow, setSelectedRow] = useState(null);
+
 
     useEffect(() => {
         const db = getDatabase();
@@ -330,6 +333,12 @@ const DailyEntry = () => {
         })
     }, [])
 
+    // Handler to open modal
+    const handleViewClick = (record) => {
+        setSelectedRow(record);
+        setViewModalOpen(true);
+    };
+
     const applyDateSort = (ds) => {
         ds.sort(function (a, b) {
             // Turn your strings into dates, and then subtract them
@@ -462,6 +471,15 @@ const DailyEntry = () => {
     });
 
     const columns = [
+         {
+            title: 'Action',
+            key: 'action',
+            render: (text, record) => (
+                <Button type="link" onClick={() => handleViewClick(record)}>
+                    View
+                </Button>
+            ),
+        },
         {
             title: 'Sr no.',
             dataIndex: 'id',
@@ -1024,22 +1042,47 @@ const DailyEntry = () => {
                     setDateFilter(null);
                 }}>Clear Date</Button>
                 <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
-                    <Table style={{ zIndex: '100' }} bordered size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} expandable={{
-                        expandedRowRender: (record) =>
-                            <ViewDailyEntry
-                                data={record}
-                                Locations={Locations}
-                                partyListAll={partyListAll}
-                                transporterList={transporterList}
-                                driverList={driverList}
-                                vehicleData={vehicleData}
-                                MaalList={MaalList}
-                                bankData={bankData}
-                                addNewMaal={addNewMaal}
-                            />,
-                        rowExpandable: (record) => true,
-                    }} pagination={false}
+                    <Table style={{ zIndex: '100' }} bordered size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} 
+                    // expandable={{
+                    //     expandedRowRender: (record) =>
+                    //         <ViewDailyEntry
+                    //             data={record}
+                    //             Locations={Locations}
+                    //             partyListAll={partyListAll}
+                    //             transporterList={transporterList}
+                    //             driverList={driverList}
+                    //             vehicleData={vehicleData}
+                    //             MaalList={MaalList}
+                    //             bankData={bankData}
+                    //             addNewMaal={addNewMaal}
+                    //         />,
+                    //     rowExpandable: (record) => true,
+                    // }} 
+                    pagination={false}
                     />
+
+                    <Modal
+                open={viewModalOpen}
+                onCancel={() => setViewModalOpen(false)}
+                footer={null}
+                width={'90vw'}
+                title="Daily Entry Details"
+                destroyOnClose
+            >
+                {selectedRow && (
+                    <ViewDailyEntry
+                        data={selectedRow}
+                        Locations={Locations}
+                        partyListAll={partyListAll}
+                        transporterList={transporterList}
+                        driverList={driverList}
+                        vehicleData={vehicleData}
+                        MaalList={MaalList}
+                        bankData={bankData}
+                        addNewMaal={addNewMaal}
+                    />
+                )}
+            </Modal>
                 </div>
 
         </>
