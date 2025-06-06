@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
-import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
+import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined, FileTextOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import firebase from '../config/firebase'
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
@@ -163,6 +163,9 @@ const DailyEntry = () => {
     });
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
+
+    const [remarkModalOpen, setRemarkModalOpen] = useState(false);
+    const [remarkData, setRemarkData] = useState([]);
 
 
     useEffect(() => {
@@ -333,6 +336,32 @@ const DailyEntry = () => {
         })
     }, [])
 
+
+    // Utility to recursively collect all remark fields
+    const collectRemarks = (obj, path = '') => {
+        let remarks = [];
+        if (Array.isArray(obj)) {
+            obj.forEach((item, idx) => {
+                remarks = remarks.concat(collectRemarks(item, `${path}[${idx}]`));
+            });
+        } else if (typeof obj === 'object' && obj !== null) {
+            Object.entries(obj).forEach(([key, value]) => {
+                if (key.toLowerCase().includes('remark')) {
+                    remarks.push({ key: path ? `${path}.${key}` : key, value });
+                }
+                remarks = remarks.concat(collectRemarks(value, path ? `${path}.${key}` : key));
+            });
+        }
+        return remarks;
+    };
+
+    // Handler for view remarks button
+    const handleViewRemarks = (record) => {
+        const remarks = collectRemarks(record);
+        setRemarkData(remarks);
+        setRemarkModalOpen(true);
+    };
+
     // Handler to open modal
     const handleViewClick = (record) => {
         setSelectedRow(record);
@@ -471,7 +500,7 @@ const DailyEntry = () => {
     });
 
     const columns = [
-         {
+        {
             title: 'Action',
             key: 'action',
             render: (text, record) => (
@@ -602,7 +631,15 @@ const DailyEntry = () => {
             dataIndex: 'received',
             key: 'received',
         },
-
+        {
+            title: 'Remark',
+            key: 'remark',
+            render: (text, record) => (
+                <Button type="link" onClick={() => handleViewRemarks(record)}>
+                    <FileTextOutlined />
+                </Button>
+            ),
+        },
     ];
 
     function guidGenerator() {
@@ -1037,12 +1074,12 @@ const DailyEntry = () => {
             </Modal>
 
             <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
-                <Button onClick={() => {
-                    setDataSource(completeDataSource);
-                    setDateFilter(null);
-                }}>Clear Date</Button>
-                <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
-                    <Table style={{ zIndex: '100' }} bordered size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} 
+            <Button onClick={() => {
+                setDataSource(completeDataSource);
+                setDateFilter(null);
+            }}>Clear Date</Button>
+            <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
+                <Table style={{ zIndex: '100' }} bordered size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns}
                     // expandable={{
                     //     expandedRowRender: (record) =>
                     //         <ViewDailyEntry
@@ -1059,31 +1096,51 @@ const DailyEntry = () => {
                     //     rowExpandable: (record) => true,
                     // }} 
                     pagination={false}
-                    />
+                />
 
-                    <Modal
-                open={viewModalOpen}
-                onCancel={() => setViewModalOpen(false)}
-                footer={null}
-                width={'90vw'}
-                title="Daily Entry Details"
-                destroyOnClose
-            >
-                {selectedRow && (
-                    <ViewDailyEntry
-                        data={selectedRow}
-                        Locations={Locations}
-                        partyListAll={partyListAll}
-                        transporterList={transporterList}
-                        driverList={driverList}
-                        vehicleData={vehicleData}
-                        MaalList={MaalList}
-                        bankData={bankData}
-                        addNewMaal={addNewMaal}
-                    />
-                )}
-            </Modal>
-                </div>
+                <Modal
+                    open={viewModalOpen}
+                    onCancel={() => setViewModalOpen(false)}
+                    footer={null}
+                    width={'90vw'}
+                    title="Daily Entry Details"
+                    destroyOnClose
+                >
+                    {selectedRow && (
+                        <ViewDailyEntry
+                            data={selectedRow}
+                            Locations={Locations}
+                            partyListAll={partyListAll}
+                            transporterList={transporterList}
+                            driverList={driverList}
+                            vehicleData={vehicleData}
+                            MaalList={MaalList}
+                            bankData={bankData}
+                            addNewMaal={addNewMaal}
+                        />
+                    )}
+                </Modal>
+
+                <Modal
+                    open={remarkModalOpen}
+                    onCancel={() => setRemarkModalOpen(false)}
+                    footer={null}
+                    title="All Remarks"
+                >
+                    {remarkData.length === 0 ? (
+                        <div>No remarks found.</div>
+                    ) : (
+                        <ul>
+                            {remarkData.map((item, idx) => (
+                                <li key={idx}>
+                                    <b>{item.key.replace(/\[0\]\./g, ' ')}:</b> {item.value ? item.value : <i>(empty)</i>}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </Modal>
+
+            </div>
 
         </>
     )
