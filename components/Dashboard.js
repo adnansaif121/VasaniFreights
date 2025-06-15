@@ -15,6 +15,7 @@ import AddDetails from './AddDetails';
 import Pohch from './Pohch';
 import Uvlogistics from './Uvlogistics';
 import HareKrishna from './HareKrishna';
+import Cheque from './Cheque';
 
 const items = [
     {
@@ -34,41 +35,46 @@ const items = [
     },
     {
         key: '3',
+        label: <NavLabel label={'Cheque'}/>,
+        children: <Cheque text={'Cheque'}/>,
+    },
+    {
+        key: '4',
         label: <NavLabel label={'Driver'}/>,
         children: <Driver />,
     },
     {
-        key: '4',
+        key: '5',
         label: <NavLabel label={'Pohch'}/>,
         children: <Pohch text={'Pohch'}/>,
     },
     {
-        key: '5',
+        key: '6',
         label: <NavLabel label={'Party'}/>,
         children: <Party/>,
     },
     {
-        key: '6',
+        key: '7',
         label: <NavLabel label={'Transporter'}/>,
         children: <Transporter/>,
     },
     {
-        key: '7',
+        key: '8',
         label: <NavLabel label={'Naveen Kaka'}/>,
         children: <NaveenKaka/>,
     },
     {
-        key: '8',
+        key: '9',
         label: <NavLabel label={'UV Logistics'}/>,
         children: <Uvlogistics text={'UV Logistics'}/>,
     },
     {
-        key: '9',
+        key: '10',
         label: <NavLabel label={'Hare Krishna'}/>,
         children: <HareKrishna text={'Hare Krishna'}/>,
     },
     {
-        key: '10',
+        key: '11',
         label: <NavLabel label={'Report'}/>,
         children: <EmptyPage text={'Report'}/>,
     }

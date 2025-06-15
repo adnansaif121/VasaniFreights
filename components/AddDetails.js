@@ -10,28 +10,6 @@ import ViewDailyEntry from './ViewDailyEntry';
 import CreatePartyForm from './common/CreatePartyForm';
 import Highlighter from 'react-highlight-words';
 import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
-// const ViewDailyEntry = dynamic(() => import('../components/ViewDailyEntry'), {ssr: false});
-// import { render } from 'react-dom';
-const { Dragger } = Upload;
-const props = {
-    name: 'file',
-    multiple: true,
-    action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-    onChange(info) {
-        const { status } = info.file;
-        if (status !== 'uploading') {
-            console.log(info.file, info.fileList);
-        }
-        if (status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully.`);
-        } else if (status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
-        }
-    },
-    onDrop(e) {
-        console.log('Dropped files', e.dataTransfer.files);
-    },
-};
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
@@ -211,8 +189,8 @@ const AddDetails = () => {
                 Object.values(data).map((transporter, i) => {
                     transporters.push(transporter);
                 })
-                setTransporterList([...transporters]);
             }
+            setTransporterList([...transporters]);
         });
 
         const driversRef = ref(db, 'drivers/');
@@ -296,14 +274,14 @@ const AddDetails = () => {
                 maal: trip.Maal || '',
                 qty: trip.qty || 0,
                 rate: trip.rate || 0,
-                totalFreight: parseInt(trip.rate) * parseInt(trip.qty) || 0,
+                totalFreight: parseFloat(trip.rate) * parseFloat(trip.qty) || 0,
                 payStatus: payStatus || '',
 
-                remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
+                remainingBalance: (parseFloat(trip.rate) * parseFloat(trip.qty)) -
                     ((form3.getFieldsValue(['paymentDetails']).paymentDetails !== undefined && form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index] !== undefined) ?
-                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
-                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
-                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
+                        parseFloat(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
+                        parseFloat(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
+                        parseFloat(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
                         :
                         0
                     )
@@ -994,60 +972,6 @@ const AddDetails = () => {
                                                                             />
                                                                         </Form.Item>
 
-                                                                        <Form.Item style={{ width: '45%' }} label="Sender"
-                                                                            name={[name, 'bhejneWaala']}>
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="Bhejne waale"
-                                                                                optionFilterProp="children"
-                                                                                onChange={(value) => {
-                                                                                    addPartyInPartyList(value, name);
-                                                                                    let _selectedPartyIndex = selectedPartyIndex;
-                                                                                    for (let i = 0; i < partyListAll.length; i++) {
-                                                                                        if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
-                                                                                            _selectedPartyIndex[name] = i;
-                                                                                            break;
-                                                                                        }
-                                                                                    }
-                                                                                    // console.log(_selectedPartyIndex);
-                                                                                    setSelectedPartyIndex([..._selectedPartyIndex]);
-                                                                                }}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={partyListAll}
-                                                                                dropdownRender={(menu) => (
-                                                                                    <>
-                                                                                        {menu}
-                                                                                        <Divider
-                                                                                            style={{
-                                                                                                margin: '8px 0',
-                                                                                            }}
-                                                                                        />
-                                                                                        <Space
-                                                                                            style={{
-                                                                                                padding: '0 8px 4px',
-                                                                                            }}
-                                                                                        >
-                                                                                            <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
-                                                                                        </Space>
-                                                                                    </>
-                                                                                )}
-                                                                            />
-                                                                        </Form.Item>
-
-                                                                        <div className='tooltip'>
-                                                                            <Tooltip placement="top"
-                                                                                // title={partyDetailsList[name]?.party1Details}
-                                                                                title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}` : 'Not available'}
-                                                                            >
-
-                                                                                <EyeOutlined />
-                                                                            </Tooltip>
-                                                                        </div>
-
-                                                                    </Flex>
-
-                                                                    <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
                                                                         <Form.Item style={{ width: '45%' }}
                                                                             label="To"
                                                                             name={[name, 'to']}
@@ -1102,6 +1026,60 @@ const AddDetails = () => {
                                                                             />
                                                                         </Form.Item>
 
+                                                                    </Flex>
+
+                                                                    <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
+                                                                        <Form.Item style={{ width: '45%' }} label="Sender"
+                                                                            name={[name, 'bhejneWaala']}>
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="Bhejne waale"
+                                                                                optionFilterProp="children"
+                                                                                onChange={(value) => {
+                                                                                    addPartyInPartyList(value, name);
+                                                                                    let _selectedPartyIndex = selectedPartyIndex;
+                                                                                    for (let i = 0; i < partyListAll.length; i++) {
+                                                                                        if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
+                                                                                            _selectedPartyIndex[name] = i;
+                                                                                            break;
+                                                                                        }
+                                                                                    }
+                                                                                    // console.log(_selectedPartyIndex);
+                                                                                    setSelectedPartyIndex([..._selectedPartyIndex]);
+                                                                                }}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={partyListAll}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                        <div className='tooltip'>
+                                                                            <Tooltip placement="top"
+                                                                                // title={partyDetailsList[name]?.party1Details}
+                                                                                title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}` : 'Not available'}
+                                                                            >
+
+                                                                                <EyeOutlined />
+                                                                            </Tooltip>
+                                                                        </div>
+                                                                        
                                                                         <Form.Item style={{ width: '45%' }} label="Reciever"
                                                                             name={[name, 'paaneWaala']}>
                                                                             <Select
@@ -1198,13 +1176,16 @@ const AddDetails = () => {
                                                                                 onChange={(value) => {
                                                                                     addPartyInPartyList(value, name);
                                                                                     setTransporterSelected(value);
+                                                                                    console.log(value);
                                                                                     let _transporterList = transporterList;
                                                                                     for (let i = 0; i < _transporterList.length; i++) {
                                                                                         if (_transporterList[i].value === value) {
                                                                                             setSelectedTransporterIndex(i);
+                                                                                            console.log(i);
                                                                                             break;
                                                                                         }
                                                                                     }
+                                                                                    console.log(_transporterList);
 
                                                                                 }}
                                                                                 // onSearch={onSearch}
@@ -1238,20 +1219,17 @@ const AddDetails = () => {
                                                                             />
                                                                         </Form.Item>
 
-                                                                        <div></div>
+                                                                         <div className='tooltip'>
+                                                                            <Tooltip placement="top"
+                                                                                // title={partyDetailsList[name]?.party2Details}
+                                                                                title={selectedTransporterIndex !== -1 ? `${transporterList[selectedTransporterIndex]?.address || 'Address not available'} ${transporterList[selectedTransporterIndex]?.contact || 'Contact Not Available'} ${transporterList[selectedTransporterIndex]?.location || ' '}` : 'Not available'}
+                                                                            >
+                                                                                <EyeOutlined />
+                                                                            </Tooltip>
+                                                                        </div>
                                                                     </Flex>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                                        <Form.Item style={{ width: '45%' }}
-                                                                            label="Rate"
-                                                                            name={[name, 'rate']}
-                                                                        >
-                                                                            <Input type='number'
-                                                                                value={rate}
-                                                                                onChange={(e) => { let r = rate; r[name] = e.target.value; setRate([...r]) }}
-                                                                            ></Input>
-                                                                        </Form.Item>
-
                                                                         <Form.Item style={{ width: '45%' }}
                                                                             label="Qty"
                                                                             name={[name, 'qty']}
@@ -1263,6 +1241,16 @@ const AddDetails = () => {
                                                                             </Input>
                                                                         </Form.Item>
 
+                                                                        <Form.Item style={{ width: '45%' }}
+                                                                            label="Rate"
+                                                                            name={[name, 'rate']}
+                                                                        >
+                                                                            <Input type='number'
+                                                                                value={rate}
+                                                                                onChange={(e) => { let r = rate; r[name] = e.target.value; setRate([...r]) }}
+                                                                            ></Input>
+                                                                        </Form.Item>
+
                                                                         <div></div>
                                                                     </Flex>
 
@@ -1271,7 +1259,7 @@ const AddDetails = () => {
                                                                             label="Total Freight"
                                                                         // name={[name, 'totalFreight']}
                                                                         >
-                                                                            <Input value={parseInt(rate[name]) * parseInt(qty[name])}>
+                                                                            <Input value={parseFloat(rate[name]) * parseFloat(qty[name])}>
                                                                             </Input>
                                                                             {/* {parseInt(rate[name]) * parseInt(qty[name])} */}
                                                                             {/* <Input value={rate[name]*qty[name]}></Input> */}

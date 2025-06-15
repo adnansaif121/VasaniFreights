@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
-import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
+import { getDatabase, ref, set, onValue, get, child, update } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
 import * as XLSX from 'xlsx';
@@ -892,14 +892,17 @@ const TransporterParty = () => {
         console.log('Edit Party');
         console.log(partySelected);
         const db = getDatabase();
-        const partyRef = ref(db, 'parties/' + partyIds[partySelectedForEdit]);
-        set(partyRef, {
+        const partyRef = ref(db, 'transporters/' + partyIds[partySelectedForEdit]);
+        update(partyRef, {
             label: partyName,
             value: partyName,
             location: partyLocation,
             address: partyAddress,
             contact: partyContact,
             description: partyDescription
+        }).then(() => {
+            alert("Transporter detail Updated Successfully!!");
+            return;
         });
 
         // let pl = partyList;
