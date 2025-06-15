@@ -256,6 +256,7 @@ const AddDetails = () => {
 
         setDriverList([..._driverList]);
     }
+    
     const handleSave = () => {
         let tripDetails = form.getFieldsValue(['tripDetails']);
         console.log(tripDetails);
@@ -920,58 +921,7 @@ const AddDetails = () => {
                                                                 <Flex gap="middle" align="start" vertical>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                                        <Form.Item style={{ width: '45%' }} label="From"
-                                                                            name={[name, 'from']}>
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="from"
-                                                                                optionFilterProp="children"
-                                                                                // onChange={onChange}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={Locations}
-                                                                                dropdownRender={(menu) => (
-                                                                                    <>
-                                                                                        {menu}
-                                                                                        <Divider
-                                                                                            style={{
-                                                                                                margin: '8px 0',
-                                                                                            }}
-                                                                                        />
-                                                                                        <Space
-                                                                                            style={{
-                                                                                                padding: '0 8px 4px',
-                                                                                            }}
-                                                                                        >
-                                                                                            <Input
-                                                                                                placeholder="Please enter item"
-                                                                                                value={newLocation}
-                                                                                                onChange={(e) => setNewLocation(e.target.value)}
-                                                                                                onKeyDown={(e) => e.stopPropagation()}
-                                                                                            />
-                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                                e.preventDefault();
-                                                                                                if (newLocation.trim() === "") {
-                                                                                                    alert("Please enter a value to add location.")
-                                                                                                    return;
-                                                                                                }
-                                                                                                for (let i = 0; i < Locations.length; i++) {
-                                                                                                    if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
-                                                                                                        alert(`Location with name ${Locations[i].label} already exists.`);
-                                                                                                        return;
-                                                                                                    }
-                                                                                                }
-                                                                                                setLocations([...Locations, { value: newLocation, label: newLocation }]);
-                                                                                                setNewLocation('');
-                                                                                            }}>
-
-                                                                                            </Button>
-                                                                                        </Space>
-                                                                                    </>
-                                                                                )}
-                                                                            />
-                                                                        </Form.Item>
-
+                                                                        
                                                                         <Form.Item style={{ width: '45%' }}
                                                                             label="To"
                                                                             name={[name, 'to']}
@@ -1026,6 +976,57 @@ const AddDetails = () => {
                                                                             />
                                                                         </Form.Item>
 
+                                                                        <Form.Item style={{ width: '45%' }} label="From"
+                                                                            name={[name, 'from']}>
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="from"
+                                                                                optionFilterProp="children"
+                                                                                // onChange={onChange}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={Locations}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Input
+                                                                                                placeholder="Please enter item"
+                                                                                                value={newLocation}
+                                                                                                onChange={(e) => setNewLocation(e.target.value)}
+                                                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                                            />
+                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+                                                                                                e.preventDefault();
+                                                                                                if (newLocation.trim() === "") {
+                                                                                                    alert("Please enter a value to add location.")
+                                                                                                    return;
+                                                                                                }
+                                                                                                for (let i = 0; i < Locations.length; i++) {
+                                                                                                    if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
+                                                                                                        alert(`Location with name ${Locations[i].label} already exists.`);
+                                                                                                        return;
+                                                                                                    }
+                                                                                                }
+                                                                                                setLocations([...Locations, { value: newLocation, label: newLocation }]);
+                                                                                                setNewLocation('');
+                                                                                            }}>
+
+                                                                                            </Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
                                                                     </Flex>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>

@@ -3,7 +3,7 @@ import styles from '../styles/Party.module.css';
 import '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Divider } from 'antd';
 import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
-import { getDatabase, ref, set, onValue, push } from "firebase/database";
+import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
 const { Meta } = Card;
 const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSource, data, bankData, vehicleData, handleDisplayTableChange, setDataUpdateFlag }) => {
     const [newBank, setNewBank] = useState('');
@@ -68,7 +68,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
         // let dataToSave = data;
         // data.furtherPayments = form4.getFieldsValue(['FurtherPayments'])
         console.log(obj_to_save);
-        set(ref(db, 'dailyEntry/' + data_key + '/tripDetails/' + index + '/'), {
+        update(ref(db, 'dailyEntry/' + data_key + '/tripDetails/' + index + '/'), {
             ...obj_to_save
         }).then(() => {
             console.log('Data saved');
@@ -118,22 +118,27 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
 
     const radioStyle = {
         '.ant-radio-button-wrapper-checked[value="open"]': {
-          backgroundColor: '#52c41a !important',
-          borderColor: '#52c41a !important',
-          color: 'white !important'
+            backgroundColor: '#52c41a !important',
+            borderColor: '#52c41a !important',
+            color: 'white !important'
         },
         '.ant-radio-button-wrapper-checked[value="close"]': {
-          backgroundColor: '#ff4d4f !important',
-          borderColor: '#ff4d4f !important',
-          color: 'white !important'
+            backgroundColor: '#ff4d4f !important',
+            borderColor: '#ff4d4f !important',
+            color: 'white !important'
         }
-      };
-      
+    };
+
     return (
         <>
             <div>
                 <Card title="Payment Details" style={{ margin: '20px' }}>
-
+                    {(data.firstPayment && data.firstPayment[0].pohchAmount !== '' && data.firstPayment[0].pohchAmount !== null && data.firstPayment[0].pohchAmount !== undefined) ?
+                        <div style={{ marginBottom: '10px', backgroundColor: 'lightgrey', padding: '5px', borderRadius: '5px' }}>
+                            <h5>Pohch Id: {data.firstPayment[0].pohchId}</h5>
+                        </div>
+                        : null
+                    }
                     <table style={{ border: '1px solid black', padding: '5px', borderRadius: '10px', width: '100%' }}>
                         <thead>
                             <tr style={{ border: '1px solid black' }}>
@@ -523,9 +528,9 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                 <Card title="Transaction Status" style={{ margin: '20px' }}>
                     <Row>
                         <Col span={5}>
-                            <Radio.Group className="transaction-radio-group" value={transactionStatus} defaultValue="open" buttonStyle="solid" onChange={(e) => setTransactionStatus(e.target.value)}  style={radioStyle}>
-                                <Radio.Button value="open" style={ transactionStatus === 'open' ? {backgroundColor: 'red'} : {backgroundColor: 'white'}}>Open</Radio.Button>
-                                <Radio.Button value="close" style={ transactionStatus === 'close' ? {backgroundColor: 'green'} : {backgroundColor: 'white'}}>Close</Radio.Button>
+                            <Radio.Group className="transaction-radio-group" value={transactionStatus} defaultValue="open" buttonStyle="solid" onChange={(e) => setTransactionStatus(e.target.value)} style={radioStyle}>
+                                <Radio.Button value="open" style={transactionStatus === 'open' ? { backgroundColor: 'red' } : { backgroundColor: 'white' }}>Open</Radio.Button>
+                                <Radio.Button value="close" style={transactionStatus === 'close' ? { backgroundColor: 'green' } : { backgroundColor: 'white' }}>Close</Radio.Button>
                             </Radio.Group>
                         </Col>
 

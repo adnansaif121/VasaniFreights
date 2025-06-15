@@ -61,6 +61,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     const [bhadaKaunDalega, setBhadaKaunDalega] = useState(null);
     const [partyForTransporterPayment, setPartyForTransporterPayment] = useState(null);
     const [transporter, setTransporter] = useState(null);
+
+    const [pohchAmount, setPohchAmount] = useState(0);
+    const [pohchId, setPohchId] = useState(('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000));
     // const [MaalList, setMaalList] = useState([]);
 
     useEffect(() => {
@@ -131,7 +134,12 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
         // setVehicleNo
         setVehicleNo(data.vehicleNo);
-        setDate(data.date)
+        setDate(data.dateToSort)
+        let pohchid= data.firstPayment?.[0]?.pohchId || '';
+        if (pohchid !== '') {
+            setPohchId(data.firstPayment?.[0]?.pohchId);
+        }
+        setPartyForTransporterPayment(data.firstPayment?.[0]?.partyForTransporterPayment || '');
 
     }, [])
 
@@ -211,7 +219,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                 partyForTransporterPayment: partyForTransporterPayment || '',
                 pohchAmount: payment.pohchAmount || '',
                 pohchDate: payment.pohchDate || '',
-                pohchId: payment.pohchId || '',
+                pohchId: (payment?.pohchAmount !== undefined || payment?.pohchAmount !== '') ? pohchId : '',
                 pohchSendTo: payment?.pohchSendTo || '',
                 pohchRemarks: payment.pohchRemarks || '',
                 cashAmount: payment.cashAmount || '',
@@ -248,7 +256,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
         // let index = data_key[data_key.length-1];
         let starCountRef = ref(db, 'dailyEntry/' + data_key);
         update(starCountRef, {
-            date: date,
+            // date: date,
             vehicleNo: vehicleNo || '',
             mt: mt,
             vehicleStatus: vehicleStatus || '',
@@ -1064,9 +1072,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                             }>
                                 <div>
                                     <Form name='Kaata Parchi Details'
-                                        style={{
-                                            maxWidth: 1200,
-                                        }}
+                                        // style={{
+                                        //     maxWidth: 1200,
+                                        // }}
                                         initialValues={{
                                             remember: true,
                                         }}
@@ -1084,7 +1092,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 {(fields, { add, remove }) => (
                                                     <>
                                                         {fields.map(({ key, name, ...restField }) => (
-                                                            <Flex key={key} style={{ width: '100%' }} justify={'space-around'} align={'center'}>
+                                                            <Flex key={key} style={{ width: '100%', marginTop: '10px' }} justify={'space-around'} align={'center'}>
                                                                 <div>
                                                                     <div
                                                                         key={key}
@@ -1092,18 +1100,25 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                         <Flex gap="middle" align="start" vertical>
                                                                             <Flex style={{
                                                                                 width: '100%',
-                                                                                height: 40,
+                                                                                height: 30,
                                                                             }} justify={'space-around'} align={'center'} >
 
-                                                                                <Form.Item style={{ width: '30%' }} name={[name, "remarks"]} label="Remarks">
+                                                                                <Form.Item style={{ width: '100%' }} name={[name, "remarks"]} label="Remarks">
                                                                                     <Input placeholder='remarks' ></Input>
                                                                                 </Form.Item>
 
-                                                                                <Form.Item style={{ width: '30%' }} name={[name, "kaataParchiAmount"]} label="Amount">
+                                                                                
+                                                                            </Flex>
+
+                                                                            <Flex style={{
+                                                                                width: '100%',
+                                                                                height: 40,
+                                                                            }} justify={'space-around'} align={'center'} >
+                                                                                <Form.Item style={{ width: '50%' }} name={[name, "kaataParchiAmount"]} label="Amount">
                                                                                     <Input placeholder='amount' ></Input>
                                                                                 </Form.Item>
 
-                                                                                <Button style={{ width: '25%', marginTop: '-25px' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
+                                                                                <Button style={{ width: '55%', marginTop: '-25px' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
 
                                                                             </Flex>
 
@@ -1195,7 +1210,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 showSearch
                                                 placeholder="Bhada Kaun Dalega"
                                                 optionFilterProp="children"
-                                                onChange={(value) => {setFlag(!flag); setBhadaKaunDalega(value)}}
+                                                onChange={(value) => { setFlag(!flag); setBhadaKaunDalega(value) }}
                                                 // onSearch={onSearch}
                                                 filterOption={filterOption}
                                                 options={[
@@ -1206,7 +1221,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                             />
                                         </Form.Item>
 
-                                        {bhadaKaunDalega === transporter || bhadaKaunDalega === 'NaveenKaka' ||bhadaKaunDalega === 'Hare Krishna' ? (
+                                        {bhadaKaunDalega === transporter || bhadaKaunDalega === 'NaveenKaka' || bhadaKaunDalega === 'Hare Krishna' ? (
                                             <Form.Item label="Select Party" name={[0, 'partyForTransporterPayment']}>
                                                 <Select
                                                     showSearch
@@ -1257,6 +1272,12 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                 <div
                                                                     key={key}
                                                                 >
+                                                                    {(pohchAmount !== '' && pohchAmount !== null && pohchAmount !== undefined) ?
+                                                                        <div style={{ marginBottom: '10px', backgroundColor: 'lightgrey', padding: '5px', borderRadius: '5px' }}>
+                                                                            <h5>Pohch Id: {pohchId}</h5>
+                                                                        </div>
+                                                                        : null
+                                                                    }
 
                                                                     <table style={{ border: '1px solid black', padding: '5px', borderRadius: '10px', width: '100%' }}>
                                                                         <thead>
@@ -1273,7 +1294,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 <td ><h3>Pohch</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'pohchAmount']} >
-                                                                                        <Input placeholder='amount' type='number' />
+                                                                                        <Input placeholder='amount' type='number' onChange={(e) => { setPohchAmount(e.target.value) }}/>
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >

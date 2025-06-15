@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
-import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined,CheckCircleFilled  , WarningFilled } from '@ant-design/icons';
+import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, CheckCircleFilled, WarningFilled } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import firebase from '../config/firebase'
 import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
@@ -221,8 +221,8 @@ const Pohch = () => {
     }, [])
 
     const updatePohchId = async (key) => {
-        const pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
-        
+        const pohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
+
         const db = getDatabase();
         const starCountRef = ref(db, 'dailyEntry/' + key + '/firstPayment/0/');
         await update(starCountRef, {
@@ -351,10 +351,10 @@ const Pohch = () => {
                 }}
             />
         ),
-        onFilter: (value, record) => 
-            dataIndex === 'courierStatus' && value === 'pending' ? record[dataIndex] === null || record[dataIndex] === undefined || record[dataIndex] === '' : record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()) ||  
-            // dataIndex === 'pohchRecievedDate' && value !== null ?  `${new Date(record[dataIndex]).getDate()}/${new Date(record[dataIndex]).getMonth()+1}/${new Date(record[dataIndex]).getFullYear()}` : 
-            record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+        onFilter: (value, record) =>
+            dataIndex === 'courierStatus' && value === 'pending' ? record[dataIndex] === null || record[dataIndex] === undefined || record[dataIndex] === '' : record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()) ||
+                // dataIndex === 'pohchRecievedDate' && value !== null ?  `${new Date(record[dataIndex]).getDate()}/${new Date(record[dataIndex]).getMonth()+1}/${new Date(record[dataIndex]).getFullYear()}` : 
+                record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
         onFilterDropdownOpenChange: (visible) => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -378,30 +378,42 @@ const Pohch = () => {
 
     const columns = [
         {
-            width:'3%',
+            width: '3%',
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
             render: (text, record, index) => { return index + 1; }
         },
         {
-            width:'4%',
+            width: '4%',
             title: 'Pay',
             dataIndex: 'paymentStatus',
             key: 'paymentStatus',
-            ...getColumnSearchProps('paymentStatus'),
-            render: (text, record, index) => { 
-                if(text === undefined || text === null || text === '') {
-                    return <span style={{color: 'red'}}><WarningFilled /></span>
+            // ...getColumnSearchProps('paymentStatus'),
+            filters: [
+                { text: 'Open', value: 'open' },
+                { text: 'Close', value: 'close' }
+            ],
+            onFilter: (value, record) => {
+                if (value === 'open') {
+                    // Show both 'open' and empty
+                    return record.paymentStatus === 'open' || record.paymentStatus === '' || record.paymentStatus === undefined || record.paymentStatus === null;
                 }
-                if(text === 'close') {
-                    return <span style={{color: 'green'}}><CheckCircleFilled /></span>
-                } else if(text === 'open') {
-                    return <span style={{color: 'red'}}><WarningFilled /></span>
+                // Only show 'close'
+                return record.paymentStatus === 'close';
+            },
+            render: (text, record, index) => {
+                if (text === undefined || text === null || text === '') {
+                    return <span style={{ color: 'red' }}><WarningFilled /></span>
+                }
+                if (text === 'close') {
+                    return <span style={{ color: 'green' }}><CheckCircleFilled /></span>
+                } else if (text === 'open') {
+                    return <span style={{ color: 'red' }}><WarningFilled /></span>
                 } else {
-                    return <span style={{color: 'orange'}}>{text}</span>
+                    return <span style={{ color: 'orange' }}>{text}</span>
                 }
-                return index + 1; 
+                return index + 1;
             }
         },
         {
@@ -411,41 +423,41 @@ const Pohch = () => {
             ...getColumnSearchProps('courierStatus'),
             // Increase the width of this column
             width: '8%',
-            render: (text, record, index) => { 
-                if(text === undefined || text === null || text === '') {
+            render: (text, record, index) => {
+                if (text === undefined || text === null || text === '') {
                     // return a radio button as Sent or Pending
                     return (
                         <>
-                        {/* <Radio.Group onChange={(e) => text=e.target.value} options={[{label: 'Sent', value: 'Sent'}, {label: 'Pending', value: 'Pending'}]} defaultValue="sent" block buttonStyle="solid"/> */}
-                        <span style={{color: 'red'}}><WarningFilled />Pending</span>
-                        <Button
-                        type='primary'
-                        size='small'
-                        onClick={() => {
-                            // Ask for Confirmation
-                            if(!confirm("Are you sure you want to update the courier status?")) {
-                                return;
-                            }
-                            // update the courier status in the database
-                            const db = getDatabase();
-                            const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
-                            update(starCountRef, {
-                                courierStatus: 'Sent'
-                            }).then(() => {
-                                alert("Courier Status Updated Successfully!!");
-                                return;
-                            })
-                        }}>Click For Sent</Button>
+                            {/* <Radio.Group onChange={(e) => text=e.target.value} options={[{label: 'Sent', value: 'Sent'}, {label: 'Pending', value: 'Pending'}]} defaultValue="sent" block buttonStyle="solid"/> */}
+                            <span style={{ color: 'red' }}><WarningFilled />Pending</span>
+                            <Button
+                                type='primary'
+                                size='small'
+                                onClick={() => {
+                                    // Ask for Confirmation
+                                    if (!confirm("Are you sure you want to update the courier status?")) {
+                                        return;
+                                    }
+                                    // update the courier status in the database
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        courierStatus: 'Sent'
+                                    }).then(() => {
+                                        alert("Courier Status Updated Successfully!!");
+                                        return;
+                                    })
+                                }}>Click For Sent</Button>
                         </>
 
                     )
                 }
                 return (
-                   text === 'Sent' ? 
-                    <span style={{color: 'green'}}><CheckCircleFilled />Sent</span> : <span style={{color: 'red'}}><WarningFilled />Pending</span>
+                    text === 'Sent' ?
+                        <span style={{ color: 'green' }}><CheckCircleFilled />Sent</span> : <span style={{ color: 'red' }}><WarningFilled />Pending</span>
 
                 )
-             }
+            }
         },
         {
             title: 'Courier Date',
@@ -453,44 +465,44 @@ const Pohch = () => {
             key: 'courierSentDate',
             // ...getColumnSearchProps('courierSentDate'),
             width: '12%',
-            render: (text, record, index) => { 
-                if(text === undefined || text === null || text === '') {
+            render: (text, record, index) => {
+                if (text === undefined || text === null || text === '') {
                     return <>
-                        <Input size='small' type="date" onChange={(e) => text=e.target.value}></Input>
-                        <Button 
-                        // type='primary'
-                        size='small'
-                        onClick={() => {
-                            // check if the text is empty
-                            if(text === undefined || text === null || text === '') {
-                                alert("Please select a date");
-                                return;
-                            }
-                            // Ask for Confirmation
-                            if(!confirm("Are you sure you want to update the courier date?")) {
-                                return;
-                            }
-                            // update the courier status in the database
-                            const db = getDatabase();
-                            const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
-                            update(starCountRef, {
-                                courierSentDate: text
-                            }).then(() => {
-                                alert("Courier Date Updated Successfully!!");
-                                return;
-                            })
-                        }}>Save</Button>
+                        <Input size='small' type="date" onChange={(e) => text = e.target.value}></Input>
+                        <Button
+                            // type='primary'
+                            size='small'
+                            onClick={() => {
+                                // check if the text is empty
+                                if (text === undefined || text === null || text === '') {
+                                    alert("Please select a date");
+                                    return;
+                                }
+                                // Ask for Confirmation
+                                if (!confirm("Are you sure you want to update the courier date?")) {
+                                    return;
+                                }
+                                // update the courier status in the database
+                                const db = getDatabase();
+                                const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                update(starCountRef, {
+                                    courierSentDate: text
+                                }).then(() => {
+                                    alert("Courier Date Updated Successfully!!");
+                                    return;
+                                })
+                            }}>Save</Button>
                     </>
                 }
                 let date = new Date(text);
                 return (
                     <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
                 )
-             }
+            }
         },
         {
-            
-            width:'7%',
+
+            width: '7%',
             title: 'Pohch Id',
             dataIndex: 'pohchId',
             key: 'pohchId',
@@ -498,7 +510,7 @@ const Pohch = () => {
             // render: (text, record, index) => { return index + 1; }
         },
         {
-            width:'7%',
+            width: '7%',
             title: 'Trip Start Date',
             dataIndex: 'date',
             key: 'date',
@@ -512,13 +524,13 @@ const Pohch = () => {
             }
         },
         {
-            width:'7%',
+            width: '7%',
             title: 'Received Date',
             dataIndex: 'pohchRecievedDate',
             key: 'pohchRecievedDate',
             ...getColumnSearchProps('pohchRecievedDate'),
             render: (text) => {
-                if(text === undefined || text === null || text === '') {
+                if (text === undefined || text === null || text === '') {
                     return <span>None</span>
                 }
                 let date = new Date(text);
@@ -530,7 +542,7 @@ const Pohch = () => {
             }
         },
         {
-            width:'9%',
+            width: '9%',
             title: 'Truck No.',
             dataIndex: 'vehicleNo',
             key: 'vehicleNo',
@@ -542,7 +554,7 @@ const Pohch = () => {
             key: 'pohchAmt',
             render: (text) => {
                 console.log(text);
-                if(text === undefined || text === null || text === '') {
+                if (text === undefined || text === null || text === '') {
                     return <span>Not Available</span>
                 }
                 return (
@@ -552,7 +564,7 @@ const Pohch = () => {
             // ...getColumnSearchProps('vehicleNo'),
         },
         {
-            width:'6%',
+            width: '6%',
             title: 'From',
             dataIndex: 'from',
             key: 'from',
@@ -562,7 +574,7 @@ const Pohch = () => {
             }
         },
         {
-            width:'6%',
+            width: '6%',
             title: 'Sender',
             dataIndex: 'bhejneWaliParty',
             key: 'bhejneWaliParty',
@@ -582,7 +594,7 @@ const Pohch = () => {
             }
         },
         {
-            width:'7%',
+            width: '7%',
             title: 'Receiver',
             dataIndex: 'paaneWaliParty',
             key: 'paaneWaliParty',
@@ -602,7 +614,7 @@ const Pohch = () => {
             }
         },
         {
-            width:'3%',
+            width: '3%',
             title: 'Qty',
             dataIndex: 'qty',
             key: 'qty',
@@ -614,7 +626,7 @@ const Pohch = () => {
             key: 'rate',
 
         },
-        
+
         {
             title: 'Total Freight',
             dataIndex: 'totalFreight',
@@ -1037,10 +1049,10 @@ const Pohch = () => {
                 </Form>
             </Modal>
 
-            <span style={{marginLeft: '40px'}}>From Date:</span> 
-            <Input style={{ width: "20%",marginLeft: '10px'}} type='date' value={fromDate} onChange={(e)=>setFromDate(e.target.value)} />
-            <span style={{ marginLeft: '40px'}}>To Date:</span> 
-            <Input style={{ width: "20%",marginLeft: '10px'}} type='date' value={toDate} onChange={(e)=>setToDate(e.target.value)} />
+            <span style={{ marginLeft: '40px' }}>From Date:</span>
+            <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+            <span style={{ marginLeft: '40px' }}>To Date:</span>
+            <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
             <Button onClick={applyDateFilter}>Apply Filter</Button>
             <Button onClick={() => {
                 setDataSource(completeDataSource);

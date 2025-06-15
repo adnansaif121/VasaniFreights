@@ -197,10 +197,11 @@ const DailyEntry = () => {
                             : 0;
 
                         console.log(receivedAmt);
-
+                        let _date = new Date(data[key]?.date);
                         ds.push(
                             {
-                                date: data[key]?.date,
+                                dateToSort: data[key]?.date,
+                                date: `${_date.getDate()}/${_date.getMonth() + 1}/${_date.getFullYear()}`,
                                 key: key + j,
                                 id: i + 1,
                                 vehicleNo: data[key]?.vehicleNo,
@@ -372,7 +373,7 @@ const DailyEntry = () => {
         ds.sort(function (a, b) {
             // Turn your strings into dates, and then subtract them
             // to get a value that is either negative, positive, or zero.
-            return new Date(b.date) - new Date(a.date);
+            return new Date(b.dateToSort) - new Date(a.dateToSort);
         });
 
         setDataSource(ds);
@@ -435,6 +436,13 @@ const DailyEntry = () => {
                     >
                         Search
                     </Button>
+                    <Button
+                        type="primary"
+                        size="small"
+                        onClick={() => {setSelectedKeys([]);handle_Search([], confirm, dataIndex)}}
+                    >
+                        Clear
+                    </Button>
                     {/* <Button
                         onClick={() => clearFilters && handleReset(clearFilters) && handle_Search([''], confirm, dataIndex)}
                         size="small"
@@ -477,7 +485,7 @@ const DailyEntry = () => {
             />
         ),
         onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+            record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
         onFilterDropdownOpenChange: (visible) => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -520,13 +528,13 @@ const DailyEntry = () => {
             dataIndex: 'date',
             key: 'date',
             ...getColumnSearchProps('date'),
-            render: (text) => {
-                let date = new Date(text);
+            // render: (text) => {
+            //     let date = new Date(text);
 
-                return (
-                    <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
-                )
-            }
+            //     return (
+            //         <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
+            //     )
+            // }
         },
         {
             title: 'Truck No.',
@@ -538,6 +546,7 @@ const DailyEntry = () => {
             title: 'From',
             dataIndex: 'from',
             key: 'from',
+            ...getColumnSearchProps('from'),
             render: (text) => {
                 // make 1st letter capital and other small and return
                 return text !== null ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
@@ -547,6 +556,7 @@ const DailyEntry = () => {
             title: 'To',
             dataIndex: 'to',
             key: 'to',
+            ...getColumnSearchProps('to'),
             render: (text) => {
                 // make 1st letter capital and other small and return
                 return text !== null ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
@@ -561,6 +571,7 @@ const DailyEntry = () => {
             title: 'Bhejne Wali Party',
             dataIndex: 'bhejneWaliParty',
             key: 'bhejneWaliParty',
+            ...getColumnSearchProps('bhejneWaliParty'),
             render: (text) => {
                 // make 1st letter capital and other small and return
                 return text !== null ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
@@ -570,15 +581,18 @@ const DailyEntry = () => {
             title: 'Paane Wali Party',
             dataIndex: 'paaneWaliParty',
             key: 'paaneWaliParty',
+            ...getColumnSearchProps('paaneWaliParty'),
             render: (text) => {
                 // make 1st letter capital and other small and return
                 return text !== null ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
         {
+            width: 100,
             title: 'Transporter',
             dataIndex: 'transporter',
             key: 'transporter',
+            ...getColumnSearchProps('transporter'),
             render: (text) => {
                 // make 1st letter capital and other small and return
                 return text !== null ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
@@ -610,9 +624,11 @@ const DailyEntry = () => {
 
         },
         {
+            width: 100,
             title: 'Rate/Revised Rate',
             dataIndex: 'rate',
             key: 'rate',
+            ...getColumnSearchProps('rate'),
             render: (text, record) => {
                 return (
                     <span>
