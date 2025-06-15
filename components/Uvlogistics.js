@@ -188,8 +188,8 @@ const Uvlogistics = () => {
                                     courierStatus: data[key].tripDetails[j].courierStatus,
                                     courierSentDate: data[key].tripDetails[j].courierSentDate,
                                     pohchId: data[key].firstPayment[j].pohchId,
-                                    
-                                    
+
+
                                     tripExpense: data[key]?.driver1?.TripCash,
                                     tollExpense: data[key].tripDetails[j].tollExpense,
                                     UVLogsPaymentStatus: data[key].tripDetails[j].UVLogsPaymentStatus,
@@ -892,6 +892,7 @@ const Uvlogistics = () => {
             dataIndex: 'UVLogsPaymentStatus',
             key: 'UVLogsPaymentStatus',
             fixed: 'right',
+            ...getColumnSearchProps('UVLogsPaymentStatus'),
             render: (text, record) => {
                 if (editingPaymentStatusKey === record.key) {
                     return (

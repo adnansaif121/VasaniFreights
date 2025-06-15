@@ -390,6 +390,10 @@ const TransporterParty = () => {
                     setAllTableData(data);
                     Object.keys(data).map((key, i) => {
                         for (let j = 0; j < data[key].tripDetails.length; j++) {
+                            if(data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'Hare Krishna') {
+                                continue;
+                            }
+
                             const transporter = data[key].tripDetails[j].transporter || '';
                             if (transporter !== '' && !partyNameList.includes(transporter)) {
                                 partyNameList.push(transporter);
@@ -474,6 +478,7 @@ const TransporterParty = () => {
                 let parties = []; // Data Source
                 if (data !== null) {
                     Object.values(data).map((party, i) => {
+                        if (party.label === 'Hare Krishna') return; // Skip Hare Krishna party
                         if (partyNameList.includes(party.label)) {
                             parties.push(party);
                         }
