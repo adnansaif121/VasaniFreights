@@ -161,7 +161,7 @@ const Uvlogistics = () => {
             if (data) {
                 Object.keys(data).map((key, i) => {
                     for (let j = 0; j < data[key].tripDetails.length; j++) {
-                        if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega !== 'UvLogs') {
+                        if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'UvLogs') {
                             console.log(data[key]);
                             // let _pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
                             // updatePohchId(key, _pohchId);
