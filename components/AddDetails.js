@@ -49,28 +49,7 @@ const AddDetails = () => {
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
     // Locations list
-    const [Locations, setLocations] = useState([
-        {
-            value: 'mumbai',
-            label: 'Mumbai',
-        },
-        {
-            value: 'pune',
-            label: 'Pune',
-        },
-        {
-            value: 'nagpur',
-            label: 'Nagpur',
-        },
-        {
-            value: 'nashik',
-            label: 'Nashik',
-        },
-        {
-            value: 'aurangabad',
-            label: 'Aurangabad',
-        }
-    ]);
+    const [Locations, setLocations] = useState([]);
     const [newLocation, setNewLocation] = useState('');
     // Maal List
     const [MaalList, setMaalList] = useState([
@@ -509,6 +488,38 @@ const AddDetails = () => {
         });
     }
 
+    const addNewLocation = (e) => {
+        e.preventDefault();
+        if (newLocation.trim() === '') {
+            alert('Please enter location to add location in the list. Field is empty');
+            return;
+        }
+        
+        for (let i = 0; i < Locations.length; i++) {
+            if (newLocation.toUpperCase() === Locations[i].value.toUpperCase()) {
+                alert(`Location with name ${Locations[i].value} already exists`);
+                return;
+            }
+        }
+        setLocations([...Locations, { value: newLocation, label: newLocation }]);
+        setNewLocation('');
+        // Create a new party reference with an auto-generated id
+        const db = getDatabase();
+        const locationsRef = ref(db, 'locations');
+        const newLocationRef = push(locationsRef);
+        set(newLocationRef, {
+            value: newLocation,
+            label: newLocation,
+        }).then(() => {
+            alert("Location Added Successfully!!");
+            setNewLocation('');
+            return;
+        }).catch((error) => {
+            console.error("Error adding location:", error);
+            alert("Error adding location: " + error.message);
+        });
+    }
+
     const addNewBank = (e) => {
         e.preventDefault();
         if (newBank.trim() === '') {
@@ -921,7 +932,59 @@ const AddDetails = () => {
                                                                 <Flex gap="middle" align="start" vertical>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                                        
+                                                                         <Form.Item style={{ width: '45%' }} label="From"
+                                                                            name={[name, 'from']}>
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="from"
+                                                                                optionFilterProp="children"
+                                                                                // onChange={onChange}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={Locations}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Input
+                                                                                                placeholder="Please enter item"
+                                                                                                value={newLocation}
+                                                                                                onChange={(e) => setNewLocation(e.target.value)}
+                                                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                                            />
+                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+                                                                                                // e.preventDefault();
+                                                                                                // if (newLocation.trim() === "") {
+                                                                                                //     alert("Please enter a value to add location.")
+                                                                                                //     return;
+                                                                                                // }
+                                                                                                // for (let i = 0; i < Locations.length; i++) {
+                                                                                                //     if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
+                                                                                                //         alert(`Location with name ${Locations[i].label} already exists.`);
+                                                                                                //         return;
+                                                                                                //     }
+                                                                                                // }
+                                                                                                // setLocations([...Locations, { value: newLocation, label: newLocation }]);
+                                                                                                // setNewLocation('');
+                                                                                                addNewLocation(e);
+                                                                                            }}>
+
+                                                                                            </Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
+
                                                                         <Form.Item style={{ width: '45%' }}
                                                                             label="To"
                                                                             name={[name, 'to']}
@@ -954,19 +1017,20 @@ const AddDetails = () => {
                                                                                                 onKeyDown={(e) => e.stopPropagation()}
                                                                                             />
                                                                                             <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                                e.preventDefault();
-                                                                                                if (newLocation.trim() === "") {
-                                                                                                    alert("Please enter a value to add location.")
-                                                                                                    return;
-                                                                                                }
-                                                                                                for (let i = 0; i < Locations.length; i++) {
-                                                                                                    if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
-                                                                                                        alert(`Location with name ${Locations[i].label} already exists.`);
-                                                                                                        return;
-                                                                                                    }
-                                                                                                }
-                                                                                                setLocations([...Locations, { value: newLocation, label: newLocation }]);
-                                                                                                setNewLocation('');
+                                                                                                // e.preventDefault();
+                                                                                                // if (newLocation.trim() === "") {
+                                                                                                //     alert("Please enter a value to add location.")
+                                                                                                //     return;
+                                                                                                // }
+                                                                                                // for (let i = 0; i < Locations.length; i++) {
+                                                                                                //     if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
+                                                                                                //         alert(`Location with name ${Locations[i].label} already exists.`);
+                                                                                                //         return;
+                                                                                                //     }
+                                                                                                // }
+                                                                                                // setLocations([...Locations, { value: newLocation, label: newLocation }]);
+                                                                                                // setNewLocation('');
+                                                                                                addNewLocation(e);
                                                                                             }}>
 
                                                                                             </Button>
@@ -976,57 +1040,7 @@ const AddDetails = () => {
                                                                             />
                                                                         </Form.Item>
 
-                                                                        <Form.Item style={{ width: '45%' }} label="From"
-                                                                            name={[name, 'from']}>
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="from"
-                                                                                optionFilterProp="children"
-                                                                                // onChange={onChange}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={Locations}
-                                                                                dropdownRender={(menu) => (
-                                                                                    <>
-                                                                                        {menu}
-                                                                                        <Divider
-                                                                                            style={{
-                                                                                                margin: '8px 0',
-                                                                                            }}
-                                                                                        />
-                                                                                        <Space
-                                                                                            style={{
-                                                                                                padding: '0 8px 4px',
-                                                                                            }}
-                                                                                        >
-                                                                                            <Input
-                                                                                                placeholder="Please enter item"
-                                                                                                value={newLocation}
-                                                                                                onChange={(e) => setNewLocation(e.target.value)}
-                                                                                                onKeyDown={(e) => e.stopPropagation()}
-                                                                                            />
-                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                                e.preventDefault();
-                                                                                                if (newLocation.trim() === "") {
-                                                                                                    alert("Please enter a value to add location.")
-                                                                                                    return;
-                                                                                                }
-                                                                                                for (let i = 0; i < Locations.length; i++) {
-                                                                                                    if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
-                                                                                                        alert(`Location with name ${Locations[i].label} already exists.`);
-                                                                                                        return;
-                                                                                                    }
-                                                                                                }
-                                                                                                setLocations([...Locations, { value: newLocation, label: newLocation }]);
-                                                                                                setNewLocation('');
-                                                                                            }}>
-
-                                                                                            </Button>
-                                                                                        </Space>
-                                                                                    </>
-                                                                                )}
-                                                                            />
-                                                                        </Form.Item>
+                                                                       
                                                                     </Flex>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
@@ -1237,6 +1251,7 @@ const AddDetails = () => {
                                                                         >
                                                                             <Input type='number'
                                                                                 value={qty}
+                                                                                // defaultValue={0}
                                                                                 onChange={(e) => { let q = qty; q[name] = e.target.value; setQty([...q]) }}>
 
                                                                             </Input>
@@ -1248,6 +1263,7 @@ const AddDetails = () => {
                                                                         >
                                                                             <Input type='number'
                                                                                 value={rate}
+                                                                                // defaultValue={0}
                                                                                 onChange={(e) => { let r = rate; r[name] = e.target.value; setRate([...r]) }}
                                                                             ></Input>
                                                                         </Form.Item>
@@ -1260,7 +1276,7 @@ const AddDetails = () => {
                                                                             label="Total Freight"
                                                                         // name={[name, 'totalFreight']}
                                                                         >
-                                                                            <Input value={parseFloat(rate[name]) * parseFloat(qty[name])}>
+                                                                            <Input value={isNaN(parseFloat(rate[name]) * parseFloat(qty[name])) ? 0 : (parseFloat(rate[name]) * parseFloat(qty[name])).toFixed(2) || 0 }>
                                                                             </Input>
                                                                             {/* {parseInt(rate[name]) * parseInt(qty[name])} */}
                                                                             {/* <Input value={rate[name]*qty[name]}></Input> */}

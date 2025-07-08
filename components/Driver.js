@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Upload } from 'antd';
 import { InboxOutlined, UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
-import { getDatabase, ref, set, onValue, push } from "firebase/database";
+import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
 import ViewDriverDetails from './ViewDriverDetails';
 
@@ -49,6 +49,7 @@ const Driver = () => {
             console.log('Dropped files', e.dataTransfer.files);
         },
     };
+
     useEffect(() => {
         const db = getDatabase();
         // Get data from database
@@ -155,7 +156,7 @@ const Driver = () => {
         console.log(dataSource);
         for (let i = 0; i < dataSource.length; i++) {
             // console.log(dataSource[i].driversDetails[0].?.toLowerCase(), party.toLowerCase());
-            if (dataSource[i].driver !== undefined) {
+            if (dataSource[i].driver !== undefined && dataSource[i].driver !== null) {
                 // for (let j = 0; j < dataSource[i].driversDetails.length; j++) {
                     if (dataSource[i].driver.toLowerCase() === driver.toLowerCase()) {
                         ds.push(dataSource[i]);
@@ -361,6 +362,9 @@ const Driver = () => {
 
     const [open, setOpen] = useState(false);
     const showDrawer = (index) => {
+        console.log('showDrawer', index);
+        console.log(displayPartyList, displayPartyList[index]);
+        console.log(displayPartyList[index].LicenseType || null);
         setPartySelectedForEdit(index);
         setModelPartySelected(displayPartyList[index]);
         setPartyName(displayPartyList[index].label);
@@ -380,13 +384,14 @@ const Driver = () => {
         console.log('Edit Party');
         console.log(partySelected);
         const db = getDatabase();
-        const partyRef = ref(db, 'parties/' + partyIds[partySelectedForEdit]);
+        const partyRef = ref(db, 'drivers/' + partyIds[partySelectedForEdit]);
         set(partyRef, {
             label: partyName,
             value: partyName,
             location: partyLocation,
             LicenseDate: licenseDate,
-            contact: partyContact,
+            LicenseType: licenseType,
+            Contact: partyContact,
             description: partyDescription
         });
 
@@ -396,8 +401,9 @@ const Driver = () => {
             label: partyName,
             value: partyName,
             location: (partyLocation || ''),
-            address: (partyAddress || ''),
-            contact: (partyContact || ''),
+            LicenseDate: (licenseDate || ''),
+            LicenseType: (licenseType || null),
+            Contact: (partyContact || ''),
             description: (partyDescription || '')
         }
         //  setPartyList([...parties]);
@@ -552,7 +558,7 @@ const Driver = () => {
                                     <Col span={12}>
                                         <Form.Item
                                             // name="Party Location"
-                                            label="Party Location"
+                                            label="Driver Location"
                                             rules={[
                                                 {
                                                     required: true,

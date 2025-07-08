@@ -857,7 +857,7 @@ const DailyEntry = () => {
             (item) => {
                 // let itemDate = new Date(item.date).getTime();
                 console.log(item.date, date);
-                return item.date === date;
+                return item.dateToSort === date;
             }
         )
         setDataSource(_displayDataSource);
@@ -1089,13 +1089,13 @@ const DailyEntry = () => {
                 </Form>
             </Modal>
 
-            <Input style={{ width: "20%", marginLeft: '40px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
+            <Input style={{ width: "20%", marginLeft: '20px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
             <Button onClick={() => {
                 setDataSource(completeDataSource);
                 setDateFilter(null);
             }}>Clear Date</Button>
-            <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
-                <Table style={{ zIndex: '100' }} bordered size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns}
+            <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '84.5vh', backgroundColor: 'white' }}>
+                <Table style={{ zIndex: '100' }} bordered size="small" scroll={{ y: 450 }} dataSource={dataSource} columns={columns}
                     // expandable={{
                     //     expandedRowRender: (record) =>
                     //         <ViewDailyEntry
