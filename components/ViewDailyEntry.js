@@ -327,7 +327,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
         // <Collapse items={items} activeKey={['1', '3', '4', '5']}></Collapse>
         <>
             <div className={styles.addNewDetails}>
-                <div style={{ width: '95%' }}>
+                <div style={{ width: '100%' }}>
                     <Row gutter={16}>
                         <Col span={12}>
                             <Card style={{ marginBottom: '10px' }}
@@ -394,9 +394,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         {fields.map(({ key, name }) => (
 
 
-                                                            <div
-                                                                key={key}
-                                                            >
+                                                            <div key={key}>
                                                                 <Flex gap="middle" align="start" vertical>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>

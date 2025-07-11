@@ -1118,8 +1118,8 @@ const DailyEntry = () => {
                     open={viewModalOpen}
                     onCancel={() => setViewModalOpen(false)}
                     footer={null}
-                    width={'90vw'}
-                    title="Daily Entry Details"
+                    width={'100vw'}
+                    // title="Daily Entry Details"
                     destroyOnClose
                 >
                     {selectedRow && (

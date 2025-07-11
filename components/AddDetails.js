@@ -33,6 +33,7 @@ const AddDetails = () => {
     const [milometer, setMilometer] = useState('');
     const [dieselQty, setDieselQty] = useState('');
     const [pumpName, setPumpName] = useState('');
+    const [newPumpName, setNewPumpName] = useState('');
     const [average, setAverage] = useState('');
     const [midwayDiesel, setMidwayDiesel] = useState('');
     const [rate, setRate] = useState([0, 0, 0, 0]);
@@ -115,6 +116,7 @@ const AddDetails = () => {
         licenseDocument: null, // Add this new field
     });
     const [pohchAmount, setPohchAmount] = useState(0);
+    const [pumpList, setPumpList] = useState([]);
 
     const PohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
 
@@ -224,6 +226,15 @@ const AddDetails = () => {
                 setVehicleData(data);
             }
         })
+
+        const pumpDataRef = ref(db, 'pumps/');
+        onValue(pumpDataRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                console.log('PUMP DATA', data);
+                setPumpList(data);
+            }
+        })
     }, [])
 
     const resetDriverList = () => {
@@ -235,7 +246,7 @@ const AddDetails = () => {
 
         setDriverList([..._driverList]);
     }
-    
+
     const handleSave = () => {
         let tripDetails = form.getFieldsValue(['tripDetails']);
         console.log(tripDetails);
@@ -494,7 +505,7 @@ const AddDetails = () => {
             alert('Please enter location to add location in the list. Field is empty');
             return;
         }
-        
+
         for (let i = 0; i < Locations.length; i++) {
             if (newLocation.toUpperCase() === Locations[i].value.toUpperCase()) {
                 alert(`Location with name ${Locations[i].value} already exists`);
@@ -589,6 +600,27 @@ const AddDetails = () => {
         setNewVehicleNo('');
 
     }
+
+    const addNewPump = (e) => {
+        e.preventDefault();
+        if (newPumpName.trim() === '') {
+            alert('Please enter pump name to add pump in the list. Field is empty');
+            return;
+        }
+        let key = pumpList.length;
+        setPumpList([...pumpList, { pumpName: newPumpName, value: newPumpName, label: newPumpName, key: key }]);
+        const db = getDatabase();
+        const pumpRef = ref(db, 'pumps/' + key);
+        // const newBankRef = push(bankRef);
+        set(pumpRef, {
+            pumpName: newPumpName,
+            key: key,
+            label: newPumpName,
+            value: newPumpName
+        })
+        setNewPumpName('');
+    }
+
     // Filter `option.label` match the user type `input`
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
@@ -932,7 +964,7 @@ const AddDetails = () => {
                                                                 <Flex gap="middle" align="start" vertical>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                                         <Form.Item style={{ width: '45%' }} label="From"
+                                                                        <Form.Item style={{ width: '45%' }} label="From"
                                                                             name={[name, 'from']}>
                                                                             <Select
                                                                                 showSearch
@@ -1040,7 +1072,7 @@ const AddDetails = () => {
                                                                             />
                                                                         </Form.Item>
 
-                                                                       
+
                                                                     </Flex>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
@@ -1094,7 +1126,7 @@ const AddDetails = () => {
                                                                                 <EyeOutlined />
                                                                             </Tooltip>
                                                                         </div>
-                                                                        
+
                                                                         <Form.Item style={{ width: '45%' }} label="Reciever"
                                                                             name={[name, 'paaneWaala']}>
                                                                             <Select
@@ -1234,7 +1266,7 @@ const AddDetails = () => {
                                                                             />
                                                                         </Form.Item>
 
-                                                                         <div className='tooltip'>
+                                                                        <div className='tooltip'>
                                                                             <Tooltip placement="top"
                                                                                 // title={partyDetailsList[name]?.party2Details}
                                                                                 title={selectedTransporterIndex !== -1 ? `${transporterList[selectedTransporterIndex]?.address || 'Address not available'} ${transporterList[selectedTransporterIndex]?.contact || 'Contact Not Available'} ${transporterList[selectedTransporterIndex]?.location || ' '}` : 'Not available'}
@@ -1276,7 +1308,7 @@ const AddDetails = () => {
                                                                             label="Total Freight"
                                                                         // name={[name, 'totalFreight']}
                                                                         >
-                                                                            <Input value={isNaN(parseFloat(rate[name]) * parseFloat(qty[name])) ? 0 : (parseFloat(rate[name]) * parseFloat(qty[name])).toFixed(2) || 0 }>
+                                                                            <Input value={isNaN(parseFloat(rate[name]) * parseFloat(qty[name])) ? 0 : (parseFloat(rate[name]) * parseFloat(qty[name])).toFixed(2) || 0}>
                                                                             </Input>
                                                                             {/* {parseInt(rate[name]) * parseInt(qty[name])} */}
                                                                             {/* <Input value={rate[name]*qty[name]}></Input> */}
@@ -1691,20 +1723,35 @@ const AddDetails = () => {
                                                         value={pumpName}
                                                         // onSearch={onSearch}
                                                         filterOption={filterOption}
-                                                        options={[
-                                                            {
-                                                                value: 'ABC',
-                                                                label: 'ABC',
-                                                            },
-                                                            {
-                                                                value: 'XYZ',
-                                                                label: 'XYZ',
-                                                            },
-                                                            {
-                                                                value: 'PQR',
-                                                                label: 'PQR',
-                                                            },
-                                                        ]}
+                                                        options={pumpList}
+                                                        dropdownRender={(menu) => (
+                                                            <>
+                                                                {menu}
+                                                                <Divider
+                                                                    style={{
+                                                                        margin: '8px 0',
+                                                                    }}
+                                                                />
+                                                                <Space
+                                                                    style={{
+                                                                        padding: '0 8px 4px',
+                                                                    }}
+                                                                >
+                                                                    <Input
+                                                                        placeholder="Please enter item"
+                                                                        value={newPumpName}
+                                                                        onChange={(e) => setNewPumpName(e.target.value)}
+                                                                        onKeyDown={(e) => e.stopPropagation()}
+                                                                    />
+                                                                    <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+                                                                      
+                                                                        addNewPump(e);
+                                                                    }}>
+
+                                                                    </Button>
+                                                                </Space>
+                                                            </>
+                                                        )}
                                                     />
                                                 </Form.Item>
 
@@ -1885,8 +1932,8 @@ const AddDetails = () => {
                                                 ]}
                                             />
                                         </Form.Item>
-                                            
-                                         {(bhadaKaunDalega === 'HareKrishna' || bhadaKaunDalega === 'NaveenKaka' || bhadaKaunDalega === transporterSelected) &&
+
+                                        {(bhadaKaunDalega === 'HareKrishna' || bhadaKaunDalega === 'NaveenKaka' || bhadaKaunDalega === transporterSelected) &&
                                             <Form.Item label="Select Party" name={[0, 'partyForTransporterPayment']}>
                                                 <Select
                                                     showSearch
@@ -1900,7 +1947,7 @@ const AddDetails = () => {
                                                     ]}
                                                 />
                                             </Form.Item>
-                                         }   
+                                        }
 
                                         <Flex gap="middle" align="start" vertical>
                                             {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
