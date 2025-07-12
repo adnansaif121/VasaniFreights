@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
+import { Input, Popover, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
 import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import firebase from '../config/firebase'
@@ -45,7 +45,7 @@ const AddDetails = () => {
     const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
     const [partyDetailsList, setPartyDetailsList] = useState([[], [], [], [], [], []]);
     const [selectedPartyIndex, setSelectedPartyIndex] = useState([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
-    const [selectedTransporterIndex, setSelectedTransporterIndex] = useState([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
+    const [selectedTransporterIndex, setSelectedTransporterIndex] = useState(-1);
     // Drivers List
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
@@ -117,10 +117,15 @@ const AddDetails = () => {
     });
     const [pohchAmount, setPohchAmount] = useState(0);
     const [pumpList, setPumpList] = useState([]);
+    const [totalFreight, setTotalFreight] = useState(0);
 
     const PohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
 
     console.log(PohchId);
+
+    useEffect(() => {
+        setTotalFreight(isNaN(parseFloat(rate[0]) * parseFloat(qty[0])) ? 0 : (parseFloat(rate[0]) * parseFloat(qty[0])).toFixed(2) || 0);
+    }, [rate, qty]);
 
     useDisableNumberInputScroll();
     useEffect(() => {
@@ -395,6 +400,7 @@ const AddDetails = () => {
             setDriver2Value(null);
             setConductorValue(null);
             resetDriverList();
+            setTotalFreight(0);
         }).catch((error) => {
             console.error('Error:', error);
         });
@@ -411,10 +417,11 @@ const AddDetails = () => {
 
     const addPartyInPartyList = (value, index) => {
         let pl = partyList;
-        let party1 = form.getFieldValue(['tripDetails', index, 'bhejneWaala']);
-        let party2 = form.getFieldValue(['tripDetails', index, 'paaneWaala']);
-        let transporter = form.getFieldValue(['tripDetails', index, 'transporter']);
-        pl[index] = [{ label: party1, value: party1 }, { label: party2, value: party2 }, { label: transporter, value: transporter }];
+        let party1 = (index === 'party1') ? value : pl[0][0]?.label;
+        let party2 = (index === 'party2') ? value : pl[0][1]?.label;
+        let transporter = (index === 'transporter') ? value : pl[0][2]?.label;
+        pl[0] = [{ label: party1, value: party1 }, { label: party2, value: party2 }, { label: transporter, value: transporter }];
+        console.log(pl);
         setPartyList([...pl]);
     }
 
@@ -636,10 +643,11 @@ const AddDetails = () => {
     };
 
     const handleDriverOk = () => {
+        
+        driverForm.resetFields();
         addNewDriver();
         setIsDriverModalOpen(false);
         setDriverModal({});
-        driverForm.resetFields();
     }
 
     const handleCancel = () => {
@@ -878,7 +886,7 @@ const AddDetails = () => {
             </Modal>
 
             <div className={styles.addNewDetails}>
-                <div style={{ width: '95%' }}>
+                <div style={{ width: '100%' }}>
                     <Row gutter={16}>
                         {/* Left Half: Trip & Driver Details */}
                         <Col span={12}>
@@ -897,13 +905,13 @@ const AddDetails = () => {
                                         form={form}
                                     >
 
-                                        <Flex gap="middle" align="start" vertical>
-                                            <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                <Form.Item style={{ width: '45%' }} label="Date">
+                                        <Flex gap="middle" vertical>
+                                            <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
+                                                <Form.Item style={{ width: '48%' }} label="Date">
                                                     <Input type='date' value={date} onChange={(e) => setDate(e.target.value)}></Input>
                                                 </Form.Item>
 
-                                                <Form.Item style={{ width: '45%' }} label="Vehicle No."
+                                                <Form.Item style={{ width: '48%' }} label="Vehicle"
                                                     name="vehicleNo">
                                                     <Select
                                                         showSearch
@@ -949,22 +957,15 @@ const AddDetails = () => {
                                             {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
                                             <Form.List name="tripDetails" >
                                                 {(fields) => (
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            rowGap: 16,
-                                                            flexDirection: 'column',
-                                                            width: "-webkit-fill-available",
-                                                        }}
-                                                    >
+                                                    <>
                                                         {fields.map(({ key, name }) => (
                                                             <div
                                                                 key={key}
                                                             >
-                                                                <Flex gap="middle" align="start" vertical>
+                                                                <Flex gap="middle" vertical>
 
-                                                                    <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                                        <Form.Item style={{ width: '45%' }} label="From"
+                                                                    <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
+                                                                        <Form.Item style={{ width: '48%' }} label="From"
                                                                             name={[name, 'from']}>
                                                                             <Select
                                                                                 showSearch
@@ -1017,7 +1018,7 @@ const AddDetails = () => {
                                                                             />
                                                                         </Form.Item>
 
-                                                                        <Form.Item style={{ width: '45%' }}
+                                                                        <Form.Item style={{ width: '48%' }}
                                                                             label="To"
                                                                             name={[name, 'to']}
                                                                         >
@@ -1075,49 +1076,71 @@ const AddDetails = () => {
 
                                                                     </Flex>
 
-                                                                    <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                                        <Form.Item style={{ width: '45%' }} label="Sender"
+                                                                    <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
+
+                                                                        <Form.Item style={{ width: '48%' }} label="Sender"
                                                                             name={[name, 'bhejneWaala']}>
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="Bhejne waale"
-                                                                                optionFilterProp="children"
-                                                                                onChange={(value) => {
-                                                                                    addPartyInPartyList(value, name);
-                                                                                    let _selectedPartyIndex = selectedPartyIndex;
-                                                                                    for (let i = 0; i < partyListAll.length; i++) {
-                                                                                        if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
-                                                                                            _selectedPartyIndex[name] = i;
-                                                                                            break;
+                                                                            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                                                <Select
+                                                                                    showSearch
+                                                                                    placeholder="Bhejne waale"
+                                                                                    optionFilterProp="children"
+                                                                                    onChange={(value) => {
+                                                                                        addPartyInPartyList(value, 'party1');
+                                                                                        let _selectedPartyIndex = selectedPartyIndex;
+                                                                                        for (let i = 0; i < partyListAll.length; i++) {
+                                                                                            if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
+                                                                                                _selectedPartyIndex[name] = i;
+                                                                                                break;
+                                                                                            }
                                                                                         }
-                                                                                    }
-                                                                                    // console.log(_selectedPartyIndex);
-                                                                                    setSelectedPartyIndex([..._selectedPartyIndex]);
-                                                                                }}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={partyListAll}
-                                                                                dropdownRender={(menu) => (
-                                                                                    <>
-                                                                                        {menu}
-                                                                                        <Divider
-                                                                                            style={{
-                                                                                                margin: '8px 0',
-                                                                                            }}
-                                                                                        />
-                                                                                        <Space
-                                                                                            style={{
-                                                                                                padding: '0 8px 4px',
-                                                                                            }}
-                                                                                        >
-                                                                                            <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
-                                                                                        </Space>
-                                                                                    </>
+                                                                                        // console.log(_selectedPartyIndex);
+                                                                                        setSelectedPartyIndex([..._selectedPartyIndex]);
+                                                                                    }}
+                                                                                    // onSearch={onSearch}
+                                                                                    filterOption={filterOption}
+                                                                                    options={partyListAll}
+                                                                                    dropdownRender={(menu) => (
+                                                                                        <>
+                                                                                            {menu}
+                                                                                            <Divider
+                                                                                                style={{
+                                                                                                    margin: '8px 0',
+                                                                                                }}
+                                                                                            />
+                                                                                            <Space
+                                                                                                style={{
+                                                                                                    padding: '0 8px 4px',
+                                                                                                }}
+                                                                                            >
+                                                                                                <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
+                                                                                            </Space>
+                                                                                        </>
+                                                                                    )}
+                                                                                    style={{ flex: 1 }}
+                                                                                />
+                                                                                {selectedPartyIndex[name] !== -1 && (
+                                                                                    <Popover
+                                                                                        placement="right"
+                                                                                        title={partyListAll[selectedPartyIndex[name]].label || 'Party Details'}
+                                                                                        content={
+                                                                                            <div style={{ minWidth: 180 }}>
+                                                                                                <div><b>Address:</b> {partyListAll[selectedPartyIndex[name]].address || 'Not available'}</div>
+                                                                                                <div><b>Contact:</b> {partyListAll[selectedPartyIndex[name]].contact || 'Not available'}</div>
+                                                                                                <div><b>Location:</b> {partyListAll[selectedPartyIndex[name]].location || 'Not available'}</div>
+                                                                                            </div>
+                                                                                        }
+                                                                                        trigger="click"
+                                                                                    >
+                                                                                        <Button icon={<EyeOutlined />} type="default" size="small" style={{ marginLeft: 4 }}>
+                                                                                            
+                                                                                        </Button>
+                                                                                    </Popover>
                                                                                 )}
-                                                                            />
+                                                                            </div>
                                                                         </Form.Item>
 
-                                                                        <div className='tooltip'>
+                                                                        {/* <div className='tooltip'>
                                                                             <Tooltip placement="top"
                                                                                 // title={partyDetailsList[name]?.party1Details}
                                                                                 title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}` : 'Not available'}
@@ -1125,61 +1148,81 @@ const AddDetails = () => {
 
                                                                                 <EyeOutlined />
                                                                             </Tooltip>
-                                                                        </div>
+                                                                        </div> */}
 
-                                                                        <Form.Item style={{ width: '45%' }} label="Reciever"
+                                                                        <Form.Item style={{ width: '48%' }} label="Reciever"
                                                                             name={[name, 'paaneWaala']}>
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="Paane waala"
-                                                                                optionFilterProp="children"
-                                                                                onChange={(value) => {
-                                                                                    addPartyInPartyList(value, name)
-                                                                                    let _selectedPartyIndex = selectedPartyIndex;
-                                                                                    for (let i = 0; i < partyListAll.length; i++) {
-                                                                                        if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
-                                                                                            _selectedPartyIndex[name + 1] = i;
-                                                                                            break;
+                                                                            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                                                <Select
+                                                                                    showSearch
+                                                                                    placeholder="Paane waala"
+                                                                                    optionFilterProp="children"
+                                                                                    onChange={(value) => {
+                                                                                        addPartyInPartyList(value, 'party2')
+                                                                                        let _selectedPartyIndex = selectedPartyIndex;
+                                                                                        for (let i = 0; i < partyListAll.length; i++) {
+                                                                                            if (partyListAll[i].value.toUpperCase() === value.toUpperCase()) {
+                                                                                                _selectedPartyIndex[name + 1] = i;
+                                                                                                break;
+                                                                                            }
                                                                                         }
-                                                                                    }
-                                                                                    // console.log(_selectedPartyIndex);
-                                                                                    setSelectedPartyIndex([..._selectedPartyIndex]);
-                                                                                }}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={partyListAll}
-                                                                                dropdownRender={(menu) => (
-                                                                                    <>
-                                                                                        {menu}
-                                                                                        <Divider
-                                                                                            style={{
-                                                                                                margin: '8px 0',
-                                                                                            }}
-                                                                                        />
-                                                                                        <Space
-                                                                                            style={{
-                                                                                                padding: '0 8px 4px',
-                                                                                            }}
-                                                                                        >
-                                                                                            <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
-                                                                                        </Space>
-                                                                                    </>
+                                                                                        // console.log(_selectedPartyIndex);
+                                                                                        setSelectedPartyIndex([..._selectedPartyIndex]);
+                                                                                    }}
+                                                                                    // onSearch={onSearch}
+                                                                                    filterOption={filterOption}
+                                                                                    options={partyListAll}
+                                                                                    dropdownRender={(menu) => (
+                                                                                        <>
+                                                                                            {menu}
+                                                                                            <Divider
+                                                                                                style={{
+                                                                                                    margin: '8px 0',
+                                                                                                }}
+                                                                                            />
+                                                                                            <Space
+                                                                                                style={{
+                                                                                                    padding: '0 8px 4px',
+                                                                                                }}
+                                                                                            >
+                                                                                                <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
+                                                                                            </Space>
+                                                                                        </>
+                                                                                    )}
+                                                                                />
+                                                                                {selectedPartyIndex[name + 1] !== -1 && (
+                                                                                    <Popover
+                                                                                        placement="right"
+                                                                                        title={partyListAll[selectedPartyIndex[name + 1]].label || 'Party Details'}
+                                                                                        content={
+                                                                                            <div style={{ minWidth: 180 }}>
+                                                                                                <div><b>Address:</b> {partyListAll[selectedPartyIndex[name + 1]].address || 'Not available'}</div>
+                                                                                                <div><b>Contact:</b> {partyListAll[selectedPartyIndex[name + 1]].contact || 'Not available'}</div>
+                                                                                                <div><b>Location:</b> {partyListAll[selectedPartyIndex[name + 1]].location || 'Not available'}</div>
+                                                                                            </div>
+                                                                                        }
+                                                                                        trigger="click"
+                                                                                    >
+                                                                                        <Button icon={<EyeOutlined />} type="default" size="small" style={{ marginLeft: 4 }}>
+                                                                                            
+                                                                                        </Button>
+                                                                                    </Popover>
                                                                                 )}
-                                                                            />
+                                                                            </div>
                                                                         </Form.Item>
 
-                                                                        <div className='tooltip'>
+                                                                        {/* <div className='tooltip'>
                                                                             <Tooltip placement="top"
                                                                                 // title={partyDetailsList[name]?.party2Details}
                                                                                 title={selectedPartyIndex[name + 1] !== -1 ? `${partyListAll[selectedPartyIndex[name + 1]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name + 1]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name + 1]].location || ' '}` : 'Not available'}
                                                                             >
                                                                                 <EyeOutlined />
                                                                             </Tooltip>
-                                                                        </div>
+                                                                        </div> */}
                                                                     </Flex>
 
-                                                                    <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                                        <Form.Item style={{ width: '45%' }}
+                                                                    <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
+                                                                        <Form.Item style={{ width: '48%' }}
                                                                             label="To Pay/ Paid"
                                                                             name={[name, 'payStatus']}
                                                                         >
@@ -1212,72 +1255,96 @@ const AddDetails = () => {
 
                                                                         </Form.Item>
 
-                                                                        <Form.Item style={{ width: '45%' }}
+                                                                        <Form.Item style={{ width: '48%' }}
                                                                             label="Transporter"
                                                                             name={[name, 'transporter']}
                                                                         >
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="Transporter Name"
-                                                                                optionFilterProp="children"
-                                                                                onChange={(value) => {
-                                                                                    addPartyInPartyList(value, name);
-                                                                                    setTransporterSelected(value);
-                                                                                    console.log(value);
-                                                                                    let _transporterList = transporterList;
-                                                                                    for (let i = 0; i < _transporterList.length; i++) {
-                                                                                        if (_transporterList[i].value === value) {
-                                                                                            setSelectedTransporterIndex(i);
-                                                                                            console.log(i);
-                                                                                            break;
+                                                                            <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+
+
+                                                                                <Select
+                                                                                    showSearch
+                                                                                    placeholder="Transporter"
+                                                                                    optionFilterProp="children"
+                                                                                    onChange={(value) => {
+                                                                                        addPartyInPartyList(value, 'transporter');
+                                                                                        setTransporterSelected(value);
+                                                                                        console.log(value);
+                                                                                        let _transporterList = transporterList;
+                                                                                        for (let i = 0; i < _transporterList.length; i++) {
+                                                                                            if (_transporterList[i].value === value) {
+                                                                                                setSelectedTransporterIndex(i);
+                                                                                                console.log(i);
+                                                                                                break;
+                                                                                            }
                                                                                         }
-                                                                                    }
-                                                                                    console.log(_transporterList);
+                                                                                        console.log(_transporterList);
 
-                                                                                }}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={transporterList}
-                                                                                dropdownRender={(menu) => (
-                                                                                    <>
-                                                                                        {menu}
-                                                                                        <Divider
-                                                                                            style={{
-                                                                                                margin: '8px 0',
-                                                                                            }}
-                                                                                        />
-                                                                                        <Space
-                                                                                            style={{
-                                                                                                padding: '0 8px 4px',
-                                                                                            }}
-                                                                                        >
-                                                                                            <Input
-                                                                                                placeholder="Please enter item"
-                                                                                                value={newTransporter}
-                                                                                                onChange={(e) => setNewTransporter(e.target.value)}
-                                                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                                    }}
+                                                                                    // onSearch={onSearch}
+                                                                                    filterOption={filterOption}
+                                                                                    options={transporterList}
+                                                                                    dropdownRender={(menu) => (
+                                                                                        <>
+                                                                                            {menu}
+                                                                                            <Divider
+                                                                                                style={{
+                                                                                                    margin: '8px 0',
+                                                                                                }}
                                                                                             />
-                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewTransporter(e)}>
+                                                                                            <Space
+                                                                                                style={{
+                                                                                                    padding: '0 8px 4px',
+                                                                                                }}
+                                                                                            >
+                                                                                                <Input
+                                                                                                    placeholder="Please enter item"
+                                                                                                    value={newTransporter}
+                                                                                                    onChange={(e) => setNewTransporter(e.target.value)}
+                                                                                                    onKeyDown={(e) => e.stopPropagation()}
+                                                                                                />
+                                                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewTransporter(e)}>
 
-                                                                                            </Button>
-                                                                                        </Space>
-                                                                                    </>
+                                                                                                </Button>
+                                                                                            </Space>
+                                                                                        </>
+                                                                                    )}
+                                                                                />
+
+                                                                                {selectedTransporterIndex !== -1 && (
+                                                                                    <Popover
+                                                                                        placement="right"
+                                                                                        title={transporterList[selectedTransporterIndex]?.label || 'Transporter Details'}
+                                                                                        content={
+                                                                                            <div style={{ minWidth: 100 }}>
+                                                                                                <div><b>Address:</b> {transporterList[selectedTransporterIndex]?.address || 'Not available'}</div>
+                                                                                                <div><b>Contact:</b> {transporterList[selectedTransporterIndex]?.contact || 'Not available'}</div>
+                                                                                                <div><b>Location:</b> {transporterList[selectedTransporterIndex]?.location || 'Not available'}</div>
+                                                                                            </div>
+                                                                                        }
+                                                                                        trigger="click"
+                                                                                    >
+                                                                                        <Button icon={<EyeOutlined />} type="default" size="small" style={{ marginLeft: 4 }}>
+                                                                                            
+                                                                                        </Button>
+                                                                                    </Popover>
                                                                                 )}
-                                                                            />
+
+                                                                            </div>
                                                                         </Form.Item>
 
-                                                                        <div className='tooltip'>
+                                                                        {/* <div className='tooltip'>
                                                                             <Tooltip placement="top"
                                                                                 // title={partyDetailsList[name]?.party2Details}
                                                                                 title={selectedTransporterIndex !== -1 ? `${transporterList[selectedTransporterIndex]?.address || 'Address not available'} ${transporterList[selectedTransporterIndex]?.contact || 'Contact Not Available'} ${transporterList[selectedTransporterIndex]?.location || ' '}` : 'Not available'}
                                                                             >
                                                                                 <EyeOutlined />
                                                                             </Tooltip>
-                                                                        </div>
+                                                                        </div> */}
                                                                     </Flex>
 
-                                                                    <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                                        <Form.Item style={{ width: '45%' }}
+                                                                    <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
+                                                                        <Form.Item style={{ width: '48%' }}
                                                                             label="Qty"
                                                                             name={[name, 'qty']}
                                                                         >
@@ -1289,7 +1356,7 @@ const AddDetails = () => {
                                                                             </Input>
                                                                         </Form.Item>
 
-                                                                        <Form.Item style={{ width: '45%' }}
+                                                                        <Form.Item style={{ width: '48%' }}
                                                                             label="Rate"
                                                                             name={[name, 'rate']}
                                                                         >
@@ -1299,22 +1366,20 @@ const AddDetails = () => {
                                                                                 onChange={(e) => { let r = rate; r[name] = e.target.value; setRate([...r]) }}
                                                                             ></Input>
                                                                         </Form.Item>
-
-                                                                        <div></div>
                                                                     </Flex>
 
-                                                                    <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-                                                                        <Form.Item style={{ width: '45%' }}
+                                                                    <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
+                                                                        <Form.Item style={{ width: '48%' }}
                                                                             label="Total Freight"
                                                                         // name={[name, 'totalFreight']}
                                                                         >
-                                                                            <Input value={isNaN(parseFloat(rate[name]) * parseFloat(qty[name])) ? 0 : (parseFloat(rate[name]) * parseFloat(qty[name])).toFixed(2) || 0}>
+                                                                            <Input value={totalFreight}>
                                                                             </Input>
                                                                             {/* {parseInt(rate[name]) * parseInt(qty[name])} */}
                                                                             {/* <Input value={rate[name]*qty[name]}></Input> */}
                                                                         </Form.Item>
 
-                                                                        <Form.Item style={{ width: '45%' }} label="Maal"
+                                                                        <Form.Item style={{ width: '48%' }} label="Maal"
                                                                             name={[name, 'Maal']}>
                                                                             <Select
                                                                                 showSearch
@@ -1363,11 +1428,6 @@ const AddDetails = () => {
                                                                                 )}
                                                                             />
                                                                         </Form.Item>
-                                                                        {/* {console.log((form.getFieldValue(['tripDetails', name, 'rate']) || 0) * (form.getFieldValue(['tripDetails', name, 'qty']) || 0))} */}
-
-
-
-                                                                        <div></div>
 
                                                                     </Flex>
 
@@ -1377,19 +1437,8 @@ const AddDetails = () => {
 
                                                             </div>
                                                         ))}
-                                                        {/* <Form.Item style={{ margin: 'auto' }}>
-                                                                <Button type="dashed"
-                                                                    onClick={
-                                                                        () => {
-                                                                            add();
-                                                                            setTripCount(tripCount + 1);
-                                                                            document.getElementById('FPDAdd').click();
-                                                                        }}
-                                                                    block icon={<PlusOutlined />}>
-                                                                    Add new
-                                                                </Button>
-                                                            </Form.Item> */}
-                                                    </div>
+                                                    </>
+
                                                 )}
                                             </Form.List>
 
@@ -1412,78 +1461,99 @@ const AddDetails = () => {
                                         autoComplete="off"
                                         form={form1}
                                     >
-                                        <Flex gap="middle" align="start" vertical>
+                                        <Flex gap="middle" vertical>
 
-                                            <Flex style={{ width: "100%", height: 20, display: 'flex' }} justify={'space-around'} align='center'>
+                                            <Flex style={{ width: "100%", height: 20, display: 'flex' }} justify='space-between' align='center'>
                                                 {/* Name */}
                                                 <Form.Item style={{ width: '30%' }} label="Driver 1">
-                                                    <Select
-                                                        style={{ width: '100%' }}
-                                                        showSearch
-                                                        placeholder="Driver"
-                                                        optionFilterProp="children"
-                                                        onChange={(value, option) => {
-                                                            if (driver1.label !== undefined) {
-                                                                let _driverList = driverList;
-                                                                // Enable Last selected Option:
-                                                                for (let i = 0; i < _driverList.length; i++) {
-                                                                    if (_driverList[i].label === driver1.label) {
-                                                                        _driverList[i].disabled = false;
-                                                                        break;
-                                                                    }
-                                                                }
-                                                                // Disable Currently Selected Option:
-                                                                for (let i = 0; i < _driverList.length; i++) {
-                                                                    if (_driverList[i].label === value) {
-                                                                        _driverList[i].disabled = true;
-                                                                        break;
-                                                                    }
-                                                                }
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
 
-                                                                setDriverList([..._driverList]);
-                                                            }
-                                                            else {
-                                                                let _driverList = driverList;
-                                                                for (let i = 0; i < _driverList.length; i++) {
-                                                                    if (_driverList[i].label === value) {
-                                                                        _driverList[i].disabled = true;
-                                                                        break;
+                                                        <Select
+                                                            style={{ width: '100%' }}
+                                                            showSearch
+                                                            placeholder="Driver"
+                                                            optionFilterProp="children"
+                                                            onChange={(value, option) => {
+                                                                if (driver1.label !== undefined) {
+                                                                    let _driverList = driverList;
+                                                                    // Enable Last selected Option:
+                                                                    for (let i = 0; i < _driverList.length; i++) {
+                                                                        if (_driverList[i].label === driver1.label) {
+                                                                            _driverList[i].disabled = false;
+                                                                            break;
+                                                                        }
                                                                     }
-                                                                }
-                                                                setDriverList([..._driverList]);
+                                                                    // Disable Currently Selected Option:
+                                                                    for (let i = 0; i < _driverList.length; i++) {
+                                                                        if (_driverList[i].label === value) {
+                                                                            _driverList[i].disabled = true;
+                                                                            break;
+                                                                        }
+                                                                    }
 
-                                                            }
-                                                            setDriver1(option);
-                                                            console.log(option);
-                                                            setDriver1Value(value);
-                                                        }}
-                                                        // onSearch={onSearch}
-                                                        value={driver1Value}
-                                                        filterOption={filterOption}
-                                                        options={driverList}
-                                                        dropdownRender={(menu) => (
-                                                            <>
-                                                                {menu}
-                                                                <Divider
-                                                                    style={{
-                                                                        margin: '8px 0',
-                                                                    }}
-                                                                />
-                                                                <Space
-                                                                    style={{
-                                                                        padding: '0 8px 4px',
-                                                                    }}
-                                                                >
-                                                                    <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
-                                                                </Space>
-                                                            </>
+                                                                    setDriverList([..._driverList]);
+                                                                }
+                                                                else {
+                                                                    let _driverList = driverList;
+                                                                    for (let i = 0; i < _driverList.length; i++) {
+                                                                        if (_driverList[i].label === value) {
+                                                                            _driverList[i].disabled = true;
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                    setDriverList([..._driverList]);
+
+                                                                }
+                                                                setDriver1(option);
+                                                                console.log(option);
+                                                                setDriver1Value(value);
+                                                            }}
+                                                            // onSearch={onSearch}
+                                                            value={driver1Value}
+                                                            filterOption={filterOption}
+                                                            options={driverList}
+                                                            dropdownRender={(menu) => (
+                                                                <>
+                                                                    {menu}
+                                                                    <Divider
+                                                                        style={{
+                                                                            margin: '8px 0',
+                                                                        }}
+                                                                    />
+                                                                    <Space
+                                                                        style={{
+                                                                            padding: '0 8px 4px',
+                                                                        }}
+                                                                    >
+                                                                        <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
+                                                                    </Space>
+                                                                </>
+                                                            )}
+                                                        />
+                                                        {driver1 && (
+                                                            <Popover
+                                                                placement="right"
+                                                                title={driver1.label || 'Driver Details'}
+                                                                content={
+                                                                    <div style={{ minWidth: 180 }}>
+                                                                        <div><b>Address:</b> {driver1.address || 'Not available'}</div>
+                                                                        <div><b>Contact:</b> {driver1.Contact || 'Not available'}</div>
+                                                                        <div><b>Licence Date:</b> {driver1.LicenseDate || 'Not available'}</div>
+                                                                    </div>
+                                                                }
+                                                                trigger="click"
+                                                            >
+                                                                <Button icon={<EyeOutlined />}  type="default" size="small" style={{ marginLeft: 4 }}>
+                                                                    
+                                                                </Button>
+                                                            </Popover>
                                                         )}
-                                                    />
+                                                    </div>
                                                 </Form.Item>
 
-                                                <Tooltip placement="top" title={driver1.Contact + '\n' + driver1.LicenseDate} >
-                                                    <EyeOutlined />
-                                                </Tooltip>
+                                                {/* <Tooltip placement="top" title={driver1.Contact + '\n' + driver1.LicenseDate} >
+                                                    <EyeOutlined /><div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                </Tooltip> */}
 
                                                 <Form.Item style={{ width: '30%' }} label="Trip Cash">
                                                     <Input onChange={(e) => {
@@ -1517,10 +1587,11 @@ const AddDetails = () => {
 
                                             </Flex>
 
-                                            <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
+                                            <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
 
                                                 {/* Name */}
-                                                <Form.Item style={{ width: '40%' }} label="Driver 2">
+                                                <Form.Item style={{ width: '48%' }} label="Driver 2">
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                                     <Select
                                                         style={{ width: '100%' }}
                                                         showSearch
@@ -1593,17 +1664,37 @@ const AddDetails = () => {
                                                             </>
                                                         )}
                                                     />
+                                                    {driver2 && (
+                                                            <Popover
+                                                                placement="right"
+                                                                title={driver2.label || 'Driver Details'}
+                                                                content={
+                                                                    <div style={{ minWidth: 180 }}>
+                                                                        <div><b>Address:</b> {driver2.address || 'Not available'}</div>
+                                                                        <div><b>Contact:</b> {driver2.Contact || 'Not available'}</div>
+                                                                        <div><b>Licence Date:</b> {driver2.LicenseDate || 'Not available'}</div>
+                                                                    </div>
+                                                                }
+                                                                trigger="click"
+                                                            >
+                                                                <Button icon={<EyeOutlined />} type="default" size="small" style={{ marginLeft: 4 }}>
+                                                                    
+                                                                </Button>
+                                                            </Popover>
+                                                        )}
+                                                    </div>
                                                 </Form.Item>
 
                                                 {/* View */}
-                                                <td>
+                                                {/* <td>
                                                     <Tooltip placement="top" title={driver2.Contact + '\n' + driver2.LicenseDate} >
                                                         <EyeOutlined />
                                                     </Tooltip>
-                                                </td>
+                                                </td> */}
 
                                                 {/* Name */}
-                                                <Form.Item style={{ width: '40%' }} label="Conductor">
+                                                <Form.Item style={{ width: '48%' }} label="Conductor">
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                                     <Select
                                                         style={{ width: '100%' }}
                                                         showSearch
@@ -1666,27 +1757,46 @@ const AddDetails = () => {
                                                             </>
                                                         )}
                                                     />
+                                                    {conductor && (
+                                                            <Popover
+                                                                placement="right"
+                                                                title={conductor.label || 'Driver Details'}
+                                                                content={
+                                                                    <div style={{ minWidth: 180 }}>
+                                                                        <div><b>Address:</b> {conductor.address || 'Not available'}</div>
+                                                                        <div><b>Contact:</b> {conductor.Contact || 'Not available'}</div>
+                                                                        <div><b>Licence Date:</b> {conductor.LicenseDate || 'Not available'}</div>
+                                                                    </div>
+                                                                }
+                                                                trigger="click"
+                                                            >
+                                                                <Button icon={<EyeOutlined />} type="default" size="small" style={{ marginLeft: 4 }}>
+                                                                    
+                                                                </Button>
+                                                            </Popover>
+                                                        )}
+                                                    </div>
                                                 </Form.Item>
 
                                                 {/* View */}
-                                                <td>
+                                                {/* <td>
                                                     <Tooltip placement="top" title={conductor.Contact + '\n' + conductor.LicenseDate} >
                                                         <EyeOutlined />
                                                     </Tooltip>
-                                                </td>
+                                                </td> */}
 
                                             </Flex>
 
                                             {/* KM */}
                                             <Flex style={{
                                                 width: '100%',
-                                                height: 30,
-                                            }} justify={'space-around'} align={'center'}>
-                                                <Form.Item style={{ width: '45%' }} label="Jana KM">
+                                                height: 20,
+                                            }} justify='space-between' align={'center'}>
+                                                <Form.Item style={{ width: '48%' }} label="Jana KM">
                                                     <Input value={janaKm} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number'></Input>
                                                 </Form.Item>
 
-                                                <Form.Item style={{ width: '45%' }} label="Aana KM">
+                                                <Form.Item style={{ width: '48%' }} label="Aana KM">
                                                     <Input value={aanaKm} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number'></Input>
                                                 </Form.Item>
 
@@ -1694,13 +1804,13 @@ const AddDetails = () => {
 
                                             <Flex style={{
                                                 width: '100%',
-                                                height: 30,
-                                            }} justify={'space-around'} align={'center'}>
-                                                <Form.Item style={{ width: '45%' }} label="Trip KM">
+                                                height: 20,
+                                            }} justify='space-between' align={'center'}>
+                                                <Form.Item style={{ width: '48%' }} label="Trip KM">
                                                     {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))} onChange={(e) => { setTripKm(e.target.value) }} placeholder='Trip KM' type='number'></Input> */}
                                                     <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))}></Input>
                                                 </Form.Item>
-                                                <Form.Item style={{ width: '45%' }} label="Milometer">
+                                                <Form.Item style={{ width: '48%' }} label="Milometer">
                                                     <Input value={milometer} onChange={(e) => { setMilometer(e.target.value) }} placeholder='Milometer'></Input>
                                                 </Form.Item>
                                             </Flex>
@@ -1708,13 +1818,13 @@ const AddDetails = () => {
                                             {/* Diesel */}
                                             <Flex style={{
                                                 width: '100%',
-                                                height: 30,
-                                            }} justify={'space-around'} align={'center'}>
-                                                <Form.Item style={{ width: '45%' }} label="Diesel">
+                                                height: 20,
+                                            }} justify='space-between' align={'center'}>
+                                                <Form.Item style={{ width: '48%' }} label="Diesel">
                                                     <Input value={dieselQty} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number'></Input>
                                                 </Form.Item>
 
-                                                <Form.Item style={{ width: '45%' }} label="Pump Name">
+                                                <Form.Item style={{ width: '48%' }} label="Pump Name">
                                                     <Select
                                                         showSearch
                                                         placeholder="Pump Name"
@@ -1744,7 +1854,7 @@ const AddDetails = () => {
                                                                         onKeyDown={(e) => e.stopPropagation()}
                                                                     />
                                                                     <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                      
+
                                                                         addNewPump(e);
                                                                     }}>
 
@@ -1758,14 +1868,14 @@ const AddDetails = () => {
                                             </Flex>
                                             <Flex style={{
                                                 width: '100%',
-                                                height: 30,
-                                            }} justify={'space-around'} align={'center'}>
-                                                <Form.Item style={{ width: '45%' }} label="Average">
+                                                height: 20,
+                                            }} justify='space-between' align={'center'}>
+                                                <Form.Item style={{ width: '48%' }} label="Average">
                                                     <Input value={(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0}></Input>
                                                     {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))/((parseInt(dieselQty)||0) + (parseInt(midwayDiesel)||0))} onChange={(e) => { setAverage(e.target.value) }} placeholder='Average' type='number'></Input> */}
                                                 </Form.Item>
 
-                                                <Form.Item style={{ width: '45%' }} label="Midway Diesel">
+                                                <Form.Item style={{ width: '48%' }} label="Midway Diesel">
                                                     <Input value={midwayDiesel} onChange={(e) => setMidwayDiesel(e.target.value)} placeholder='Midway Diesel'></Input>
                                                 </Form.Item>
                                             </Flex>
@@ -1776,12 +1886,12 @@ const AddDetails = () => {
                             </Card>
                         </Col>
                         <Col span={12}>
-                            <Card style={{ marginBottom: '10px' }} size="small">
+                            <Card style={{ marginBottom: '10px', width: '100%' }} size="small">
                                 <div>
                                     <Form name='Kaata Parchi Details'
-                                        // style={{
-                                        //     maxWidth: 1200,
-                                        // }}
+                                        style={{
+                                            width: '100%'
+                                        }}
                                         initialValues={{
                                             remember: true,
                                             kaataParchi: [{}]
@@ -1791,7 +1901,7 @@ const AddDetails = () => {
                                         autoComplete="off"
                                         form={form2}
                                     >
-                                        <Flex gap="middle" align="start" vertical>
+                                        <Flex gap="middle" vertical style={{ width: '100%' }}>
 
 
                                             {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
@@ -1799,94 +1909,100 @@ const AddDetails = () => {
                                                 {(fields, { add, remove }) => (
                                                     <>
                                                         {fields.map(({ key, name, ...restField }) => (
-                                                            <Flex key={key} style={{ width: '100%' }} justify={'space-around'} align={'center'}>
-                                                                <div >
+                                                            // <Flex key={key} style={{ width: '100%' }} align={'center'}>
 
-                                                                    <div
-                                                                        key={key}
-                                                                    >
-                                                                        <Flex gap="middle" align="start" vertical>
+
+                                                            <div
+                                                                key={key}
+                                                            >
+                                                                <Flex gap="middle" vertical>
+
+                                                                    <Flex style={{
+                                                                        width: '100%',
+                                                                        height: 20,
+                                                                        marginTop: '10px'
+                                                                    }} align={'center'} >
+
+                                                                        <Form.Item style={{ width: '100%' }} name={[name, "remarks"]} label="Kaata Parchi Remarks">
+                                                                            <Input placeholder='remarks' ></Input>
+                                                                        </Form.Item>
+
+
+
+                                                                    </Flex>
+                                                                    <Flex style={{
+                                                                        width: '100%',
+                                                                        height: 40,
+                                                                    }} align={'center'} >
+                                                                        <Form.Item style={{ width: '50%' }} name={[name, "kaataParchiAmount"]} label="Amount">
+                                                                            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+
+                                                                            <Input placeholder='amount' ></Input>
+
+
+                                                                        <Button style={{ width: '55%'}} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
+                                                                            </div>
+                                                                        </Form.Item>
+                                                                    </Flex>
+
+
+                                                                    {toggleKaataParchi &&
+                                                                        <>
+                                                                            <Flex style={{
+                                                                                width: '100%',
+                                                                                height: 20,
+                                                                            }} justify={'space-around'} align={'center'} >
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, 'unloadingDate']} label="Unloading Date">
+                                                                                    <Input placeholder='Unloading Date' type='date'></Input>
+                                                                                </Form.Item>
+
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, 'khaliGadiWajan']} label="Khaali Gadi wajan">
+                                                                                    <Input placeholder='Weight' type='number'></Input>
+                                                                                </Form.Item>
+                                                                            </Flex>
 
                                                                             <Flex style={{
                                                                                 width: '100%',
-                                                                                height: 30,
+                                                                                height: 20,
                                                                             }} justify={'space-around'} align={'center'} >
 
-                                                                                <Form.Item style={{ width: '100%' }} name={[name, "remarks"]} label="Kaata Parchi Remarks">
-                                                                                    <Input placeholder='remarks' ></Input>
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, 'bhariGadiWajan']} label="Bhari Gaadi Wajan">
+                                                                                    <Input placeholder='Weight' type='number'></Input>
+                                                                                </Form.Item>
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, "maalKaWajan"]} label="Maal Ka Wajan">
+                                                                                    <Input placeholder='weight' type='number'></Input>
+                                                                                </Form.Item>
+                                                                            </Flex>
+
+
+
+                                                                            <Flex style={{
+                                                                                width: '100%',
+                                                                                height: 20,
+                                                                            }} justify={'space-around'} align={'center'}>
+
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, "ghaateAllowed"]} label="Ghaate Allowed">
+                                                                                    <Input placeholder='input' ></Input>
+                                                                                </Form.Item>
+
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, "ghaateActual"]} label="Ghaate Actual">
+                                                                                    <Input placeholder='input' ></Input>
                                                                                 </Form.Item>
 
 
 
                                                                             </Flex>
-                                                                            <Flex style={{
-                                                                                width: '100%',
-                                                                                height: 40,
-                                                                            }} justify={'space-around'} align={'center'} >
-                                                                                <Form.Item style={{ width: '50%' }} name={[name, "kaataParchiAmount"]} label="Amount">
-                                                                                    <Input placeholder='amount' ></Input>
-                                                                                </Form.Item>
-
-                                                                                <Button style={{ width: '55%', marginTop: '-25px' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
-                                                                            </Flex>
-
-
-                                                                            {toggleKaataParchi &&
-                                                                                <>
-                                                                                    <Flex style={{
-                                                                                        width: '100%',
-                                                                                        height: 20,
-                                                                                    }} justify={'space-around'} align={'center'} >
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, 'unloadingDate']} label="Unloading Date">
-                                                                                            <Input placeholder='Unloading Date' type='date'></Input>
-                                                                                        </Form.Item>
-
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, 'khaliGadiWajan']} label="Khaali Gadi wajan">
-                                                                                            <Input placeholder='Weight' type='number'></Input>
-                                                                                        </Form.Item>
-                                                                                    </Flex>
-
-                                                                                    <Flex style={{
-                                                                                        width: '100%',
-                                                                                        height: 20,
-                                                                                    }} justify={'space-around'} align={'center'} >
-
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, 'bhariGadiWajan']} label="Bhari Gaadi Wajan">
-                                                                                            <Input placeholder='Weight' type='number'></Input>
-                                                                                        </Form.Item>
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, "maalKaWajan"]} label="Maal Ka Wajan">
-                                                                                            <Input placeholder='weight' type='number'></Input>
-                                                                                        </Form.Item>
-                                                                                    </Flex>
+                                                                        </>
+                                                                    }
 
 
 
-                                                                                    <Flex style={{
-                                                                                        width: '100%',
-                                                                                        height: 20,
-                                                                                    }} justify={'space-around'} align={'center'}>
-
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, "ghaateAllowed"]} label="Ghaate Allowed">
-                                                                                            <Input placeholder='input' ></Input>
-                                                                                        </Form.Item>
-
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, "ghaateActual"]} label="Ghaate Actual">
-                                                                                            <Input placeholder='input' ></Input>
-                                                                                        </Form.Item>
+                                                                </Flex>
 
 
 
-                                                                                    </Flex>
-                                                                                </>
-                                                                            }
+                                                            </div>
 
-                                                                        </Flex>
-
-
-
-                                                                    </div>
-                                                                </div>
-                                                            </Flex>
                                                         ))}
 
                                                     </>
@@ -1923,7 +2039,7 @@ const AddDetails = () => {
                                                 // onSearch={onSearch}
                                                 filterOption={filterOption}
                                                 options={[
-                                                    ...partyList[0],
+                                                    ...partyList[0].filter(opt => opt && opt.value !== undefined && opt.label !== undefined),
                                                     // {label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.bhejneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.bhejneWaala},
                                                     // { label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.paaneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.paaneWaala},
                                                     // {label: form.getFieldValue(['tripDetails'])?.tripDetails[name]?.transporter, value: form.getFieldValue(['tripDetails']).tripDetails[name]?.transporter},

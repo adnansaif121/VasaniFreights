@@ -217,6 +217,13 @@ const Driver = () => {
             title: 'Date',
             dataIndex: 'date',
             key: 'date',
+            render: (text, record) => {
+                return new Date(record.date).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                });
+            }
         },
         {
             title: 'Truck No.',

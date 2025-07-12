@@ -135,7 +135,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
         // setVehicleNo
         setVehicleNo(data.vehicleNo);
         setDate(data.dateToSort)
-        let pohchid= data.firstPayment?.[0]?.pohchId || '';
+        let pohchid = data.firstPayment?.[0]?.pohchId || '';
         if (pohchid !== '') {
             setPohchId(data.firstPayment?.[0]?.pohchId);
         }
@@ -334,7 +334,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                 size="small"
                                 title="Trip Details"
                                 extra={tripDetailsEditFlag ?
-                                    <Button type="primary" onClick={(e) => { e.stopPropagation(); setTripDetailsEditFlag(!tripDetailsEditFlag) }}><CloseCircleFilled /></Button>
+                                    <Button type="primary" onClick={(e) => { e.stopPropagation(); setTripDetailsEditFlag(!tripDetailsEditFlag); handleSave() }}>Freeze and Save</Button>
                                     :
                                     <Button type="primary" onClick={(e) => { e.stopPropagation(); setTripDetailsEditFlag(!tripDetailsEditFlag) }}><EditFilled /></Button>
                                 }>
@@ -764,14 +764,14 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
                                             </Flex>
                                         </Flex>
-                                        <Button type="primary" onClick={handleSave}>Save</Button>
+                                        {/* <Button type="primary" onClick={handleSave}>Save</Button> */}
 
                                     </Form>
                                 </div>
                             </Card>
 
                             <Card title="Driver and Diesel" size="small" extra={driverDetailsEditFlag ?
-                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setDriverDetailsEditFlag(!driverDetailsEditFlag) }}><CloseCircleFilled /></Button>
+                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setDriverDetailsEditFlag(!driverDetailsEditFlag); handleSave() }}>Freeze and Save</Button>
                                 :
                                 <Button type="primary" onClick={(e) => { e.stopPropagation(); setDriverDetailsEditFlag(!driverDetailsEditFlag) }}><EditFilled /></Button>
                             }>
@@ -1056,23 +1056,23 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 </Form.Item>
                                             </Flex>
                                         </Flex>
-                                        <Button type="primary" onClick={handleSave}>Save</Button>
+                                        {/* <Button type="primary" onClick={handleSave}>Save</Button> */}
                                     </Form>
                                 </div>
                             </Card>
                         </Col>
 
                         <Col span={12}>
-                            <Card style={{ marginBottom: '10px' }} size="small" title="Kaata Parchi Details" extra={kaataParchiEditFlag ?
-                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setKaataParchiEditFlag(!kaataParchiEditFlag) }}><CloseCircleFilled /></Button>
+                            <Card style={{ marginBottom: '10px', width: '100%' }} size="small" title="Kaata Parchi Details" extra={kaataParchiEditFlag ?
+                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setKaataParchiEditFlag(!kaataParchiEditFlag); handleSave() }}>Freeze and Save</Button>
                                 :
                                 <Button type="primary" onClick={(e) => { e.stopPropagation(); setKaataParchiEditFlag(!kaataParchiEditFlag) }}><EditFilled /></Button>
                             }>
                                 <div>
                                     <Form name='Kaata Parchi Details'
-                                        // style={{
-                                        //     maxWidth: 1200,
-                                        // }}
+                                        style={{
+                                            width: '100%',
+                                        }}
                                         initialValues={{
                                             remember: true,
                                         }}
@@ -1082,7 +1082,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                         form={form2}
                                         disabled={!kaataParchiEditFlag}
                                     >
-                                        <Flex gap="middle" align="start" vertical>
+                                        <Flex gap="middle" vertical style={{ width: '100%' }}>
 
 
                                             {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
@@ -1090,102 +1090,102 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 {(fields, { add, remove }) => (
                                                     <>
                                                         {fields.map(({ key, name, ...restField }) => (
-                                                            <Flex key={key} style={{ width: '100%', marginTop: '10px' }} justify={'space-around'} align={'center'}>
-                                                                <div>
-                                                                    <div
-                                                                        key={key}
-                                                                    >
-                                                                        <Flex gap="middle" align="start" vertical>
+                                                            // <Flex key={key} style={{ width: '100%', marginTop: '10px' }} justify={'space-around'} align={'center'}>
+
+                                                            <div
+                                                                key={key}
+                                                            >
+                                                                <Flex gap="middle" vertical>
+                                                                    <Flex style={{
+                                                                        width: '100%',
+                                                                        height: 30,
+                                                                    }} justify={'space-around'} align={'center'} >
+
+                                                                        <Form.Item style={{ width: '100%' }} name={[name, "remarks"]} label="Remarks">
+                                                                            <Input placeholder='remarks' ></Input>
+                                                                        </Form.Item>
+
+
+                                                                    </Flex>
+
+                                                                    <Flex style={{
+                                                                        width: '100%',
+                                                                        height: 40,
+                                                                    }} justify={'space-around'} align={'center'} >
+                                                                        <Form.Item style={{ width: '50%' }} name={[name, "kaataParchiAmount"]} label="Amount">
+                                                                            <Input placeholder='amount' ></Input>
+                                                                        </Form.Item>
+
+                                                                        <Button style={{ width: '55%', marginTop: '-25px' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
+
+                                                                    </Flex>
+
+                                                                    {toggleKaataParchi &&
+                                                                        <>
                                                                             <Flex style={{
                                                                                 width: '100%',
-                                                                                height: 30,
+                                                                                height: 40,
                                                                             }} justify={'space-around'} align={'center'} >
-
-                                                                                <Form.Item style={{ width: '100%' }} name={[name, "remarks"]} label="Remarks">
-                                                                                    <Input placeholder='remarks' ></Input>
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, 'unloadingDate']} label="Unloading Date">
+                                                                                    <Input placeholder='Unloading Date' type='date'></Input>
                                                                                 </Form.Item>
 
-                                                                                
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, 'khaliGadiWajan']} label="Khaali Gadi wajan">
+                                                                                    <Input placeholder='Weight' type='number'></Input>
+                                                                                </Form.Item>
+
+
                                                                             </Flex>
 
                                                                             <Flex style={{
                                                                                 width: '100%',
                                                                                 height: 40,
                                                                             }} justify={'space-around'} align={'center'} >
-                                                                                <Form.Item style={{ width: '50%' }} name={[name, "kaataParchiAmount"]} label="Amount">
-                                                                                    <Input placeholder='amount' ></Input>
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, 'bhariGadiWajan']} label="Bhari Gaadi Wajan">
+                                                                                    <Input placeholder='Weight' type='number'></Input>
                                                                                 </Form.Item>
 
-                                                                                <Button style={{ width: '55%', marginTop: '-25px' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, "maalKaWajan"]} label="Maal Ka Wajan">
+                                                                                    <Input placeholder='weight' type='number'></Input>
+                                                                                </Form.Item>
+                                                                            </Flex>
+
+                                                                            <Flex style={{
+                                                                                width: '100%',
+                                                                                height: 60,
+                                                                            }} justify={'space-around'} align={'center'}>
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, "ghaateAllowed"]} label="Ghaate Allowed">
+                                                                                    <Input placeholder='input' ></Input>
+                                                                                </Form.Item>
+
+                                                                                <Form.Item style={{ width: '45%' }} name={[name, "ghaateActual"]} label="Ghaate Actual">
+                                                                                    <Input placeholder='input' ></Input>
+                                                                                </Form.Item>
 
                                                                             </Flex>
 
-                                                                            {toggleKaataParchi &&
-                                                                                <>
-                                                                                    <Flex style={{
-                                                                                        width: '100%',
-                                                                                        height: 40,
-                                                                                    }} justify={'space-around'} align={'center'} >
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, 'unloadingDate']} label="Unloading Date">
-                                                                                            <Input placeholder='Unloading Date' type='date'></Input>
-                                                                                        </Form.Item>
-
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, 'khaliGadiWajan']} label="Khaali Gadi wajan">
-                                                                                            <Input placeholder='Weight' type='number'></Input>
-                                                                                        </Form.Item>
-
-
-                                                                                    </Flex>
-
-                                                                                    <Flex style={{
-                                                                                        width: '100%',
-                                                                                        height: 40,
-                                                                                    }} justify={'space-around'} align={'center'} >
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, 'bhariGadiWajan']} label="Bhari Gaadi Wajan">
-                                                                                            <Input placeholder='Weight' type='number'></Input>
-                                                                                        </Form.Item>
-
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, "maalKaWajan"]} label="Maal Ka Wajan">
-                                                                                            <Input placeholder='weight' type='number'></Input>
-                                                                                        </Form.Item>
-                                                                                    </Flex>
-
-                                                                                    <Flex style={{
-                                                                                        width: '100%',
-                                                                                        height: 60,
-                                                                                    }} justify={'space-around'} align={'center'}>
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, "ghaateAllowed"]} label="Ghaate Allowed">
-                                                                                            <Input placeholder='input' ></Input>
-                                                                                        </Form.Item>
-
-                                                                                        <Form.Item style={{ width: '45%' }} name={[name, "ghaateActual"]} label="Ghaate Actual">
-                                                                                            <Input placeholder='input' ></Input>
-                                                                                        </Form.Item>
-
-                                                                                    </Flex>
-
-                                                                                </>
-                                                                            }
-                                                                        </Flex>
+                                                                        </>
+                                                                    }
+                                                                </Flex>
 
 
 
-                                                                    </div>
-                                                                </div>
-                                                            </Flex>
+                                                            </div>
+
+
                                                         ))}
 
                                                     </>
                                                 )}
                                             </Form.List>
                                         </Flex>
-                                        <Button type="primary" onClick={handleSave}>Save</Button>
+                                        {/* <Button type="primary" onClick={handleSave}>Save</Button> */}
                                     </Form>
                                 </div>
                             </Card>
 
                             <Card title="Payment Details" size="small" extra={paymentDetailsEditFlag ?
-                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setPaymentDetailsEditFlag(!paymentDetailsEditFlag) }}><CloseCircleFilled /></Button>
+                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setPaymentDetailsEditFlag(!paymentDetailsEditFlag); handleSave() }}>Freeze and Save</Button>
                                 :
                                 <Button type="primary" onClick={(e) => { e.stopPropagation(); setPaymentDetailsEditFlag(!paymentDetailsEditFlag) }}><EditFilled /></Button>
                             }>
@@ -1292,7 +1292,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 <td ><h3>Pohch</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'pohchAmount']} >
-                                                                                        <Input placeholder='amount' type='number' onChange={(e) => { setPohchAmount(e.target.value) }}/>
+                                                                                        <Input placeholder='amount' type='number' onChange={(e) => { setPohchAmount(e.target.value) }} />
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -1451,7 +1451,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 )}
                                             </Form.List>
                                         </Flex>
-                                        <Button type="primary" onClick={handleSave}>Save</Button>
+                                        {/* <Button type="primary" onClick={handleSave}>Save</Button> */}
                                     </Form>
                                 </div>
                             </Card>

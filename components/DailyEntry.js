@@ -1142,14 +1142,15 @@ const DailyEntry = () => {
                     onCancel={() => setRemarkModalOpen(false)}
                     footer={null}
                     title="All Remarks"
+                    width={'70vw'}
                 >
                     {remarkData.length === 0 ? (
                         <div>No remarks found.</div>
                     ) : (
-                        <ul>
+                        <ul style={{fontSize: '20px', lineHeight: '2'}}>
                             {remarkData.map((item, idx) => (
                                 <li key={idx}>
-                                    <b>{item.key.replace(/\[0\]\./g, ' ')}:</b> {item.value ? item.value : <i>(empty)</i>}
+                                    <b>{item.key.replace(/\[0\]\./g, ' ').replace(/remark(s)?/gi, '').trim()}:</b> {item.value ? item.value : <i>(empty)</i>}
                                 </li>
                             ))}
                         </ul>
