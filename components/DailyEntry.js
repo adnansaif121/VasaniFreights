@@ -439,7 +439,7 @@ const DailyEntry = () => {
                     <Button
                         type="primary"
                         size="small"
-                        onClick={() => {setSelectedKeys([]);handle_Search([], confirm, dataIndex)}}
+                        onClick={() => { setSelectedKeys([]); handle_Search([], confirm, dataIndex) }}
                     >
                         Clear
                     </Button>
@@ -1121,6 +1121,15 @@ const DailyEntry = () => {
                     width={'100vw'}
                     // title="Daily Entry Details"
                     destroyOnClose
+                    closeIcon={
+                        <Button
+                            type="primary"
+                            size="small"
+                            style={{marginTop:'-20px', marginRight: '20px',  display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            onClick={() => setViewModalOpen(false)}
+                            // icon={<CloseOutlined style={{ fontSize: 24 }} />}
+                        ><CloseOutlined style={{ fontSize: 15 }} />Close</Button>
+                    }
                 >
                     {selectedRow && (
                         <ViewDailyEntry
@@ -1147,7 +1156,7 @@ const DailyEntry = () => {
                     {remarkData.length === 0 ? (
                         <div>No remarks found.</div>
                     ) : (
-                        <ul style={{fontSize: '20px', lineHeight: '2'}}>
+                        <ul style={{ fontSize: '20px', lineHeight: '2' }}>
                             {remarkData.map((item, idx) => (
                                 <li key={idx}>
                                     <b>{item.key.replace(/\[0\]\./g, ' ').replace(/remark(s)?/gi, '').trim()}:</b> {item.value ? item.value : <i>(empty)</i>}

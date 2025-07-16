@@ -327,7 +327,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
         // <Collapse items={items} activeKey={['1', '3', '4', '5']}></Collapse>
         <>
             <div className={styles.addNewDetails}>
-                <div style={{ width: '100%' }}>
+                <div style={{ width: '100%', marginTop:'20px' }}>
                     <Row gutter={16}>
                         <Col span={12}>
                             <Card style={{ marginBottom: '10px' }}
@@ -440,53 +440,12 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                             />
                                                                         </Form.Item>
 
-                                                                        <Form.Item style={{ width: '45%' }} label="Sender"
-                                                                            name={[name, 'bhejneWaala']}>
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="Bhejne waale"
-                                                                                optionFilterProp="children"
-                                                                                onChange={(value) => addPartyInPartyList(value, name)}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={partyListAll}
-                                                                                dropdownRender={(menu) => (
-                                                                                    <>
-                                                                                        {menu}
-                                                                                        <Divider
-                                                                                            style={{
-                                                                                                margin: '8px 0',
-                                                                                            }}
-                                                                                        />
-                                                                                        <Space
-                                                                                            style={{
-                                                                                                padding: '0 8px 4px',
-                                                                                            }}
-                                                                                        >
-                                                                                            <Input
-                                                                                                placeholder="Please enter item"
-                                                                                                value={newParty}
-                                                                                                onChange={(e) => setNewParty(e.target.value)}
-                                                                                                onKeyDown={(e) => e.stopPropagation()}
-                                                                                            />
-                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewParty(e)}>
-
-                                                                                            </Button>
-                                                                                        </Space>
-                                                                                    </>
-                                                                                )}
-                                                                            />
-                                                                        </Form.Item>
 
                                                                         {/* <div className='tooltip'>
                                                                             <Tooltip placement="top" title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}` : 'Not available'}>
                                                                                 <EyeOutlined />
                                                                             </Tooltip>
                                                                         </div> */}
-                                                                    </Flex>
-
-                                                                    <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
-
                                                                         <Form.Item style={{ width: '45%' }}
                                                                             label="To"
                                                                             name={[name, 'to']}
@@ -523,6 +482,48 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                                 setLocations([...locations, { value: newLocation, label: newLocation }]);
                                                                                                 setNewLocation('');
                                                                                             }}>
+
+                                                                                            </Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
+                                                                    </Flex>
+
+                                                                    <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
+
+                                                                        
+                                                                        <Form.Item style={{ width: '45%' }} label="Sender"
+                                                                            name={[name, 'bhejneWaala']}>
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="Bhejne waale"
+                                                                                optionFilterProp="children"
+                                                                                onChange={(value) => addPartyInPartyList(value, name)}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={partyListAll}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Input
+                                                                                                placeholder="Please enter item"
+                                                                                                value={newParty}
+                                                                                                onChange={(e) => setNewParty(e.target.value)}
+                                                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                                            />
+                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewParty(e)}>
 
                                                                                             </Button>
                                                                                         </Space>
