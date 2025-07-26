@@ -16,6 +16,7 @@ import Pohch from './Pohch';
 import Uvlogistics from './Uvlogistics';
 import HareKrishna from './HareKrishna';
 import Cheque from './Cheque';
+import Cash from './Cash';
 
 const items = [
     {
@@ -31,7 +32,7 @@ const items = [
     {
         key: '2',
         label: <NavLabel label={'Cash'}/>,
-        children: <EmptyPage text={'Cash'}/>,
+        children: <Cash text={'Cash'}/>,
     },
     {
         key: '3',
