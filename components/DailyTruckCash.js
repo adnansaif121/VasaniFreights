@@ -172,8 +172,8 @@ const DailyTruckCash = () => {
     };
 
     // Calculate total amounts
-    const totalIncome = incomeData.reduce((sum, row) => sum + Number(row.amount), 0);
-    const totalExpense = expenseData.reduce((sum, row) => sum + Number(row.amount), 0);
+    const totalIncome = incomeData.reduce((sum, row) => sum + Number(parseFloat(row.amount)), 0);
+    const totalExpense = expenseData.reduce((sum, row) => sum + Number(parseFloat(row.amount)), 0);
 
     return (
         <div style={{ display: 'flex', gap: 32, padding: 24, height: '100%' }}>

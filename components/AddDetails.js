@@ -13,7 +13,6 @@ import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
-console.log(todayDate);
 
 const AddDetails = () => {
     const [form] = Form.useForm();
@@ -121,8 +120,6 @@ const AddDetails = () => {
 
     const PohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
 
-    console.log(PohchId);
-
     useEffect(() => {
         setTotalFreight(isNaN(parseFloat(rate[0]) * parseFloat(qty[0])) ? 0 : (parseFloat(rate[0]) * parseFloat(qty[0])).toFixed(2) || 0);
     }, [rate, qty]);
@@ -130,17 +127,10 @@ const AddDetails = () => {
     useDisableNumberInputScroll();
     useEffect(() => {
         const db = getDatabase();
-        // set(ref(db, 'users/' + '0'), {
-        //   username: 'Adnan',
-        //   email: 'adnan@tcs.com',
-        // });
-        // Get data from database
-
 
         const locationsRef = ref(db, 'locations/');
         onValue(locationsRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data, 'Locations');
             // updateStarCount(postElement, data);
             let locations = []; // Data Source
             if (data) {
@@ -154,7 +144,6 @@ const AddDetails = () => {
         const partyRef = ref(db, 'parties/');
         onValue(partyRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data, 'parties');
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
             if (data !== null) {
@@ -168,7 +157,6 @@ const AddDetails = () => {
         const transporterRef = ref(db, 'transporters/');
         onValue(transporterRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data, 'transporters');
             // updateStarCount(postElement, data);
             let transporters = []; // Data Source
             if (data) {
@@ -182,7 +170,6 @@ const AddDetails = () => {
         const driversRef = ref(db, 'drivers/');
         onValue(driversRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data, 'drivers');
             // updateStarCount(postElement, data);
             let drivers = []; // Data Source
             if (data) {
@@ -207,7 +194,6 @@ const AddDetails = () => {
                 }
             }
             setBankData([..._bankData]);
-            // console.log(data, 'Bankdata');
         })
 
         const maalRef = ref(db, 'maal/');
@@ -220,14 +206,12 @@ const AddDetails = () => {
                 })
                 setMaalList([..._maal]);
             }
-            console.log(data);
         })
 
         const vehicleDataRef = ref(db, 'Vehicles/');
         onValue(vehicleDataRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                console.log('VEHICLE DATA', data);
                 setVehicleData(data);
             }
         })
@@ -236,7 +220,6 @@ const AddDetails = () => {
         onValue(pumpDataRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                console.log('PUMP DATA', data);
                 setPumpList(data);
             }
         })
@@ -254,7 +237,6 @@ const AddDetails = () => {
 
     const handleSave = () => {
         let tripDetails = form.getFieldsValue(['tripDetails']);
-        console.log(tripDetails);
         if (tripDetails.tripDetails === undefined) {
             alert("Trips are not added. Please add trips to create entry");
             return;
@@ -330,7 +312,6 @@ const AddDetails = () => {
         );
         // IF bhadaKaunDalega is 'NaveenKaka' or 'HareKrishna' or transporterSelected, AND partyForTransporterPayment is not empty, then set or update the entry in database at '/'
 
-        // console.log(form3.getFieldsValue(['paymentDetails']));
 
         if (form3.getFieldsValue(['paymentDetails']).paymentDetails === undefined || form3.getFieldsValue(['paymentDetails']).paymentDetails[0] === undefined || firstPayment.length === 0) listOfFirstPayment = null;
 
@@ -346,11 +327,10 @@ const AddDetails = () => {
         }
 
         if (dieselAndKmDetails === undefined || dieselAndKmDetails.length === 0) dieselAndKmDetails = null;
-        console.log(listOfTrips, listOfKaataParchi, listOfFirstPayment);
 
-        // console.log(form1?.getFieldsValue(['DriversDetails']));
         const db = getDatabase();
-        let id = guidGenerator();
+        // let id = guidGenerator();
+        let id = new Date().getTime();
         set(ref(db, 'dailyEntry/' + id), {
             date: date,
             vehicleNo: vehicleNo || '',
@@ -368,14 +348,7 @@ const AddDetails = () => {
             driver2: driver2 || null,
             conductor: conductor || null,
 
-            // FIELDS DATA  
-            // tripDetailsFields: (form?.getFieldsValue(['tripDetails']) || null),
-            // driversDetailsFields: (listOfDrivers === null) ? null : (form1?.getFieldsValue(['DriversDetails']) || null),
-            // kaataParchiFields: (listOfKaataParchi === null) ? null : (form2?.getFieldsValue(['kaataParchi']) || null),
-            // firstPaymentFields: (listOfFirstPayment === null) ? null : (form3?.getFieldsValue(['paymentDetails']) || null),
-
         }).then(() => {
-            console.log('Data saved');
             alert('Data Saved Successfully');
             form.resetFields();
             form1.resetFields();
@@ -388,7 +361,6 @@ const AddDetails = () => {
             setDriver1({});
             setDriver2({});
             setConductor({});
-            // janaKm: janaKm || 0,
             setJanaKm(0);
             setAanaKm(0);
             setMilometer(0);
@@ -405,7 +377,6 @@ const AddDetails = () => {
             console.error('Error:', error);
         });
 
-        console.log('Save button clicked');
     }
 
     function guidGenerator() {
@@ -421,7 +392,6 @@ const AddDetails = () => {
         let party2 = (index === 'party2') ? value : pl[0][1]?.label;
         let transporter = (index === 'transporter') ? value : pl[0][2]?.label;
         pl[0] = [{ label: party1, value: party1 }, { label: party2, value: party2 }, { label: transporter, value: transporter }];
-        console.log(pl);
         setPartyList([...pl]);
     }
 
@@ -1094,7 +1064,6 @@ const AddDetails = () => {
                                                                                                 break;
                                                                                             }
                                                                                         }
-                                                                                        // console.log(_selectedPartyIndex);
                                                                                         setSelectedPartyIndex([..._selectedPartyIndex]);
                                                                                     }}
                                                                                     // onSearch={onSearch}
@@ -1166,7 +1135,6 @@ const AddDetails = () => {
                                                                                                 break;
                                                                                             }
                                                                                         }
-                                                                                        // console.log(_selectedPartyIndex);
                                                                                         setSelectedPartyIndex([..._selectedPartyIndex]);
                                                                                     }}
                                                                                     // onSearch={onSearch}
@@ -1269,16 +1237,13 @@ const AddDetails = () => {
                                                                                     onChange={(value) => {
                                                                                         addPartyInPartyList(value, 'transporter');
                                                                                         setTransporterSelected(value);
-                                                                                        console.log(value);
                                                                                         let _transporterList = transporterList;
                                                                                         for (let i = 0; i < _transporterList.length; i++) {
                                                                                             if (_transporterList[i].value === value) {
                                                                                                 setSelectedTransporterIndex(i);
-                                                                                                console.log(i);
                                                                                                 break;
                                                                                             }
                                                                                         }
-                                                                                        console.log(_transporterList);
 
                                                                                     }}
                                                                                     // onSearch={onSearch}
@@ -1410,7 +1375,6 @@ const AddDetails = () => {
                                                                                             />
                                                                                             <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                                 // e.preventDefault();
-                                                                                                // console.log(MaalList);
                                                                                                 // for (let i = 0; i < MaalList.length; i++) {
                                                                                                 //     if (MaalList[i].label.toLowerCase() === newMaal.toLowerCase()) {
                                                                                                 //         alert(`Maal with name ${MaalList[i].label} already exists.`);
@@ -1505,7 +1469,6 @@ const AddDetails = () => {
 
                                                                 }
                                                                 setDriver1(option);
-                                                                console.log(option);
                                                                 setDriver1Value(value);
                                                             }}
                                                             // onSearch={onSearch}
@@ -1597,8 +1560,8 @@ const AddDetails = () => {
                                             <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
 
                                                 {/* Name */}
-                                                    <div style={{ width: '48%',display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                <Form.Item style={{ width: '100%' }} label="Driver 2">
+                                                <div style={{ width: '48%', display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                    <Form.Item style={{ width: '100%' }} label="Driver 2">
                                                         <Select
                                                             style={{ width: '100%' }}
                                                             showSearch
@@ -1636,7 +1599,6 @@ const AddDetails = () => {
 
                                                                 }
                                                                 setDriver2(option);
-                                                                console.log(option);
                                                                 setDriver2Value(value)
                                                             }}
                                                             // onSearch={onSearch}
@@ -1671,33 +1633,33 @@ const AddDetails = () => {
                                                                 </>
                                                             )}
                                                         />
-                                                </Form.Item>
-                                                        {driver2 && (
-                                                            <Popover
-                                                                placement="right"
-                                                                title={driver2.label || 'Driver Details'}
-                                                                content={
-                                                                    <div style={{ minWidth: 180 }}>
-                                                                        <div><b>Contact:</b> {driver2.Contact || 'Not available'}</div>
-                                                                        <div><b>Licence Date:</b> {
-                                                                            driver2.LicenseDate
-                                                                                ? (() => {
-                                                                                    const [year, month, day] = driver2.LicenseDate.split('-');
-                                                                                    return `${day}/${month}/${year}`;
-                                                                                })()
-                                                                                : 'Not available'
-                                                                        }</div>
-                                                                        <div><b>Address:</b> {driver2.address || 'Not available'}</div>
-                                                                    </div>
-                                                                }
-                                                                trigger="click"
-                                                            >
-                                                                <Button icon={<EyeOutlined />} type="default" size="small" style={{ marginBottom: '24px' }}>
+                                                    </Form.Item>
+                                                    {driver2 && (
+                                                        <Popover
+                                                            placement="right"
+                                                            title={driver2.label || 'Driver Details'}
+                                                            content={
+                                                                <div style={{ minWidth: 180 }}>
+                                                                    <div><b>Contact:</b> {driver2.Contact || 'Not available'}</div>
+                                                                    <div><b>Licence Date:</b> {
+                                                                        driver2.LicenseDate
+                                                                            ? (() => {
+                                                                                const [year, month, day] = driver2.LicenseDate.split('-');
+                                                                                return `${day}/${month}/${year}`;
+                                                                            })()
+                                                                            : 'Not available'
+                                                                    }</div>
+                                                                    <div><b>Address:</b> {driver2.address || 'Not available'}</div>
+                                                                </div>
+                                                            }
+                                                            trigger="click"
+                                                        >
+                                                            <Button icon={<EyeOutlined />} type="default" size="small" style={{ marginBottom: '24px' }}>
 
-                                                                </Button>
-                                                            </Popover>
-                                                        )}
-                                                    </div>
+                                                            </Button>
+                                                        </Popover>
+                                                    )}
+                                                </div>
 
                                                 {/* View */}
                                                 {/* <td>
@@ -1707,8 +1669,8 @@ const AddDetails = () => {
                                                 </td> */}
 
                                                 {/* Name */}
-                                                    <div style={{ width: '48%', display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                <Form.Item style={{ width: '100%' }} label="Conductor">
+                                                <div style={{ width: '48%', display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                    <Form.Item style={{ width: '100%' }} label="Conductor">
                                                         <Select
                                                             style={{ width: '100%' }}
                                                             showSearch
@@ -1746,7 +1708,6 @@ const AddDetails = () => {
 
                                                                 }
                                                                 setConductor(option);
-                                                                console.log(option);
                                                                 setConductorValue(value);
                                                             }}
                                                             // onSearch={onSearch}
@@ -1771,33 +1732,33 @@ const AddDetails = () => {
                                                                 </>
                                                             )}
                                                         />
-                                                </Form.Item>
-                                                        {conductor && (
-                                                            <Popover
-                                                                placement="right"
-                                                                title={conductor.label || 'Driver Details'}
-                                                                content={
-                                                                    <div style={{ minWidth: 180 }}>
-                                                                        <div><b>Contact:</b> {conductor.Contact || 'Not available'}</div>
-                                                                        <div><b>Licence Date:</b>  {
-                                                                            conductor.LicenseDate
-                                                                                ? (() => {
-                                                                                    const [year, month, day] = conductor.LicenseDate.split('-');
-                                                                                    return `${day}/${month}/${year}`;
-                                                                                })()
-                                                                                : 'Not available'
-                                                                        }</div>
-                                                                        <div><b>Address:</b> {conductor.address || 'Not available'}</div>
-                                                                    </div>
-                                                                }
-                                                                trigger="click"
-                                                            >
-                                                                <Button icon={<EyeOutlined />} type="default" size="small" style={{ marginBottom: '24px' }}>
+                                                    </Form.Item>
+                                                    {conductor && (
+                                                        <Popover
+                                                            placement="right"
+                                                            title={conductor.label || 'Driver Details'}
+                                                            content={
+                                                                <div style={{ minWidth: 180 }}>
+                                                                    <div><b>Contact:</b> {conductor.Contact || 'Not available'}</div>
+                                                                    <div><b>Licence Date:</b>  {
+                                                                        conductor.LicenseDate
+                                                                            ? (() => {
+                                                                                const [year, month, day] = conductor.LicenseDate.split('-');
+                                                                                return `${day}/${month}/${year}`;
+                                                                            })()
+                                                                            : 'Not available'
+                                                                    }</div>
+                                                                    <div><b>Address:</b> {conductor.address || 'Not available'}</div>
+                                                                </div>
+                                                            }
+                                                            trigger="click"
+                                                        >
+                                                            <Button icon={<EyeOutlined />} type="default" size="small" style={{ marginBottom: '24px' }}>
 
-                                                                </Button>
-                                                            </Popover>
-                                                        )}
-                                                    </div>
+                                                            </Button>
+                                                        </Popover>
+                                                    )}
+                                                </div>
 
                                                 {/* View */}
                                                 {/* <td>

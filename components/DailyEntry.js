@@ -2,73 +2,17 @@ import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
 import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined, FileTextOutlined } from '@ant-design/icons';
-import styles from '../styles/DailyEntry.module.css';
-import firebase from '../config/firebase'
-import { getDatabase, ref, set, onValue, push } from "firebase/database";
+import { getDatabase, ref, set, onValue, push, query, orderByKey, limitToLast, limitToFirst, endAt, startAt } from "firebase/database";
 import ViewDailyEntry from './ViewDailyEntry';
-// import { vehicleData } from './data';
 import CreatePartyForm from './common/CreatePartyForm';
 import Highlighter from 'react-highlight-words';
-// const ViewDailyEntry = dynamic(() => import('../components/ViewDailyEntry'), {ssr: false});
-// import { render } from 'react-dom';
-const { Dragger } = Upload;
-const props = {
-    name: 'file',
-    multiple: true,
-    action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-    onChange(info) {
-        const { status } = info.file;
-        if (status !== 'uploading') {
-            console.log(info.file, info.fileList);
-        }
-        if (status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully.`);
-        } else if (status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
-        }
-    },
-    onDrop(e) {
-        console.log('Dropped files', e.dataTransfer.files);
-    },
-};
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
-console.log(todayDate);
 
 const DailyEntry = () => {
-    const [form] = Form.useForm();
-    const [form1] = Form.useForm();
-    const [form2] = Form.useForm();
-    const [form3] = Form.useForm();
     const [driverForm] = Form.useForm();
     const [createPartyForm] = Form.useForm();
-    const [toggle, setToggle] = React.useState(false);
-    const [vehicleNo, setVehicleNo] = useState('');
-    const [date, setDate] = useState(todayDate);
-    const [mt, setMT] = useState(false);
-    const [vehicleStatus, setVehicleStatus] = useState('');
-    const [payStatus, setPayStatus] = useState('Paid');
-    const [janaKm, setJanaKm] = useState(0);
-    const [aanaKm, setAanaKm] = useState(0);
-    const [tripKm, setTripKm] = useState('');
-    const [milometer, setMilometer] = useState('');
-    const [dieselQty, setDieselQty] = useState('');
-    const [pumpName, setPumpName] = useState('');
-    const [average, setAverage] = useState('');
-    const [midwayDiesel, setMidwayDiesel] = useState('');
-    const [rate, setRate] = useState([0, 0, 0, 0]);
-    const [qty, setQty] = useState([0, 0, 0, 0]);
-    const [totalFreight, setTotalFreight] = useState(0);
-    const [khaliGadiWajan, setKhaliGadiWajan] = useState([0, 0, 0, 0]);
-    const [bhariGadiWajan, setBhariGadiWajan] = useState([0, 0, 0, 0]);
-    // To Track number of trips
-    const [tripCount, setTripCount] = useState(0);
-    // to display dynamic Bhada Kaun Dalega list
-    const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
-    const [partyDetailsList, setPartyDetailsList] = useState([[], [], [], [], [], []]);
-    const [selectedPartyIndex, setSelectedPartyIndex] = useState([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
-    const [selectedTransporterIndex, setSelectedTransporterIndex] = useState([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
     // Drivers List
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
@@ -98,7 +42,6 @@ const DailyEntry = () => {
             label: 'Aurangabad',
         }
     ]);
-    const [newLocation, setNewLocation] = useState('');
     // Maal List
     const [MaalList, setMaalList] = useState([
         {
@@ -121,27 +64,16 @@ const DailyEntry = () => {
     const [newMaal, setNewMaal] = useState('');
     //All Party List for Party Select
     const [partyListAll, setPartyListAll] = useState([]);
-    const [newParty, setNewParty] = useState('');
     // All Transporter List for Transporter Select
     const [transporterList, setTransporterList] = useState([]);
     const [newTransporter, setNewTransporter] = useState('');
     // Data to display in the table
     const [completeDataSource, setCompleteDataSource] = useState([]);
     const [dataSource, setDataSource] = useState([]); // Table Data
-    // FLAG 
-    const [flag, setFlag] = useState(false);
     //Bank
     const [newBank, setNewBank] = useState('');
     const [bankData, setBankData] = useState([]);
     const [dateFilter, setDateFilter] = useState('');
-
-    const [driver1, setDriver1] = useState({});
-    const [driver2, setDriver2] = useState({});
-    const [conductor, setConductor] = useState({});
-
-    const [driver1Value, setDriver1Value] = useState();
-    const [driver2Value, setDriver2Value] = useState();
-    const [conductorValue, setConductorValue] = useState();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
@@ -150,8 +82,6 @@ const DailyEntry = () => {
     const [partyModal, setPartyModal] = useState({});
     const [vehicleData, setVehicleData] = useState([]);
     const [newVehicleNo, setNewVehicleNo] = useState('');
-    // const [driverModal, setDriverModal] = useState({});
-    const [toggleKaataParchi, setToggleKaataParchi] = useState(false);
 
     const [driverModal, setDriverModal] = useState({
         label: '',
@@ -167,83 +97,17 @@ const DailyEntry = () => {
     const [remarkModalOpen, setRemarkModalOpen] = useState(false);
     const [remarkData, setRemarkData] = useState([]);
 
+    const [lastKey, setLastKey] = useState(null);
+    const [firstKey, setFirstKey] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const db = getDatabase();
-        // set(ref(db, 'users/' + '0'), {
-        //   username: 'Adnan',
-        //   email: 'adnan@tcs.com',
-        // });
-        // Get data from database
-        const starCountRef = ref(db, 'dailyEntry/');
-        // console.log(starCountRef);
-        onValue(starCountRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
-            let ds = []; // Data Source
-            if (data) {
-                Object.keys(data).map((key, i) => {
-                    for (let j = 0; j < data[key].tripDetails.length; j++) {
-                        let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined) ?
-                            (
-                                parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
-                                parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
-                                parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
-                                // parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
-                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
-                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
-                            )
-                            : 0;
-
-                        console.log(receivedAmt);
-                        let _date = new Date(data[key]?.date);
-                        ds.push(
-                            {
-                                dateToSort: data[key]?.date,
-                                date: `${_date.getDate()}/${_date.getMonth() + 1}/${_date.getFullYear()}`,
-                                key: key + j,
-                                id: i + 1,
-                                vehicleNo: data[key]?.vehicleNo,
-                                mt: data[key]?.mt,
-                                from: data[key]?.tripDetails[j]?.from || null,
-                                to: data[key]?.tripDetails[j]?.to || null,
-                                paid: data[key]?.tripDetails[j]?.payStatus || null,
-                                bhejneWaliParty: data[key]?.tripDetails[j]?.bhejneWaala || null,
-                                paaneWaliParty: data[key]?.tripDetails[j]?.paaneWaala || null,
-                                transporter: data[key]?.tripDetails[j]?.transporter || null,
-                                maal: data[key]?.tripDetails[j]?.maal || null,
-                                qty: data[key]?.tripDetails[j]?.qty || null,
-                                rate: data[key]?.tripDetails[j]?.rate || null,
-                                revisedRate: data[key]?.tripDetails[j]?.revisedRate || null,
-                                totalFreight: data[key]?.tripDetails[j]?.totalFreight || null,
-                                received: receivedAmt || null,
-                                dieselAndKmDetails: data[key]?.dieselAndKmDetails || null,
-                                tripDetails: data[key]?.tripDetails || null,
-                                driversDetails: data[key]?.driversDetails || null,
-                                kaataParchi: data[key]?.kaataParchi || null,
-                                firstPayment: data[key]?.firstPayment || null,
-                                vehicleStatus: data[key]?.vehicleStatus || null,
-                                bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
-                                driver: data[key]?.driver1?.value || null,
-                                driver1: data[key]?.driver1 || null,
-                                driver2: data[key]?.driver2 || null,
-                                conductor: data[key]?.conductor || null,
-                            }
-                        )
-                    }
-                });
-            }
-            console.log(ds);
-            applyDateSort(ds);
-            // setDataSource(ds);
-            // setCompleteDataSource(ds);
-        });
 
         const locationsRef = ref(db, 'locations/');
         onValue(locationsRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data, 'Locations');
             // updateStarCount(postElement, data);
             let locations = []; // Data Source
             if (data) {
@@ -257,7 +121,6 @@ const DailyEntry = () => {
         const partyRef = ref(db, 'parties/');
         onValue(partyRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data, 'parties');
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
             if (data !== null) {
@@ -271,7 +134,6 @@ const DailyEntry = () => {
         const transporterRef = ref(db, 'transporters/');
         onValue(transporterRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data, 'transporters');
             // updateStarCount(postElement, data);
             let transporters = []; // Data Source
             if (data) {
@@ -285,7 +147,6 @@ const DailyEntry = () => {
         const driversRef = ref(db, 'drivers/');
         onValue(driversRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data, 'drivers');
             // updateStarCount(postElement, data);
             let drivers = []; // Data Source
             if (data) {
@@ -310,7 +171,6 @@ const DailyEntry = () => {
                 }
             }
             setBankData([..._bankData]);
-            // console.log(data, 'Bankdata');
         })
 
         const maalRef = ref(db, 'maal/');
@@ -323,7 +183,6 @@ const DailyEntry = () => {
                 })
                 setMaalList([..._maal]);
             }
-            console.log(data);
         })
 
         const vehicleDataRef = ref(db, 'Vehicles/');
@@ -331,12 +190,14 @@ const DailyEntry = () => {
             const data = snapshot.val();
             const _vehicleData = snapshot.val();
             if (data) {
-                console.log('VEHICLE DATA', data);
                 setVehicleData(data);
             }
         })
     }, [])
 
+    useEffect(() => {
+        fetchEntries();
+    }, [])
 
     // Utility to recursively collect all remark fields
     const collectRemarks = (obj, path = '') => {
@@ -370,28 +231,19 @@ const DailyEntry = () => {
     };
 
     const applyDateSort = (ds) => {
+        console.log(ds, 'before sorting');
         ds.sort(function (a, b) {
+            if(a.dateToSort === b.dateToSort) {
+                console.log('same date found')
+                return new Date(parseInt(b.timestamp)) - new Date(parseInt(a.timestamp));
+            }
             // Turn your strings into dates, and then subtract them
             // to get a value that is either negative, positive, or zero.
             return new Date(b.dateToSort) - new Date(a.dateToSort);
         });
-
+        console.log(ds, 'after sorting');
         setDataSource(ds);
         setCompleteDataSource(ds);
-    }
-
-    const resetDriverList = () => {
-        let _driverList = driverList;
-        // Enable all selected Option:
-        for (let i = 0; i < _driverList.length; i++) {
-            _driverList[i].disabled = false;
-        }
-
-        setDriverList([..._driverList]);
-    }
-
-    const onMTCheck = (e) => {
-        setMT(e.target.checked);
     }
 
     const handle_Search = (selectedKeys, confirm, dataIndex) => {
@@ -849,14 +701,11 @@ const DailyEntry = () => {
 
     const handleDateFilter = (e) => {
         let date = e.target.value;
-        console.log(date);
         // let _custom_date = new Date(date).getTime();
         // let _custom_end_date = new Date(customEndDate).getTime();
-        console.log(completeDataSource);
         let _displayDataSource = completeDataSource.filter(
             (item) => {
                 // let itemDate = new Date(item.date).getTime();
-                console.log(item.date, date);
                 return item.dateToSort === date;
             }
         )
@@ -864,6 +713,96 @@ const DailyEntry = () => {
         setDateFilter(e.target.value);
         // setDisplayDataSource(_displayDataSource);
     }
+
+    const fetchEntries = (direction = 'next', refKey = null) => {
+        setIsLoading(true);
+        const db = getDatabase();
+        let q;
+        if (direction === 'next' && refKey) {
+            q = query(ref(db, 'dailyEntry/'), orderByKey(), endAt(refKey), limitToLast(20));
+        } else if (direction === 'prev' && refKey) {
+            q = query(ref(db, 'dailyEntry/'), orderByKey(), startAt(refKey), limitToFirst(20));
+        } else {
+            q = query(ref(db, 'dailyEntry/'), orderByKey(), limitToLast(20));
+        }
+        onValue(q, (snapshot) => {
+            const data = snapshot.val();
+            console.log('Fetched Data:', data);
+            let ds = [];
+            let keys = [];
+            if (data) {
+                Object.keys(data).forEach((key, i) => {
+                    keys.push(key);
+                    for (let j = 0; j < data[key].tripDetails.length; j++) {
+                        let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined) ?
+                            (
+                                parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
+                                parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
+                                parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
+                                // parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
+                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
+                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
+                            )
+                            : 0;
+
+                        let _date = new Date(data[key]?.date);
+                        ds.push(
+                            {
+                                timestamp: key,
+                                dateToSort: data[key]?.date,
+                                date: `${_date.getDate()}/${_date.getMonth() + 1}/${_date.getFullYear()}`,
+                                key: key + j,
+                                id: i + 1,
+                                vehicleNo: data[key]?.vehicleNo,
+                                mt: data[key]?.mt,
+                                from: data[key]?.tripDetails[j]?.from || null,
+                                to: data[key]?.tripDetails[j]?.to || null,
+                                paid: data[key]?.tripDetails[j]?.payStatus || null,
+                                bhejneWaliParty: data[key]?.tripDetails[j]?.bhejneWaala || null,
+                                paaneWaliParty: data[key]?.tripDetails[j]?.paaneWaala || null,
+                                transporter: data[key]?.tripDetails[j]?.transporter || null,
+                                maal: data[key]?.tripDetails[j]?.maal || null,
+                                qty: data[key]?.tripDetails[j]?.qty || null,
+                                rate: data[key]?.tripDetails[j]?.rate || null,
+                                revisedRate: data[key]?.tripDetails[j]?.revisedRate || null,
+                                totalFreight: data[key]?.tripDetails[j]?.totalFreight || null,
+                                received: receivedAmt || null,
+                                dieselAndKmDetails: data[key]?.dieselAndKmDetails || null,
+                                tripDetails: data[key]?.tripDetails || null,
+                                driversDetails: data[key]?.driversDetails || null,
+                                kaataParchi: data[key]?.kaataParchi || null,
+                                firstPayment: data[key]?.firstPayment || null,
+                                vehicleStatus: data[key]?.vehicleStatus || null,
+                                bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
+                                driver: data[key]?.driver1?.value || null,
+                                driver1: data[key]?.driver1 || null,
+                                driver2: data[key]?.driver2 || null,
+                                conductor: data[key]?.conductor || null,
+                            }
+                        )
+                    }
+                });
+            }
+            // Sort keys for pagination
+            keys.sort();
+            setFirstKey(keys[0]);
+            setLastKey(keys[keys.length - 1]);
+            applyDateSort(ds);
+            setIsLoading(false);
+        }, { onlyOnce: true });
+    };
+
+    const handleTableChange = (pagination) => {
+        if (pagination.current > currentPage) {
+            // Next page: use first key of current data as endAt
+            fetchEntries('next', firstKey);
+            setCurrentPage(pagination.current);
+        } else if (pagination.current < currentPage) {
+            // Previous page: use last key of current data as startAt
+            fetchEntries('prev', lastKey);
+            setCurrentPage(pagination.current);
+        }
+    };
 
     return (
         <>
@@ -1095,23 +1034,21 @@ const DailyEntry = () => {
                 setDateFilter(null);
             }}>Clear Date</Button>
             <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '84.5vh', backgroundColor: 'white' }}>
-                <Table style={{ zIndex: '100' }} bordered size="small" scroll={{ y: 450 }} dataSource={dataSource} columns={columns}
-                    // expandable={{
-                    //     expandedRowRender: (record) =>
-                    //         <ViewDailyEntry
-                    //             data={record}
-                    //             Locations={Locations}
-                    //             partyListAll={partyListAll}
-                    //             transporterList={transporterList}
-                    //             driverList={driverList}
-                    //             vehicleData={vehicleData}
-                    //             MaalList={MaalList}
-                    //             bankData={bankData}
-                    //             addNewMaal={addNewMaal}
-                    //         />,
-                    //     rowExpandable: (record) => true,
-                    // }} 
-                    pagination={false}
+                <Table
+                    style={{ zIndex: '100' }}
+                    bordered
+                    size="small"
+                    scroll={{ y: 450 }}
+                    dataSource={dataSource}
+                    columns={columns}
+                    pagination={{
+                        pageSize: 20,
+                        current: currentPage,
+                        showSizeChanger: false,
+                        total: 1000 // You can set a large number or fetch the count if needed
+                    }}
+                    loading={isLoading}
+                    onChange={handleTableChange}
                 />
 
                 <Modal
