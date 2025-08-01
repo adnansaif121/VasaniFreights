@@ -233,6 +233,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                 chequeDate: payment.chequeDate || '',
                 chequeBank: payment.chequeBank || '',
                 chequeRemarks: payment.chequeRemarks || '',
+                chequeNumber: payment.chequeNumber || '',
             });
         }
         );
@@ -327,7 +328,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
         // <Collapse items={items} activeKey={['1', '3', '4', '5']}></Collapse>
         <>
             <div className={styles.addNewDetails}>
-                <div style={{ width: '100%', marginTop:'20px' }}>
+                <div style={{ width: '100%', marginTop: '20px' }}>
                     <Row gutter={16}>
                         <Col span={12}>
                             <Card style={{ marginBottom: '10px' }}
@@ -493,7 +494,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
 
-                                                                        
+
                                                                         <Form.Item style={{ width: '45%' }} label="Sender"
                                                                             name={[name, 'bhejneWaala']}>
                                                                             <Select
@@ -1284,7 +1285,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 <th style={{ border: '1px solid black' }}>Type</th>
                                                                                 <th style={{ border: '1px solid black' }}>Amount</th>
                                                                                 <th style={{ border: '1px solid black' }}>Bank/Courier Date</th>
-                                                                                <th style={{ border: '1px solid black' }}>Bank</th>
+                                                                                <th style={{ border: '1px solid black', minWidth: '100px' }}>Bank</th>
                                                                                 <th style={{ border: '1px solid black' }}>Remarks</th>
                                                                             </tr>
                                                                         </thead>
@@ -1434,7 +1435,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                         </tbody>
                                                                     </table>
 
-
+                                                                    <Form.Item name={[name, 'chequeNumber']} label="Cheque Number" style={{ marginTop: '10px' }}>
+                                                                        <Input placeholder='Cheque Number' />
+                                                                    </Form.Item>
 
                                                                 </div>
 

@@ -111,7 +111,7 @@ const DailyTruckCash = () => {
                             ds_expense.push({
                                 srno: ds_expense.length + 1,
                                 tripDate: data[key]?.date,
-                                driver: data[key]?.driver1.label || 'Not Available',
+                                driver: data[key]?.driver1?.label || 'Not Available',
                                 truckNo: data[key]?.vehicleNo || 'N/A',
                                 from: data[key]?.tripDetails[j]?.from || 'N/A',
                                 to: data[key]?.tripDetails[j]?.to || 'N/A',

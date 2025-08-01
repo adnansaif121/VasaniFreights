@@ -310,45 +310,18 @@ const Pohch = () => {
                     >
                         Search
                     </Button>
-                    {/* <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
-                        size="small"
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Reset
-                    </Button>
                     <Button
-                        type="link"
                         size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
+                        onClick={() => { setSelectedKeys([]); handle_Search([], confirm, dataIndex) }}
                     >
-                        Filter
+                        Clear
                     </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
-                    </Button> */}
                 </Space>
             </div>
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
+                style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
         onFilter: (value, record) =>

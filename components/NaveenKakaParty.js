@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal } from 'antd';
-import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined,CheckCircleFilled, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone, WarningFilled } from '@ant-design/icons';
+import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, CheckCircleFilled, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone, WarningFilled } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
@@ -579,44 +579,17 @@ const NaveenKakaParty = () => {
                         Search
                     </Button>
                     <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
                         size="small"
-                        style={{
-                            width: 90,
-                        }}
+                        onClick={() => { setSelectedKeys([]); handle_Search([], confirm, dataIndex) }}
                     >
-                        Reset
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
+                        Clear
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
+               style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
         onFilter: (value, record) =>
@@ -704,13 +677,13 @@ const NaveenKakaParty = () => {
                 )
             }
         },
-         {
+        {
             title: 'Truck No.',
             dataIndex: 'vehicleNo',
             key: 'vehicleNo',
             ...getColumnSearchProps('vehicleNo'),
         },
-         {
+        {
             title: 'Maal',
             dataIndex: 'maal',
             key: 'maal',
@@ -730,12 +703,12 @@ const NaveenKakaParty = () => {
             dataIndex: 'totalFreight',
             key: 'totalFreight',
         },
-         {
+        {
             title: 'Remaining Balance',
             dataIndex: 'remainingBalance',
             key: 'remainingBalance',
         },
-         {
+        {
             title: 'From',
             dataIndex: 'from',
             key: 'from',
@@ -751,7 +724,7 @@ const NaveenKakaParty = () => {
             key: 'bhejneWaliParty',
             ...getColumnSearchProps('bhejneWaliParty'),
         },
-        
+
         {
             title: 'Receiver',
             dataIndex: 'paaneWaliParty',

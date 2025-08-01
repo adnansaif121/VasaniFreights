@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Modal, Typography, Drawer, DatePicker, Badge } from 'antd';
-import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
+import { BellOutlined, UserOutlined, SearchOutlined, FileTextOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
 import Highlighter from 'react-highlight-words';
@@ -361,6 +361,8 @@ const Party = () => {
 
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
+    const [remarkData, setRemarkData] = useState([]);
+    const [remarkModalOpen, setRemarkModalOpen] = useState(false);
 
     const handleViewClick = (record, index) => {
         setSelectedRow({ record, index });
@@ -383,17 +385,6 @@ const Party = () => {
             let parties = []; // Data Source
             if (data !== null) {
                 Object.values(data).map((party, i) => {
-                    // if (openTransactionFreq[party.label] !== undefined)
-                    //     parties.push(
-                    //         {
-                    //             ...party,
-                    //             // openTransactions: openTransactionFreq[party.label],
-                    //             icon: <Badge count={openTransactionFreq[party.label]}>
-                    //                 <BellOutlined />
-                    //             </Badge>
-                    //         }
-                    //     );
-                    // else
                     parties.push(party);
                     partyNameList.push(party.label);
                 })
@@ -471,32 +462,7 @@ const Party = () => {
             console.log(error);
         })
 
-
-        // Find the number of transactions open and frequeny for each party
-        // let openTransactionFreq = {};
-        // for (let i = 0; i < ds.length; i++) {
-        //     if (ds[i].bhadaKaunDalega !== null && ds[i].bhadaKaunDalega !== undefined) {
-        //         console.log(openTransactionFreq);
-        //         if (openTransactionFreq[ds[i].bhadaKaunDalega] === undefined)
-        //             openTransactionFreq[ds[i].bhadaKaunDalega] = 0;
-        //         if (ds[i].transactionStatus === 'open')
-        //             openTransactionFreq[ds[i].bhadaKaunDalega]++;
-        //     }
-        // }
-
-        // console.log(openTransactionFreq);
-        // create dummy party List
-
     }, [refreshKey]);
-
-    // useEffect(()=>{
-    //     console.log(displayPartyList, selectedPartyIndex);
-    //     console.log("DATA UPDATE FLAG CHANGED")
-    //     if(dataUpdateFlag !== 0){
-    //         console.log("DATA UPDATE FLAG CHANGED !== 0")
-    //         onClick(selectedPartyIndex);
-    //     }
-    // }, [dataUpdateFlag])
 
     const handle_Search = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -574,44 +540,18 @@ const Party = () => {
                         Search
                     </Button>
                     <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
                         size="small"
-                        style={{
-                            width: 90,
-                        }}
+                        onClick={() => { setSelectedKeys([]); handle_Search([], confirm, dataIndex) }}
                     >
-                        Reset
+                        Clear
                     </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
-                    </Button>
+
                 </Space>
             </div>
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
+                style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
         onFilter: (value, record) =>
@@ -719,10 +659,38 @@ const Party = () => {
         },
         {
             title: 'Remark',
-            dataIndex: 'extraAmtRemark',
-            key: 'extraAmtRemark',
-        }
+            key: 'remark',
+            render: (text, record) => (
+                <Button type="link" onClick={() => handleViewRemarks(record)}>
+                    <FileTextOutlined style={{fontSize:'larger'}}/>
+                </Button>
+            ),
+        },
     ];
+
+    const handleViewRemarks = (record) => {
+        const remarks = collectRemarks(record);
+        setRemarkData(remarks);
+        setRemarkModalOpen(true);
+    };
+
+    // Utility to recursively collect all remark fields
+    const collectRemarks = (obj, path = '') => {
+        let remarks = [];
+        if (Array.isArray(obj)) {
+            obj.forEach((item, idx) => {
+                remarks = remarks.concat(collectRemarks(item, `${path}[${idx}]`));
+            });
+        } else if (typeof obj === 'object' && obj !== null) {
+            Object.entries(obj).forEach(([key, value]) => {
+                if (key.toLowerCase().includes('remark')) {
+                    remarks.push({ key: path ? `${path}.${key}` : key, value });
+                }
+                remarks = remarks.concat(collectRemarks(value, path ? `${path}.${key}` : key));
+            });
+        }
+        return remarks;
+    };
 
     const filterMenuItems = [
         {
@@ -1137,6 +1105,26 @@ const Party = () => {
                                 handleDisplayTableChange={handleDisplayTableChange}
                                 setDataUpdateFlag={setDataUpdateFlag}
                             />
+                        )}
+                    </Modal>
+
+                    <Modal
+                        open={remarkModalOpen}
+                        onCancel={() => setRemarkModalOpen(false)}
+                        footer={null}
+                        title="All Remarks"
+                        width={'70vw'}
+                    >
+                        {remarkData.length === 0 ? (
+                            <div>No remarks found.</div>
+                        ) : (
+                            <ul style={{ fontSize: '20px', lineHeight: '2' }}>
+                                {remarkData.map((item, idx) => (
+                                    <li key={idx}>
+                                        <b>{item.key.replace(/\[0\]\./g, ' ').replace(/remark(s)?/gi, '').trim()}:</b> {item.value ? item.value : <i>(empty)</i>}
+                                    </li>
+                                ))}
+                            </ul>
                         )}
                     </Modal>
                 </div>

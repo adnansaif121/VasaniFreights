@@ -289,50 +289,20 @@ const DailyEntry = () => {
                         Search
                     </Button>
                     <Button
-                        type="primary"
                         size="small"
                         onClick={() => { setSelectedKeys([]); handle_Search([], confirm, dataIndex) }}
                     >
                         Clear
                     </Button>
-                    {/* <Button
-                        onClick={() => clearFilters && handleReset(clearFilters) && handle_Search([''], confirm, dataIndex)}
-                        size="small"
-                        style={{
-                            width: 90,
-                        }}
-                    >
-                        Reset
-                    </Button> */}
-                    {/* <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
-                    </Button> */}
+                   
                 </Space>
             </div>
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
                 style={{
-                    color: filtered ? '#1677ff' : undefined,
+                    fontSize: 20,
+                    color: filtered ? 'red' : undefined,
                 }}
             />
         ),
@@ -361,7 +331,8 @@ const DailyEntry = () => {
 
     const columns = [
         {
-            title: 'Action',
+            width: 60,
+            title: '',
             key: 'action',
             render: (text, record) => (
                 <Button type="link" onClick={() => handleViewClick(record)}>
@@ -370,7 +341,8 @@ const DailyEntry = () => {
             ),
         },
         {
-            title: 'Sr no.',
+            width: 40,
+            title: 'Sr no',
             dataIndex: 'id',
             key: 'id',
             render: (text, record, index) => { return index + 1; }
@@ -500,11 +472,12 @@ const DailyEntry = () => {
             key: 'received',
         },
         {
+            width: 60,
             title: 'Remark',
             key: 'remark',
             render: (text, record) => (
                 <Button type="link" onClick={() => handleViewRemarks(record)}>
-                    <FileTextOutlined />
+                    <FileTextOutlined style={{fontSize:'larger'}}/>
                 </Button>
             ),
         },
@@ -789,7 +762,7 @@ const DailyEntry = () => {
             setLastKey(keys[keys.length - 1]);
             applyDateSort(ds);
             setIsLoading(false);
-        }, { onlyOnce: true });
+        });
     };
 
     const handleTableChange = (pagination) => {

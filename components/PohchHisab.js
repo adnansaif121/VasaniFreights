@@ -1,6 +1,6 @@
-import {useState, useEffect, useRef} from 'react';
-import {Row, Col, Select, Table, Input, Button, Space} from 'antd';
-import {SearchOutlined}  from '@ant-design/icons';
+import { useState, useEffect, useRef } from 'react';
+import { Row, Col, Select, Table, Input, Button, Space } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import styles from '../styles/Party.module.css';
 import _default from 'antd/es/grid';
@@ -10,7 +10,7 @@ const PohchHisab = () => {
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
     const [filterType, setFilterType] = useState('none');
-    const [partyList, setPartyList] = useState([{label: 'All', value: 'All'}]);
+    const [partyList, setPartyList] = useState([{ label: 'All', value: 'All' }]);
     const [partySelected, setPartySelected] = useState('All');
     const [totalPohchAmt, setTotalPohchAmt] = useState(0);
     const [totalRemaining, setTotalRemaining] = useState(0);
@@ -29,19 +29,19 @@ const PohchHisab = () => {
             console.log(data);
             // updateStarCount(postElement, data);
             let ds = []; // Data Source
-            let _partyList = [{label: 'All', value: 'All'}];
+            let _partyList = [{ label: 'All', value: 'All' }];
             let _totalRemaining = 0;
             let _totalPohchAmt = 0;
             if (data) {
                 setAllTableData(data);
                 let count = 1;
                 Object.keys(data).map((key, i) => {
-                    for(let j = 0; j < data[key].tripDetails.length; j++){
+                    for (let j = 0; j < data[key].tripDetails.length; j++) {
                         //console.log(data[key], j);  
-                        if(data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === "NaveenKaka"){
+                        if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === "NaveenKaka") {
                             ds.push(
                                 {
-                                    key: key+j,
+                                    key: key + j,
                                     id: count,
                                     date: data[key].date,
                                     vehicleNo: data[key].vehicleNo,
@@ -56,14 +56,14 @@ const PohchHisab = () => {
                                     rate: data[key].tripDetails[j].rate,
                                     totalFreight: data[key].tripDetails[j].totalFreight,
                                     //received: '100000',
-                                    remainingBalance: parseInt(data[key].tripDetails[j].totalFreight) - (parseInt(data[key].firstPayment[j].cashAmount || 0)+parseInt(data[key].firstPayment[j].chequeAmount || 0)+parseInt(data[key].firstPayment[j].onlineAmount || 0)),//totalFreight-(firstPaymentTotal)
-                                    
+                                    remainingBalance: parseInt(data[key].tripDetails[j].totalFreight) - (parseInt(data[key].firstPayment[j].cashAmount || 0) + parseInt(data[key].firstPayment[j].chequeAmount || 0) + parseInt(data[key].firstPayment[j].onlineAmount || 0)),//totalFreight-(firstPaymentTotal)
+
                                 }
                             )
                             count++;
                             _totalPohchAmt += parseInt(data[key].firstPayment[j].pohchAmount);
                             _totalRemaining += ds[ds.length - 1].remainingBalance;
-                            _partyList.push({label:data[key].firstPayment[j].partyForNaveenKaka, value:data[key].firstPayment[j].partyForNaveenKaka})
+                            _partyList.push({ label: data[key].firstPayment[j].partyForNaveenKaka, value: data[key].firstPayment[j].partyForNaveenKaka })
                         }
                     }
                 });
@@ -79,7 +79,7 @@ const PohchHisab = () => {
             setTotalRemaining(_totalRemaining);
         });
 
-        
+
 
     }, []);
 
@@ -239,44 +239,17 @@ const PohchHisab = () => {
                         Search
                     </Button>
                     <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
                         size="small"
-                        style={{
-                            width: 90,
-                        }}
+                        onClick={() => { setSelectedKeys([]); handle_Search([], confirm, dataIndex) }}
                     >
-                        Reset
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
+                        Clear
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
+                style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
         onFilter: (value, record) =>
@@ -372,10 +345,10 @@ const PohchHisab = () => {
         setPartySelected(value);
         let data = allTableData;
         let ds = [];
-        if(value === 'All'){
+        if (value === 'All') {
             setDisplayDataSource([...dataSource]);
         }
-        else{
+        else {
             let _dataSource = dataSource;
             ds = _dataSource.filter((item) => item.partyName === value)
             setDisplayDataSource(ds);
@@ -383,71 +356,71 @@ const PohchHisab = () => {
     }
     return (
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <div >
-                        {/* <div className={styles.part2}> */}
-                        <div >
-                            <Row justify={'space-between'} style={{ width: '95vw' }}>
-                                <Col>
-                                    <Select
-                                        defaultValue="none"
-                                        style={{
-                                            width: 120,
-                                        }}
-                                        onChange={handleFilterChange}
-                                        options={filterMenuItems}
-                                    />
-                                </Col>
-                                <Col>
-                                    {
-                                        filterType === 'custom' ? <Row>
-                                            <Col>
-                                                <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
-                                            </Col>
-                                            <Col>
-                                                <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
-                                            </Col>
-                                            <Col>
-                                                <Button onClick={handleCustomFilter}>Apply</Button>
-                                            </Col>
-                                        </Row> : null
-                                    }
-                                </Col>
-                                <Col>
-                                    <Select
-                                        defaultValue="All"
-                                        style={{
-                                            width: 120,
-                                        }}
-                                        onChange={onPartyChange}
-                                        options={partyList}
-                                    />
-                                </Col>
-                            </Row>
-
-
-                        </div>
-
-                        <div style={{height: '75vh', background: 'white', overflowX:'auto'}}>
-                            <Table size="small" className={styles.fullTable} dataSource={displayDataSource} columns={PohchHisabColumns} 
-                                pagination={'none'}
+            <div >
+                {/* <div className={styles.part2}> */}
+                <div >
+                    <Row justify={'space-between'} style={{ width: '95vw' }}>
+                        <Col>
+                            <Select
+                                defaultValue="none"
+                                style={{
+                                    width: 120,
+                                }}
+                                onChange={handleFilterChange}
+                                options={filterMenuItems}
                             />
-                        </div>
-                        <div style={{border: "1px solid black", padding: '5px', background:'white'}}>
-                            <Row justify={'space-evenly'}>
-                                <Col>
-                                    Count: {displayDataSource.length}
-                                </Col>
-                                <Col>
-                                    Pohch Amount Total: {totalPohchAmt}
-                                </Col>
-                                <Col>
-                                    Total Remaining : {totalRemaining}
-                                </Col>
-                            </Row>
-                        </div>
-                        {/* </div> */}
-                    </div>
+                        </Col>
+                        <Col>
+                            {
+                                filterType === 'custom' ? <Row>
+                                    <Col>
+                                        <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
+                                    </Col>
+                                    <Col>
+                                        <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
+                                    </Col>
+                                    <Col>
+                                        <Button onClick={handleCustomFilter}>Apply</Button>
+                                    </Col>
+                                </Row> : null
+                            }
+                        </Col>
+                        <Col>
+                            <Select
+                                defaultValue="All"
+                                style={{
+                                    width: 120,
+                                }}
+                                onChange={onPartyChange}
+                                options={partyList}
+                            />
+                        </Col>
+                    </Row>
+
+
                 </div>
+
+                <div style={{ height: '75vh', background: 'white', overflowX: 'auto' }}>
+                    <Table size="small" className={styles.fullTable} dataSource={displayDataSource} columns={PohchHisabColumns}
+                        pagination={'none'}
+                    />
+                </div>
+                <div style={{ border: "1px solid black", padding: '5px', background: 'white' }}>
+                    <Row justify={'space-evenly'}>
+                        <Col>
+                            Count: {displayDataSource.length}
+                        </Col>
+                        <Col>
+                            Pohch Amount Total: {totalPohchAmt}
+                        </Col>
+                        <Col>
+                            Total Remaining : {totalRemaining}
+                        </Col>
+                    </Row>
+                </div>
+                {/* </div> */}
+            </div>
+        </div>
     )
 }
 

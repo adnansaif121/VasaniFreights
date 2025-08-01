@@ -390,7 +390,7 @@ const TransporterParty = () => {
                     setAllTableData(data);
                     Object.keys(data).map((key, i) => {
                         for (let j = 0; j < data[key].tripDetails.length; j++) {
-                            if(data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'Hare Krishna') {
+                            if (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'Hare Krishna') {
                                 continue;
                             }
 
@@ -591,44 +591,17 @@ const TransporterParty = () => {
                         Search
                     </Button>
                     <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
                         size="small"
-                        style={{
-                            width: 90,
-                        }}
+                        onClick={() => { setSelectedKeys([]); handle_Search([], confirm, dataIndex) }}
                     >
-                        Reset
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
+                        Clear
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
+                style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
         onFilter: (value, record) =>

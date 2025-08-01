@@ -117,6 +117,7 @@ const AddDetails = () => {
     const [pohchAmount, setPohchAmount] = useState(0);
     const [pumpList, setPumpList] = useState([]);
     const [totalFreight, setTotalFreight] = useState(0);
+    const { TextArea } = Input;
 
     const PohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
 
@@ -254,7 +255,7 @@ const AddDetails = () => {
                 rate: trip.rate || 0,
                 totalFreight: parseFloat(trip.rate) * parseFloat(trip.qty) || 0,
                 payStatus: payStatus || '',
-
+                extraAmtRemarks: trip.extraAmtRemarks || '',
                 remainingBalance: (parseFloat(trip.rate) * parseFloat(trip.qty)) -
                     ((form3.getFieldsValue(['paymentDetails']).paymentDetails !== undefined && form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index] !== undefined) ?
                         parseFloat(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
@@ -307,6 +308,7 @@ const AddDetails = () => {
                 chequeDate: payment?.chequeDate || '',
                 chequeBank: payment?.chequeBank || '',
                 chequeRemarks: payment?.chequeRemarks || '',
+                chequeNumber: payment?.chequeNumber || '',
             });
         }
         );
@@ -1526,7 +1528,7 @@ const AddDetails = () => {
                                                 </Tooltip> */}
 
                                                 <Form.Item style={{ width: '30%' }} label="Trip Cash">
-                                                    <Input onChange={(e) => {
+                                                    <Input value={driver1.TripCash} onChange={(e) => {
                                                         let _obj = driver1;
                                                         _obj.TripCash = e.target.value;
                                                         setDriver1(_obj);
@@ -1901,12 +1903,13 @@ const AddDetails = () => {
 
                                                                     <Flex style={{
                                                                         width: '100%',
-                                                                        height: 20,
-                                                                        marginTop: '10px'
+                                                                        height: 40,
+                                                                        marginTop: '20px'
                                                                     }} align={'center'} >
 
                                                                         <Form.Item style={{ width: '100%' }} name={[name, "remarks"]} label="Kaata Parchi Remarks">
-                                                                            <Input placeholder='remarks' ></Input>
+                                                                            {/* <Input placeholder='remarks' ></Input> */}
+                                                                            <TextArea rows={2} placeholder='remarks' />
                                                                         </Form.Item>
 
 
@@ -1914,10 +1917,10 @@ const AddDetails = () => {
                                                                     </Flex>
                                                                     <Flex style={{
                                                                         width: '100%',
-                                                                        height: 40,
+                                                                        height: 30,
                                                                     }} align={'center'} >
-                                                                        <Form.Item style={{ width: '50%' }} name={[name, "kaataParchiAmount"]} label="Amount">
-                                                                            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                                        <Form.Item style={{ width: '100%' }} name={[name, "kaataParchiAmount"]} label="Amount">
+                                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
 
                                                                                 <Input placeholder='amount' ></Input>
 
@@ -1939,7 +1942,7 @@ const AddDetails = () => {
                                                                                 </Form.Item>
 
                                                                                 <Form.Item style={{ width: '45%' }} name={[name, 'khaliGadiWajan']} label="Khaali Gadi wajan">
-                                                                                    <Input placeholder='Weight' type='number'></Input>
+                                                                                    <Input placeholder='Weight' type='number' onWheel={e => e.target.blur()}></Input>
                                                                                 </Form.Item>
                                                                             </Flex>
 
@@ -1949,10 +1952,10 @@ const AddDetails = () => {
                                                                             }} justify={'space-around'} align={'center'} >
 
                                                                                 <Form.Item style={{ width: '45%' }} name={[name, 'bhariGadiWajan']} label="Bhari Gaadi Wajan">
-                                                                                    <Input placeholder='Weight' type='number'></Input>
+                                                                                    <Input placeholder='Weight' type='number' onWheel={e => e.target.blur()}></Input>
                                                                                 </Form.Item>
                                                                                 <Form.Item style={{ width: '45%' }} name={[name, "maalKaWajan"]} label="Maal Ka Wajan">
-                                                                                    <Input placeholder='weight' type='number'></Input>
+                                                                                    <Input placeholder='weight' type='number' onWheel={e => e.target.blur()}></Input>
                                                                                 </Form.Item>
                                                                             </Flex>
 
@@ -2074,7 +2077,7 @@ const AddDetails = () => {
                                                                                 <th style={{ border: '1px solid grey', borderRadius: '5px' }}>Type</th>
                                                                                 <th style={{ border: '1px solid grey', borderRadius: '5px' }}>Amount</th>
                                                                                 <th style={{ border: '1px solid grey', borderRadius: '5px' }}>Bank/Received Date</th>
-                                                                                <th style={{ border: '1px solid grey', borderRadius: '5px' }}>Bank</th>
+                                                                                <th style={{ border: '1px solid grey', borderRadius: '5px', minWidth: '100px' }}>Name</th>
                                                                                 <th style={{ border: '1px solid grey', borderRadius: '5px' }}>Remarks</th>
                                                                             </tr>
                                                                         </thead>
@@ -2277,7 +2280,9 @@ const AddDetails = () => {
                                                                     </table>
 
 
-
+                                                                    <Form.Item name={[name, 'chequeNumber']} label="Cheque Number" style={{ marginTop: '10px' }}>
+                                                                        <Input placeholder='Cheque Number' />
+                                                                    </Form.Item>
                                                                 </div>
 
 

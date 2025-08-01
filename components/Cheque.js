@@ -164,7 +164,7 @@ const Cheque = () => {
                                     chequeNumber: data[key].firstPayment[j].chequeNumber,
                                     chequeDate: data[key].firstPayment[j].chequeDate,
                                     chequeAmount: data[key].firstPayment[j].chequeAmount,
-                                    chequeName: data[key].firstPayment[j].chequeName,
+                                    chequeName: data[key].firstPayment[j].chequeBank,
                                     tripExpense: data[key]?.driver1?.TripCash,
                                     tollExpense: data[key].tripDetails[j].tollExpense,
                                     UVLogsPaymentStatus: data[key].tripDetails[j].UVLogsPaymentStatus,
@@ -289,22 +289,17 @@ const Cheque = () => {
                         Search
                     </Button>
                     <Button
-                        type="link"
                         size="small"
-                        onClick={() => {
-                            close();
-                        }}
+                        onClick={() => { setSelectedKeys([]); handle_Search([], confirm, dataIndex) }}
                     >
-                        close
+                        Clear
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
+                style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
         onFilter: (value, record) =>
@@ -461,7 +456,7 @@ const Cheque = () => {
             key: 'chequeDate',
             ...getColumnSearchProps('chequeDate'),
             render: (text, record) => {
-                if(text === undefined || text === null || text === '') {
+                if (text === undefined || text === null || text === '') {
                     return <>
                         <Input size='small' type="date" onChange={(e) => text = e.target.value}></Input>
                         <Button
@@ -487,7 +482,7 @@ const Cheque = () => {
                                     return;
                                 })
                             }}>Save</Button>
-                            </>;
+                    </>;
                 }
                 let date = new Date(text);
 
@@ -496,7 +491,7 @@ const Cheque = () => {
                 )
             }
         },
-         {
+        {
             width: '5%',
             title: 'Cheque Amt',
             dataIndex: 'chequeAmount',

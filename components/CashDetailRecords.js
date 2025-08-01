@@ -29,17 +29,22 @@ const CashDetailRecords = () => {
     const cashRef = ref(db, 'cash/' + today);
     onValue(cashRef, snapshot => {
       const data = snapshot.val() || [];
+      if (!data.income || !data.expense) {
+        console.error('Data structure is missing income or expense arrays');
+        if(!data.income) data.income = [];
+        if(!data.expense) data.expense = [];
         const records = [...data.income , ...data.expense ];
         console.log('records', records);
-      setData(records);
-      setFilteredData(records);
+        setData(records);
+        setFilteredData(records);
+      }
     });
   }, []);
   // Table column search/filter helpers
   let searchInput = null;
   const getColumnSearchProps = dataIndex => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-      <div style={{ padding: 8 }}>
+      <div style={{ padding: 8 }}  onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={node => { searchInput = node; }}
           placeholder={`Search ${dataIndex}`}
@@ -59,17 +64,18 @@ const CashDetailRecords = () => {
             Search
           </Button>
           <Button
-            onClick={() => handleReset(clearFilters)}
+            // onClick={() => handleReset(clearFilters)}
             size="small"
             style={{ width: 90 }}
+            onClick={() => { setSelectedKeys([]); handleSearch([], confirm, dataIndex) }}
           >
-            Reset
+            Clear
           </Button>
         </Space>
       </div>
     ),
     filterIcon: filtered => (
-      <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+      <SearchOutlined style={{ fontSize: 20, color: filtered ? 'red' : undefined }} />
     ),
     onFilter: (value, record) =>
       record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),

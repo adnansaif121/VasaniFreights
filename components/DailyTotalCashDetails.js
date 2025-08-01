@@ -200,8 +200,8 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                 
                 // Initialize cash data for today if it doesn't exist
                 set(cashRef, {
-                    incoming: [{
-                        key: 'incoming-total',
+                    income: [{
+                        key: 'income-total',
                         date: new Date().toISOString().split('T')[0],
                         nature: 'Income',
                         heading: 'Truck Income',

@@ -1,6 +1,6 @@
-import {useState, useEffect, useRef} from 'react';
-import {Row, Col, Select, Table, Input, Button, Space, Menu} from 'antd';
-import {SearchOutlined}  from '@ant-design/icons';
+import { useState, useEffect, useRef } from 'react';
+import { Row, Col, Select, Table, Input, Button, Space, Menu } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import styles from '../styles/Party.module.css';
 import Highlighter from 'react-highlight-words';
@@ -10,11 +10,11 @@ const TransporterTrips = () => {
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
     const [filterType, setFilterType] = useState('none');
-    const [partyList, setPartyList] = useState([{label: 'All', value: 'All'}]);
+    const [partyList, setPartyList] = useState([{ label: 'All', value: 'All' }]);
     const [partySelected, setPartySelected] = useState('All');
     const [totalPohchAmt, setTotalPohchAmt] = useState(0);
     const [totalRemaining, setTotalRemaining] = useState(0);
-    const [selectedPartyIndex ,setSelectedPartyIndex] =useState();
+    const [selectedPartyIndex, setSelectedPartyIndex] = useState();
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
@@ -29,15 +29,15 @@ const TransporterTrips = () => {
             console.log(data, 'transporters');
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
-            if(data !== null){
-                Object.values(data).map((party, i)=> {
+            if (data !== null) {
+                Object.values(data).map((party, i) => {
                     parties.push(party);
                     partyNameList.push(party.label);
                 })
             }
             // setPartyIds(Object.keys(data));
             // setPartyListAll([...parties]);
-            setPartyList([...parties]); 
+            setPartyList([...parties]);
             setDisplayPartyList([...parties]);
         });
 
@@ -49,19 +49,19 @@ const TransporterTrips = () => {
             console.log(data);
             // updateStarCount(postElement, data);
             let ds = []; // Data Source
-            let _partyList = [{label: 'All', value: 'All'}];
+            let _partyList = [{ label: 'All', value: 'All' }];
             let _totalRemaining = 0;
             let _totalPohchAmt = 0;
             if (data) {
                 setAllTableData(data);
                 let count = 1;
                 Object.keys(data).map((key, i) => {
-                    for(let j = 0; j < data[key].tripDetails.length; j++){
-                        console.log(data[key], j);  
-                        if(data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "none")){
+                    for (let j = 0; j < data[key].tripDetails.length; j++) {
+                        console.log(data[key], j);
+                        if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "none")) {
                             ds.push(
                                 {
-                                    key: key+j,
+                                    key: key + j,
                                     id: count,
                                     date: data[key].date,
                                     vehicleNo: data[key].vehicleNo,
@@ -73,7 +73,7 @@ const TransporterTrips = () => {
                                     rate: data[key].tripDetails[j].rate,
                                     totalFreight: data[key].tripDetails[j].totalFreight,
                                     //received: '100000',
-                                    remainingBalance: parseInt(data[key].tripDetails[j].totalFreight) - (parseInt(data[key].firstPayment[j].cashAmount || 0)+parseInt(data[key].firstPayment[j].chequeAmount || 0)+parseInt(data[key].firstPayment[j].onlineAmount || 0)),//totalFreight-(firstPaymentTotal)
+                                    remainingBalance: parseInt(data[key].tripDetails[j].totalFreight) - (parseInt(data[key].firstPayment[j].cashAmount || 0) + parseInt(data[key].firstPayment[j].chequeAmount || 0) + parseInt(data[key].firstPayment[j].onlineAmount || 0)),//totalFreight-(firstPaymentTotal)
                                     firstPayment: data[key].firstPayment,
                                     bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
                                 }
@@ -81,7 +81,7 @@ const TransporterTrips = () => {
                             count++;
                             _totalPohchAmt += parseInt(data[key].firstPayment[j].pohchAmount);
                             _totalRemaining += ds[ds.length - 1].remainingBalance;
-                            _partyList.push({label:data[key].firstPayment[j].partyForNaveenKaka, value:data[key].firstPayment[j].partyForNaveenKaka})
+                            _partyList.push({ label: data[key].firstPayment[j].partyForNaveenKaka, value: data[key].firstPayment[j].partyForNaveenKaka })
                         }
                     }
                 });
@@ -254,44 +254,17 @@ const TransporterTrips = () => {
                         Search
                     </Button>
                     <Button
-                        onClick={() => clearFilters && handleReset(clearFilters)}
                         size="small"
-                        style={{
-                            width: 90,
-                        }}
+                        onClick={() => { setSelectedKeys([]); handle_Search([], confirm, dataIndex) }}
                     >
-                        Reset
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            confirm({
-                                closeDropdown: false,
-                            });
-                            setSearchText(selectedKeys[0]);
-                            setSearchedColumn(dataIndex);
-                        }}
-                    >
-                        Filter
-                    </Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        onClick={() => {
-                            close();
-                        }}
-                    >
-                        close
+                        Clear
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
-                style={{
-                    color: filtered ? '#1677ff' : undefined,
-                }}
+                style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
         onFilter: (value, record) =>
@@ -322,7 +295,7 @@ const TransporterTrips = () => {
             title: 'Sr no.',
             dataIndex: 'id',
             key: 'id',
-            render: (text, record, index) => {  return index + 1; }
+            render: (text, record, index) => { return index + 1; }
         },
         {
             title: 'Date',
@@ -331,8 +304,8 @@ const TransporterTrips = () => {
             render: (text) => {
                 let date = new Date(text);
                 console.log(date, date.getDay(), date.getMonth());
-                return(
-                    <span>{date.getDate()}/{date.getMonth()+1}/{date.getFullYear()}</span>
+                return (
+                    <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
                 )
             }
         },
@@ -378,10 +351,10 @@ const TransporterTrips = () => {
         setPartySelected(value);
         let data = allTableData;
         let ds = [];
-        if(value === 'All'){
+        if (value === 'All') {
             setDisplayDataSource([...dataSource]);
         }
-        else{
+        else {
             let _dataSource = dataSource;
             ds = _dataSource.filter((item) => item.partyName === value)
             setDisplayDataSource(ds);
@@ -420,91 +393,91 @@ const TransporterTrips = () => {
         console.log(ds);
         setDisplayDataSource([...ds]);
     };
-    
+
     return (
-        <div className={styles.container}> 
+        <div className={styles.container}>
             <div className={styles.part1}>
-                    <Input onChange={handleSearch} placeholder='Search' />
-                    <div className={styles.menu} style={{ display: 'flex' }}>
+                <Input onChange={handleSearch} placeholder='Search' />
+                <div className={styles.menu} style={{ display: 'flex' }}>
 
-                        <Menu
-                            onClick={onClick}
-                            style={{
-                                width: "100%",
-                            }}
-                            mode="inline"
-                            items={displayPartyList}
+                    <Menu
+                        onClick={onClick}
+                        style={{
+                            width: "100%",
+                        }}
+                        mode="inline"
+                        items={displayPartyList}
 
-                        />
-                    </div>
+                    />
                 </div>
+            </div>
             <div className={styles.part2}>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <div >
-                                {/* <div className={styles.part2}> */}
-                                <div >
-                                    <Row justify={'space-between'} style={{ width: '95vw' }}>
-                                        <Col>
-                                            <Select
-                                                defaultValue="none"
-                                                style={{
-                                                    width: 120,
-                                                }}
-                                                onChange={handleFilterChange}
-                                                options={filterMenuItems}
-                                            />
-                                        </Col>
-                                        <Col>
-                                            {
-                                                filterType === 'custom' ? <Row>
-                                                    <Col>
-                                                        <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
-                                                    </Col>
-                                                    <Col>
-                                                        <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
-                                                    </Col>
-                                                    <Col>
-                                                        <Button onClick={handleCustomFilter}>Apply</Button>
-                                                    </Col>
-                                                </Row> : null
-                                            }
-                                        </Col>
-                                        <Col>
-                                            <Select
-                                                defaultValue="All"
-                                                style={{
-                                                    width: 120,
-                                                }}
-                                                onChange={onPartyChange}
-                                                options={partyList}
-                                            />
-                                        </Col>
-                                    </Row>
-
-
-                                </div>
-
-                                <div style={{height: '75vh', background: 'white', overflowX:'auto'}}>
-                                    <Table size="small" className={styles.fullTable} dataSource={displayDataSource} columns={PohchHisabColumns} 
-                                        pagination={'none'}
+                    <div >
+                        {/* <div className={styles.part2}> */}
+                        <div >
+                            <Row justify={'space-between'} style={{ width: '95vw' }}>
+                                <Col>
+                                    <Select
+                                        defaultValue="none"
+                                        style={{
+                                            width: 120,
+                                        }}
+                                        onChange={handleFilterChange}
+                                        options={filterMenuItems}
                                     />
-                                </div>
-                                <div style={{border: "1px solid black", padding: '5px', background:'white'}}>
-                                    <Row justify={'space-evenly'}>
-                                        <Col>
-                                            Count: {displayDataSource.length}
-                                        </Col>
-                                        <Col>
-                                            Pohch Amount Total: {totalPohchAmt}
-                                        </Col>
-                                        <Col>
-                                            Total Remaining : {totalRemaining}
-                                        </Col>
-                                    </Row>
-                                </div>
-                                {/* </div> */}
-                            </div>
+                                </Col>
+                                <Col>
+                                    {
+                                        filterType === 'custom' ? <Row>
+                                            <Col>
+                                                <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
+                                            </Col>
+                                            <Col>
+                                                <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
+                                            </Col>
+                                            <Col>
+                                                <Button onClick={handleCustomFilter}>Apply</Button>
+                                            </Col>
+                                        </Row> : null
+                                    }
+                                </Col>
+                                <Col>
+                                    <Select
+                                        defaultValue="All"
+                                        style={{
+                                            width: 120,
+                                        }}
+                                        onChange={onPartyChange}
+                                        options={partyList}
+                                    />
+                                </Col>
+                            </Row>
+
+
                         </div>
+
+                        <div style={{ height: '75vh', background: 'white', overflowX: 'auto' }}>
+                            <Table size="small" className={styles.fullTable} dataSource={displayDataSource} columns={PohchHisabColumns}
+                                pagination={'none'}
+                            />
+                        </div>
+                        <div style={{ border: "1px solid black", padding: '5px', background: 'white' }}>
+                            <Row justify={'space-evenly'}>
+                                <Col>
+                                    Count: {displayDataSource.length}
+                                </Col>
+                                <Col>
+                                    Pohch Amount Total: {totalPohchAmt}
+                                </Col>
+                                <Col>
+                                    Total Remaining : {totalRemaining}
+                                </Col>
+                            </Row>
+                        </div>
+                        {/* </div> */}
+                    </div>
+                </div>
             </div>
         </div>
     )
