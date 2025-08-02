@@ -108,16 +108,6 @@ const Cheque = () => {
             label: 'Pending',
         },
     ]);
-    // For Editing Toll Expense
-    const [editingTollKey, setEditingTollKey] = useState(null);
-    const [editingTollValues, setEditingTollValues] = useState({});
-    // For Editing Payment Status
-    const [editingPaymentStatusKey, setEditingPaymentStatusKey] = useState(null);
-    const [editingPaymentStatusValues, setEditingPaymentStatusValues] = useState({});
-    const [newPaymentStatus, setNewPaymentStatus] = useState('');
-    // For Editing Revised Rate
-    const [editingRevisedRateKey, setEditingRevisedRateKey] = useState(null);
-    const [editingRevisedRateValues, setEditingRevisedRateValues] = useState({});
 
     useEffect(() => {
         const db = getDatabase();

@@ -188,6 +188,7 @@ const Pohch = () => {
                             // updatePohchId(key, _pohchId);
                             ds.push(
                                 {
+                                    timestamp: key,
                                     date: data[key].date,
                                     key: key,
                                     id: i + 1,
@@ -235,6 +236,10 @@ const Pohch = () => {
 
     const applyDateSort = (ds) => {
         ds.sort(function (a, b) {
+            if (a.dateToSort === b.dateToSort) {
+                console.log('same date found')
+                return new Date(parseInt(b.timestamp)) - new Date(parseInt(a.timestamp));
+            }
             // Turn your strings into dates, and then subtract them
             // to get a value that is either negative, positive, or zero.
             return new Date(b.date) - new Date(a.date);
@@ -393,9 +398,21 @@ const Pohch = () => {
             title: 'Courier Status',
             dataIndex: 'courierStatus',
             key: 'courierStatus',
-            ...getColumnSearchProps('courierStatus'),
+            // ...getColumnSearchProps('courierStatus'),
             // Increase the width of this column
             width: '8%',
+             filters: [
+                { text: 'Sent', value: 'Sent' },
+                { text: 'Pending', value: '' }
+            ],
+            onFilter: (value, record) => {
+                if (value === 'Sent') {
+                    // Show both 'Sent' and empty
+                    return record.courierStatus === 'Sent' ;
+                }
+                // Only show 'Pending'
+                return record.courierStatus === '' || record.courierStatus === undefined || record.courierStatus === null;
+            },
             render: (text, record, index) => {
                 if (text === undefined || text === null || text === '') {
                     // return a radio button as Sent or Pending
@@ -437,7 +454,7 @@ const Pohch = () => {
             dataIndex: 'courierSentDate',
             key: 'courierSentDate',
             // ...getColumnSearchProps('courierSentDate'),
-            width: '12%',
+            width: '7%',
             render: (text, record, index) => {
                 if (text === undefined || text === null || text === '') {
                     return <>
@@ -515,13 +532,14 @@ const Pohch = () => {
             }
         },
         {
-            width: '9%',
+            width: '7%',
             title: 'Truck No.',
             dataIndex: 'vehicleNo',
             key: 'vehicleNo',
             ...getColumnSearchProps('vehicleNo'),
         },
         {
+            width: '7%',
             title: 'Pohch Amt',
             dataIndex: 'pohchAmt',
             key: 'pohchAmt',
@@ -567,7 +585,7 @@ const Pohch = () => {
             }
         },
         {
-            width: '7%',
+            width: '6%',
             title: 'Receiver',
             dataIndex: 'paaneWaliParty',
             key: 'paaneWaliParty',
@@ -1033,8 +1051,8 @@ const Pohch = () => {
                 setToDate(null);
                 setDateFilter(null);
             }}>Clear Date</Button>
-            <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '78vh', backgroundColor: 'white' }}>
-                <Table bordered style={{ zIndex: '100' }} size="small" scroll={{ y: 400 }} dataSource={dataSource} columns={columns} pagination={false}
+            <div style={{ width: "100vw", overflowX: 'auto', height: '83vh', backgroundColor: 'white' }}>
+                <Table bordered style={{ zIndex: '100' }} size="small" scroll={{ y: 450 }} dataSource={dataSource} columns={columns} pagination={false}
                 />
             </div>
 
