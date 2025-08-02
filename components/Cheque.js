@@ -159,8 +159,8 @@ const Cheque = () => {
                                     courierStatus: data[key].tripDetails[j].courierStatus,
                                     courierSentDate: data[key].tripDetails[j].courierSentDate,
                                     pohchId: data[key].firstPayment[j].pohchId,
-                                    depositStatus: data[key].firstPayment[j].chequeDepositStatus,
-                                    depositDate: data[key].firstPayment[j].chequeDepositDate,
+                                    depositStatus: data[key].tripDetails[j].chequeDepositStatus,
+                                    depositDate: data[key].tripDetails[j].chequeDepositDate,
                                     chequeNumber: data[key].firstPayment[j].chequeNumber,
                                     chequeDate: data[key].firstPayment[j].chequeDate,
                                     chequeAmount: data[key].firstPayment[j].chequeAmount,
@@ -243,7 +243,7 @@ const Cheque = () => {
         }
         let _startDate = new Date(startDate).getTime();
         let _endDate = new Date(endDate).getTime();
-        console.log(completeDataSource);
+        // console.log(completeDataSource);
         let _displayDataSource = completeDataSource.filter(
             (item) => {
                 let itemDate = new Date(item.date).getTime();
@@ -342,7 +342,18 @@ const Cheque = () => {
             title: 'Pay',
             dataIndex: 'paymentStatus',
             key: 'paymentStatus',
-            ...getColumnSearchProps('paymentStatus'),
+             filters: [
+                { text: 'Open', value: 'open' },
+                { text: 'Close', value: 'close' }
+            ],
+            onFilter: (value, record) => {
+                if (value === 'open') {
+                    // Show both 'open' and empty
+                    return record.paymentStatus === 'open' || record.paymentStatus === '' || record.paymentStatus === undefined || record.paymentStatus === null;
+                }
+                // Only show 'close'
+                return record.paymentStatus === 'close';
+            },
             render: (text, record, index) => {
                 if (text === undefined || text === null || text === '') {
                     return <span style={{ color: 'red' }}><WarningFilled /></span>
@@ -376,10 +387,10 @@ const Cheque = () => {
                                 size='small'
                                 onClick={() => {
                                     // Ask for Confirmation
-                                    if (!confirm("Are you sure you want to update the courier status?")) {
+                                    if (!confirm("Are you sure you want to update the deposit status?")) {
                                         return;
                                     }
-                                    // update the courier status in the database
+                                    // update the deposit status in the database
                                     const db = getDatabase();
                                     const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
                                     update(starCountRef, {
@@ -405,7 +416,7 @@ const Cheque = () => {
             dataIndex: 'depositDate',
             key: 'depositDate',
             // ...getColumnSearchProps('courierSentDate'),
-            width: '12%',
+            width: '7%',
             render: (text, record, index) => {
                 if (text === undefined || text === null || text === '') {
                     return <>
@@ -420,10 +431,10 @@ const Cheque = () => {
                                     return;
                                 }
                                 // Ask for Confirmation
-                                if (!confirm("Are you sure you want to update the courier date?")) {
+                                if (!confirm("Are you sure you want to update the deposit date?")) {
                                     return;
                                 }
-                                // update the courier status in the database
+                                // update the deposit date in the database
                                 const db = getDatabase();
                                 const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
                                 update(starCountRef, {
