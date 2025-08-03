@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal } from 'antd';
-import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, CheckCircleFilled, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone, WarningFilled } from '@ant-design/icons';
+import { BellOutlined, UserOutlined, SearchOutlined, FileTextOutlined } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
@@ -363,6 +363,9 @@ const NaveenKakaParty = () => {
 
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
+
+    const [remarkData, setRemarkData] = useState([]);
+    const [remarkModalOpen, setRemarkModalOpen] = useState(false);
     // const [dateFilter, setDateFilter] = useState('');
     // const [filteredRows, setFilteredRows] = useState(allRows);
 
@@ -589,7 +592,7 @@ const NaveenKakaParty = () => {
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
-               style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
+                style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
         onFilter: (value, record) =>
@@ -633,8 +636,12 @@ const NaveenKakaParty = () => {
         },
         {
             title: 'Remark',
-            dataIndex: 'extraAmtRemark',
-            key: 'extraAmtRemark',
+            dataIndex: 'remark',
+            render: (text, record) => (
+                <Button type="link" onClick={() => handleViewRemarks(record)}>
+                    <FileTextOutlined style={{ fontSize: 'larger' }} />
+                </Button>
+            ),
         },
         {
 
@@ -647,23 +654,34 @@ const NaveenKakaParty = () => {
         },
         {
             // width:'4%',
-            title: 'Pay',
+            title: 'Payment Status',
             dataIndex: 'paymentStatus',
             key: 'paymentStatus',
-            ...getColumnSearchProps('paymentStatus'),
             render: (text, record, index) => {
                 if (text === undefined || text === null || text === '') {
-                    return <span style={{ color: 'red' }}><WarningFilled /></span>
+                    return <span style={{ color: 'red', fontWeight: 'bold' }}>OPEN</span>
                 }
                 if (text === 'close') {
-                    return <span style={{ color: 'green' }}><CheckCircleFilled /></span>
+                    return <span style={{ color: 'green' }}>CLOSE</span>
                 } else if (text === 'open') {
-                    return <span style={{ color: 'red' }}><WarningFilled /></span>
+                    return <span style={{ color: 'red' }}>OPEN</span>
                 } else {
                     return <span style={{ color: 'orange' }}>{text}</span>
                 }
                 return index + 1;
-            }
+            },
+            filters: [
+                { text: 'Open', value: 'open' },
+                { text: 'Close', value: 'close' }
+            ],
+            onFilter: (value, record) => {
+                if (value === 'open') {
+                    // Show both 'open' and empty
+                    return record.transactionStatus === 'open';
+                }
+                // Only show 'close'
+                return record.transactionStatus === 'close';
+            },
         },
         {
             title: 'Date',
@@ -771,6 +789,30 @@ const NaveenKakaParty = () => {
             value: 'custom',
         }
     ]
+
+    const handleViewRemarks = (record) => {
+        const remarks = collectRemarks(record);
+        setRemarkData(remarks);
+        setRemarkModalOpen(true);
+    };
+
+    // Utility to recursively collect all remark fields
+    const collectRemarks = (obj, path = '') => {
+        let remarks = [];
+        if (Array.isArray(obj)) {
+            obj.forEach((item, idx) => {
+                remarks = remarks.concat(collectRemarks(item, `${path}[${idx}]`));
+            });
+        } else if (typeof obj === 'object' && obj !== null) {
+            Object.entries(obj).forEach(([key, value]) => {
+                if (key.toLowerCase().includes('remark')) {
+                    remarks.push({ key: path ? `${path}.${key}` : key, value });
+                }
+                remarks = remarks.concat(collectRemarks(value, path ? `${path}.${key}` : key));
+            });
+        }
+        return remarks;
+    };
 
     const handleFilterChange = (value) => {
         console.log(`selected ${value} value`);
@@ -1153,6 +1195,26 @@ const NaveenKakaParty = () => {
                                 handleDisplayTableChange={handleDisplayTableChange}
                                 setDataUpdateFlag={setDataUpdateFlag}
                             />
+                        )}
+                    </Modal>
+
+                    <Modal
+                        open={remarkModalOpen}
+                        onCancel={() => setRemarkModalOpen(false)}
+                        footer={null}
+                        title="All Remarks"
+                        width={'70vw'}
+                    >
+                        {remarkData.length === 0 ? (
+                            <div>No remarks found.</div>
+                        ) : (
+                            <ul style={{ fontSize: '20px', lineHeight: '2' }}>
+                                {remarkData.map((item, idx) => (
+                                    <li key={idx}>
+                                        <b>{item.key.replace(/\[0\]\./g, ' ').replace(/remark(s)?/gi, '').trim()}:</b> {item.value ? item.value : <i>(empty)</i>}
+                                    </li>
+                                ))}
+                            </ul>
                         )}
                     </Modal>
                 </div>
