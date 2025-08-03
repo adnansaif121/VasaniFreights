@@ -248,8 +248,17 @@ const AddDetails = () => {
                 from: trip.from || '',
                 to: trip.to || '',
                 bhejneWaala: trip.bhejneWaala || '',
+                bhejneWaaliPartyAddress: partyListAll[selectedPartyIndex[0]].address || 'Not available',
+                bhejneWaaliPartyContact: partyListAll[selectedPartyIndex[0]].contact || 'Not available',
+                bhejneWaaliPartyLocation: partyListAll[selectedPartyIndex[0]].location || 'Not available',
                 paaneWaala: trip.paaneWaala || '',
+                paaneWaaliPartyAddress: partyListAll[selectedPartyIndex[1]].address || 'Not available',
+                paaneWaaliPartyContact: partyListAll[selectedPartyIndex[1]].contact || 'Not available',
+                paaneWaaliPartyLocation: partyListAll[selectedPartyIndex[1]].location || 'Not available',
                 transporter: trip.transporter || '',
+                transporterAddress: transporterList[selectedTransporterIndex]?.address || 'Not available',
+                transporterContact: transporterList[selectedTransporterIndex]?.contact || 'Not available',
+                transporterLocation: transporterList[selectedTransporterIndex]?.location || 'Not available',
                 maal: trip.Maal || '',
                 qty: trip.qty || 0,
                 rate: trip.rate || 0,
@@ -347,8 +356,17 @@ const AddDetails = () => {
 
             //DRIVER DATA
             driver1: driver1 || null,
+            driver1Address: driver1?.address || 'Not available',
+            driver1Contact: driver1?.contact || 'Not available',
+            driver1LicenseDate: driver1?.LicenseDate || 'Not available',
             driver2: driver2 || null,
+            driver2Address: driver2?.address || 'Not available',
+            driver2Contact: driver2?.contact || 'Not available',
+            driver2LicenseDate: driver2?.LicenseDate || 'Not available',
             conductor: conductor || null,
+            conductorAddress: conductor?.address || 'Not available',
+            conductorContact: conductor?.contact || 'Not available',
+            conductorLicenseDate: conductor?.LicenseDate || 'Not available',
 
         }).then(() => {
             alert('Data Saved Successfully');
@@ -379,13 +397,6 @@ const AddDetails = () => {
             console.error('Error:', error);
         });
 
-    }
-
-    function guidGenerator() {
-        var S4 = function () {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        };
-        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
     }
 
     const addPartyInPartyList = (value, index) => {
@@ -421,6 +432,7 @@ const AddDetails = () => {
         }).then(() => {
             alert("Party Created Successfully!!");
             setPartyModal({});
+            createPartyForm.resetFields();
             return;
         })
     }
@@ -528,6 +540,7 @@ const AddDetails = () => {
         })
 
         setNewBank('');
+
     }
 
     const addNewDriver = (e) => {
@@ -555,6 +568,7 @@ const AddDetails = () => {
         }).then(() => {
             alert("Driver Added Successfully!!");
             setDriverModal({});
+            driverForm.resetFields();
             return;
         });
     }
@@ -609,15 +623,15 @@ const AddDetails = () => {
     };
 
     const handleOk = () => {
-        createPartyForm.resetFields();
         addNewParty();
+        createPartyForm.resetFields();
         setIsModalOpen(false);
     };
 
     const handleDriverOk = () => {
 
-        driverForm.resetFields();
         addNewDriver();
+        driverForm.resetFields();
         setIsDriverModalOpen(false);
         setDriverModal({});
     }
@@ -658,7 +672,7 @@ const AddDetails = () => {
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
-                                // name="name"
+                                name="name"
                                 label="Name"
                                 rules={[
                                     {
@@ -668,16 +682,17 @@ const AddDetails = () => {
                                 ]}
                             >
                                 <Input onChange={(e) => {
-                                    let obj = driverModal;
-                                    obj.label = e.target.value;
-                                    obj.value = e.target.value;
-                                    setDriverModal(obj);
+                                    setDriverModal({
+                                        ...driverModal,
+                                        label: e.target.value,
+                                        value: e.target.value,
+                                    });
                                 }} placeholder="Please enter user name" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                // name="Party Location"
+                                name="DriverLocation"
                                 label="Driver Location"
                                 rules={[
                                     {
@@ -692,9 +707,10 @@ const AddDetails = () => {
                                     }}
                                     placeholder="Driver Location"
                                     onChange={(e) => {
-                                        let obj = driverModal;
-                                        obj.location = e.target.value;
-                                        setDriverModal(obj);
+                                        setDriverModal({
+                                            ...driverModal,
+                                            location: e.target.value,
+                                        });
                                     }}
                                 />
                             </Form.Item>
@@ -703,7 +719,7 @@ const AddDetails = () => {
                     <Row gutter={16}>
                         <Col span={8}>
                             <Form.Item
-                                // name="Address"
+                                name="LicenseDate"
                                 label="License Date"
                                 rules={[
                                     {
@@ -719,9 +735,10 @@ const AddDetails = () => {
                                     type='date'
                                     placeholder="License Date"
                                     onChange={(e) => {
-                                        let obj = driverModal;
-                                        obj.LicenseDate = e.target.value;
-                                        setDriverModal(obj);
+                                        setDriverModal({
+                                            ...driverModal,
+                                            LicenseDate: e.target.value,
+                                        });
                                     }}
                                 />
                             </Form.Item>
@@ -736,9 +753,10 @@ const AddDetails = () => {
                                     placeholder="License type"
                                     optionFilterProp="children"
                                     onChange={(value) => {
-                                        let obj = driverModal;
-                                        obj.LicenseType = value;
-                                        setDriverModal(obj);
+                                        setDriverModal({
+                                            ...driverModal,
+                                            LicenseType: value,
+                                        });
                                     }}
                                     options={[
                                         {
@@ -756,7 +774,7 @@ const AddDetails = () => {
                         </Col>
                         <Col span={8}>
                             <Form.Item
-                                // name="ContactNumber"
+                                name="ContactNumber"
                                 label="Contact Number"
                                 rules={[
                                     {
@@ -771,9 +789,10 @@ const AddDetails = () => {
                                     }}
                                     placeholder="Contact Number"
                                     onChange={(e) => {
-                                        let obj = driverModal;
-                                        obj.Contact = e.target.value;
-                                        setDriverModal(obj);
+                                        setDriverModal({
+                                            ...driverModal,
+                                            Contact: e.target.value,
+                                        });
                                     }}
                                 />
                             </Form.Item>
@@ -783,7 +802,7 @@ const AddDetails = () => {
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item
-                                // name="description"
+                                name="description"
                                 label="Description"
                                 rules={[
                                     {
@@ -793,9 +812,11 @@ const AddDetails = () => {
                                 ]}
                             >
                                 <Input.TextArea rows={4} placeholder="please enter url description" onChange={(e) => {
-                                    let obj = driverModal;
-                                    obj.description = e.target.value;
-                                    setDriverModal(obj);
+
+                                    setDriverModal({
+                                        ...driverModal,
+                                        description: e.target.value,
+                                    });
                                 }} />
                             </Form.Item>
                         </Col>
@@ -805,6 +826,7 @@ const AddDetails = () => {
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item
+                                name="licenseDocument"
                                 label="Driver's License Document"
                                 rules={[
                                     {
@@ -829,18 +851,20 @@ const AddDetails = () => {
                                         const reader = new FileReader();
                                         reader.readAsDataURL(file);
                                         reader.onload = () => {
-                                            let obj = driverModal;
-                                            obj.licenseDocument = reader.result; // stores base64 string
-                                            setDriverModal(obj);
+                                            setDriverModal({
+                                                ...driverModal,
+                                                licenseDocument: reader.result, // stores base64 string
+                                            });
                                         };
 
                                         // Prevent default upload
                                         return false;
                                     }}
                                     onRemove={() => {
-                                        let obj = driverModal;
-                                        obj.licenseDocument = null;
-                                        setDriverModal(obj);
+                                        setDriverModal({
+                                            ...driverModal,
+                                            licenseDocument: null,
+                                        });
                                     }}
                                 >
                                     <p className="ant-upload-drag-icon">
@@ -1111,15 +1135,7 @@ const AddDetails = () => {
                                                                             )}
                                                                         </div>
 
-                                                                        {/* <div className='tooltip'>
-                                                                            <Tooltip placement="top"
-                                                                                // title={partyDetailsList[name]?.party1Details}
-                                                                                title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}` : 'Not available'}
-                                                                            >
 
-                                                                                <EyeOutlined />
-                                                                            </Tooltip>
-                                                                        </div> */}
 
                                                                         <div style={{ width: '48%', display: 'flex', alignItems: 'center', gap: 2 }}>
                                                                             <Form.Item style={{ width: '100%' }} label="Reciever"
@@ -1181,14 +1197,6 @@ const AddDetails = () => {
                                                                             )}
                                                                         </div>
 
-                                                                        {/* <div className='tooltip'>
-                                                                            <Tooltip placement="top"
-                                                                                // title={partyDetailsList[name]?.party2Details}
-                                                                                title={selectedPartyIndex[name + 1] !== -1 ? `${partyListAll[selectedPartyIndex[name + 1]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name + 1]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name + 1]].location || ' '}` : 'Not available'}
-                                                                            >
-                                                                                <EyeOutlined />
-                                                                            </Tooltip>
-                                                                        </div> */}
                                                                     </Flex>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
@@ -1196,13 +1204,7 @@ const AddDetails = () => {
                                                                             label="To Pay/ Paid"
                                                                             name={[name, 'payStatus']}
                                                                         >
-                                                                            {/* <Radio.Group
-                                                                                options={[{ label: 'To Pay', value: 'To Pay' }, { label: 'Paid', value: 'Paid' }]}
-                                                                                // onChange={(e) => { setPayStatus(e.target.value) }}
-                                                                                value={'Paid'}
-                                                                                optionType="button"
-                                                                                buttonStyle="solid"
-                                                                            /> */}
+
                                                                             {/* Provide a Select component replacing Radio Group */}
                                                                             <Select
                                                                                 style={{ width: '100%' }}
@@ -1918,16 +1920,16 @@ const AddDetails = () => {
                                                                     <Flex style={{
                                                                         width: '100%',
                                                                         height: 30,
-                                                                    }} align={'center'} >
-                                                                        <Form.Item style={{ width: '100%' }} name={[name, "kaataParchiAmount"]} label="Amount">
-                                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+                                                                    }} justify={'space-between'} align={'center'} >
+                                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+                                                                            <Form.Item style={{ width: '100%' }} name={[name, "kaataParchiAmount"]} label="Amount">
 
                                                                                 <Input placeholder='amount' ></Input>
 
 
-                                                                                <Button style={{ width: '55%' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
-                                                                            </div>
-                                                                        </Form.Item>
+                                                                            </Form.Item>
+                                                                            <Button style={{ width: '55%', marginTop: '-25px' }} onClick={() => setToggleKaataParchi(!toggleKaataParchi)}>{!toggleKaataParchi ? 'CLICK FOR MORE' : 'CLICK FOR LESS'}</Button>
+                                                                        </div>
                                                                     </Flex>
 
 
@@ -2133,30 +2135,7 @@ const AddDetails = () => {
                                                                                     </Form.Item>
                                                                                 </td>
                                                                                 <td >
-                                                                                    {/* <Form.Item name={[name, 'cashBank']}>
-                                                                                    <Select
-                                                                                        showSearch
-                                                                                        placeholder="Bank"
-                                                                                        optionFilterProp="children"
-                                                                                        // onChange={onChange}
-                                                                                        // onSearch={onSearch}
-                                                                                        filterOption={filterOption}
-                                                                                        options={[
-                                                                                            {
-                                                                                                value: 'ABC',
-                                                                                                label: 'ABC',
-                                                                                            },
-                                                                                            {
-                                                                                                value: 'XYZ',
-                                                                                                label: 'XYZ',
-                                                                                            },
-                                                                                            {
-                                                                                                value: 'PQR',
-                                                                                                label: 'PQR',
-                                                                                            },
-                                                                                        ]}
-                                                                                    />
-                                                                                </Form.Item> */}
+
                                                                                 </td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'cashRemarks']}>
@@ -2289,11 +2268,7 @@ const AddDetails = () => {
                                                             </Flex>
                                                         ))}
 
-                                                        {/* <Form.Item style={{ margin: 'auto' }}>
-                                                                <Button id='FPDAdd' type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                                                    Add new Trip
-                                                                </Button>
-                                                            </Form.Item> */}
+
 
                                                     </>
                                                 )}

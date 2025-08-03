@@ -1,14 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
+import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs, DatePicker } from 'antd';
 import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, CheckCircleFilled, WarningFilled } from '@ant-design/icons';
-import styles from '../styles/DailyEntry.module.css';
-import firebase from '../config/firebase'
 import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
 import ViewDailyEntry from './ViewDailyEntry';
 // import { vehicleData } from './data';
 import CreatePartyForm from './common/CreatePartyForm';
 import Highlighter from 'react-highlight-words';
+import * as XLSX from 'xlsx';
+import dayjs from 'dayjs';
 // const ViewDailyEntry = dynamic(() => import('../components/ViewDailyEntry'), {ssr: false});
 // import { render } from 'react-dom';
 const { Dragger } = Upload;
@@ -37,68 +37,14 @@ todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[
 console.log(todayDate);
 
 const Pohch = () => {
-    const [form] = Form.useForm();
-    const [form1] = Form.useForm();
-    const [form2] = Form.useForm();
-    const [form3] = Form.useForm();
     const [driverForm] = Form.useForm();
     const [createPartyForm] = Form.useForm();
-    const [toggle, setToggle] = React.useState(false);
-    const [vehicleNo, setVehicleNo] = useState('');
-    const [date, setDate] = useState(todayDate);
-    const [mt, setMT] = useState(false);
-    const [vehicleStatus, setVehicleStatus] = useState('');
-    const [payStatus, setPayStatus] = useState('Paid');
-    const [janaKm, setJanaKm] = useState(0);
-    const [aanaKm, setAanaKm] = useState(0);
-    const [tripKm, setTripKm] = useState('');
-    const [milometer, setMilometer] = useState('');
-    const [dieselQty, setDieselQty] = useState('');
-    const [pumpName, setPumpName] = useState('');
-    const [average, setAverage] = useState('');
-    const [midwayDiesel, setMidwayDiesel] = useState('');
-    const [rate, setRate] = useState([0, 0, 0, 0]);
-    const [qty, setQty] = useState([0, 0, 0, 0]);
-    const [totalFreight, setTotalFreight] = useState(0);
-    const [khaliGadiWajan, setKhaliGadiWajan] = useState([0, 0, 0, 0]);
-    const [bhariGadiWajan, setBhariGadiWajan] = useState([0, 0, 0, 0]);
-    // To Track number of trips
-    const [tripCount, setTripCount] = useState(0);
-    // to display dynamic Bhada Kaun Dalega list
-    const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
-    const [partyDetailsList, setPartyDetailsList] = useState([[], [], [], [], [], []]);
-    const [selectedPartyIndex, setSelectedPartyIndex] = useState([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
-    const [selectedTransporterIndex, setSelectedTransporterIndex] = useState([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
-    // Drivers List
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
     // Locations list
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
-    const [Locations, setLocations] = useState([
-        {
-            value: 'mumbai',
-            label: 'Mumbai',
-        },
-        {
-            value: 'pune',
-            label: 'Pune',
-        },
-        {
-            value: 'nagpur',
-            label: 'Nagpur',
-        },
-        {
-            value: 'nashik',
-            label: 'Nashik',
-        },
-        {
-            value: 'aurangabad',
-            label: 'Aurangabad',
-        }
-    ]);
-    const [newLocation, setNewLocation] = useState('');
     // Maal List
     const [MaalList, setMaalList] = useState([
         {
@@ -128,20 +74,10 @@ const Pohch = () => {
     // Data to display in the table
     const [completeDataSource, setCompleteDataSource] = useState([]);
     const [dataSource, setDataSource] = useState([]); // Table Data
-    // FLAG 
-    const [flag, setFlag] = useState(false);
     //Bank
     const [newBank, setNewBank] = useState('');
     const [bankData, setBankData] = useState([]);
     const [dateFilter, setDateFilter] = useState('');
-
-    const [driver1, setDriver1] = useState({});
-    const [driver2, setDriver2] = useState({});
-    const [conductor, setConductor] = useState({});
-
-    const [driver1Value, setDriver1Value] = useState();
-    const [driver2Value, setDriver2Value] = useState();
-    const [conductorValue, setConductorValue] = useState();
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
@@ -221,6 +157,21 @@ const Pohch = () => {
         });
     }, [])
 
+    const exportToExcel = () => {
+        // Prepare data: remove unwanted fields if needed
+        const exportData = dataSource.map(row => {
+            const { key, ...rest } = row; // remove key if you don't want it in Excel
+            return rest;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "pohch.xlsx");
+    };
+
     const updatePohchId = async (key) => {
         const pohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
 
@@ -292,17 +243,26 @@ const Pohch = () => {
                 }}
                 onKeyDown={(e) => e.stopPropagation()}
             >
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
-                    style={{
-                        marginBottom: 8,
-                        display: 'block',
-                    }}
-                />
+                {dataIndex === 'courierSentDate' || dataIndex === 'date' || dataIndex === 'pohchRecievedDate' ? (
+                    <DatePicker
+                        style={{ marginBottom: 8, display: 'block' }}
+                        value={selectedKeys[0] ? dayjs(selectedKeys[0]) : null}
+                        onChange={date => setSelectedKeys(date ? [date.format('YYYY-MM-DD')] : [])}
+                        onPressEnter={() => confirm()}
+                    />
+                ) : (
+                    <Input
+                        ref={searchInput}
+                        placeholder={`Search ${dataIndex}`}
+                        value={selectedKeys[0]}
+                        onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                        style={{
+                            marginBottom: 8,
+                            display: 'block',
+                        }}
+                    />
+                )}
                 <Space>
                     <Button
                         type="primary"
@@ -329,10 +289,18 @@ const Pohch = () => {
                 style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
-        onFilter: (value, record) =>
-            dataIndex === 'courierStatus' && value === 'pending' ? record[dataIndex] === null || record[dataIndex] === undefined || record[dataIndex] === '' : record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()) ||
-                // dataIndex === 'pohchRecievedDate' && value !== null ?  `${new Date(record[dataIndex]).getDate()}/${new Date(record[dataIndex]).getMonth()+1}/${new Date(record[dataIndex]).getFullYear()}` : 
-                record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+        onFilter: (value, record) => {
+            if (dataIndex === 'courierStatus' && value === 'pending') {
+                return record[dataIndex] === '' || record[dataIndex] === undefined || record[dataIndex] === null;
+            }
+            if (dataIndex === 'courierSentDate' || dataIndex === 'date' || dataIndex === 'pohchRecievedDate') {
+                // Compare only the date part (YYYY-MM-DD)
+                if (!record[dataIndex]) return false;
+                const recordDate = dayjs(record[dataIndex]).format('YYYY-MM-DD');
+                return recordDate === value;
+            }
+            return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
+        },
         onFilterDropdownOpenChange: (visible) => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -364,7 +332,7 @@ const Pohch = () => {
         },
         {
             width: '4%',
-            title: 'Pay',
+            title: 'Pay Status',
             dataIndex: 'paymentStatus',
             key: 'paymentStatus',
             // ...getColumnSearchProps('paymentStatus'),
@@ -401,14 +369,14 @@ const Pohch = () => {
             // ...getColumnSearchProps('courierStatus'),
             // Increase the width of this column
             width: '8%',
-             filters: [
+            filters: [
                 { text: 'Sent', value: 'Sent' },
                 { text: 'Pending', value: '' }
             ],
             onFilter: (value, record) => {
                 if (value === 'Sent') {
                     // Show both 'Sent' and empty
-                    return record.courierStatus === 'Sent' ;
+                    return record.courierStatus === 'Sent';
                 }
                 // Only show 'Pending'
                 return record.courierStatus === '' || record.courierStatus === undefined || record.courierStatus === null;
@@ -453,7 +421,7 @@ const Pohch = () => {
             title: 'Courier Date',
             dataIndex: 'courierSentDate',
             key: 'courierSentDate',
-            // ...getColumnSearchProps('courierSentDate'),
+            ...getColumnSearchProps('courierSentDate'),
             width: '7%',
             render: (text, record, index) => {
                 if (text === undefined || text === null || text === '') {
@@ -515,7 +483,7 @@ const Pohch = () => {
         },
         {
             width: '7%',
-            title: 'Received Date',
+            title: 'Pohch Received Date',
             dataIndex: 'pohchRecievedDate',
             key: 'pohchRecievedDate',
             ...getColumnSearchProps('pohchRecievedDate'),
@@ -1040,9 +1008,9 @@ const Pohch = () => {
                 </Form>
             </Modal>
 
-            <span style={{ marginLeft: '40px' }}>From Date:</span>
+            <span style={{ marginLeft: '40px' }}>Pohch Received From Date:</span>
             <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-            <span style={{ marginLeft: '40px' }}>To Date:</span>
+            <span style={{ marginLeft: '40px' }}>Pohch Received To Date:</span>
             <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
             <Button onClick={applyDateFilter}>Apply Filter</Button>
             <Button onClick={() => {
@@ -1051,7 +1019,11 @@ const Pohch = () => {
                 setToDate(null);
                 setDateFilter(null);
             }}>Clear Date</Button>
-            <div style={{ width: "100vw", overflowX: 'auto', height: '83vh', backgroundColor: 'white' }}>
+            <Button type="primary" style={{ margin: '20px' }} onClick={exportToExcel}>
+                Export to Excel
+            </Button>
+
+            <div style={{ width: "98vw", overflowX: 'auto', height: '83vh', backgroundColor: 'white' }}>
                 <Table bordered style={{ zIndex: '100' }} size="small" scroll={{ y: 450 }} dataSource={dataSource} columns={columns} pagination={false}
                 />
             </div>

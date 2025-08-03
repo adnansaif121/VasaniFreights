@@ -16,7 +16,7 @@ const CreatePartyForm = ({isModalOpen, handleOk, handleCancel, createPartyForm, 
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
-                                // name="name"
+                                name="name"
                                 label="Name"
                                 rules={[
                                     {
@@ -26,16 +26,13 @@ const CreatePartyForm = ({isModalOpen, handleOk, handleCancel, createPartyForm, 
                                 ]}
                             >
                                 <Input onChange={(e) => {
-                                    let obj = partyModal;
-                                    obj.label = e.target.value;
-                                    obj.value = e.target.value;
-                                    setPartyModal(obj);
+                                    setPartyModal({...partyModal, value: e.target.value, label: e.target.value});
                                 }} placeholder="Please enter user name" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                // name="Party Location"
+                                name="Party Location"
                                 label="Party Location"
                                 rules={[
                                     {
@@ -50,9 +47,7 @@ const CreatePartyForm = ({isModalOpen, handleOk, handleCancel, createPartyForm, 
                                     }}
                                     placeholder="Party Location"
                                     onChange={(e) => {
-                                        let obj = partyModal;
-                                        obj.location = e.target.value;
-                                        setPartyModal(obj);
+                                        setPartyModal({...partyModal, location: e.target.value});
                                     }}
                                 />
                             </Form.Item>
@@ -61,7 +56,7 @@ const CreatePartyForm = ({isModalOpen, handleOk, handleCancel, createPartyForm, 
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
-                                // name="Address"
+                                name="Address"
                                 label="Address"
                                 rules={[
                                     {
@@ -76,16 +71,14 @@ const CreatePartyForm = ({isModalOpen, handleOk, handleCancel, createPartyForm, 
                                     }}
                                     placeholder="Party Address"
                                     onChange={(e) => {
-                                        let obj = partyModal;
-                                        obj.address = e.target.value;
-                                        setPartyModal(obj);
+                                        setPartyModal({...partyModal, address: e.target.value });
                                     }}
                                 />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                // name="ContactNumber"
+                                name="ContactNumber"
                                 label="Contact Number"
                                 rules={[
                                     {
@@ -100,9 +93,7 @@ const CreatePartyForm = ({isModalOpen, handleOk, handleCancel, createPartyForm, 
                                     }}
                                     placeholder="Contact Number"
                                     onChange={(e) => {
-                                        let obj = partyModal;
-                                        obj.contact = e.target.value;
-                                        setPartyModal(obj);
+                                        setPartyModal({...partyModal, contact: e.target.value });
                                     }}
                                 />
                             </Form.Item>
@@ -112,7 +103,7 @@ const CreatePartyForm = ({isModalOpen, handleOk, handleCancel, createPartyForm, 
                     <Row gutter={16}>
                         <Col span={24}>
                             <Form.Item
-                                // name="description"
+                                name="description"
                                 label="Description"
                                 rules={[
                                     {
@@ -122,9 +113,7 @@ const CreatePartyForm = ({isModalOpen, handleOk, handleCancel, createPartyForm, 
                                 ]}
                             >
                                 <Input.TextArea rows={4} placeholder="please enter url description" onChange={(e) => {
-                                    let obj = partyModal;
-                                    obj.description = e.target.value;
-                                    setPartyModal(obj);
+                                    setPartyModal({...partyModal, description: e.target.value });
                                 }} />
                             </Form.Item>
                         </Col>

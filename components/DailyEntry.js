@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
+import {DatePicker, Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
 import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined, FileTextOutlined } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push, query, orderByKey, limitToLast, limitToFirst, endAt, startAt } from "firebase/database";
 import ViewDailyEntry from './ViewDailyEntry';
 import CreatePartyForm from './common/CreatePartyForm';
 import Highlighter from 'react-highlight-words';
+import dayjs from 'dayjs';
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
@@ -233,7 +234,7 @@ const DailyEntry = () => {
     const applyDateSort = (ds) => {
         console.log(ds, 'before sorting');
         ds.sort(function (a, b) {
-            if(a.dateToSort === b.dateToSort) {
+            if (a.dateToSort === b.dateToSort) {
                 console.log('same date found')
                 return new Date(parseInt(b.timestamp)) - new Date(parseInt(a.timestamp));
             }
@@ -294,7 +295,7 @@ const DailyEntry = () => {
                     >
                         Clear
                     </Button>
-                   
+
                 </Space>
             </div>
         ),
@@ -348,17 +349,14 @@ const DailyEntry = () => {
             render: (text, record, index) => { return index + 1; }
         },
         {
-            title: 'Date',
+            title: (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span>Date</span>
+                </div>
+            ),
             dataIndex: 'date',
             key: 'date',
             ...getColumnSearchProps('date'),
-            // render: (text) => {
-            //     let date = new Date(text);
-
-            //     return (
-            //         <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
-            //     )
-            // }
         },
         {
             title: 'Truck No.',
@@ -477,7 +475,7 @@ const DailyEntry = () => {
             key: 'remark',
             render: (text, record) => (
                 <Button type="link" onClick={() => handleViewRemarks(record)}>
-                    <FileTextOutlined style={{fontSize:'larger'}}/>
+                    <FileTextOutlined style={{ fontSize: 'larger' }} />
                 </Button>
             ),
         },
@@ -1035,9 +1033,9 @@ const DailyEntry = () => {
                         <Button
                             type="primary"
                             size="small"
-                            style={{marginTop:'-20px', marginRight: '20px',  display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            style={{ marginTop: '-20px', marginRight: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             onClick={() => setViewModalOpen(false)}
-                            // icon={<CloseOutlined style={{ fontSize: 24 }} />}
+                        // icon={<CloseOutlined style={{ fontSize: 24 }} />}
                         ><CloseOutlined style={{ fontSize: 15 }} />Close</Button>
                     }
                 >
