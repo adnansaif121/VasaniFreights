@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Modal, Typography, Drawer, DatePicker, Badge } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, FileTextOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
-import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
+import { getDatabase, ref, set, onValue, get, child, update } from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
 import Highlighter from 'react-highlight-words';
 
@@ -363,6 +363,7 @@ const Party = () => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [remarkData, setRemarkData] = useState([]);
     const [remarkModalOpen, setRemarkModalOpen] = useState(false);
+    const [dateRange, setDateRange] = useState([null, null]);
 
     const handleViewClick = (record, index) => {
         setSelectedRow({ record, index });
@@ -458,6 +459,7 @@ const Party = () => {
             );
             setDisplayDataSource(ds);
             setDataSource(ds);
+            console.log(ds);
         }).catch((error) => {
             console.log(error);
         })
@@ -491,7 +493,7 @@ const Party = () => {
         setPartySelected(displayPartyList[partyIndex]);
         setSelectedPartyIndex(partyIndex);
 
-        console.log(displayPartyList[partyIndex]);
+        // console.log(displayPartyList[partyIndex]);
         // console.log(e.item.props.value);
 
         let party = displayPartyList[partyIndex].label;
@@ -516,17 +518,23 @@ const Party = () => {
                 }}
                 onKeyDown={(e) => e.stopPropagation()}
             >
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
-                    style={{
-                        marginBottom: 8,
-                        display: 'block',
-                    }}
-                />
+                {dataIndex === 'date' ? (
+                    <DatePicker
+                        format="YYYY-MM-DD"
+                        onChange={(date, dateString) => setSelectedKeys(dateString ? [dateString] : [])}
+                    />
+                ) : (
+                    <Input
+                        ref={searchInput}
+                        placeholder={`Search ${dataIndex}`}
+                        value={selectedKeys[0]}
+                        onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                        style={{
+                            marginBottom: 8,
+                            display: 'block',
+                        }}
+                    />)}
                 <Space>
                     <Button
                         type="primary"
@@ -554,8 +562,14 @@ const Party = () => {
                 style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
-        onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilter: (value, record) => {
+            if (dataIndex === 'date') {
+                if (!record[dataIndex]) return false;
+                const recordDate = dayjs(record[dataIndex]).format('YYYY-MM-DD');
+                return recordDate === value;
+            }
+            return record[dataIndex].toString().toLowerCase().includes(value.toLowerCase());
+        },
         onFilterDropdownOpenChange: (visible) => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -597,15 +611,36 @@ const Party = () => {
             title: 'Payment Status',
             dataIndex: 'transactionStatus',
             key: 'transactionStatus',
+            render: (text, record) => (
+                <p>
+                    {record.transactionStatus === 'open' ? (
+                        <span style={{ color: 'red', fontWeight: 'bold' }}>OPEN</span>
+                    ) : (
+                        <span style={{ color: 'green', fontWeight: 'bold' }}>CLOSE</span>
+                    )}
+                </p>
+            ),
+            filters: [
+                { text: 'Open', value: 'open' },
+                { text: 'Close', value: 'close' }
+            ],
+            onFilter: (value, record) => {
+                if (value === 'open') {
+                    // Show both 'open' and empty
+                    return record.transactionStatus === 'open';
+                }
+                // Only show 'close'
+                return record.transactionStatus === 'close';
+            },
             // render: (text) => { text == 'open' ? <><ExclamationOutlined />OPEN</> : <CheckOutlined /> }
         },
         {
             title: 'Date',
             dataIndex: 'date',
             key: 'date',
+            ...getColumnSearchProps('date'),
             render: (text) => {
                 let date = new Date(text);
-                console.log(date, date.getDay(), date.getMonth());
                 return (
                     <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
                 )
@@ -621,11 +656,13 @@ const Party = () => {
             title: 'From',
             dataIndex: 'from',
             key: 'from',
+            ...getColumnSearchProps('from'),
         },
         {
             title: 'To',
             dataIndex: 'to',
             key: 'to',
+            ...getColumnSearchProps('to'),
         },
         {
             title: 'Transporter',
@@ -662,7 +699,7 @@ const Party = () => {
             key: 'remark',
             render: (text, record) => (
                 <Button type="link" onClick={() => handleViewRemarks(record)}>
-                    <FileTextOutlined style={{fontSize:'larger'}}/>
+                    <FileTextOutlined style={{ fontSize: 'larger' }} />
                 </Button>
             ),
         },
@@ -826,13 +863,13 @@ const Party = () => {
         console.log(partySelected);
         const db = getDatabase();
         const partyRef = ref(db, 'parties/' + partyIds[partySelectedForEdit]);
-        set(partyRef, {
+        update(partyRef, {
             label: partyName,
             value: partyName,
-            location: partyLocation,
-            address: partyAddress,
-            contact: partyContact,
-            description: partyDescription
+            location: partyLocation || '',
+            address: partyAddress || '',
+            contact: partyContact || '',
+            description: partyDescription || '',
         });
 
         // let pl = partyList;
@@ -870,19 +907,28 @@ const Party = () => {
         setDisplayDataSource(_displayDataSource);
     }
 
-    const truckFilter = (truckno) => {
-        // let data = displayDataSource;
-        // let newData = [];
-        // newData = data.filter((item) => item.vehicleNo.includes(truckno))
-    }
-
-    const filterOption = (input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
-
     const handleDisplayTableChange = (list) => {
         setDisplayDataSource([...list]);
         setRefreshKey(prevKey => prevKey + 1); // Force table refresh
     }
+
+    // Date filter logic
+    const handleDateFilter = () => {
+        if (dateRange[0] && dateRange[1]) {
+            const from = dateRange[0].format('YYYY-MM-DD');
+            const to = dateRange[1].format('YYYY-MM-DD');
+            const filtered = dataSource.filter(
+                item => item.date >= from && item.date <= to
+            );
+            // setFilteredData(filtered);
+            setDisplayDataSource(filtered);
+        }
+    };
+    const handleClearDateFilter = () => {
+        setDateRange([null, null]);
+        setDisplayDataSource(dataSource);
+    };
+
     return (
         <>
             <div className={styles.container}>
@@ -921,7 +967,7 @@ const Party = () => {
                 </div>
                 <div className={styles.part2}>
                     <div >
-                        <Row style={{ width: '75vw' }}>
+                        {/* <Row style={{ width: '75vw' }}>
 
                             <Col>
                                 <Select
@@ -949,8 +995,23 @@ const Party = () => {
                                 }
                             </Col>
 
-                        </Row>
-
+                        </Row> */}
+                        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
+                            <span>From Date:</span>
+                            <DatePicker
+                                value={dateRange[0]}
+                                onChange={date => setDateRange([date, dateRange[1]])}
+                                style={{ width: 140 }}
+                            />
+                            <span>To Date:</span>
+                            <DatePicker
+                                value={dateRange[1]}
+                                onChange={date => setDateRange([dateRange[0], date])}
+                                style={{ width: 140 }}
+                            />
+                            <Button type="primary" onClick={handleDateFilter}>Apply</Button>
+                            <Button onClick={handleClearDateFilter}>Close</Button>
+                        </div>
                         <Drawer
                             title="Create a new account"
                             width={720}
@@ -1071,10 +1132,8 @@ const Party = () => {
                                 </Row>
                             </Form>
                         </Drawer>
-
-
-
                     </div>
+
                     <Table key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns}
                         // expandable={{
                         //     expandedRowRender: (record, index) => <ViewPartyDetails
