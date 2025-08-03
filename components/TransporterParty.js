@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal } from 'antd';
-import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
+import { BellOutlined, FileTextOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child, update } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
@@ -365,7 +365,10 @@ const TransporterParty = () => {
 
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
+    const [dateRange, setDateRange] = useState([null, null]);
 
+    const [remarkData, setRemarkData] = useState([]);
+    const [remarkModalOpen, setRemarkModalOpen] = useState(false);
     // const [dateFilter, setDateFilter] = useState('');
     // const [filteredRows, setFilteredRows] = useState(allRows);
 
@@ -653,6 +656,27 @@ const TransporterParty = () => {
             title: 'Payment Status',
             dataIndex: 'transactionStatus',
             key: 'transactionStatus',
+            render: (text, record) => (
+                <p>
+                    {record.transactionStatus === 'open' ? (
+                        <span style={{ color: 'red', fontWeight: 'bold' }}>OPEN</span>
+                    ) : (
+                        <span style={{ color: 'green', fontWeight: 'bold' }}>CLOSE</span>
+                    )}
+                </p>
+            ),
+            filters: [
+                { text: 'Open', value: 'open' },
+                { text: 'Close', value: 'close' }
+            ],
+            onFilter: (value, record) => {
+                if (value === 'open') {
+                    // Show both 'open' and empty
+                    return record.transactionStatus === 'open';
+                }
+                // Only show 'close'
+                return record.transactionStatus === 'close';
+            },
             // render: (text) => { text == 'open' ? <><ExclamationOutlined />OPEN</> : <CheckOutlined /> }
         },
         {
@@ -732,10 +756,38 @@ const TransporterParty = () => {
         },
         {
             title: 'Remark',
-            dataIndex: 'extraAmtRemark',
-            key: 'extraAmtRemark',
+            key: 'remark',
+            render: (text, record) => (
+                <Button type="link" onClick={() => handleViewRemarks(record)}>
+                    <FileTextOutlined style={{ fontSize: 'larger' }} />
+                </Button>
+            ),
         }
     ];
+
+    const handleViewRemarks = (record) => {
+        const remarks = collectRemarks(record);
+        setRemarkData(remarks);
+        setRemarkModalOpen(true);
+    };
+
+    // Utility to recursively collect all remark fields
+    const collectRemarks = (obj, path = '') => {
+        let remarks = [];
+        if (Array.isArray(obj)) {
+            obj.forEach((item, idx) => {
+                remarks = remarks.concat(collectRemarks(item, `${path}[${idx}]`));
+            });
+        } else if (typeof obj === 'object' && obj !== null) {
+            Object.entries(obj).forEach(([key, value]) => {
+                if (key.toLowerCase().includes('remark')) {
+                    remarks.push({ key: path ? `${path}.${key}` : key, value });
+                }
+                remarks = remarks.concat(collectRemarks(value, path ? `${path}.${key}` : key));
+            });
+        }
+        return remarks;
+    };
 
     const filterMenuItems = [
         {
@@ -775,81 +827,6 @@ const TransporterParty = () => {
         }
     ]
 
-    const handleFilterChange = (value) => {
-        console.log(`selected ${value} value`);
-        setFilterType(value);
-        let _displayDataSource = [];
-        let today = new Date();
-        let year = today.getFullYear();
-        let month = today.getMonth();
-        switch (value) {
-            case "lastMonth":
-                let month_first_date = (new Date(year, month, 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= month_first_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                console.log(_displayDataSource);
-                break;
-            case "lastQuarter":
-                // let year = (new Date()).getFullYear();
-                let quarter = Math.floor(((new Date()).getMonth() + 3) / 3);
-                let quarterStartMonth = [0, 3, 6, 9] //jan, April, July, Oct
-                let quarter_first_date = (new Date(year, quarterStartMonth[quarter - 1], 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= quarter_first_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            case "last6Months":
-                let _last6thMonthYear = year;
-                let _last6thmonth = month - 6;
-                if (_last6thmonth >= 0) {
-                    _last6thMonthYear--;
-                    _last6thmonth = 12 + _last6thMonthYear;
-                }
-                let last6month_start_date = (new Date(_last6thMonthYear, _last6thmonth, 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= last6month_start_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            case "lastYear":
-                let _lastYear_start_date = (new Date(year - 1, 0, 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= _lastYear_start_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            case "lastFinancialYear":
-                let _lastFinancialYear_start_date = (new Date(year - 1, 3, 1)).getTime();
-                let _lastFinancialYear_end_date = (new Date(year, 2, 31)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= _lastFinancialYear_start_date && itemDate <= _lastFinancialYear_end_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            default:
-                console.log(value);
-                setDisplayDataSource([...dataSource]);
-        }
-    };
-
     const [open, setOpen] = useState(false);
     const showDrawer = (index) => {
         setPartySelectedForEdit(index);
@@ -874,10 +851,10 @@ const TransporterParty = () => {
         update(partyRef, {
             label: partyName,
             value: partyName,
-            location: partyLocation,
-            address: partyAddress,
-            contact: partyContact,
-            description: partyDescription
+            location: partyLocation || '',
+            address: partyAddress || '',
+            contact: partyContact || '',
+            description: partyDescription || ''
         }).then(() => {
             alert("Transporter detail Updated Successfully!!");
             return;
@@ -958,6 +935,23 @@ const TransporterParty = () => {
         setSelectedRow({ record, index });
         setViewModalOpen(true);
     };
+
+    // Date filter logic
+    const handleDateFilter = () => {
+        if (dateRange[0] && dateRange[1]) {
+            const from = dateRange[0].format('YYYY-MM-DD');
+            const to = dateRange[1].format('YYYY-MM-DD');
+            const filtered = displayDataSource.filter(
+                item => item.date >= from && item.date <= to
+            );
+            // setFilteredData(filtered);
+            setDisplayDataSource(filtered);
+        }
+    };
+    const handleClearDateFilter = () => {
+        setDateRange([null, null]);
+        setDisplayDataSource(dataSource);
+    };
     return (
         <>
             <div className={styles.container}>
@@ -999,32 +993,22 @@ const TransporterParty = () => {
                         <Row style={{ width: '75vw' }}>
 
                             <Col>
-                                <Select
-                                    defaultValue="none"
-                                    style={{
-                                        width: 120,
-                                    }}
-                                    onChange={handleFilterChange}
-                                    options={filterMenuItems}
-                                />
-                            </Col>
-                            <Col>
-                                {
-                                    filterType === 'custom' ? <Row>
-                                        <Col>
-                                            <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
-                                        </Col>
-                                        <Col>
-                                            <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
-                                        </Col>
-                                        <Col>
-                                            <Button onClick={handleCustomFilter}>Apply</Button>
-                                        </Col>
-                                    </Row> : null
-                                }
-                            </Col>
-                            <Col>
-                                <Button onClick={handleClearFilter}>Clear Filter</Button>
+                                <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
+                                    <span>From Date:</span>
+                                    <DatePicker
+                                        value={dateRange[0]}
+                                        onChange={date => setDateRange([date, dateRange[1]])}
+                                        style={{ width: 140 }}
+                                    />
+                                    <span>To Date:</span>
+                                    <DatePicker
+                                        value={dateRange[1]}
+                                        onChange={date => setDateRange([dateRange[0], date])}
+                                        style={{ width: 140 }}
+                                    />
+                                    <Button type="primary" onClick={handleDateFilter}>Apply</Button>
+                                    <Button onClick={handleClearDateFilter}>Close</Button>
+                                </div>
                             </Col>
                             <Col>
                                 <Button type="primary" style={{ marginLeft: '20px' }} onClick={exportToExcel}>
@@ -1032,6 +1016,7 @@ const TransporterParty = () => {
                                 </Button>
                             </Col>
                             <Col>
+                                <span style={{ marginLeft: '20px' }}> Select Party : </span>
                                 <Select
                                     defaultValue="none"
                                     style={{
@@ -1204,6 +1189,26 @@ const TransporterParty = () => {
                                 handleDisplayTableChange={handleDisplayTableChange}
                                 setDataUpdateFlag={setDataUpdateFlag}
                             />
+                        )}
+                    </Modal>
+
+                    <Modal
+                        open={remarkModalOpen}
+                        onCancel={() => setRemarkModalOpen(false)}
+                        footer={null}
+                        title="All Remarks"
+                        width={'70vw'}
+                    >
+                        {remarkData.length === 0 ? (
+                            <div>No remarks found.</div>
+                        ) : (
+                            <ul style={{ fontSize: '20px', lineHeight: '2' }}>
+                                {remarkData.map((item, idx) => (
+                                    <li key={idx}>
+                                        <b>{item.key.replace(/\[0\]\./g, ' ').replace(/remark(s)?/gi, '').trim()}:</b> {item.value ? item.value : <i>(empty)</i>}
+                                    </li>
+                                ))}
+                            </ul>
                         )}
                     </Modal>
 
