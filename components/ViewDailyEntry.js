@@ -53,6 +53,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     // PaymentDetails Edit Flag
     const [paymentDetailsEditFlag, setPaymentDetailsEditFlag] = useState(false);
 
+    const [lrNumber, setLrNumber] = useState('');
     const [driver1, setDriver1] = useState({});
     const [driver2, setDriver2] = useState({});
     const [conductor, setConductor] = useState({});
@@ -89,6 +90,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
         console.log(pl);
 
         // Driver details 
+        setLrNumber(data.lrNumber || '');
         setDriver1(data.driver1);
         setDriver2(data.driver2);
         setConductor(data.conductor);
@@ -256,6 +258,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
             kaataParchi: listOfKaataParchi,
             firstPayment: listOfFirstPayment,
 
+            lrNumber: lrNumber,
             driver1: driver1,
             driver2: driver2,
             conductor: conductor
@@ -404,12 +407,6 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                             />
                                                                         </Form.Item>
 
-
-                                                                        {/* <div className='tooltip'>
-                                                                            <Tooltip placement="top" title={selectedPartyIndex[name] !== -1 ? `${partyListAll[selectedPartyIndex[name]].address || 'Address not available'} ${partyListAll[selectedPartyIndex[name]].contact || 'Contact Not Available'} ${partyListAll[selectedPartyIndex[name]].location || 'Location not available'}` : 'Not available'}>
-                                                                                <EyeOutlined />
-                                                                            </Tooltip>
-                                                                        </div> */}
                                                                         <Form.Item style={{ width: '45%' }}
                                                                             label="To"
                                                                             name={[name, 'to']}
@@ -810,7 +807,26 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                     >
                                         <Flex gap="middle" align="start" vertical>
                                             <Flex style={{ width: "100%", height: 20, display: 'flex' }} justify={'space-around'} align='center'>
-                                                <div style={{ width: '48%', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                            
+                                                {/* Add Lorry Number */}
+                                                <Form.Item style={{ width: '48%' }} label="Lorry No.">
+                                                    <Input value={lrNumber} onChange={(e) => { setLrNumber(e.target.value) }} placeholder='Lorry No.' />
+                                                </Form.Item>
+
+
+                                                <Form.Item style={{ width: '48%' }} label="Trip Cash">
+                                                    <Input value={driver1 !== null ? driver1.TripCash : null} onChange={(e) => {
+                                                        let _obj = driver1;
+                                                        _obj.TripCash = e.target.value;
+                                                        setDriver1(_obj);
+                                                    }} placeholder='Trip Cash' type='number' />
+                                                </Form.Item>
+
+                                                
+                                            </Flex>
+
+                                            <Flex style={{ width: "100%", height: 20, display: 'flex' }} justify={'space-around'} align='center'>
+                                                 <div style={{ width: '48%', display: 'flex', alignItems: 'center', gap: 4 }}>
                                                     <Form.Item style={{ width: '100%' }} label="Driver 1">
                                                         <Select
                                                             style={{ width: '100%' }}
@@ -876,17 +892,8 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         </Button>
                                                     </Popover>
                                                 </div>
-
-
-                                                <Form.Item style={{ width: '30%' }} label="Trip Cash">
-                                                    <Input value={driver1 !== null ? driver1.TripCash : null} onChange={(e) => {
-                                                        let _obj = driver1;
-                                                        _obj.TripCash = e.target.value;
-                                                        setDriver1(_obj);
-                                                    }} placeholder='Trip Cash' type='number' />
-                                                </Form.Item>
-
-                                                <Form.Item style={{ width: '30%' }} label="Debit/Credit">
+                                                        
+                                                <Form.Item style={{ width: '48%' }} label="Debit/Credit">
                                                     <Select
                                                         style={{ width: '100%' }}
                                                         showSearch
@@ -903,6 +910,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                     />
                                                 </Form.Item>
                                             </Flex>
+
 
                                             <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
                                                 <div style={{ width: '48%', display: 'flex', alignItems: 'center', gap: 4 }}>

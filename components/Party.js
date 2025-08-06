@@ -3,7 +3,8 @@ import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Modal, Typography, Drawer, DatePicker, Badge } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, FileTextOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child, update } from "firebase/database";
-import ViewPartyDetails from './ViewPartyDetails';
+// import ViewPartyDetails from './ViewPartyDetails';
+import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
 
 const bankData = [
@@ -967,35 +968,7 @@ const Party = () => {
                 </div>
                 <div className={styles.part2}>
                     <div >
-                        {/* <Row style={{ width: '75vw' }}>
-
-                            <Col>
-                                <Select
-                                    defaultValue="none"
-                                    style={{
-                                        width: 120,
-                                    }}
-                                    onChange={handleFilterChange}
-                                    options={filterMenuItems}
-                                />
-                            </Col>
-                            <Col>
-                                {
-                                    filterType === 'custom' ? <Row>
-                                        <Col>
-                                            <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
-                                        </Col>
-                                        <Col>
-                                            <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
-                                        </Col>
-                                        <Col>
-                                            <Button onClick={handleCustomFilter}>Apply</Button>
-                                        </Col>
-                                    </Row> : null
-                                }
-                            </Col>
-
-                        </Row> */}
+                        
                         <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
                             <span>From Date:</span>
                             <DatePicker
@@ -1149,9 +1122,10 @@ const Party = () => {
                         open={viewModalOpen}
                         onCancel={() => setViewModalOpen(false)}
                         footer={null}
-                        width={1200}
+                        width={'100%'}
                         title="Party Details"
                         destroyOnClose
+                        style={{ top: 10 }}
                     >
                         {selectedRow && (
                             <ViewPartyDetails

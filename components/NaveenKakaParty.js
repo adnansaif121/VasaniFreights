@@ -503,7 +503,6 @@ const NaveenKakaParty = () => {
         saveAs(data, "NaveenKaka.xlsx");
     };
 
-
     const handle_Search = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
@@ -1180,9 +1179,10 @@ const NaveenKakaParty = () => {
                         open={viewModalOpen}
                         onCancel={() => setViewModalOpen(false)}
                         footer={null}
-                        width={'90vw'}
+                        width={'100%'}
                         title="Party Details"
                         destroyOnClose
+                        style={{ top: 10 }}
                     >
                         {selectedRow && (
                             <ViewPartyDetails

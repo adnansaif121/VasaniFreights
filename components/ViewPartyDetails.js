@@ -22,8 +22,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
     const [form4] = Form.useForm();
 
     useEffect(() => {
-        console.log('data', data);
-        console.log(indexAtAllData, allDataAtDisplay);
+        
         let index = parseInt(data.key[data.key.length - 1]);
         if (data.tripDetails[index].furtherPayments !== undefined && data.tripDetails[index].furtherPayments !== null && data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
             let furtherPayments = data.tripDetails[index].furtherPayments;

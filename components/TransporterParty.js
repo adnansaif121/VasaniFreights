@@ -431,7 +431,7 @@ const TransporterParty = () => {
                                         partyForTransporterPayment: data[key]?.firstPayment[j]?.partyForTransporterPayment || '',
                                         key: key + j,
                                         id: i + 1,
-                                        lrno: data[key]?.firstPayment[j]?.lrno || '',
+                                        lrNumber: data[key]?.lrNumber || '',
                                         date: data[key]?.date,
                                         vehicleNo: data[key]?.vehicleNo,
                                         transactionStatus: data[key]?.tripDetails[j].transactionStatus || 'open',
@@ -648,9 +648,9 @@ const TransporterParty = () => {
         },
         {
             title: 'LR No.',
-            dataIndex: 'lrno',
-            key: 'lrno',
-            ...getColumnSearchProps('lrno'),
+            dataIndex: 'lrNumber',
+            key: 'lrNumber',
+            ...getColumnSearchProps('lrNumber'),
         },
         {
             title: 'Payment Status',
@@ -1174,9 +1174,10 @@ const TransporterParty = () => {
                         open={viewModalOpen}
                         onCancel={() => setViewModalOpen(false)}
                         footer={null}
-                        width={'90vw'}
+                        width={'100%'}
                         title="Party Details"
                         destroyOnClose
+                        style={{ top: 10 }}
                     >
                         {selectedRow && (
                             <ViewPartyDetails

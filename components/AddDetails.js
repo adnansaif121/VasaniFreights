@@ -88,6 +88,7 @@ const AddDetails = () => {
     const [bankData, setBankData] = useState([]);
     const [dateFilter, setDateFilter] = useState('');
 
+    const [lrNumber, setLrNumber] = useState('');
     const [driver1, setDriver1] = useState({});
     const [driver2, setDriver2] = useState({});
     const [conductor, setConductor] = useState({});
@@ -355,6 +356,7 @@ const AddDetails = () => {
             firstPayment: listOfFirstPayment || null,
 
             //DRIVER DATA
+            lrNumber: lrNumber || '',
             driver1: driver1 || null,
             driver1Address: driver1?.address || 'Not available',
             driver1Contact: driver1?.contact || 'Not available',
@@ -902,53 +904,7 @@ const AddDetails = () => {
                                     >
 
                                         <Flex gap="middle" vertical>
-                                            <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
-                                                <Form.Item style={{ width: '48%' }} label="Date">
-                                                    <Input type='date' value={date} onChange={(e) => setDate(e.target.value)}></Input>
-                                                </Form.Item>
 
-                                                <Form.Item style={{ width: '48%' }} label="Vehicle"
-                                                    name="vehicleNo">
-                                                    <Select
-                                                        showSearch
-                                                        placeholder="Vehicle No."
-                                                        optionFilterProp="children"
-                                                        onChange={(value) => setVehicleNo(value)}
-                                                        // onSearch={onSearch}
-                                                        filterOption={filterOption}
-                                                        options={vehicleData}
-                                                        dropdownRender={(menu) => (
-                                                            <>
-                                                                {menu}
-                                                                <Divider
-                                                                    style={{
-                                                                        margin: '8px 0',
-                                                                    }}
-                                                                />
-                                                                <Space
-                                                                    style={{
-                                                                        padding: '0 8px 4px',
-                                                                    }}
-                                                                >
-                                                                    <Input
-                                                                        placeholder="Please enter item"
-                                                                        value={newVehicleNo}
-                                                                        onChange={(e) => setNewVehicleNo(e.target.value)}
-                                                                        onKeyDown={(e) => e.stopPropagation()}
-                                                                    />
-                                                                    <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                        addNewVehicle(e)
-                                                                    }}>
-
-                                                                    </Button>
-                                                                </Space>
-                                                            </>
-                                                        )}
-                                                    />
-                                                </Form.Item>
-
-                                                <div></div>
-                                            </Flex>
 
                                             {/* Different unit ka Add Button {Ek unit matlab from, party, to, party, qty, rate, total, maal} */}
                                             <Form.List name="tripDetails" >
@@ -959,6 +915,54 @@ const AddDetails = () => {
                                                                 key={key}
                                                             >
                                                                 <Flex gap="middle" vertical>
+
+                                                                    <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
+                                                                        <Form.Item style={{ width: '48%' }} label="Date">
+                                                                            <Input type='date' value={date} onChange={(e) => setDate(e.target.value)}></Input>
+                                                                        </Form.Item>
+
+                                                                        <Form.Item style={{ width: '48%' }} label="Vehicle"
+                                                                            name="vehicleNo">
+                                                                            <Select
+                                                                                showSearch
+                                                                                placeholder="Vehicle No."
+                                                                                optionFilterProp="children"
+                                                                                onChange={(value) => setVehicleNo(value)}
+                                                                                // onSearch={onSearch}
+                                                                                filterOption={filterOption}
+                                                                                options={vehicleData}
+                                                                                dropdownRender={(menu) => (
+                                                                                    <>
+                                                                                        {menu}
+                                                                                        <Divider
+                                                                                            style={{
+                                                                                                margin: '8px 0',
+                                                                                            }}
+                                                                                        />
+                                                                                        <Space
+                                                                                            style={{
+                                                                                                padding: '0 8px 4px',
+                                                                                            }}
+                                                                                        >
+                                                                                            <Input
+                                                                                                placeholder="Please enter item"
+                                                                                                value={newVehicleNo}
+                                                                                                onChange={(e) => setNewVehicleNo(e.target.value)}
+                                                                                                onKeyDown={(e) => e.stopPropagation()}
+                                                                                            />
+                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+                                                                                                addNewVehicle(e)
+                                                                                            }}>
+
+                                                                                            </Button>
+                                                                                        </Space>
+                                                                                    </>
+                                                                                )}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                    
+                                                                    </Flex>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
                                                                         <Form.Item style={{ width: '48%' }} label="From"
@@ -1302,14 +1306,7 @@ const AddDetails = () => {
                                                                             )}
                                                                         </div>
 
-                                                                        {/* <div className='tooltip'>
-                                                                            <Tooltip placement="top"
-                                                                                // title={partyDetailsList[name]?.party2Details}
-                                                                                title={selectedTransporterIndex !== -1 ? `${transporterList[selectedTransporterIndex]?.address || 'Address not available'} ${transporterList[selectedTransporterIndex]?.contact || 'Contact Not Available'} ${transporterList[selectedTransporterIndex]?.location || ' '}` : 'Not available'}
-                                                                            >
-                                                                                <EyeOutlined />
-                                                                            </Tooltip>
-                                                                        </div> */}
+
                                                                     </Flex>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
@@ -1432,8 +1429,23 @@ const AddDetails = () => {
                                         <Flex gap="middle" vertical>
 
                                             <Flex style={{ width: "100%", height: 20, display: 'flex' }} justify='space-between' align='center'>
+                                                {/* Lorry Receipt Number */}
+                                                <Form.Item style={{ width: '48%' }} label="Lorry Receipt No.">
+                                                    <Input value={lrNumber} onChange={(e) => { setLrNumber(e.target.value) }} placeholder='Lorry Receipt No.' />
+                                                </Form.Item>
+
+                                                <Form.Item style={{ width: '48%' }} label="Trip Cash">
+                                                    <Input value={driver1.TripCash} onChange={(e) => {
+                                                        let _obj = driver1;
+                                                        _obj.TripCash = e.target.value;
+                                                        setDriver1(_obj);
+                                                    }} placeholder='Trip Cash' type='number' />
+                                                </Form.Item>
+                                            </Flex>
+
+                                            <Flex style={{ width: "100%", height: 20, display: 'flex' }} justify='space-between' align='center'>
                                                 {/* Name */}
-                                                <div style={{ width: '30%', display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                <div style={{ width: '48%', display: 'flex', alignItems: 'center', gap: 2 }}>
                                                     <Form.Item style={{ width: '100%' }} label="Driver 1">
 
                                                         <Select
@@ -1525,21 +1537,8 @@ const AddDetails = () => {
                                                     )}
                                                 </div>
 
-                                                {/* <Tooltip placement="top" title={driver1.Contact + '\n' + driver1.LicenseDate} >
-                                                    <EyeOutlined /><div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                </Tooltip> */}
-
-                                                <Form.Item style={{ width: '30%' }} label="Trip Cash">
-                                                    <Input value={driver1.TripCash} onChange={(e) => {
-                                                        let _obj = driver1;
-                                                        _obj.TripCash = e.target.value;
-                                                        setDriver1(_obj);
-                                                    }} placeholder='Trip Cash' type='number' />
-                                                </Form.Item>
-                                                {/* View */}
-
                                                 {/* Radio button for debit and credit */}
-                                                <Form.Item style={{ width: '30%' }} label="Debit/Credit">
+                                                <Form.Item style={{ width: '48%' }} label="Debit/Credit">
 
                                                     {/* Replacing Radio group with the Select Component */}
                                                     <Select
@@ -1557,8 +1556,6 @@ const AddDetails = () => {
                                                         options={[{ label: 'Debit', value: 'Debit' }, { label: 'Credit', value: 'Credit' }]}
                                                     />
                                                 </Form.Item>
-
-
                                             </Flex>
 
                                             <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>

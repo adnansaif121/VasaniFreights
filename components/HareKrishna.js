@@ -1131,9 +1131,10 @@ const HareKrishna = () => {
                         open={viewModalOpen}
                         onCancel={() => setViewModalOpen(false)}
                         footer={null}
-                        width={1200}
+                        width={'100%'}
                         title="Party Details"
                         destroyOnClose
+                        style={{ top: 10 }}
                     >
                         {selectedRow && (
                             <ViewPartyDetails

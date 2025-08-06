@@ -1026,7 +1026,8 @@ const DailyEntry = () => {
                     open={viewModalOpen}
                     onCancel={() => setViewModalOpen(false)}
                     footer={null}
-                    width={'100vw'}
+                    width={'100%'}
+                    style={{ top: 10 }}
                     // title="Daily Entry Details"
                     destroyOnClose
                     closeIcon={
