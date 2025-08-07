@@ -596,6 +596,15 @@ const Pohch = () => {
             }
         },
         {
+            title: 'To',
+            dataIndex: 'to',
+            key: 'to',
+            render: (text) => {
+                // make 1st letter capital and other small and return
+                return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
+            }
+        },
+        {
             width: '6%',
             title: 'Sender',
             dataIndex: 'bhejneWaliParty',
@@ -606,15 +615,7 @@ const Pohch = () => {
                 return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
-        {
-            title: 'To',
-            dataIndex: 'to',
-            key: 'to',
-            render: (text) => {
-                // make 1st letter capital and other small and return
-                return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
-            }
-        },
+        
         {
             width: '6%',
             title: 'Receiver',
@@ -1087,7 +1088,7 @@ const Pohch = () => {
             </Button>
 
             <div style={{ width: "98vw", overflowX: 'auto', height: '83vh', backgroundColor: 'white' }}>
-                <Table bordered style={{ zIndex: '100' }} size="small" scroll={{ y: 450 }} dataSource={dataSource} columns={columns} pagination={false}
+                <Table bordered style={{ zIndex: '100' }} size="small" scroll={{ y: 450 }} dataSource={dataSource} columns={columns} pagination={{ pageSize: 20 }}
                 />
             </div>
 

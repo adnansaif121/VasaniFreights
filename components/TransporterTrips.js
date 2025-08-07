@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Row, Col, Select, Table, Input, Button, Space, Menu, Tooltip } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, EyeTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import styles from '../styles/Party.module.css';
 import Highlighter from 'react-highlight-words';
@@ -398,6 +398,9 @@ const TransporterTrips = () => {
         <div className={styles.container}>
             <div className={styles.part1}>
                 <Input onChange={handleSearch} placeholder='Search' />
+                <Button onClick={() => setDisplayDataSource(dataSource)} icon={<EyeTwoTone />} style={{ width: '100%' }}>
+                    View All
+                </Button>
                 <div className={styles.menu} style={{ display: 'flex' }}>
 
                     <Menu

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import {DatePicker, Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
+import { DatePicker, Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
 import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined, FileTextOutlined } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push, query, orderByKey, limitToLast, limitToFirst, endAt, startAt } from "firebase/database";
 import ViewDailyEntry from './ViewDailyEntry';
@@ -266,17 +266,27 @@ const DailyEntry = () => {
                 }}
                 onKeyDown={(e) => e.stopPropagation()}
             >
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
-                    style={{
-                        marginBottom: 8,
-                        display: 'block',
-                    }}
-                />
+                {dataIndex === 'date' ? (
+                    <DatePicker
+                        style={{ marginBottom: 8, display: 'block' }}
+                        value={selectedKeys[0] ? dayjs(selectedKeys[0]) : null}
+                        onChange={date => setSelectedKeys(date ? [date.format('YYYY-MM-DD')] : [])}
+                        onPressEnter={() => confirm()}
+                    />
+                ) : (
+                    <Input
+                        ref={searchInput}
+                        placeholder={`Search ${dataIndex}`}
+                        value={selectedKeys[0]}
+                        onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                        style={{
+                            marginBottom: 8,
+                            display: 'block',
+                        }}
+                    />
+                )}
+
                 <Space>
                     <Button
                         type="primary"
@@ -307,8 +317,12 @@ const DailyEntry = () => {
                 }}
             />
         ),
-        onFilter: (value, record) =>
-            record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+        onFilter: (value, record) => {
+            if (dataIndex === 'date') {
+                return record.dateToSort === value;
+            }
+            return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
+        },
         onFilterDropdownOpenChange: (visible) => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -1004,7 +1018,7 @@ const DailyEntry = () => {
                 setDataSource(completeDataSource);
                 setDateFilter(null);
             }}>Clear Date</Button>
-            <div style={{ width: "95vw", overflowX: 'auto', marginLeft: '20px', height: '84.5vh', backgroundColor: 'white' }}>
+            <div style={{ width: "100vw", overflowX: 'auto', marginLeft: '0px', height: '84.5vh', backgroundColor: 'white' }}>
                 <Table
                     style={{ zIndex: '100' }}
                     bordered
