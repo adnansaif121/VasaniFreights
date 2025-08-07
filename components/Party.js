@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Modal, Typography, Drawer, DatePicker, Badge } from 'antd';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Modal, Typography, Drawer, DatePicker, Badge, Tooltip } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, FileTextOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child, update } from "firebase/database";
 // import ViewPartyDetails from './ViewPartyDetails';
@@ -730,119 +730,6 @@ const Party = () => {
         return remarks;
     };
 
-    const filterMenuItems = [
-        {
-            label: 'Date Filter',
-            key: '1',
-            value: 'none',
-        },
-        {
-            label: 'Last Month',
-            key: '2',
-            value: 'lastMonth',
-        },
-        {
-            label: 'Last quarter',
-            key: '3',
-            value: 'lastQuarter',
-        },
-        {
-            label: 'Last 6 months',
-            key: '4',
-            value: 'last6Months',
-        },
-        {
-            label: 'Last Year',
-            key: '5',
-            value: 'lastYear',
-        },
-        {
-            label: 'Last Financial Year',
-            key: '6',
-            value: 'lastFinancialYear',
-        },
-        {
-            label: 'Custom',
-            key: '7',
-            value: 'custom',
-        }
-    ]
-
-    const handleFilterChange = (value) => {
-        console.log(`selected ${value} value`);
-        setFilterType(value);
-        let _displayDataSource = [];
-        let today = new Date();
-        let year = today.getFullYear();
-        let month = today.getMonth();
-        switch (value) {
-            case "lastMonth":
-                let month_first_date = (new Date(year, month, 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= month_first_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                console.log(_displayDataSource);
-                break;
-            case "lastQuarter":
-                // let year = (new Date()).getFullYear();
-                let quarter = Math.floor(((new Date()).getMonth() + 3) / 3);
-                let quarterStartMonth = [0, 3, 6, 9] //jan, April, July, Oct
-                let quarter_first_date = (new Date(year, quarterStartMonth[quarter - 1], 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= quarter_first_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            case "last6Months":
-                let _last6thMonthYear = year;
-                let _last6thmonth = month - 6;
-                if (_last6thmonth >= 0) {
-                    _last6thMonthYear--;
-                    _last6thmonth = 12 + _last6thMonthYear;
-                }
-                let last6month_start_date = (new Date(_last6thMonthYear, _last6thmonth, 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= last6month_start_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            case "lastYear":
-                let _lastYear_start_date = (new Date(year - 1, 0, 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= _lastYear_start_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            case "lastFinancialYear":
-                let _lastFinancialYear_start_date = (new Date(year - 1, 3, 1)).getTime();
-                let _lastFinancialYear_end_date = (new Date(year, 2, 31)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= _lastFinancialYear_start_date && itemDate <= _lastFinancialYear_end_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            default:
-                console.log(value);
-                setDisplayDataSource([...dataSource]);
-        }
-    };
-
     const [open, setOpen] = useState(false);
     const showDrawer = (index) => {
         setPartySelectedForEdit(index);
@@ -888,26 +775,6 @@ const Party = () => {
         onClose();
     }
 
-    const handleCustomFilter = () => {
-        if (customStartDate === null) {
-            alert("Please Enter Start Date");
-            return;
-        }
-        if (customEndDate === null) {
-            alert("Please Enter End Date");
-            return;
-        }
-        let _custom_start_date = new Date(customStartDate).getTime();
-        let _custom_end_date = new Date(customEndDate).getTime();
-        let _displayDataSource = dataSource.filter(
-            (item) => {
-                let itemDate = new Date(item.date).getTime();
-                return itemDate >= _custom_start_date && itemDate <= _custom_end_date;
-            }
-        )
-        setDisplayDataSource(_displayDataSource);
-    }
-
     const handleDisplayTableChange = (list) => {
         setDisplayDataSource([...list]);
         setRefreshKey(prevKey => prevKey + 1); // Force table refresh
@@ -942,7 +809,7 @@ const Party = () => {
                                 return (
                                     <div key={index} style={{ padding: '6px 0px 6px 0px', color: 'blue' }}>
                                         <Button onClick={() => showDrawer(index)} icon={
-                                            (item.contact === undefined || item.address === undefined) ?
+                                            (item.contact === undefined || item.contact === '' || item.address === undefined || item.address === '' || item.location === undefined || item.location === '') ?
                                                 <span style={{ color: 'red' }}><UserOutlined /></span>
                                                 :
                                                 <UserOutlined />
@@ -961,14 +828,22 @@ const Party = () => {
                             }}
                             theme='light'
                             mode="inline"
-                            items={displayPartyList}
+                            items={displayPartyList.map((item, index) => ({
+                                ...item,
+                                key: `key-${index}`,
+                                label: (
+                                    <Tooltip title={item.label}>
+                                        <span>{item.label}</span>
+                                    </Tooltip>
+                                ),
+                            }))}
 
                         />
                     </div>
                 </div>
                 <div className={styles.part2}>
                     <div >
-                        
+
                         <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
                             <span>From Date:</span>
                             <DatePicker

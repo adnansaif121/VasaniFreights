@@ -1,15 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
+import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs, DatePicker } from 'antd';
 import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, CheckCircleFilled, WarningFilled, EditOutlined, SaveOutlined } from '@ant-design/icons';
-import styles from '../styles/DailyEntry.module.css';
-import firebase from '../config/firebase'
 import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
-import ViewDailyEntry from './ViewDailyEntry';
-// import { vehicleData } from './data';
-import CreatePartyForm from './common/CreatePartyForm';
 import Highlighter from 'react-highlight-words';
 import * as XLSX from 'xlsx';
+import dayjs from 'dayjs';
 import { saveAs } from 'file-saver';
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
@@ -108,6 +103,8 @@ const Cheque = () => {
             label: 'Pending',
         },
     ]);
+    const [editingDepositDateRow, setEditingDepositDateRow] = useState(null);
+    const [newDepositDate, setNewDepositDate] = useState('');
 
     useEffect(() => {
         const db = getDatabase();
@@ -129,6 +126,7 @@ const Cheque = () => {
                             ds.push(
                                 {
                                     date: data[key].date,
+                                    timestamp: key,
                                     key: key,
                                     id: i + 1,
                                     vehicleNo: data[key].vehicleNo,
@@ -203,6 +201,10 @@ const Cheque = () => {
 
     const applyDateSort = (ds) => {
         ds.sort(function (a, b) {
+            if (a.dateToSort === b.dateToSort) {
+                console.log('same date found')
+                return new Date(parseInt(b.timestamp)) - new Date(parseInt(a.timestamp));
+            }
             // Turn your strings into dates, and then subtract them
             // to get a value that is either negative, positive, or zero.
             return new Date(b.date) - new Date(a.date);
@@ -255,17 +257,27 @@ const Cheque = () => {
                 }}
                 onKeyDown={(e) => e.stopPropagation()}
             >
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
-                    style={{
-                        marginBottom: 8,
-                        display: 'block',
-                    }}
-                />
+                {dataIndex === 'chequeDate' || dataIndex === 'date' ? (
+                    <DatePicker
+                        style={{ marginBottom: 8, display: 'block' }}
+                        value={selectedKeys[0] ? dayjs(selectedKeys[0]) : null}
+                        onChange={date => setSelectedKeys(date ? [date.format('YYYY-MM-DD')] : [])}
+                        onPressEnter={() => confirm()}
+                    />
+                ) : (
+                    <Input
+                        ref={searchInput}
+                        placeholder={`Search ${dataIndex}`}
+                        value={selectedKeys[0]}
+                        onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                        style={{
+                            marginBottom: 8,
+                            display: 'block',
+                        }}
+                    />
+                )}
+
                 <Space>
                     <Button
                         type="primary"
@@ -292,10 +304,18 @@ const Cheque = () => {
                 style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
-        onFilter: (value, record) =>
-            dataIndex === 'courierStatus' && value === 'pending' ? record[dataIndex] === null || record[dataIndex] === undefined || record[dataIndex] === '' : record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()) ||
-                // dataIndex === 'pohchRecievedDate' && value !== null ?  `${new Date(record[dataIndex]).getDate()}/${new Date(record[dataIndex]).getMonth()+1}/${new Date(record[dataIndex]).getFullYear()}` : 
-                record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase()),
+        onFilter: (value, record) => {
+            if (dataIndex === 'chequeDate' || dataIndex === 'date') {
+                if (!record[dataIndex]) return false;
+                const recordDate = dayjs(record[dataIndex]).format('YYYY-MM-DD');
+                return recordDate === value;
+            }
+            if (dataIndex === 'courierStatus' && value === 'pending') {
+                return record[dataIndex] === null || record[dataIndex] === undefined || record[dataIndex] === '';
+            }
+            // dataIndex === 'pohchRecievedDate' && value !== null ?  `${new Date(record[dataIndex]).getDate()}/${new Date(record[dataIndex]).getMonth()+1}/${new Date(record[dataIndex]).getFullYear()}` : 
+            return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
+        },
         onFilterDropdownOpenChange: (visible) => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -332,7 +352,7 @@ const Cheque = () => {
             title: 'Pay',
             dataIndex: 'paymentStatus',
             key: 'paymentStatus',
-             filters: [
+            filters: [
                 { text: 'Open', value: 'open' },
                 { text: 'Close', value: 'close' }
             ],
@@ -405,41 +425,101 @@ const Cheque = () => {
             title: 'Deposit Date',
             dataIndex: 'depositDate',
             key: 'depositDate',
-            // ...getColumnSearchProps('courierSentDate'),
             width: '7%',
             render: (text, record, index) => {
-                if (text === undefined || text === null || text === '') {
-                    return <>
-                        <Input size='small' type="date" onChange={(e) => text = e.target.value}></Input>
-                        <Button
-                            // type='primary'
-                            size='small'
-                            onClick={() => {
-                                // check if the text is empty
-                                if (text === undefined || text === null || text === '') {
-                                    alert("Please select a date");
-                                    return;
-                                }
-                                // Ask for Confirmation
-                                if (!confirm("Are you sure you want to update the deposit date?")) {
-                                    return;
-                                }
-                                // update the deposit date in the database
-                                const db = getDatabase();
-                                const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
-                                update(starCountRef, {
-                                    chequeDepositDate: text
-                                }).then(() => {
-                                    alert("Cheque Deposit Date Updated Successfully!!");
-                                    return;
-                                })
-                            }}>Save</Button>
-                    </>
+                // If editing this row, show input and save button
+                if (editingDepositDateRow === record.key) {
+                    return (
+                        <>
+                            <Input
+                                size='small'
+                                type="date"
+                                value={newDepositDate}
+                                onChange={e => setNewDepositDate(e.target.value)}
+                            />
+                            <Button
+                                size='small'
+                                onClick={() => {
+                                    if (!newDepositDate) {
+                                        alert("Please select a date");
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to update the deposit date?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        chequeDepositDate: newDepositDate
+                                    }).then(() => {
+                                        alert("Cheque Deposit Date Updated Successfully!!");
+                                        setEditingDepositDateRow(null);
+                                        setNewDepositDate('');
+                                    });
+                                }}
+                                style={{ marginLeft: 4 }}
+                            >Save</Button>
+                            <Button
+                                size='small'
+                                onClick={() => {
+                                    setEditingDepositDateRow(null);
+                                    setNewDepositDate('');
+                                }}
+                                style={{ marginLeft: 4 }}
+                            >Cancel</Button>
+                        </>
+                    );
                 }
+                // If no date, show input and save as before
+                if (text === undefined || text === null || text === '') {
+                    return (
+                        <>
+                            <Input
+                                size='small'
+                                type="date"
+                                value={newDepositDate}
+                                onChange={e => setNewDepositDate(e.target.value)}
+                            />
+                            <Button
+                                size='small'
+                                onClick={() => {
+                                    if (!newDepositDate) {
+                                        alert("Please select a date");
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to update the deposit date?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        chequeDepositDate: newDepositDate
+                                    }).then(() => {
+                                        alert("Cheque Deposit Date Updated Successfully!!");
+                                        setNewDepositDate('');
+                                    });
+                                }}
+                                style={{ marginLeft: 4 }}
+                            >Save</Button>
+                        </>
+                    );
+                }
+                // Show date and edit button
                 let date = new Date(text);
                 return (
-                    <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
-                )
+                    <>
+                        <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
+                        <Button
+                            size='small'
+                            icon={<EditOutlined />}
+                            style={{ marginLeft: 8 }}
+                            onClick={() => {
+                                setEditingDepositDateRow(record.key);
+                                setNewDepositDate(text ? text.split('T')[0] : '');
+                            }}
+                        >Edit</Button>
+                    </>
+                );
             }
         },
         {

@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs, DatePicker } from 'antd';
-import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, CheckCircleFilled, WarningFilled } from '@ant-design/icons';
+import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, CheckCircleFilled, WarningFilled, EditOutlined } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
 import ViewDailyEntry from './ViewDailyEntry';
 // import { vehicleData } from './data';
@@ -100,6 +100,8 @@ const Pohch = () => {
     const [key, setKey] = useState('');
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
+    const [editingCourierDateRow, setEditingCourierDateRow] = useState(null);
+    const [newCourierDate, setNewCourierDate] = useState('');
 
     useEffect(() => {
         const db = getDatabase();
@@ -424,38 +426,99 @@ const Pohch = () => {
             ...getColumnSearchProps('courierSentDate'),
             width: '7%',
             render: (text, record, index) => {
-                if (text === undefined || text === null || text === '') {
-                    return <>
-                        <Input size='small' type="date" onChange={(e) => text = e.target.value}></Input>
-                        <Button
-                            // type='primary'
-                            size='small'
-                            onClick={() => {
-                                // check if the text is empty
-                                if (text === undefined || text === null || text === '') {
-                                    alert("Please select a date");
-                                    return;
-                                }
-                                // Ask for Confirmation
-                                if (!confirm("Are you sure you want to update the courier date?")) {
-                                    return;
-                                }
-                                // update the courier status in the database
-                                const db = getDatabase();
-                                const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
-                                update(starCountRef, {
-                                    courierSentDate: text
-                                }).then(() => {
-                                    alert("Courier Date Updated Successfully!!");
-                                    return;
-                                })
-                            }}>Save</Button>
-                    </>
+                // If editing this row, show input and save/cancel buttons
+                if (editingCourierDateRow === record.key) {
+                    return (
+                        <>
+                            <Input
+                                size='small'
+                                type="date"
+                                value={newCourierDate}
+                                onChange={e => setNewCourierDate(e.target.value)}
+                            />
+                            <Button
+                                size='small'
+                                onClick={() => {
+                                    if (!newCourierDate) {
+                                        alert("Please select a date");
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to update the courier date?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        courierSentDate: newCourierDate
+                                    }).then(() => {
+                                        alert("Courier Date Updated Successfully!!");
+                                        setEditingCourierDateRow(null);
+                                        setNewCourierDate('');
+                                    });
+                                }}
+                                style={{ marginLeft: 4 }}
+                            >Save</Button>
+                            <Button
+                                size='small'
+                                onClick={() => {
+                                    setEditingCourierDateRow(null);
+                                    setNewCourierDate('');
+                                }}
+                                style={{ marginLeft: 4 }}
+                            >Cancel</Button>
+                        </>
+                    );
                 }
+                // If no date, show input and save as before
+                if (text === undefined || text === null || text === '') {
+                    return (
+                        <>
+                            <Input
+                                size='small'
+                                type="date"
+                                value={newCourierDate}
+                                onChange={e => setNewCourierDate(e.target.value)}
+                            />
+                            <Button
+                                size='small'
+                                onClick={() => {
+                                    if (!newCourierDate) {
+                                        alert("Please select a date");
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to update the courier date?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        courierSentDate: newCourierDate
+                                    }).then(() => {
+                                        alert("Courier Date Updated Successfully!!");
+                                        setNewCourierDate('');
+                                    });
+                                }}
+                                style={{ marginLeft: 4 }}
+                            >Save</Button>
+                        </>
+                    );
+                }
+                // Show date and edit button
                 let date = new Date(text);
                 return (
-                    <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
-                )
+                    <>
+                        <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
+                        <Button
+                            size='small'
+                            icon={<EditOutlined />}
+                            style={{ marginLeft: 8 }}
+                            onClick={() => {
+                                setEditingCourierDateRow(record.key);
+                                setNewCourierDate(text ? text.split('T')[0] : '');
+                            }}
+                        >Edit</Button>
+                    </>
+                );
             }
         },
         {
@@ -573,7 +636,7 @@ const Pohch = () => {
             }
         },
         {
-            width: '3%',
+            width: '5%',
             title: 'Qty',
             dataIndex: 'qty',
             key: 'qty',

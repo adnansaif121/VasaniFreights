@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal } from 'antd';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal, Tooltip } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
@@ -591,7 +591,7 @@ const HareKrishna = () => {
         ),
         filterIcon: (filtered) => (
             <SearchOutlined
-               style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
+                style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
             />
         ),
         onFilter: (value, record) =>
@@ -946,7 +946,15 @@ const HareKrishna = () => {
                             }}
                             theme='light'
                             mode="inline"
-                            items={displayPartyList}
+                            items={displayPartyList.map((item, index) => ({
+                                ...item,
+                                key: `key-${index}`,
+                                label: (
+                                    <Tooltip title={item.label}>
+                                        <span>{item.label}</span>
+                                    </Tooltip>
+                                ),
+                            }))}
 
                         />
                     </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Upload } from 'antd';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Upload, Tooltip } from 'antd';
 import { InboxOutlined, UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
@@ -158,9 +158,9 @@ const Driver = () => {
             // console.log(dataSource[i].driversDetails[0].?.toLowerCase(), party.toLowerCase());
             if (dataSource[i].driver !== undefined && dataSource[i].driver !== null) {
                 // for (let j = 0; j < dataSource[i].driversDetails.length; j++) {
-                    if (dataSource[i].driver.toLowerCase() === driver.toLowerCase()) {
-                        ds.push(dataSource[i]);
-                    }
+                if (dataSource[i].driver.toLowerCase() === driver.toLowerCase()) {
+                    ds.push(dataSource[i]);
+                }
                 // }
             }
         }
@@ -453,7 +453,7 @@ const Driver = () => {
                                 return (
                                     <div key={index} style={{ padding: '6px 0px 6px 0px', color: 'blue' }}>
                                         <Button onClick={() => showDrawer(index)} icon={
-                                            (item.contact === undefined || item.address === undefined) ?
+                                            (item.contact === undefined || item.contact === '' || item.address === undefined || item.address === '' || item.location === undefined || item.location === '') ?
                                                 <span style={{ color: 'red' }}><UserOutlined /></span>
                                                 :
                                                 <UserOutlined />
@@ -469,7 +469,16 @@ const Driver = () => {
                                 width: "100%",
                             }}
                             mode="inline"
-                            items={displayPartyList.map(({label}, index) => ({label, key: index}))}
+                            // items={displayPartyList.map(({label}, index) => ({label, key: index}))}
+                            items={displayPartyList.map((item, index) => ({
+                                ...item,
+                                key: index,
+                                label: (
+                                    <Tooltip title={item.label}>
+                                        <span>{item.label}</span>
+                                    </Tooltip>
+                                ),
+                            }))}
                         />
                     </div>
                 </div>

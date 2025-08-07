@@ -392,7 +392,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                                     <tr key={key}>
                                                         <td>
                                                             <Form.Item name={[name, 'amount']} >
-                                                                <Input placeholder='Amount' type='number' onChange={updateTotal} ></Input>
+                                                                <Input placeholder='Amount' type='number' onWheel={e => e.target.blur()} onChange={updateTotal} ></Input>
                                                             </Form.Item>
                                                         </td>
                                                         <td>
@@ -585,7 +585,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                             <td><label>Advance (if any)</label></td>
                                             <td>
                                                 <Form.Item name="advance" style={{ marginBottom: 0 }}>
-                                                    <Input type="number" />
+                                                    <Input type="number" onWheel={e => e.target.blur()}/>
                                                 </Form.Item>
                                             </td>
                                         </tr>
@@ -593,7 +593,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                             <td><label>Commission</label></td>
                                             <td>
                                                 <Form.Item name="commission" style={{ marginBottom: 0 }}>
-                                                    <Input type="number" />
+                                                    <Input type="number" onWheel={e => e.target.blur()}/>
                                                 </Form.Item>
                                             </td>
                                         </tr>
@@ -601,7 +601,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                             <td><label>Ghata Wajan</label></td>
                                             <td>
                                                 <Form.Item name="ghataWajan" style={{ marginBottom: 0 }}>
-                                                    <Input type="number" />
+                                                    <Input type="number" onWheel={e => e.target.blur()}/>
                                                 </Form.Item>
                                             </td>
                                         </tr>
@@ -609,7 +609,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                             <td><label>TDS</label></td>
                                             <td>
                                                 <Form.Item name="tds" style={{ marginBottom: 0 }}>
-                                                    <Input type="number" />
+                                                    <Input type="number" onWheel={e => e.target.blur()}/>
                                                 </Form.Item>
                                             </td>
                                         </tr>
@@ -617,7 +617,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                             <td><label>Khoti Kharabi</label></td>
                                             <td>
                                                 <Form.Item name="khotiKharabi" style={{ marginBottom: 0 }}>
-                                                    <Input type="number" />
+                                                    <Input type="number" onWheel={e => e.target.blur()}/>
                                                 </Form.Item>
                                             </td>
                                         </tr>
@@ -625,7 +625,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                             <td><label>Extra Amount</label></td>
                                             <td>
                                                 <Form.Item name="extraAmount" style={{ marginBottom: 0 }}>
-                                                    <Input type="number" value={extraAmount} onChange={(e) => setExtraAmount(e.target.value)} />
+                                                    <Input type="number" value={extraAmount} onChange={(e) => setExtraAmount(e.target.value)} onWheel={e => e.target.blur()}/>
                                                 </Form.Item>
                                             </td>
                                         </tr>

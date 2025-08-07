@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Row, Col, Select, Table, Input, Button, Space, Menu } from 'antd';
+import { Row, Col, Select, Table, Input, Button, Space, Menu, Tooltip } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import styles from '../styles/Party.module.css';
@@ -406,7 +406,15 @@ const TransporterTrips = () => {
                             width: "100%",
                         }}
                         mode="inline"
-                        items={displayPartyList}
+                        items={displayPartyList.map((item, index) => ({
+                            ...item,
+                            key: `key-${index}`,
+                            label: (
+                                <Tooltip title={item.label}>
+                                    <span>{item.label}</span>
+                                </Tooltip>
+                            ),
+                        }))}
 
                     />
                 </div>

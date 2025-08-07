@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal } from 'antd';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal, Tooltip } from 'antd';
 import { BellOutlined, FileTextOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child, update } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
@@ -964,7 +964,7 @@ const TransporterParty = () => {
                                 return (
                                     <div key={index} style={{ padding: '6px 0px 6px 0px', color: 'blue' }}>
                                         <Button onClick={() => showDrawer(index)} icon={
-                                            (item.contact === undefined || item.address === undefined) ?
+                                            (item.contact === undefined || item.contact === '' || item.address === undefined || item.address === '' || item.location === undefined || item.location === '') ?
                                                 <span style={{ color: 'red' }}><UserOutlined /></span>
                                                 :
                                                 <UserOutlined />
@@ -983,7 +983,15 @@ const TransporterParty = () => {
                             }}
                             theme='light'
                             mode="inline"
-                            items={displayPartyList}
+                            items={displayPartyList.map((item, index) => ({
+                                ...item,
+                                key: `key-${index}`,
+                                label: (
+                                    <Tooltip title={item.label}>
+                                        <span>{item.label}</span>
+                                    </Tooltip>
+                                ),
+                            }))}
 
                         />
                     </div>

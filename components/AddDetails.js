@@ -379,6 +379,7 @@ const AddDetails = () => {
             setDate(todayDate);
             setVehicleNo('');
             setMT('');
+            setLrNumber('');
             setVehicleStatus('');
             setDriver1({});
             setDriver2({});

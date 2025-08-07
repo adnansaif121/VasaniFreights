@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal } from 'antd';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal, Tooltip } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, FileTextOutlined } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
@@ -654,18 +654,18 @@ const NaveenKakaParty = () => {
         {
             // width:'4%',
             title: 'Payment Status',
-            dataIndex: 'paymentStatus',
-            key: 'paymentStatus',
+            dataIndex: 'transactionStatus',
+            key: 'transactionStatus',
             render: (text, record, index) => {
                 if (text === undefined || text === null || text === '') {
                     return <span style={{ color: 'red', fontWeight: 'bold' }}>OPEN</span>
                 }
                 if (text === 'close') {
-                    return <span style={{ color: 'green' }}>CLOSE</span>
+                    return <span style={{ color: 'green', fontWeight: 'bold' }}>CLOSE</span>
                 } else if (text === 'open') {
-                    return <span style={{ color: 'red' }}>OPEN</span>
+                    return <span style={{ color: 'red', fontWeight: 'bold' }}>OPEN</span>
                 } else {
-                    return <span style={{ color: 'orange' }}>{text}</span>
+                    return <span style={{ color: 'orange', fontWeight: 'bold' }}>{text}</span>
                 }
                 return index + 1;
             },
@@ -994,7 +994,15 @@ const NaveenKakaParty = () => {
                             }}
                             theme='light'
                             mode="inline"
-                            items={displayPartyList}
+                            items={displayPartyList.map((item, index) => ({
+                                ...item,
+                                key: `key-${index}`,
+                                label: (
+                                    <Tooltip title={item.label}>
+                                        <span>{item.label}</span>
+                                    </Tooltip>
+                                ),
+                            }))}
 
                         />
                     </div>
