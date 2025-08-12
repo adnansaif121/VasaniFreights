@@ -891,6 +891,54 @@ const AddDetails = () => {
                         <Col span={12}>
                             <Card style={{ marginBottom: '10px' }} >
                                 <div>
+                                     <Flex style={{ width: "100%", height: 53 }} justify='space-between' align='center'>
+                                            <Form.Item style={{ width: '48%' }} label="Date">
+                                                <Input type='date' value={date} onChange={(e) => setDate(e.target.value)}></Input>
+                                            </Form.Item>
+
+                                            <Form.Item style={{ width: '48%' }} label="Vehicle"
+                                                name="vehicleNo">
+                                                <Select
+                                                    showSearch
+                                                    placeholder="Vehicle No."
+                                                    optionFilterProp="children"
+                                                    onChange={(value) => setVehicleNo(value)}
+                                                    // onSearch={onSearch}
+                                                    filterOption={filterOption}
+                                                    options={vehicleData}
+                                                    dropdownRender={(menu) => (
+                                                        <>
+                                                            {menu}
+                                                            <Divider
+                                                                style={{
+                                                                    margin: '8px 0',
+                                                                }}
+                                                            />
+                                                            <Space
+                                                                style={{
+                                                                    padding: '0 8px 4px',
+                                                                }}
+                                                            >
+                                                                <Input
+                                                                    placeholder="Please enter item"
+                                                                    value={newVehicleNo}
+                                                                    onChange={(e) => setNewVehicleNo(e.target.value)}
+                                                                    onKeyDown={(e) => e.stopPropagation()}
+                                                                />
+                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+                                                                    addNewVehicle(e)
+                                                                }}>
+
+                                                                </Button>
+                                                            </Space>
+                                                        </>
+                                                    )}
+                                                />
+                                            </Form.Item>
+
+
+                                        </Flex>
+
                                     <Form
                                         name="Trip Details"
                                         style={{
@@ -904,6 +952,7 @@ const AddDetails = () => {
                                         form={form}
                                     >
 
+                                       
                                         <Flex gap="middle" vertical>
 
 
@@ -917,53 +966,7 @@ const AddDetails = () => {
                                                             >
                                                                 <Flex gap="middle" vertical>
 
-                                                                    <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
-                                                                        <Form.Item style={{ width: '48%' }} label="Date">
-                                                                            <Input type='date' value={date} onChange={(e) => setDate(e.target.value)}></Input>
-                                                                        </Form.Item>
 
-                                                                        <Form.Item style={{ width: '48%' }} label="Vehicle"
-                                                                            name="vehicleNo">
-                                                                            <Select
-                                                                                showSearch
-                                                                                placeholder="Vehicle No."
-                                                                                optionFilterProp="children"
-                                                                                onChange={(value) => setVehicleNo(value)}
-                                                                                // onSearch={onSearch}
-                                                                                filterOption={filterOption}
-                                                                                options={vehicleData}
-                                                                                dropdownRender={(menu) => (
-                                                                                    <>
-                                                                                        {menu}
-                                                                                        <Divider
-                                                                                            style={{
-                                                                                                margin: '8px 0',
-                                                                                            }}
-                                                                                        />
-                                                                                        <Space
-                                                                                            style={{
-                                                                                                padding: '0 8px 4px',
-                                                                                            }}
-                                                                                        >
-                                                                                            <Input
-                                                                                                placeholder="Please enter item"
-                                                                                                value={newVehicleNo}
-                                                                                                onChange={(e) => setNewVehicleNo(e.target.value)}
-                                                                                                onKeyDown={(e) => e.stopPropagation()}
-                                                                                            />
-                                                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                                addNewVehicle(e)
-                                                                                            }}>
-
-                                                                                            </Button>
-                                                                                        </Space>
-                                                                                    </>
-                                                                                )}
-                                                                            />
-                                                                        </Form.Item>
-
-                                                                    
-                                                                    </Flex>
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify='space-between' align='center'>
                                                                         <Form.Item style={{ width: '48%' }} label="From"

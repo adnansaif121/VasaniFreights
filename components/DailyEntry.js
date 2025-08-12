@@ -7,6 +7,7 @@ import ViewDailyEntry from './ViewDailyEntry';
 import CreatePartyForm from './common/CreatePartyForm';
 import Highlighter from 'react-highlight-words';
 import dayjs from 'dayjs';
+import RemarkModal, { RemarkButton } from './common/RemarkModal';
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
@@ -21,47 +22,9 @@ const DailyEntry = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
-    const [Locations, setLocations] = useState([
-        {
-            value: 'mumbai',
-            label: 'Mumbai',
-        },
-        {
-            value: 'pune',
-            label: 'Pune',
-        },
-        {
-            value: 'nagpur',
-            label: 'Nagpur',
-        },
-        {
-            value: 'nashik',
-            label: 'Nashik',
-        },
-        {
-            value: 'aurangabad',
-            label: 'Aurangabad',
-        }
-    ]);
+    const [Locations, setLocations] = useState([]);
     // Maal List
-    const [MaalList, setMaalList] = useState([
-        {
-            value: 'Aata',
-            label: 'Aata',
-        },
-        {
-            value: 'Maida',
-            label: 'Maida',
-        },
-        {
-            value: 'Scrape',
-            label: 'Scrape',
-        },
-        {
-            value: 'Loha',
-            label: 'Loha',
-        },
-    ]);
+    const [MaalList, setMaalList] = useState([]);
     const [newMaal, setNewMaal] = useState('');
     //All Party List for Party Select
     const [partyListAll, setPartyListAll] = useState([]);
@@ -199,31 +162,6 @@ const DailyEntry = () => {
     useEffect(() => {
         fetchEntries();
     }, [])
-
-    // Utility to recursively collect all remark fields
-    const collectRemarks = (obj, path = '') => {
-        let remarks = [];
-        if (Array.isArray(obj)) {
-            obj.forEach((item, idx) => {
-                remarks = remarks.concat(collectRemarks(item, `${path}[${idx}]`));
-            });
-        } else if (typeof obj === 'object' && obj !== null) {
-            Object.entries(obj).forEach(([key, value]) => {
-                if (key.toLowerCase().includes('remark')) {
-                    remarks.push({ key: path ? `${path}.${key}` : key, value });
-                }
-                remarks = remarks.concat(collectRemarks(value, path ? `${path}.${key}` : key));
-            });
-        }
-        return remarks;
-    };
-
-    // Handler for view remarks button
-    const handleViewRemarks = (record) => {
-        const remarks = collectRemarks(record);
-        setRemarkData(remarks);
-        setRemarkModalOpen(true);
-    };
 
     // Handler to open modal
     const handleViewClick = (record) => {
@@ -488,9 +426,10 @@ const DailyEntry = () => {
             title: 'Remark',
             key: 'remark',
             render: (text, record) => (
-                <Button type="link" onClick={() => handleViewRemarks(record)}>
-                    <FileTextOutlined style={{ fontSize: 'larger' }} />
-                </Button>
+                // <Button type="link" onClick={() => handleViewRemarks(record)}>
+                //     <FileTextOutlined style={{ fontSize: 'larger' }} />
+                // </Button>
+                <RemarkButton record={record} />
             ),
         },
     ];
@@ -739,6 +678,7 @@ const DailyEntry = () => {
                                 key: key + j,
                                 id: i + 1,
                                 vehicleNo: data[key]?.vehicleNo,
+                                lrNumber: data[key]?.lrNumber || null,
                                 mt: data[key]?.mt,
                                 from: data[key]?.tripDetails[j]?.from || null,
                                 to: data[key]?.tripDetails[j]?.to || null,
@@ -1069,7 +1009,7 @@ const DailyEntry = () => {
                     )}
                 </Modal>
 
-                <Modal
+                {/* <Modal
                     open={remarkModalOpen}
                     onCancel={() => setRemarkModalOpen(false)}
                     footer={null}
@@ -1087,7 +1027,13 @@ const DailyEntry = () => {
                             ))}
                         </ul>
                     )}
-                </Modal>
+                </Modal> */}
+
+                <RemarkModal
+                    open={remarkModalOpen}
+                    onCancel={() => setRemarkModalOpen(false)}
+                    remarkData={remarkData}
+                />
 
             </div>
 

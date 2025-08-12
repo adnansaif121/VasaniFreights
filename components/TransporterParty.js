@@ -1,13 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal, Tooltip } from 'antd';
-import { BellOutlined,EyeTwoTone, FileTextOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
+import { BellOutlined, EyeTwoTone, FileTextOutlined, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child, update } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import Transporter from './Transporter';
+import RemarkModal, {RemarkButton} from './common/RemarkModal';
 
 const bankData = [
     {
@@ -393,7 +394,7 @@ const TransporterParty = () => {
                     setAllTableData(data);
                     Object.keys(data).map((key, i) => {
                         for (let j = 0; j < data[key].tripDetails.length; j++) {
-                            if (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'Hare Krishna') {
+                            if (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase() === 'HARE KRISHNA') {
                                 continue;
                             }
 
@@ -452,6 +453,8 @@ const TransporterParty = () => {
                                         driversDetails: data[key].driversDetails,
                                         kaataParchi: data[key].kaataParchi,
                                         firstPayment: data[key].firstPayment,
+                                        commission: data[key].tripDetails[j].commission || 0,
+                                        advance: data[key].tripDetails[j].advance || 0,
                                         bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
                                         vehicleStatus: data[key].vehicleStatus,
                                         furtherPayments: data[key].furtherPayments || {},
@@ -481,7 +484,7 @@ const TransporterParty = () => {
                 let parties = []; // Data Source
                 if (data !== null) {
                     Object.values(data).map((party, i) => {
-                        if (party.label === 'Hare Krishna') return; // Skip Hare Krishna party
+                        if (party.label.toUpperCase() === ('Hare Krishna').toUpperCase()) return; // Skip Hare Krishna party
                         if (partyNameList.includes(party.label)) {
                             parties.push(party);
                         }
@@ -741,13 +744,13 @@ const TransporterParty = () => {
         },
         {
             title: 'Commission',
-            dataIndex: 'transporterCommission',
-            key: 'transporterCommission',
+            dataIndex: 'commission',
+            key: 'commission',
         },
         {
             title: 'Advance',
-            dataIndex: 'advanceReceived',
-            key: 'advanceReceived',
+            dataIndex: 'advance',
+            key: 'advance',
         },
         {
             title: 'Remaining Balance',
@@ -758,36 +761,10 @@ const TransporterParty = () => {
             title: 'Remark',
             key: 'remark',
             render: (text, record) => (
-                <Button type="link" onClick={() => handleViewRemarks(record)}>
-                    <FileTextOutlined style={{ fontSize: 'larger' }} />
-                </Button>
+                <RemarkButton record={record} />
             ),
         }
     ];
-
-    const handleViewRemarks = (record) => {
-        const remarks = collectRemarks(record);
-        setRemarkData(remarks);
-        setRemarkModalOpen(true);
-    };
-
-    // Utility to recursively collect all remark fields
-    const collectRemarks = (obj, path = '') => {
-        let remarks = [];
-        if (Array.isArray(obj)) {
-            obj.forEach((item, idx) => {
-                remarks = remarks.concat(collectRemarks(item, `${path}[${idx}]`));
-            });
-        } else if (typeof obj === 'object' && obj !== null) {
-            Object.entries(obj).forEach(([key, value]) => {
-                if (key.toLowerCase().includes('remark')) {
-                    remarks.push({ key: path ? `${path}.${key}` : key, value });
-                }
-                remarks = remarks.concat(collectRemarks(value, path ? `${path}.${key}` : key));
-            });
-        }
-        return remarks;
-    };
 
     const filterMenuItems = [
         {
@@ -1204,25 +1181,11 @@ const TransporterParty = () => {
                         )}
                     </Modal>
 
-                    <Modal
+                    <RemarkModal
                         open={remarkModalOpen}
                         onCancel={() => setRemarkModalOpen(false)}
-                        footer={null}
-                        title="All Remarks"
-                        width={'70vw'}
-                    >
-                        {remarkData.length === 0 ? (
-                            <div>No remarks found.</div>
-                        ) : (
-                            <ul style={{ fontSize: '20px', lineHeight: '2' }}>
-                                {remarkData.map((item, idx) => (
-                                    <li key={idx}>
-                                        <b>{item.key.replace(/\[0\]\./g, ' ').replace(/remark(s)?/gi, '').trim()}:</b> {item.value ? item.value : <i>(empty)</i>}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </Modal>
+                        remarkData={remarkData}
+                    />
 
                 </div>
             </div>

@@ -76,8 +76,8 @@ const Cash = () => {
             console.log('Processing Entry:', entry);
 
             if (entry.date === todayString) {
-                income += entry.firstPayment.cashAmount === "" ? 0 : parseFloat(entry.firstPayment[0].cashAmount) || 0;
-                expense += entry.driver1.TripCash === "" ? 0 : parseFloat(entry.driver1.TripCash) || 0;
+                income += entry?.firstPayment?.cashAmount === "" ? 0 : parseFloat(entry?.firstPayment[0]?.cashAmount) || 0;
+                expense += entry?.driver1?.TripCash === "" ? 0 : parseFloat(entry?.driver1?.TripCash) || 0;
             }
         });
 

@@ -7,6 +7,7 @@ import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import RemarkModal, {RemarkButton} from './common/RemarkModal';
 
 const bankData = [
     {
@@ -637,9 +638,7 @@ const NaveenKakaParty = () => {
             title: 'Remark',
             dataIndex: 'remark',
             render: (text, record) => (
-                <Button type="link" onClick={() => handleViewRemarks(record)}>
-                    <FileTextOutlined style={{ fontSize: 'larger' }} />
-                </Button>
+                <RemarkButton record={record} />
             ),
         },
         {
@@ -788,30 +787,6 @@ const NaveenKakaParty = () => {
             value: 'custom',
         }
     ]
-
-    const handleViewRemarks = (record) => {
-        const remarks = collectRemarks(record);
-        setRemarkData(remarks);
-        setRemarkModalOpen(true);
-    };
-
-    // Utility to recursively collect all remark fields
-    const collectRemarks = (obj, path = '') => {
-        let remarks = [];
-        if (Array.isArray(obj)) {
-            obj.forEach((item, idx) => {
-                remarks = remarks.concat(collectRemarks(item, `${path}[${idx}]`));
-            });
-        } else if (typeof obj === 'object' && obj !== null) {
-            Object.entries(obj).forEach(([key, value]) => {
-                if (key.toLowerCase().includes('remark')) {
-                    remarks.push({ key: path ? `${path}.${key}` : key, value });
-                }
-                remarks = remarks.concat(collectRemarks(value, path ? `${path}.${key}` : key));
-            });
-        }
-        return remarks;
-    };
 
     const handleFilterChange = (value) => {
         console.log(`selected ${value} value`);
@@ -1209,25 +1184,11 @@ const NaveenKakaParty = () => {
                         )}
                     </Modal>
 
-                    <Modal
+                    <RemarkModal
                         open={remarkModalOpen}
                         onCancel={() => setRemarkModalOpen(false)}
-                        footer={null}
-                        title="All Remarks"
-                        width={'70vw'}
-                    >
-                        {remarkData.length === 0 ? (
-                            <div>No remarks found.</div>
-                        ) : (
-                            <ul style={{ fontSize: '20px', lineHeight: '2' }}>
-                                {remarkData.map((item, idx) => (
-                                    <li key={idx}>
-                                        <b>{item.key.replace(/\[0\]\./g, ' ').replace(/remark(s)?/gi, '').trim()}:</b> {item.value ? item.value : <i>(empty)</i>}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </Modal>
+                        remarkData={remarkData}
+                    />
                 </div>
             </div>
         </>

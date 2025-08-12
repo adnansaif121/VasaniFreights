@@ -9,28 +9,6 @@ import CreatePartyForm from './common/CreatePartyForm';
 import Highlighter from 'react-highlight-words';
 import * as XLSX from 'xlsx';
 import dayjs from 'dayjs';
-// const ViewDailyEntry = dynamic(() => import('../components/ViewDailyEntry'), {ssr: false});
-// import { render } from 'react-dom';
-const { Dragger } = Upload;
-const props = {
-    name: 'file',
-    multiple: true,
-    action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-    onChange(info) {
-        const { status } = info.file;
-        if (status !== 'uploading') {
-            console.log(info.file, info.fileList);
-        }
-        if (status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully.`);
-        } else if (status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
-        }
-    },
-    onDrop(e) {
-        console.log('Dropped files', e.dataTransfer.files);
-    },
-};
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
@@ -333,7 +311,7 @@ const Pohch = () => {
             render: (text, record, index) => { return index + 1; }
         },
         {
-            width: '4%',
+            width: '6%',
             title: 'Pay Status',
             dataIndex: 'paymentStatus',
             key: 'paymentStatus',

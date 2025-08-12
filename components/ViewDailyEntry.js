@@ -90,6 +90,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
         console.log(pl);
 
         // Driver details 
+        console.log(data);
         setLrNumber(data.lrNumber || '');
         setDriver1(data.driver1);
         setDriver2(data.driver2);

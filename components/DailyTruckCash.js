@@ -115,9 +115,11 @@ const DailyTruckCash = () => {
                                 truckNo: data[key]?.vehicleNo || 'N/A',
                                 from: data[key]?.tripDetails[j]?.from || 'N/A',
                                 to: data[key]?.tripDetails[j]?.to || 'N/A',
-                                tripCash: data[key]?.driver1.TripCash || 0,
+                                tripCash: data[key]?.driver1?.TripCash || 0,
                                 verify: data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined ? data[key].firstPayment[j].verify : false,
                             });
+
+                            console.log(data[key]);
                         }
                     }
                 });

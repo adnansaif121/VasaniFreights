@@ -404,7 +404,7 @@ const HareKrishna = () => {
                             }
                             // partyNameList.push(data[key]?.firstPayment[j]?.partyForTransporterPayment || null);
 
-                            let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'Hare Krishna') ?
+                            let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase() === ('Hare Krishna').toUpperCase()) ?
                                 (
                                     parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
                                     parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
@@ -415,13 +415,13 @@ const HareKrishna = () => {
                                 )
                                 : 0;
 
-                            if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'Hare Krishna')) {
+                            if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase() === ('Hare Krishna').toUpperCase())) {
                                 ds.push(
                                     {
                                         partyForTransporterPayment: data[key]?.firstPayment[j]?.partyForTransporterPayment || '',
                                         key: key + j,
                                         id: i + 1,
-                                        lrno: data[key]?.firstPayment[j]?.lrno || '',
+                                        lrno: data[key]?.lrNumber || '',
                                         date: data[key]?.date,
                                         vehicleNo: data[key]?.vehicleNo,
                                         transactionStatus: data[key]?.tripDetails[j].transactionStatus || 'open',
@@ -441,6 +441,8 @@ const HareKrishna = () => {
                                         tripDetails: data[key].tripDetails,
                                         driversDetails: data[key].driversDetails,
                                         kaataParchi: data[key].kaataParchi,
+                                        commission: data[key].tripDetails[j].commission || 0,
+                                        advance: data[key].tripDetails[j].advance || 0,
                                         firstPayment: data[key].firstPayment,
                                         bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
                                         vehicleStatus: data[key].vehicleStatus,
@@ -707,13 +709,13 @@ const HareKrishna = () => {
         },
         {
             title: 'Commission',
-            dataIndex: 'transporterCommission',
-            key: 'transporterCommission',
+            dataIndex: 'commission',
+            key: 'commission',
         },
         {
             title: 'Advance',
-            dataIndex: 'advanceReceived',
-            key: 'advanceReceived',
+            dataIndex: 'advance',
+            key: 'advance',
         },
         {
             title: 'Remaining Balance',
