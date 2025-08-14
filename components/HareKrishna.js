@@ -404,7 +404,7 @@ const HareKrishna = () => {
                             }
                             // partyNameList.push(data[key]?.firstPayment[j]?.partyForTransporterPayment || null);
 
-                            let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase() === ('Hare Krishna').toUpperCase()) ?
+                            let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase().trim() === ('Hare Krishna').toUpperCase()) ?
                                 (
                                     parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
                                     parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
@@ -415,7 +415,7 @@ const HareKrishna = () => {
                                 )
                                 : 0;
 
-                            if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase() === ('Hare Krishna').toUpperCase())) {
+                            if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase().trim() === ('Hare Krishna').toUpperCase())) {
                                 ds.push(
                                     {
                                         partyForTransporterPayment: data[key]?.firstPayment[j]?.partyForTransporterPayment || '',

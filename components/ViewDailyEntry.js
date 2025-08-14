@@ -4,6 +4,7 @@ import { MinusCircleOutlined, PlusOutlined, EditFilled, CloseCircleFilled } from
 import styles from '../styles/DailyEntry.module.css';
 import { getDatabase, ref, set, onValue, update } from "firebase/database";
 import { CloseOutlined, EyeOutlined } from '@ant-design/icons';
+import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 
 const filterOption = (input, option) =>
     (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
@@ -67,6 +68,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     const [pohchId, setPohchId] = useState(('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000));
     // const [MaalList, setMaalList] = useState([]);
 
+    useDisableNumberInputScroll();
     useEffect(() => {
         // console.log(data, Locations, transporterList, partyListAll, driverList)
         // setFieldsValue of tripDetails:
@@ -144,7 +146,51 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
         }
         setPartyForTransporterPayment(data.firstPayment?.[0]?.partyForTransporterPayment || '');
 
-    }, [])
+    }, []);
+
+    // const handleDriverCancel = () => {
+    //     setIsDriverModalOpen(false);
+    //     setDriverModal({});
+    //     driverForm.resetFields();
+    // }
+
+    // const handleDriverOk = () => {
+
+    //     addNewDriver();
+    //     driverForm.resetFields();
+    //     setIsDriverModalOpen(false);
+    //     setDriverModal({});
+    // }
+
+    // const addNewDriver = (e) => {
+    
+    //         // e.preventDefault();
+    //         if (driverModal.label === undefined) {
+    //             alert("Please Enter Driver Name to submit")
+    //         }
+    //         let _newDriverName = driverModal.label;
+    //         for (let i = 0; i < driverList.length; i++) {
+    //             if (_newDriverName.toUpperCase() === driverList[i].value.toUpperCase()) {
+    //                 alert("Driver with this name already exists");
+    //                 return;
+    //             }
+    //         }
+    //         setDriverList([...driverList, { ...driverModal }]);
+    //         setNewDriverName('');
+    
+    //         // Create a new party reference with an auto-generated id
+    //         const db = getDatabase();
+    //         const driverListRef = ref(db, 'drivers');
+    //         const newDriverRef = push(driverListRef);
+    //         set(newDriverRef, {
+    //             ...driverModal
+    //         }).then(() => {
+    //             alert("Driver Added Successfully!!");
+    //             setDriverModal({});
+    //             driverForm.resetFields();
+    //             return;
+    //         });
+    //     }
 
     const onMTCheck = (e) => {
         setMT(e.target.checked);
@@ -163,7 +209,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                 maal: trip.maal || '',
                 qty: trip.qty || 0,
                 rate: trip.rate || 0,
-                totalFreight: parseInt(trip.rate) * parseInt(trip.qty) || 0,
+                totalFreight: (parseFloat(trip.rate) * parseFloat(trip.qty)).toFixed(2) || 0,
                 payStatus: trip.payStatus || '',
                 courierSentDate: trip.courierSentDate || '',
                 courierStatus: trip.courierStatus || '',
@@ -698,7 +744,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                             label="Total Freight"
                                                                         // name={[name, 'totalFreight']}
                                                                         >
-                                                                            <Input value={parseInt(rate[name]) * parseInt(qty[name])}></Input>
+                                                                            <Input value={(parseFloat(rate[name]) * parseFloat(qty[name])).toFixed(2)}></Input>
 
                                                                         </Form.Item>
 
@@ -745,12 +791,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                             />
                                                                         </Form.Item>
 
-                                                                        {/* <div className='tooltip'>
-                                                                            <Tooltip placement="top" title={'Malharganj new bus stand 8812329201'}>
-                                                                                <EyeOutlined />
-                                                                            </Tooltip>
-                                                                        </div> */}
-                                                                        {/* <MinusCircleOutlined onClick={() => remove(name)} /> */}
+
 
                                                                     </Flex>
 
@@ -808,7 +849,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                     >
                                         <Flex gap="middle" align="start" vertical>
                                             <Flex style={{ width: "100%", height: 20, display: 'flex' }} justify={'space-around'} align='center'>
-                                            
+
                                                 {/* Add Lorry Number */}
                                                 <Form.Item style={{ width: '48%' }} label="Lorry No.">
                                                     <Input value={lrNumber} onChange={(e) => { setLrNumber(e.target.value) }} placeholder='Lorry No.' />
@@ -823,11 +864,11 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                     }} placeholder='Trip Cash' type='number' />
                                                 </Form.Item>
 
-                                                
+
                                             </Flex>
 
                                             <Flex style={{ width: "100%", height: 20, display: 'flex' }} justify={'space-around'} align='center'>
-                                                 <div style={{ width: '48%', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                <div style={{ width: '48%', display: 'flex', alignItems: 'center', gap: 4 }}>
                                                     <Form.Item style={{ width: '100%' }} label="Driver 1">
                                                         <Select
                                                             style={{ width: '100%' }}
@@ -873,7 +914,23 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                             // onSearch={onSearch}
                                                             filterOption={filterOption}
                                                             options={driverList}
-
+                                                            // dropdownRender={(menu) => (
+                                                            //     <>
+                                                            //         {menu}
+                                                            //         <Divider
+                                                            //             style={{
+                                                            //                 margin: '8px 0',
+                                                            //             }}
+                                                            //         />
+                                                            //         <Space
+                                                            //             style={{
+                                                            //                 padding: '0 8px 4px',
+                                                            //             }}
+                                                            //         >
+                                                            //             <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
+                                                            //         </Space>
+                                                            //     </>
+                                                            // )}
                                                         />
                                                     </Form.Item>
                                                     <Popover
@@ -893,7 +950,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         </Button>
                                                     </Popover>
                                                 </div>
-                                                        
+
                                                 <Form.Item style={{ width: '48%' }} label="Debit/Credit">
                                                     <Select
                                                         style={{ width: '100%' }}
@@ -1070,7 +1127,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 width: '100%',
                                                 height: 30,
                                             }} justify={'space-around'} align={'center'}>
-                                                <Form.Item style={{ width: '45%' }} name="Trip KM" label="Trip KM">
+                                                <Form.Item style={{ width: '45%' }} label="Trip KM">
                                                     <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))}></Input>
                                                 </Form.Item>
                                                 <Form.Item style={{ width: '45%' }} label="Milometer">
@@ -1117,7 +1174,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 width: '100%',
                                                 height: 30,
                                             }} justify={'space-around'} align={'center'}>
-                                                <Form.Item style={{ width: '45%' }} name="Average" label="Average">
+                                                <Form.Item style={{ width: '45%' }} label="Average">
                                                     <Input value={(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0}></Input>
 
                                                     {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))/((parseInt(dieselQty)||0) + (parseInt(midwayDiesel)||0))} onChange={(e) => { setAverage(e.target.value) }} placeholder='Average' type='number'></Input> */}

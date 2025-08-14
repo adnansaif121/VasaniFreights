@@ -26,11 +26,11 @@ const TransporterTrips = () => {
         let partyNameList = [];
         onValue(partyRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data, 'transporters');
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
             if (data !== null) {
                 Object.values(data).map((party, i) => {
+                    if (party.label.toUpperCase().trim() === ('Hare Krishna').toUpperCase()) return; // Skip Hare Krishna party
                     parties.push(party);
                     partyNameList.push(party.label);
                 })
@@ -43,11 +43,8 @@ const TransporterTrips = () => {
 
         // Get data from database
         const starCountRef = ref(db, 'dailyEntry/');
-        // console.log(starCountRef);
         onValue(starCountRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
             let ds = []; // Data Source
             let _partyList = [{ label: 'All', value: 'All' }];
             let _totalRemaining = 0;
@@ -57,7 +54,6 @@ const TransporterTrips = () => {
                 let count = 1;
                 Object.keys(data).map((key, i) => {
                     for (let j = 0; j < data[key].tripDetails.length; j++) {
-                        console.log(data[key], j);
                         if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "none")) {
                             ds.push(
                                 {
@@ -86,7 +82,6 @@ const TransporterTrips = () => {
                     }
                 });
             }
-            console.log(ds);
             ds = ds.sort(
                 (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
             );
@@ -137,7 +132,6 @@ const TransporterTrips = () => {
     ]
 
     const handleFilterChange = (value) => {
-        console.log(`selected ${value} value`);
         setFilterType(value);
         let _displayDataSource = [];
         let today = new Date();
@@ -153,7 +147,6 @@ const TransporterTrips = () => {
                     }
                 )
                 setDisplayDataSource([..._displayDataSource]);
-                console.log(_displayDataSource);
                 break;
             case "lastQuarter":
                 // let year = (new Date()).getFullYear();
@@ -206,7 +199,6 @@ const TransporterTrips = () => {
                 setDisplayDataSource([..._displayDataSource]);
                 break;
             default:
-                console.log(value);
                 setDisplayDataSource([...dataSource]);
         }
     };
@@ -303,7 +295,6 @@ const TransporterTrips = () => {
             key: 'date',
             render: (text) => {
                 let date = new Date(text);
-                console.log(date, date.getDay(), date.getMonth());
                 return (
                     <span>{date.getDate()}/{date.getMonth() + 1}/{date.getFullYear()}</span>
                 )
@@ -362,35 +353,26 @@ const TransporterTrips = () => {
     }
 
     const handleSearch = (e) => {
-        console.log(e.target.value);
         if (e.target.value.trim() == '') setDisplayPartyList([...partyList]);
         let query = e.target.value;
         let parties = partyList;
         let filtered = parties.filter((item) => item.label.toLowerCase().includes(query.toLowerCase()));
         setDisplayPartyList([...filtered]);
-        console.log(filtered, 'FILTERED');
     }
 
     const onClick = (e) => {
-        console.log('click ', e);
         let partyIndex = parseInt(e.key.slice(4));
         setPartySelected(displayPartyList[partyIndex]);
         setSelectedPartyIndex(partyIndex);
 
-        console.log(displayPartyList[partyIndex]);
-        console.log(e.item.props.value);
-
         let party = displayPartyList[partyIndex].label;
         let ds = [];
-        console.log(party, dataSource);
         for (let i = 0; i < dataSource.length; i++) {
-            // console.log(dataSource[i].firstPayment[0].bhadaKaunDalega?.toLowerCase(), party.toLowerCase());
             if (dataSource[i].firstPayment === undefined || dataSource[i].bhadaKaunDalega === undefined) continue;
             if (dataSource[i].bhadaKaunDalega?.toLowerCase() === party.toLowerCase()) {
                 ds.push(dataSource[i]);
             }
         }
-        console.log(ds);
         setDisplayDataSource([...ds]);
     };
 

@@ -65,11 +65,8 @@ const DailyTruckCash = () => {
         const db = getDatabase();
         // Fetch daily entry data from Firebase
         const starCountRef = ref(db, 'dailyEntry/');
-        // console.log(starCountRef);
         onValue(starCountRef, (snapshot) => {
             const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
             let ds_income = []; // Data Source
             let ds_expense = []; // Data Source for expenses
             if (data) {
@@ -92,7 +89,6 @@ const DailyTruckCash = () => {
                         let cashDate = (data[key]?.firstPayment !== undefined && data[key].firstPayment[j] !== undefined) ?
                             data[key].firstPayment[j].cashDate
                             : null;
-                        console.log(receivedAmt);
                         let _date = new Date(data[key]?.date);
                         // Check if this date is today's date
                         if (_date.toDateString() === new Date().toDateString()) {
@@ -119,7 +115,6 @@ const DailyTruckCash = () => {
                                 verify: data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined ? data[key].firstPayment[j].verify : false,
                             });
 
-                            console.log(data[key]);
                         }
                     }
                 });

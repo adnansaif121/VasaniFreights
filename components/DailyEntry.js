@@ -170,17 +170,14 @@ const DailyEntry = () => {
     };
 
     const applyDateSort = (ds) => {
-        console.log(ds, 'before sorting');
         ds.sort(function (a, b) {
             if (a.dateToSort === b.dateToSort) {
-                console.log('same date found')
                 return new Date(parseInt(b.timestamp)) - new Date(parseInt(a.timestamp));
             }
             // Turn your strings into dates, and then subtract them
             // to get a value that is either negative, positive, or zero.
             return new Date(b.dateToSort) - new Date(a.dateToSort);
         });
-        console.log(ds, 'after sorting');
         setDataSource(ds);
         setCompleteDataSource(ds);
     }
@@ -651,7 +648,6 @@ const DailyEntry = () => {
         }
         onValue(q, (snapshot) => {
             const data = snapshot.val();
-            console.log('Fetched Data:', data);
             let ds = [];
             let keys = [];
             if (data) {
@@ -1008,26 +1004,6 @@ const DailyEntry = () => {
                         />
                     )}
                 </Modal>
-
-                {/* <Modal
-                    open={remarkModalOpen}
-                    onCancel={() => setRemarkModalOpen(false)}
-                    footer={null}
-                    title="All Remarks"
-                    width={'70vw'}
-                >
-                    {remarkData.length === 0 ? (
-                        <div>No remarks found.</div>
-                    ) : (
-                        <ul style={{ fontSize: '20px', lineHeight: '2' }}>
-                            {remarkData.map((item, idx) => (
-                                <li key={idx}>
-                                    <b>{item.key.replace(/\[0\]\./g, ' ').replace(/remark(s)?/gi, '').trim()}:</b> {item.value ? item.value : <i>(empty)</i>}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </Modal> */}
 
                 <RemarkModal
                     open={remarkModalOpen}

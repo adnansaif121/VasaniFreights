@@ -394,7 +394,7 @@ const TransporterParty = () => {
                     setAllTableData(data);
                     Object.keys(data).map((key, i) => {
                         for (let j = 0; j < data[key].tripDetails.length; j++) {
-                            if (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase() === 'HARE KRISHNA') {
+                            if (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase().trim() === 'HARE KRISHNA') {
                                 continue;
                             }
 
@@ -479,12 +479,11 @@ const TransporterParty = () => {
 
             await onValue(partyRef, (snapshot) => {
                 const data = snapshot.val();
-                console.log(data, 'transporters');
                 // updateStarCount(postElement, data);
                 let parties = []; // Data Source
                 if (data !== null) {
                     Object.values(data).map((party, i) => {
-                        if (party.label.toUpperCase() === ('Hare Krishna').toUpperCase()) return; // Skip Hare Krishna party
+                        if (party.label.toUpperCase().trim() === ('Hare Krishna').toUpperCase()) return; // Skip Hare Krishna party
                         if (partyNameList.includes(party.label)) {
                             parties.push(party);
                         }

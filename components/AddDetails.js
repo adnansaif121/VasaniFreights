@@ -896,8 +896,7 @@ const AddDetails = () => {
                                                 <Input type='date' value={date} onChange={(e) => setDate(e.target.value)}></Input>
                                             </Form.Item>
 
-                                            <Form.Item style={{ width: '48%' }} label="Vehicle"
-                                                name="vehicleNo">
+                                            <Form.Item style={{ width: '48%' }} label="Vehicle">
                                                 <Select
                                                     showSearch
                                                     placeholder="Vehicle No."
