@@ -65,6 +65,7 @@ const DailyEntry = () => {
     const [firstKey, setFirstKey] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
+    const [pumpList, setPumpList] = useState([]);
 
     useEffect(() => {
         const db = getDatabase();
@@ -155,6 +156,14 @@ const DailyEntry = () => {
             const _vehicleData = snapshot.val();
             if (data) {
                 setVehicleData(data);
+            }
+        });
+
+        const pumpDataRef = ref(db, 'pumps/');
+        onValue(pumpDataRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                setPumpList(data);
             }
         })
     }, [])
@@ -1001,6 +1010,7 @@ const DailyEntry = () => {
                             MaalList={MaalList}
                             bankData={bankData}
                             addNewMaal={addNewMaal}
+                            pumpList={pumpList}
                         />
                     )}
                 </Modal>

@@ -9,7 +9,7 @@ import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 const filterOption = (input, option) =>
     (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
-const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driverList, vehicleData, MaalList, bankData, addNewMaal }) => {
+const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driverList, vehicleData, MaalList, bankData, addNewMaal, pumpList }) => {
     const [form] = Form.useForm();
     const [form1] = Form.useForm();
     const [form2] = Form.useForm();
@@ -1153,20 +1153,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         value={pumpName}
                                                         // onSearch={onSearch}
                                                         filterOption={filterOption}
-                                                        options={[
-                                                            {
-                                                                value: 'ABC',
-                                                                label: 'ABC',
-                                                            },
-                                                            {
-                                                                value: 'XYZ',
-                                                                label: 'XYZ',
-                                                            },
-                                                            {
-                                                                value: 'PQR',
-                                                                label: 'PQR',
-                                                            },
-                                                        ]}
+                                                        options={pumpList}
                                                     />
                                                 </Form.Item>
                                             </Flex>
@@ -1415,8 +1402,8 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                             <tr style={{ border: '1px solid black' }}>
                                                                                 <th style={{ border: '1px solid black' }}>Type</th>
                                                                                 <th style={{ border: '1px solid black' }}>Amount</th>
-                                                                                <th style={{ border: '1px solid black' }}>Bank/Courier Date</th>
-                                                                                <th style={{ border: '1px solid black', minWidth: '100px' }}>Bank</th>
+                                                                                <th style={{ border: '1px solid black' }}>Bank/Received Date</th>
+                                                                                <th style={{ border: '1px solid black', minWidth: '100px' }}>Name</th>
                                                                                 <th style={{ border: '1px solid black' }}>Remarks</th>
                                                                             </tr>
                                                                         </thead>

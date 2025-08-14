@@ -1,14 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import { Input, Popover, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs } from 'antd';
 import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import styles from '../styles/DailyEntry.module.css';
 import firebase from '../config/firebase'
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
-import ViewDailyEntry from './ViewDailyEntry';
-// import { vehicleData } from './data';
 import CreatePartyForm from './common/CreatePartyForm';
-import Highlighter from 'react-highlight-words';
 import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
