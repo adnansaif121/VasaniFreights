@@ -55,12 +55,6 @@ const Cash = () => {
                     });
                 });
             }
-            // Sort keys for pagination
-            // keys.sort();
-            // setFirstKey(keys[0]);
-            // setLastKey(keys[keys.length - 1]);
-            // applyDateSort(ds);
-            // setIsLoading(false);
             console.log('Data Source:', ds);
             setDataSource(ds);
             calDailyTruckCashIncomeExpense(ds);
@@ -73,14 +67,18 @@ const Cash = () => {
         const today = new Date();
         const todayString = today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
         data.forEach((entry) => {
-            console.log('Processing Entry:', entry);
-
+            
             if (entry.date === todayString) {
+                console.log('Processing Entry:', entry, entry.date);
+
                 income += entry?.firstPayment?.cashAmount === "" ? 0 : parseFloat(entry?.firstPayment[0]?.cashAmount) || 0;
                 expense += entry?.driver1?.TripCash === "" ? 0 : parseFloat(entry?.driver1?.TripCash) || 0;
             }
         });
 
+
+        console.log('Income:', income);
+        console.log('Expense:', expense);
         setDailyTruckCashIncome(income);
         setDailyTruckCashExpense(expense);
     }

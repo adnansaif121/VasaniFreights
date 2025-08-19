@@ -4,6 +4,7 @@ import '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Divider } from 'antd';
 import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
+import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 const { Meta } = Card;
 const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSource, data, bankData, vehicleData, handleDisplayTableChange, setDataUpdateFlag }) => {
     const [newBank, setNewBank] = useState('');
@@ -13,14 +14,9 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
     const [extraAmount, setExtraAmount] = useState(0);
     const [extraAmtRemark, setExtraAmtRemark] = useState(null);
     const [transactionStatus, setTransactionStatus] = useState(null);
-    // const [bankData, setBankData] = useState([..._bankData]);
-
-    const [amountReceived, setAmountReceived] = useState((data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].pohchAmount || 0) +
-        parseInt(data.firstPayment[0].cashAmount || 0) +
-        parseInt(data.firstPayment[0].chequeAmount || 0) +
-        parseInt(data.firstPayment[0].onlineAmount || 0)));
     const [form4] = Form.useForm();
 
+    useDisableNumberInputScroll();
     useEffect(() => {
 
         let index = parseInt(data.key[data.key.length - 1]);
@@ -68,16 +64,6 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
         // let id = guidGenerator();
         let index = parseInt(data.key[data.key.length - 1]);
         let data_key = data.key.slice(0, -1);
-
-        // let obj_to_save = data.tripDetails[index];
-        // obj_to_save.furtherPayments = form4.getFieldsValue(['FurtherPayments']).FurtherPayments === undefined ? null : form4.getFieldsValue(['FurtherPayments']) || null;
-        // obj_to_save.firstPaymentTotal = firstPaymentTotal;
-        // obj_to_save.furtherPaymentTotal = furtherPaymentTotal;
-        // obj_to_save.extraAmount = extraAmount;
-        // obj_to_save.extraAmtRemark = extraAmtRemark;
-        // obj_to_save.transactionStatus = (transactionStatus !== null ? transactionStatus : 'open');
-        // obj_to_save.remainingBalance = data.tripDetails[index].totalFreight - firstPaymentTotal - (furtherPaymentTotal || 0) - extraAmount;
-
         let obj_to_save = data.tripDetails[index];
 
         // Get values from Remaining Balance form

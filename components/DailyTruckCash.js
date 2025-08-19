@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, DatePicker, Typography, Divider } from 'antd';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
-
+import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 const { Title } = Typography;
 
 // Table columns for Truck Income
@@ -61,6 +61,7 @@ const DailyTruckCash = () => {
     const [incomeForm] = Form.useForm();
     const [expenseForm] = Form.useForm();
 
+    useDisableNumberInputScroll();
     useEffect(() => {
         const db = getDatabase();
         // Fetch daily entry data from Firebase

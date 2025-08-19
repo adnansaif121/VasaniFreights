@@ -994,19 +994,6 @@ const AddDetails = () => {
                                                                                                 onKeyDown={(e) => e.stopPropagation()}
                                                                                             />
                                                                                             <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                                                // e.preventDefault();
-                                                                                                // if (newLocation.trim() === "") {
-                                                                                                //     alert("Please enter a value to add location.")
-                                                                                                //     return;
-                                                                                                // }
-                                                                                                // for (let i = 0; i < Locations.length; i++) {
-                                                                                                //     if (Locations[i].label.toLowerCase() === newLocation.toLowerCase()) {
-                                                                                                //         alert(`Location with name ${Locations[i].label} already exists.`);
-                                                                                                //         return;
-                                                                                                //     }
-                                                                                                // }
-                                                                                                // setLocations([...Locations, { value: newLocation, label: newLocation }]);
-                                                                                                // setNewLocation('');
                                                                                                 addNewLocation(e);
                                                                                             }}>
 

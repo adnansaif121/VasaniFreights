@@ -163,7 +163,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     // }
 
     // const addNewDriver = (e) => {
-    
+
     //         // e.preventDefault();
     //         if (driverModal.label === undefined) {
     //             alert("Please Enter Driver Name to submit")
@@ -177,7 +177,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     //         }
     //         setDriverList([...driverList, { ...driverModal }]);
     //         setNewDriverName('');
-    
+
     //         // Create a new party reference with an auto-generated id
     //         const db = getDatabase();
     //         const driverListRef = ref(db, 'drivers');
@@ -464,7 +464,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 optionFilterProp="children"
                                                                                 // onChange={onChange}
                                                                                 // onSearch={onSearch}
-                                                                                // filterOption={filterOption}
+                                                                                filterOption={filterOption}
                                                                                 options={locations}
                                                                                 dropdownRender={(menu) => (
                                                                                     <>
@@ -858,7 +858,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
                                                 <Form.Item style={{ width: '48%' }} label="Trip Cash">
                                                     <Input value={driver1 !== null ? driver1.TripCash : null} onChange={(e) => {
-                                                        let _obj = driver1;
+                                                        let _obj = driver1 ? { ...driver1 } : {};
                                                         _obj.TripCash = e.target.value;
                                                         setDriver1(_obj);
                                                     }} placeholder='Trip Cash' type='number' />
@@ -908,29 +908,16 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                     set_DriverList([...__driverList]);
 
                                                                 }
-                                                                setDriver1(option);
+                                                                setDriver1({
+                                                                    ...option,
+                                                                    TripCash: driver1?.TripCash || '',
+                                                                    DebitCredit: driver1?.DebitCredit || '',
+                                                                });
                                                                 console.log(option);
                                                             }}
                                                             // onSearch={onSearch}
                                                             filterOption={filterOption}
                                                             options={driverList}
-                                                            // dropdownRender={(menu) => (
-                                                            //     <>
-                                                            //         {menu}
-                                                            //         <Divider
-                                                            //             style={{
-                                                            //                 margin: '8px 0',
-                                                            //             }}
-                                                            //         />
-                                                            //         <Space
-                                                            //             style={{
-                                                            //                 padding: '0 8px 4px',
-                                                            //             }}
-                                                            //         >
-                                                            //             <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
-                                                            //         </Space>
-                                                            //     </>
-                                                            // )}
                                                         />
                                                     </Form.Item>
                                                     <Popover

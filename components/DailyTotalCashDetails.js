@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, DatePicker, Typography, Select, Divider, Space } from 'antd';
-import { getDatabase, ref, set, onValue, push, query, orderByKey, limitToLast, limitToFirst, endAt, startAt, update } from "firebase/database";
-
+import { getDatabase, ref, set, onValue, get, push, query, orderByKey, limitToLast, limitToFirst, endAt, startAt, update } from "firebase/database";
+import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 const { Title } = Typography;
 
 const tableColumns = [
@@ -14,28 +14,6 @@ const tableColumns = [
     { title: 'Type', dataIndex: 'type', key: 'type' },
     { title: 'Amount', dataIndex: 'amount', key: 'amount' },
 ];
-
-// const staticIncoming = [{
-//     key: '1',
-//     date: '2025-07-17',
-//     nature: 'income',
-//     heading: 'Cash Received',
-//     subHeading: 'Sales',
-//     remarks: 'Opening Balance',
-//     type: 'Cash',
-//     amount: 10000,
-// }];
-
-// const staticExpense = [{
-//     key: '1',
-//     date: '2025-07-17',
-//     nature: 'expense',
-//     heading: 'Cash Paid',
-//     subHeading: 'Purchase',
-//     remarks: 'Opening Expense',
-//     type: 'Cash',
-//     amount: 5000,
-// }];
 
 const typeOptions = [
     { value: 'Cash', label: 'Cash' },
@@ -82,7 +60,10 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
     const [remark, setRemark] = useState('');
     const [diffAmount, setDiffAmount] = useState(0);
 
+    useDisableNumberInputScroll();
     useEffect(() => {
+        console.log('dailyTruckCashIncome : ', dailyTruckCashIncome);
+        console.log('dailyTruckCashExpense : ', dailyTruckCashExpense);
         let _totalIncome = 0;
         let _totalExpense = 0;
         //    fetch Cash Data
@@ -148,6 +129,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                 setIncomingData([...incomeEntries]);
                 setExpenseData([...expenseEntries]);
 
+                console.log(incomeEntries, expenseEntries);
                 for (const entry of incomeEntries) {
                     _totalIncome += parseFloat(entry.amount) || 0;
                 }
@@ -255,7 +237,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                 });
             }
         }, { onlyOnce: true });
-    }, [dataSource]);
+    }, [dataSource, dailyTruckCashIncome, dailyTruckCashExpense]);
 
     // Add new option handlers
     const addNewHeading = () => {

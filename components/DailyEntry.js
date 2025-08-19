@@ -525,6 +525,10 @@ const DailyEntry = () => {
         set(newMaalRef, {
             value: _newMaal,
             label: _newMaal,
+        }).then(() => {
+            alert("Maal Added Successfully!!");
+            setNewMaal('');
+            return;
         });
     }
 
