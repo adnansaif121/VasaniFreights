@@ -7,6 +7,7 @@ import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import RemarkModal, { RemarkButton } from './common/RemarkModal';
 
 const vehicleData =
     [{
@@ -237,7 +238,9 @@ const HareKrishna = () => {
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
     const [bankData, setBankData] = useState([]);
-
+    const [remarkModalOpen, setRemarkModalOpen] = useState(false);
+    const [remarkData, setRemarkData] = useState([]);
+    
     // const [dateFilter, setDateFilter] = useState('');
     // const [filteredRows, setFilteredRows] = useState(allRows);
 
@@ -634,8 +637,10 @@ const HareKrishna = () => {
         },
         {
             title: 'Remark',
-            dataIndex: 'extraAmtRemark',
-            key: 'extraAmtRemark',
+            key: 'Remark',
+            render: (text, record) => (
+                <RemarkButton record={record} />
+            ),
         }
     ];
 
@@ -1073,6 +1078,12 @@ const HareKrishna = () => {
                             />
                         )}
                     </Modal>
+
+                    <RemarkModal
+                        open={remarkModalOpen}
+                        onCancel={() => setRemarkModalOpen(false)}
+                        remarkData={remarkData}
+                    />
                 </div>
             </div>
         </>
