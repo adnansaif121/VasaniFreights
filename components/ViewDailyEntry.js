@@ -922,7 +922,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                     </Form.Item>
                                                     <Popover
                                                         placement="right"
-                                                        title={data?.driver1 || 'Driver Details'}
+                                                        title={driver1.label || 'Driver Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
                                                                 <div><b>Address:</b> {data?.driver1Address || 'Not available'}</div>
@@ -1010,7 +1010,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                     </Form.Item>
                                                     <Popover
                                                         placement="right"
-                                                        title={data?.driver2 || 'Party Details'}
+                                                        title={driver2?.label || 'Party Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
                                                                 <div><b>Address:</b> {data?.driver2Address || 'Not available'}</div>
@@ -1078,7 +1078,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
                                                     <Popover
                                                         placement="right"
-                                                        title={data?.conductor || 'Party Details'}
+                                                        title={conductor?.label || 'Party Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
                                                                 <div><b>Address:</b> {data?.conductorAddress || 'Not available'}</div>
