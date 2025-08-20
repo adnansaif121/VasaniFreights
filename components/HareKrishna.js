@@ -1,140 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal, Tooltip } from 'antd';
-import { BellOutlined,EyeTwoTone, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
+import { BellOutlined, EyeTwoTone, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
-const bankData = [
-    {
-        key: "0",
-        label: "CV ICICI",
-        value: "CV ICICI",
-    },
-    {
-        key: "1",
-        label: "CCV ICICI",
-        value: "CCV ICICI"
-    },
-    {
-        key: "2",
-        label: "BV ICICI",
-        value: "BV ICICI"
-    },
-    {
-        key: "3",
-        label: "RV ICICI",
-        value: "RV ICICI"
-    },
-    {
-        key: "4",
-        label: "NV ICICI",
-        value: "NV ICICI"
-    },
-    {
-        key: "5",
-        label: "NCV ICICI",
-        value: "NCV ICICI"
-    },
-    {
-        key: "6",
-        label: "AV ICICI",
-        value: "AV ICICI"
-    },
-    {
-        key: "7",
-        label: "VV ICICI",
-        value: "VV ICICI"
-    },
-    {
-        key: "8",
-        label: "KV ICICI",
-        value: "KV ICICI"
-    },
-    {
-        key: "9",
-        label: "JV ICICI",
-        value: "JV ICICI"
-    },
-    {
-        key: "10",
-        label: "CV HUF ICICI",
-        value: "CV HUF ICICI"
-    },
-    {
-        key: "11",
-        label: "CCV HUF ICICI",
-        value: "CCV HUF ICICI"
-    },
-    {
-        key: "12",
-        label: "BV HUF ICICI",
-        value: "BV HUF ICICI"
-    },
-    {
-        key: "13",
-        label: "RV HUF HDFC",
-        value: "RV HUF HDFC"
-    },
-    {
-        key: "14",
-        label: "RAMA ICICI",
-        value: "RAMA ICICI"
-    },
-    {
-        key: "15",
-        label: "HKL ICICI",
-        value: "HKL ICICI"
-    },
-    {
-        key: "16",
-        label: "BV HDFC",
-        value: "BV HDFC"
-    },
-    {
-        key: "17",
-        label: "KV HDFC",
-        value: "KV HDFC"
-    },
-    {
-        key: "18",
-        label: "JV HDFC",
-        value: "JV HDFC"
-    },
-    {
-        key: "19",
-        label: "RKV HDFC",
-        value: "RKV HDFC"
-    },
-    {
-        key: "20",
-        label: "SV HDFC",
-        value: "SV HDFC"
-    },
-    {
-        key: "21",
-        label: "DV HDFC",
-        value: "DV HDFC"
-    },
-    {
-        key: "22",
-        label: "UV GLOBAL HDFC",
-        value: "UV GLOBAL HDFC"
-    },
-    {
-        key: "23",
-        label: "UV LOGI HDFC",
-        value: "UV LOGI HDFC"
-    },
-    {
-        key: "24",
-        label: "CCV HDFC",
-        value: "CCV HDFC"
-    }
-];
 const vehicleData =
     [{
         key: 0,
@@ -363,7 +236,7 @@ const HareKrishna = () => {
 
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
-
+    const [bankData, setBankData] = useState([]);
 
     // const [dateFilter, setDateFilter] = useState('');
     // const [filteredRows, setFilteredRows] = useState(allRows);
@@ -463,6 +336,22 @@ const HareKrishna = () => {
                 setDataSource(ds);
             }).catch((error) => {
                 console.log(error);
+            })
+
+            const bankRef = ref(db, 'bankData/');
+            onValue(bankRef, (snapshot) => {
+                const data = snapshot.val();
+                let _bankData = [];
+                if (data !== null) {
+                    for (let i = 0; i < data.data.length; i++) {
+                        _bankData.push({
+                            label: data.data[i].bankName,
+                            value: data.data[i].bankName,
+                            key: data.data[i].key
+                        })
+                    }
+                }
+                setBankData([..._bankData]);
             })
 
             await onValue(partyRef, (snapshot) => {
@@ -1155,6 +1044,7 @@ const HareKrishna = () => {
                                 allDataAtDisplay={displayDataSource}
                                 setDisplayDataSource={setDisplayDataSource}
                                 data={selectedRow.record}
+                                setBankData={setBankData}
                                 vehicleData={vehicleData}
                                 bankData={bankData}
                                 handleDisplayTableChange={handleDisplayTableChange}

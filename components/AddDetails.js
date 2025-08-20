@@ -192,6 +192,7 @@ const AddDetails = () => {
                 }
             }
             setBankData([..._bankData]);
+            console.log(_bankData);
         })
 
         const maalRef = ref(db, 'maal/');

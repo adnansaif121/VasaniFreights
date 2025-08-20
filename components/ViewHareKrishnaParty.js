@@ -6,7 +6,7 @@ import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, Exclama
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 const { Meta } = Card;
-const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSource, data, bankData, vehicleData, handleDisplayTableChange, setDataUpdateFlag }) => {
+const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSource, data, bankData,setBankData, vehicleData, handleDisplayTableChange, setDataUpdateFlag }) => {
     const [newBank, setNewBank] = useState('');
     const [form] = Form.useForm();
     const [furtherPaymentTotal, setFurtherPaymentTotal] = useState(0);
@@ -112,15 +112,18 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
             return;
         }
         let key = bankData.length;
-        // setBankData([...bankData, { value: newBank, label: newBank, key: key }]);
+        setBankData([...bankData, { bankName: newBank, value: newBank, label: newBank, key: key }]);
 
-        bankData = [...bankData, { value: newBank, label: newBank, key: key }];
+        // bankData = [...bankData, { value: newBank, label: newBank, key: key }];
+
         const db = getDatabase();
         const bankRef = ref(db, 'bankData/data/' + key);
         // const newBankRef = push(bankRef);
         set(bankRef, {
             bankName: newBank,
             key: key,
+        }).then(() => {
+            alert(`Bank ${newBank} Added Successfully`)
         })
 
         setNewBank('');
@@ -365,23 +368,23 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                         <table style={{ border: '1px solid black', padding: '5px' }}>
                                             <tbody>
                                                 <tr style={{ border: '1px solid black' }}>
-                                                    <th style={{ border: '1px solid black' }}>Amount</th>
-                                                    <th style={{ border: '1px solid black' }}>Mode of Payment</th>
-                                                    <th style={{ border: '1px solid black' }}>Bank</th>
-                                                    <th style={{ border: '1px solid black' }}>Date</th>
-                                                    <th style={{ border: '1px solid black' }}>Remarks</th>
+                                                    <th style={{ border: '1px solid black', width: '90px' }}>Amount</th>
+                                                    <th style={{ border: '1px solid black', width: '130px' }}>Mode of Payment</th>
+                                                    <th style={{ border: '1px solid black', width: '140px' }}>Bank</th>
+                                                    <th style={{ border: '1px solid black', width: '130px' }}>Date</th>
+                                                    <th style={{ border: '1px solid black', width: '150px' }}>Remarks</th>
                                                     <th style={{ border: '1px solid black' }}>Remove</th>
                                                 </tr>
 
                                                 {fields.map(({ key, name, ...restField }) => (
 
                                                     <tr key={key}>
-                                                        <td>
+                                                        <td style={{ width: '90px' }}>
                                                             <Form.Item name={[name, 'amount']} >
                                                                 <Input placeholder='Amount' type='number' onWheel={e => e.target.blur()} onChange={updateTotal} ></Input>
                                                             </Form.Item>
                                                         </td>
-                                                        <td>
+                                                        <td style={{ width: '130px' }}>
                                                             <Form.Item name={[name, 'modeOfPayment']} >
                                                                 <Select
                                                                     showSearch
@@ -408,7 +411,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
 
                                                             </Form.Item>
                                                         </td>
-                                                        <td>
+                                                        <td style={{ width: '140px' }}>
                                                             <Form.Item name={[name, 'bank']}>
                                                                 <Select
                                                                     showSearch
@@ -446,12 +449,12 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                                                 />
                                                             </Form.Item>
                                                         </td>
-                                                        <td>
+                                                        <td  style={{ width: '130px' }}>
                                                             <Form.Item name={[name, 'date']}>
                                                                 <Input type='date'></Input>
                                                             </Form.Item>
                                                         </td>
-                                                        <td>
+                                                        <td style={{ width: '150px' }}>
                                                             <Form.Item name={[name, 'remarks']} >
                                                                 <Input placeholder='remarks'></Input>
                                                             </Form.Item>
