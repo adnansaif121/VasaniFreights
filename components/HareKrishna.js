@@ -534,6 +534,27 @@ const HareKrishna = () => {
             title: 'Payment Status',
             dataIndex: 'transactionStatus',
             key: 'transactionStatus',
+            render: (text, record) => (
+                <p>
+                    {record.transactionStatus === 'open' ? (
+                        <span style={{ color: 'red', fontWeight: 'bold' }}>OPEN</span>
+                    ) : (
+                        <span style={{ color: 'green', fontWeight: 'bold' }}>CLOSE</span>
+                    )}
+                </p>
+            ),
+            filters: [
+                { text: 'Open', value: 'open' },
+                { text: 'Close', value: 'close' }
+            ],
+            onFilter: (value, record) => {
+                if (value === 'open') {
+                    // Show both 'open' and empty
+                    return record.transactionStatus === 'open';
+                }
+                // Only show 'close'
+                return record.transactionStatus === 'close';
+            },
             // render: (text) => { text == 'open' ? <><ExclamationOutlined />OPEN</> : <CheckOutlined /> }
         },
         {
