@@ -1090,7 +1090,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                     </Form.Item>
                                                     <Popover
                                                         placement="right"
-                                                        title={driver1.label || 'Driver Details'}
+                                                        title={driver1?.label || 'Driver Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
                                                                 <div><b>Address:</b> {data?.driver1Address || 'Not available'}</div>
