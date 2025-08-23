@@ -164,7 +164,7 @@ const CashHisab = () => {
                                         <Input onChange={(e) => setPaidDate(e.target.value)} type="date" placeholder='date'></Input>
                                     </Col>
                                     <Col>
-                                        <Input onChange={(e) => setPaidAmount(e.target.value)} type='number' placeholder='Amount'></Input>
+                                        <Input onChange={(e) => setPaidAmount(e.target.value)} type='number' onWheel={e => e.target.blur()} placeholder='Amount'></Input>
                                     </Col>
                                     <Col>
                                         <Input onChange={(e) => setPaidRemark(e.target.value)} placeholder='remark'></Input>

@@ -885,6 +885,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                             name={[name, 'rate']}
                                                                         >
                                                                             <Input type='number'
+                                                                                onWheel={e => e.target.blur()}
                                                                                 value={rate}
                                                                                 onChange={(e) => { let r = rate; r[name] = e.target.value; setRate([...r]) }}
                                                                             ></Input>
@@ -895,6 +896,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                             name={[name, 'qty']}
                                                                         >
                                                                             <Input type='number'
+                                                                                onWheel={e => e.target.blur()}
                                                                                 value={qty}
                                                                                 onChange={(e) => { let q = qty; q[name] = e.target.value; setQty([...q]) }}>
 
@@ -1027,7 +1029,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         let _obj = driver1 ? { ...driver1 } : {};
                                                         _obj.TripCash = e.target.value;
                                                         setDriver1(_obj);
-                                                    }} placeholder='Trip Cash' type='number' />
+                                                    }} placeholder='Trip Cash' type='number' onWheel={e => e.target.blur()} />
                                                 </Form.Item>
 
 
@@ -1269,11 +1271,11 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 height: 30,
                                             }} justify={'space-around'} align={'center'}>
                                                 <Form.Item style={{ width: '45%' }} label="Jana KM">
-                                                    <Input value={janaKm} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number'></Input>
+                                                    <Input value={janaKm} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number' onWheel={e => e.target.blur()}></Input>
                                                 </Form.Item>
 
                                                 <Form.Item style={{ width: '45%' }} label="Aana KM">
-                                                    <Input value={aanaKm} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number'></Input>
+                                                    <Input value={aanaKm} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number' onWheel={e => e.target.blur()}></Input>
                                                 </Form.Item>
                                             </Flex>
                                             <Flex style={{
@@ -1294,7 +1296,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 height: 30,
                                             }} justify={'space-around'} align={'center'}>
                                                 <Form.Item style={{ width: '45%' }} label="Diesel">
-                                                    <Input value={dieselQty} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number'></Input>
+                                                    <Input value={dieselQty} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number' onWheel={e => e.target.blur()}></Input>
                                                 </Form.Item>
 
                                                 <Form.Item style={{ width: '45%' }} label="Pump Name">
@@ -1404,7 +1406,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 </Form.Item>
 
                                                                                 <Form.Item style={{ width: '45%' }} name={[name, 'khaliGadiWajan']} label="Khaali Gadi wajan">
-                                                                                    <Input placeholder='Weight' type='number'></Input>
+                                                                                    <Input placeholder='Weight' type='number' onWheel={e => e.target.blur()}></Input>
                                                                                 </Form.Item>
 
 
@@ -1415,11 +1417,11 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 height: 40,
                                                                             }} justify={'space-around'} align={'center'} >
                                                                                 <Form.Item style={{ width: '45%' }} name={[name, 'bhariGadiWajan']} label="Bhari Gaadi Wajan">
-                                                                                    <Input placeholder='Weight' type='number'></Input>
+                                                                                    <Input placeholder='Weight' type='number' onWheel={e => e.target.blur()}></Input>
                                                                                 </Form.Item>
 
                                                                                 <Form.Item style={{ width: '45%' }} name={[name, "maalKaWajan"]} label="Maal Ka Wajan">
-                                                                                    <Input placeholder='weight' type='number'></Input>
+                                                                                    <Input placeholder='weight' type='number' onWheel={e => e.target.blur()}></Input>
                                                                                 </Form.Item>
                                                                             </Flex>
 
@@ -1565,7 +1567,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 <td ><h3>Pohch</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'pohchAmount']} >
-                                                                                        <Input placeholder='amount' type='number' onChange={(e) => { setPohchAmount(e.target.value) }} />
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()} onChange={(e) => { setPohchAmount(e.target.value) }} />
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -1601,7 +1603,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 <td ><h3>Cash</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'cashAmount']}>
-                                                                                        <Input placeholder='amount' type='number' />
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -1645,7 +1647,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 <td ><h3>Online</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'onlineAmount']}>
-                                                                                        <Input placeholder='amount' type='number' />
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -1676,7 +1678,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 <td ><h3>Cheque</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'chequeAmount']}>
-                                                                                        <Input placeholder='amount' type='number' />
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >

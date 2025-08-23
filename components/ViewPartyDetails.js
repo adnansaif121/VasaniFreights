@@ -177,7 +177,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                 <td ><h3>Cash</h3></td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].cashAmount || 0)} placeholder='amount' type='number' />
+                                        <Input value={data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].cashAmount || 0)} placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
                                     </Form.Item>
                                 </td >
                                 <td >
@@ -197,7 +197,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                 <td ><h3>Online</h3></td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment === undefined ? null : parseInt(data.firstPayment[0].onlineAmount || 0)} placeholder='amount' type='number' />
+                                        <Input value={data.firstPayment === undefined ? null : parseInt(data.firstPayment[0].onlineAmount || 0)} placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
                                     </Form.Item>
                                 </td >
                                 <td >
@@ -254,7 +254,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                 <td ><h3>Cheque</h3></td>
                                 <td >
                                     <Form.Item >
-                                        <Input value={data.firstPayment === undefined ? null : parseInt(data.firstPayment[0].chequeAmount || 0)} placeholder='amount' type='number' />
+                                        <Input value={data.firstPayment === undefined ? null : parseInt(data.firstPayment[0].chequeAmount || 0)} placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
                                     </Form.Item>
                                 </td >
                                 <td >
@@ -340,7 +340,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                             <tr key={key}>
                                                 <td>
                                                     <Form.Item name={[name, 'amount']} >
-                                                        <Input placeholder='Amount' type='number' onChange={updateTotal} ></Input>
+                                                        <Input placeholder='Amount' type='number' onWheel={e => e.target.blur()} onChange={updateTotal} ></Input>
                                                     </Form.Item>
                                                 </td>
                                                 <td>
@@ -482,7 +482,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                                     <span>{furtherPaymentTotal || 0}</span>
                                 </td>
                                 <td>
-                                    <Input type='number' value={extraAmount} onChange={(e) => setExtraAmount(e.target.value)}></Input>
+                                    <Input type='number' onWheel={e => e.target.blur()} value={extraAmount} onChange={(e) => setExtraAmount(e.target.value)}></Input>
                                 </td>
 
                             </tr>

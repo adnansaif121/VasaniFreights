@@ -1302,6 +1302,7 @@ const AddDetails = () => {
                                                                             name={[name, 'qty']}
                                                                         >
                                                                             <Input type='number'
+                                                                                onWheel={e => e.target.blur()}
                                                                                 value={qty}
                                                                                 // defaultValue={0}
                                                                                 onChange={(e) => { let q = qty; q[name] = e.target.value; setQty([...q]) }}>
@@ -1314,6 +1315,7 @@ const AddDetails = () => {
                                                                             name={[name, 'rate']}
                                                                         >
                                                                             <Input type='number'
+                                                                                onWheel={e => e.target.blur()}
                                                                                 value={rate}
                                                                                 // defaultValue={0}
                                                                                 onChange={(e) => { let r = rate; r[name] = e.target.value; setRate([...r]) }}
@@ -1426,7 +1428,7 @@ const AddDetails = () => {
                                                         let _obj = driver1;
                                                         _obj.TripCash = e.target.value;
                                                         setDriver1(_obj);
-                                                    }} placeholder='Trip Cash' type='number' />
+                                                    }} placeholder='Trip Cash' type='number' onWheel={e => e.target.blur()} />
                                                 </Form.Item>
                                             </Flex>
 
@@ -1763,11 +1765,11 @@ const AddDetails = () => {
                                                 height: 20,
                                             }} justify='space-between' align={'center'}>
                                                 <Form.Item style={{ width: '48%' }} label="Jana KM">
-                                                    <Input value={janaKm} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number'></Input>
+                                                    <Input value={janaKm} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number' onWheel={e => e.target.blur()}></Input>
                                                 </Form.Item>
 
                                                 <Form.Item style={{ width: '48%' }} label="Aana KM">
-                                                    <Input value={aanaKm} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number'></Input>
+                                                    <Input value={aanaKm} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number' onWheel={e => e.target.blur()}></Input>
                                                 </Form.Item>
 
                                             </Flex>
@@ -1791,7 +1793,7 @@ const AddDetails = () => {
                                                 height: 20,
                                             }} justify='space-between' align={'center'}>
                                                 <Form.Item style={{ width: '48%' }} label="Diesel">
-                                                    <Input value={dieselQty} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number'></Input>
+                                                    <Input value={dieselQty} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number' onWheel={e => e.target.blur()}></Input>
                                                 </Form.Item>
 
                                                 <Form.Item style={{ width: '48%' }} label="Pump Name">
@@ -2074,7 +2076,7 @@ const AddDetails = () => {
                                                                                 <td ><h3>Pohch</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'pohchAmount']} >
-                                                                                        <Input placeholder='amount' type='number' onChange={(e) => { setPohchAmount(e.target.value) }} />
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()} onChange={(e) => { setPohchAmount(e.target.value) }} />
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -2110,7 +2112,7 @@ const AddDetails = () => {
                                                                                 <td ><h3>Cash</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'cashAmount']}>
-                                                                                        <Input placeholder='amount' type='number' />
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -2131,7 +2133,7 @@ const AddDetails = () => {
                                                                                 <td ><h3>Online</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'onlineAmount']}>
-                                                                                        <Input placeholder='amount' type='number' />
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -2187,7 +2189,7 @@ const AddDetails = () => {
                                                                                 <td ><h3>Cheque</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'chequeAmount']}>
-                                                                                        <Input placeholder='amount' type='number' />
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
