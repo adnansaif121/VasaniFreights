@@ -17,8 +17,8 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     const [toggle, setToggle] = React.useState(false);
     const [vehicleNo, setVehicleNo] = useState('');
     const [date, setDate] = useState(null);
-    const [mt, setMT] = useState(false);
-    const [vehicleStatus, setVehicleStatus] = useState('');
+    // const [mt, setMT] = useState(false);
+    // const [vehicleStatus, setVehicleStatus] = useState('');
     const [payStatus, setPayStatus] = useState('Paid');
     const [janaKm, setJanaKm] = useState(0);
     const [aanaKm, setAanaKm] = useState(0);
@@ -192,89 +192,183 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     //         });
     //     }
 
-    const onMTCheck = (e) => {
-        setMT(e.target.checked);
-    }
+    // const handleSave = () => {
+    //     const tripDetails = form.getFieldsValue(['tripDetails']);
+    //     let listOfTrips = [];
+    //     tripDetails?.tripDetails?.forEach((trip, index) => {
+    //         listOfTrips.push({
+    //             from: trip.from || '',
+    //             to: trip.to || '',
+    //             bhejneWaala: trip.bhejneWaala || '',
+    //             paaneWaala: trip.paaneWaala || '',
+    //             transporter: trip.transporter || '',
+    //             maal: trip.maal || '',
+    //             qty: trip.qty || 0,
+    //             rate: trip.rate || 0,
+    //             totalFreight: (parseFloat(trip.rate) * parseFloat(trip.qty)).toFixed(2) || 0,
+    //             payStatus: trip.payStatus || '',
+    //             courierSentDate: trip.courierSentDate || '',
+    //             courierStatus: trip.courierStatus || '',
+    //             extraAmount: trip.extraAmount || 0,
+    //             extraAmtRemark: trip.extraAmtRemark || '',
+    //             firstPaymentTotal: trip.firstPaymentTotal || 0,
+    //             furtherPaymentTotal: trip.furtherPaymentTotal || 0,
+    //             furtherPayments: trip.furtherPayments || 0,
+    //             transactionStatus: trip.transactionStatus || '',
+    //             remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
+    //                 ((form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index] !== undefined) ?
+    //                     parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
+    //                     parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
+    //                     parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
+    //                     :
+    //                     0
+    //                 )
+    //         });
+    //     }
+    //     );
 
-    const handleSave = () => {
+    //     const kaataParchi = form2.getFieldsValue(['kaataParchi']);
+    //     let listOfKaataParchi = [];
+    //     kaataParchi?.kaataParchi?.forEach((parchi) => {
+    //         listOfKaataParchi.push({
+    //             unloadingDate: parchi.unloadingDate || '',
+    //             khaliGadiWajan: parchi.khaliGadiWajan || '',
+    //             bhariGadiWajan: parchi.bhariGadiWajan || '',
+    //             maalKaWajan: parchi.maalKaWajan || '',
+    //             ghaateAllowed: parchi.ghaateAllowed || '',
+    //             ghaateActual: parchi.ghaateActual || '',
+    //             remarks: parchi.remarks || ''
+    //         });
+    //     }
+    //     );
+
+    //     const firstPayment = form3.getFieldsValue(['paymentDetails']);
+    //     let listOfFirstPayment = [];
+    //     firstPayment?.paymentDetails?.forEach((payment) => {
+
+    //         listOfFirstPayment.push({
+    //             bhadaKaunDalega: bhadaKaunDalega || '',
+    //             partyForNaveenKaka: payment.partyForNaveenKaka || '',
+    //             partyForTransporterPayment: partyForTransporterPayment || '',
+    //             pohchAmount: payment.pohchAmount || '',
+    //             pohchDate: payment.pohchDate || '',
+    //             pohchId: (payment?.pohchAmount !== undefined || payment?.pohchAmount !== '') ? pohchId : '',
+    //             pohchSendTo: payment?.pohchSendTo || '',
+    //             pohchRemarks: payment.pohchRemarks || '',
+    //             cashAmount: payment.cashAmount || '',
+    //             cashDate: payment.cashDate || '',
+    //             cashRemarks: payment.cashRemarks || '',
+    //             onlineAmount: payment.onlineAmount || '',
+    //             onlineDate: payment.onlineDate || '',
+    //             onlineBank: payment.onlineBank || '',
+    //             onlineRemarks: payment.onlineRemarks || '',
+    //             chequeAmount: payment.chequeAmount || '',
+    //             chequeDate: payment.chequeDate || '',
+    //             chequeBank: payment.chequeBank || '',
+    //             chequeRemarks: payment.chequeRemarks || '',
+    //             chequeNumber: payment.chequeNumber || '',
+    //         });
+    //     }
+    //     );
+
+    //     let dieselAndKmDetails = {
+    //         janaKm: janaKm || 0,
+    //         aanaKm: aanaKm || 0,
+    //         tripKm: Math.abs(janaKm - aanaKm) || '',
+    //         milometer: milometer || '',
+    //         dieselQty: dieselQty || '',
+    //         pumpName: pumpName || '',
+    //         average: (Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || '',
+    //         midwayDiesel: midwayDiesel || ''
+    //     }
+
+    //     console.log(listOfTrips, listOfKaataParchi, listOfFirstPayment);
+
+    //     const db = getDatabase();
+    //     // let id = guidGenerator();
+    //     let data_key = data.key.slice(0, -1);
+    //     // let index = data_key[data_key.length-1];
+    //     let starCountRef = ref(db, 'dailyEntry/' + data_key);
+    //     update(starCountRef, {
+    //         // date: date,
+    //         vehicleNo: vehicleNo || '',//done
+    //         // mt: mt,
+    //         // vehicleStatus: vehicleStatus || '',
+    //         // payStatus: payStatus || '',
+    //         dieselAndKmDetails: { ...dieselAndKmDetails },//done
+    //         tripDetails: listOfTrips,//done
+    //         // driversDetails: listOfDrivers,
+    //         kaataParchi: listOfKaataParchi,//done
+    //         firstPayment: listOfFirstPayment,//done
+
+    //         lrNumber: lrNumber,//done
+    //         driver1: driver1,//done
+    //         driver2: driver2,//done
+    //         conductor: conductor//done
+    //     }).then(() => {
+    //         console.log('Data saved');
+    //         alert('Data Saved Successfully');
+    //     }).catch((error) => {
+    //         console.error('Error:', error);
+    //     });
+
+    //     console.log('Save button clicked');
+    // }
+
+    // 1. Save Trip Details
+    const handleSaveTripDetails = () => {
         const tripDetails = form.getFieldsValue(['tripDetails']);
+        const trip = tripDetails?.tripDetails?.[0] || {};
         let listOfTrips = [];
-        tripDetails?.tripDetails?.forEach((trip, index) => {
-            listOfTrips.push({
-                from: trip.from || '',
-                to: trip.to || '',
-                bhejneWaala: trip.bhejneWaala || '',
-                paaneWaala: trip.paaneWaala || '',
-                transporter: trip.transporter || '',
-                maal: trip.maal || '',
-                qty: trip.qty || 0,
-                rate: trip.rate || 0,
-                totalFreight: (parseFloat(trip.rate) * parseFloat(trip.qty)).toFixed(2) || 0,
-                payStatus: trip.payStatus || '',
-                courierSentDate: trip.courierSentDate || '',
-                courierStatus: trip.courierStatus || '',
-                extraAmount: trip.extraAmount || 0,
-                extraAmtRemark: trip.extraAmtRemark || '',
-                firstPaymentTotal: trip.firstPaymentTotal || 0,
-                furtherPaymentTotal: trip.furtherPaymentTotal || 0,
-                furtherPayments: trip.furtherPayments || 0,
-                transactionStatus: trip.transactionStatus || '',
-                remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
-                    ((form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index] !== undefined) ?
-                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
-                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
-                        parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
-                        :
-                        0
-                    )
-            });
-        }
-        );
+        listOfTrips[0] = data.tripDetails[0];
+        // tripDetails?.tripDetails?.forEach((trip, index) => {
+        listOfTrips[0] = {
+            ...listOfTrips[0],
+            from: trip.from || '',
+            to: trip.to || '',
+            bhejneWaala: trip.bhejneWaala || '',
+            paaneWaala: trip.paaneWaala || '',
+            transporter: trip.transporter || '',
+            maal: trip.maal || '',
+            qty: trip.qty || 0,
+            rate: trip.rate || 0,
+            totalFreight: (parseFloat(trip.rate) * parseFloat(trip.qty)).toFixed(2) || 0,
+            payStatus: trip.payStatus || '',
+            // courierSentDate: trip.courierSentDate || '',
+            // courierStatus: trip.courierStatus || '',
+            // extraAmount: trip.extraAmount || 0,
+            // extraAmtRemark: trip.extraAmtRemark || '',
+            // firstPaymentTotal: trip.firstPaymentTotal || 0,
+            // furtherPaymentTotal: trip.furtherPaymentTotal || 0,
+            // furtherPayments: trip.furtherPayments || 0,
+            // transactionStatus: trip.transactionStatus || '',
+            remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
+                ((form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index] !== undefined) ?
+                    parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
+                    parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
+                    parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
+                    :
+                    0
+                )
+        };
+        // });
 
-        const kaataParchi = form2.getFieldsValue(['kaataParchi']);
-        let listOfKaataParchi = [];
-        kaataParchi?.kaataParchi?.forEach((parchi) => {
-            listOfKaataParchi.push({
-                unloadingDate: parchi.unloadingDate || '',
-                khaliGadiWajan: parchi.khaliGadiWajan || '',
-                bhariGadiWajan: parchi.bhariGadiWajan || '',
-                maalKaWajan: parchi.maalKaWajan || '',
-                ghaateAllowed: parchi.ghaateAllowed || '',
-                ghaateActual: parchi.ghaateActual || '',
-                remarks: parchi.remarks || ''
-            });
-        }
-        );
+        const db = getDatabase();
+        let data_key = data.key.slice(0, -1);
+        let starCountRef = ref(db, 'dailyEntry/' + data_key);
+        update(starCountRef, {
+            tripDetails: listOfTrips,
+            vehicleNo: vehicleNo || '',
+            // dateToSort: date || '',
+        }).then(() => {
+            alert('Trip Details Saved Successfully');
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+    };
 
-        const firstPayment = form3.getFieldsValue(['paymentDetails']);
-        let listOfFirstPayment = [];
-        firstPayment?.paymentDetails?.forEach((payment) => {
-
-            listOfFirstPayment.push({
-                bhadaKaunDalega: bhadaKaunDalega || '',
-                partyForNaveenKaka: payment.partyForNaveenKaka || '',
-                partyForTransporterPayment: partyForTransporterPayment || '',
-                pohchAmount: payment.pohchAmount || '',
-                pohchDate: payment.pohchDate || '',
-                pohchId: (payment?.pohchAmount !== undefined || payment?.pohchAmount !== '') ? pohchId : '',
-                pohchSendTo: payment?.pohchSendTo || '',
-                pohchRemarks: payment.pohchRemarks || '',
-                cashAmount: payment.cashAmount || '',
-                cashDate: payment.cashDate || '',
-                cashRemarks: payment.cashRemarks || '',
-                onlineAmount: payment.onlineAmount || '',
-                onlineDate: payment.onlineDate || '',
-                onlineBank: payment.onlineBank || '',
-                onlineRemarks: payment.onlineRemarks || '',
-                chequeAmount: payment.chequeAmount || '',
-                chequeDate: payment.chequeDate || '',
-                chequeBank: payment.chequeBank || '',
-                chequeRemarks: payment.chequeRemarks || '',
-                chequeNumber: payment.chequeNumber || '',
-            });
-        }
-        );
-
+    // 2. Save Driver and Diesel Details
+    const handleSaveDriverDetails = () => {
         let dieselAndKmDetails = {
             janaKm: janaKm || 0,
             aanaKm: aanaKm || 0,
@@ -284,40 +378,112 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
             pumpName: pumpName || '',
             average: (Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || '',
             midwayDiesel: midwayDiesel || ''
-        }
-
-        console.log(listOfTrips, listOfKaataParchi, listOfFirstPayment);
+        };
 
         const db = getDatabase();
-        // let id = guidGenerator();
         let data_key = data.key.slice(0, -1);
-        // let index = data_key[data_key.length-1];
         let starCountRef = ref(db, 'dailyEntry/' + data_key);
         update(starCountRef, {
-            // date: date,
-            vehicleNo: vehicleNo || '',
-            mt: mt,
-            vehicleStatus: vehicleStatus || '',
-            // payStatus: payStatus || '',
             dieselAndKmDetails: { ...dieselAndKmDetails },
-            tripDetails: listOfTrips,
-            // driversDetails: listOfDrivers,
-            kaataParchi: listOfKaataParchi,
-            firstPayment: listOfFirstPayment,
-
             lrNumber: lrNumber,
             driver1: driver1,
             driver2: driver2,
             conductor: conductor
         }).then(() => {
-            console.log('Data saved');
-            alert('Data Saved Successfully');
+            alert('Driver & Diesel Details Saved Successfully');
         }).catch((error) => {
             console.error('Error:', error);
         });
+    };
 
-        console.log('Save button clicked');
-    }
+    // 3. Save Kaata Parchi Details
+    const handleSaveKaataParchi = () => {
+        const kaataParchi = form2.getFieldsValue(['kaataParchi']);
+        const parchi = kaataParchi?.kaataParchi?.[0] || {};
+        let listOfKaataParchi = [];
+        listOfKaataParchi[0] = (data.kaataParchi?.[0] || {});
+        // kaataParchi?.kaataParchi?.forEach((parchi) => {
+        listOfKaataParchi[0] = {
+            ...listOfKaataParchi[0],
+            unloadingDate: parchi.unloadingDate || '',
+            khaliGadiWajan: parchi.khaliGadiWajan || '',
+            bhariGadiWajan: parchi.bhariGadiWajan || '',
+            maalKaWajan: parchi.maalKaWajan || '',
+            ghaateAllowed: parchi.ghaateAllowed || '',
+            ghaateActual: parchi.ghaateActual || '',
+            remarks: parchi.remarks || ''
+        };
+        // });
+
+        const db = getDatabase();
+        let data_key = data.key.slice(0, -1);
+        let starCountRef = ref(db, 'dailyEntry/' + data_key);
+        update(starCountRef, {
+            kaataParchi: listOfKaataParchi
+        }).then(() => {
+            alert('Kaata Parchi Details Saved Successfully');
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+    };
+
+    // 4. Save Payment Details
+    const handleSavePaymentDetails = () => {
+        const firstPayment = form3.getFieldsValue(['paymentDetails']);
+        const payment = firstPayment?.paymentDetails[0];
+        let listOfFirstPayment = [];
+        listOfFirstPayment[0] = data.firstPayment[0] || {};
+        // firstPayment?.paymentDetails?.forEach((payment) => {
+        listOfFirstPayment[0] = {
+            ...listOfFirstPayment[0],
+            bhadaKaunDalega: bhadaKaunDalega || '',
+            partyForNaveenKaka: payment.partyForNaveenKaka || '',
+            partyForTransporterPayment: partyForTransporterPayment || '',
+            pohchAmount: payment.pohchAmount || '',
+            pohchDate: payment.pohchDate || '',
+            pohchId: (payment?.pohchAmount !== undefined || payment?.pohchAmount !== '') ? pohchId : '',
+            pohchSendTo: payment?.pohchSendTo || '',
+            pohchRemarks: payment.pohchRemarks || '',
+            cashAmount: payment.cashAmount || '',
+            cashDate: payment.cashDate || '',
+            cashRemarks: payment.cashRemarks || '',
+            onlineAmount: payment.onlineAmount || '',
+            onlineDate: payment.onlineDate || '',
+            onlineBank: payment.onlineBank || '',
+            onlineRemarks: payment.onlineRemarks || '',
+            chequeAmount: payment.chequeAmount || '',
+            chequeDate: payment.chequeDate || '',
+            chequeBank: payment.chequeBank || '',
+            chequeRemarks: payment.chequeRemarks || '',
+            chequeNumber: payment.chequeNumber || '',
+        };
+        // });
+
+        const db = getDatabase();
+        let data_key = data.key.slice(0, -1);
+        let starCountRef = ref(db, 'dailyEntry/' + data_key);
+        update(starCountRef, {
+            firstPayment: listOfFirstPayment
+        }).then(() => {
+            const tripDetails = form.getFieldsValue(['tripDetails']);
+            const trip = tripDetails?.tripDetails?.[0] || {};
+            let tripDetailRef = ref(db, 'dailyEntry/' + data_key + '/tripDetails/0/');
+            update(tripDetailRef, {
+                remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
+                ((payment !== undefined) ?
+                    parseInt(payment.cashAmount || 0) || 0 +
+                    parseInt(payment.onlineAmount || 0) || 0 +
+                    parseInt(payment.chequeAmount || 0) || 0
+                    :
+                    0
+                )
+            });
+            alert('Payment Details Saved Successfully');
+        }).catch((error) => {
+            console.error('Error:', error);
+        });
+    };
+
 
     const addPartyInPartyList = (value, index) => {
         let pl = partyList;
@@ -348,7 +514,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                 size="small"
                                 title="Trip Details"
                                 extra={tripDetailsEditFlag ?
-                                    <Button type="primary" onClick={(e) => { e.stopPropagation(); setTripDetailsEditFlag(!tripDetailsEditFlag); handleSave() }}>Freeze and Save</Button>
+                                    <Button type="primary" onClick={(e) => { e.stopPropagation(); setTripDetailsEditFlag(!tripDetailsEditFlag); handleSaveTripDetails() }}>Freeze and Save</Button>
                                     :
                                     <Button type="primary" onClick={(e) => { e.stopPropagation(); setTripDetailsEditFlag(!tripDetailsEditFlag) }}><EditFilled /></Button>
                                 }>
@@ -829,7 +995,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                             </Card>
 
                             <Card title="Driver and Diesel" size="small" extra={driverDetailsEditFlag ?
-                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setDriverDetailsEditFlag(!driverDetailsEditFlag); handleSave() }}>Freeze and Save</Button>
+                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setDriverDetailsEditFlag(!driverDetailsEditFlag); handleSaveDriverDetails() }}>Freeze and Save</Button>
                                 :
                                 <Button type="primary" onClick={(e) => { e.stopPropagation(); setDriverDetailsEditFlag(!driverDetailsEditFlag) }}><EditFilled /></Button>
                             }>
@@ -1167,7 +1333,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
                         <Col span={12}>
                             <Card style={{ marginBottom: '10px', width: '100%' }} size="small" title="Kaata Parchi Details" extra={kaataParchiEditFlag ?
-                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setKaataParchiEditFlag(!kaataParchiEditFlag); handleSave() }}>Freeze and Save</Button>
+                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setKaataParchiEditFlag(!kaataParchiEditFlag); handleSaveKaataParchi() }}>Freeze and Save</Button>
                                 :
                                 <Button type="primary" onClick={(e) => { e.stopPropagation(); setKaataParchiEditFlag(!kaataParchiEditFlag) }}><EditFilled /></Button>
                             }>
@@ -1292,7 +1458,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                             </Card>
 
                             <Card title="Payment Details" size="small" extra={paymentDetailsEditFlag ?
-                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setPaymentDetailsEditFlag(!paymentDetailsEditFlag); handleSave() }}>Freeze and Save</Button>
+                                <Button type="primary" onClick={(e) => { e.stopPropagation(); setPaymentDetailsEditFlag(!paymentDetailsEditFlag); handleSavePaymentDetails() }}>Freeze and Save</Button>
                                 :
                                 <Button type="primary" onClick={(e) => { e.stopPropagation(); setPaymentDetailsEditFlag(!paymentDetailsEditFlag) }}><EditFilled /></Button>
                             }>
