@@ -2016,8 +2016,8 @@ const AddDetails = () => {
                                                     // {label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.bhejneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.bhejneWaala},
                                                     // { label: form.getFieldsValue(['tripDetails'])?.tripDetails[name]?.paaneWaala, value: form.getFieldsValue(['tripDetails']).tripDetails[name]?.paaneWaala},
                                                     // {label: form.getFieldValue(['tripDetails'])?.tripDetails[name]?.transporter, value: form.getFieldValue(['tripDetails']).tripDetails[name]?.transporter},
-                                                    { label: 'UV Logistics', value: 'UvLogs' },
-                                                    { label: 'Naveen Kaka', value: 'NaveenKaka' }
+                                                    { label: 'UV Logistics Ledger', value: 'UvLogs' },
+                                                    { label: 'Naveen Kaka Ledger', value: 'NaveenKaka' }
                                                 ]}
                                             />
                                         </Form.Item>

@@ -1588,8 +1588,8 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                             filterOption={filterOption}
                                                                                             options={[
                                                                                                 ...partyList[name],
-                                                                                                { label: 'UV Logistics', value: 'UvLogs' },
-                                                                                                { label: 'Naveen Kaka', value: 'NaveenKaka' }
+                                                                                                { label: 'UV Logistics Ledger', value: 'UvLogs' },
+                                                                                                { label: 'Naveen Kaka Ledger', value: 'NaveenKaka' }
                                                                                             ]}
                                                                                         />
                                                                                     </Form.Item>
