@@ -318,6 +318,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     // 1. Save Trip Details
     const handleSaveTripDetails = () => {
         const tripDetails = form.getFieldsValue(['tripDetails']);
+        const payment = form3.getFieldsValue(['paymentDetails'])?.paymentDetails[0];
         const trip = tripDetails?.tripDetails?.[0] || {};
         let listOfTrips = [];
         listOfTrips[0] = data.tripDetails[0];
@@ -343,10 +344,10 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
             // furtherPayments: trip.furtherPayments || 0,
             // transactionStatus: trip.transactionStatus || '',
             remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
-                ((form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index] !== undefined) ?
-                    parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
-                    parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
-                    parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
+                ((payment !== undefined) ?
+                    parseInt(payment.cashAmount || 0) || 0 +
+                    parseInt(payment.onlineAmount || 0) || 0 +
+                    parseInt(payment.chequeAmount || 0) || 0
                     :
                     0
                 )
@@ -1178,7 +1179,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                     </Form.Item>
                                                     <Popover
                                                         placement="right"
-                                                        title={driver2?.label || 'Party Details'}
+                                                        title={driver2?.label || 'Driver Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
                                                                 <div><b>Address:</b> {data?.driver2Address || 'Not available'}</div>
@@ -1246,7 +1247,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
                                                     <Popover
                                                         placement="right"
-                                                        title={conductor?.label || 'Party Details'}
+                                                        title={conductor?.label || 'Conductor Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
                                                                 <div><b>Address:</b> {data?.conductorAddress || 'Not available'}</div>
