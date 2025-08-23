@@ -17,6 +17,7 @@ import Uvlogistics from './Uvlogistics';
 import HareKrishna from './HareKrishna';
 import Cheque from './Cheque';
 import Cash from './Cash';
+import ManageItems from './ManageItems';
 
 const items = [
     {
@@ -76,6 +77,11 @@ const items = [
     },
     {
         key: '11',
+        label: <NavLabel label={'Manage Items'}/>,
+        children: <ManageItems />,
+    },
+    {
+        key: '12',
         label: <NavLabel label={'Report'}/>,
         children: <EmptyPage text={'Report'}/>,
     }
