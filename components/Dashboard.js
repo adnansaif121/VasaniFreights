@@ -79,11 +79,6 @@ const items = [
         key: '11',
         label: <NavLabel label={'Manage Items'}/>,
         children: <ManageItems />,
-    },
-    {
-        key: '12',
-        label: <NavLabel label={'Report'}/>,
-        children: <EmptyPage text={'Report'}/>,
     }
 ];
 
