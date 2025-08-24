@@ -309,8 +309,9 @@ const ManageItems = () => {
             <List
               loading={loading}
               dataSource={getFilteredItems(type.key)}
-              renderItem={item => (
+              renderItem={(item, index) => (
                 <List.Item
+                  key={index}
                   actions={[
                     <Button
                       icon={<EditOutlined />}
