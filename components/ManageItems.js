@@ -172,7 +172,7 @@ const ManageItems = () => {
         return;
     }
     message.success('Item added');
-    setModal({ visible: false, type: '', item: null, index: null });
+    setModal({ visible: false, type: '', item: null });
     setInputValue('');
     fetchItems();
     setLoading(false);
@@ -223,7 +223,7 @@ const ManageItems = () => {
         return;
     }
     message.success('Item updated');
-    setModal({ visible: false, type: '', item: null, index: null });
+    setModal({ visible: false, type: '', item: null });
     setInputValue('');
     fetchItems();
     setLoading(false);
@@ -278,7 +278,7 @@ const ManageItems = () => {
 
   // Open modal for add/edit
   const openModal = (type, item = null) => {
-    setModal({ visible: true, type, item, index: item?.id ?? null });
+    setModal({ visible: true, type, item });
     setInputValue(item ? (item.value || item.label || item.bankName || item.pumpName || item.vehicleNo) : '');
   };
 
@@ -293,61 +293,73 @@ const ManageItems = () => {
     );
   };
 
- return (
+  // Prepare tab items for Ant Design Tabs
+  const tabItems = itemTypes.map(type => ({
+    key: type.key,
+    label: type.label,
+    children: (
+      <>
+        <Input
+          placeholder={`Search ${type.label}`}
+          value={searchValue}
+          onChange={e => setSearchValue(e.target.value)}
+          allowClear
+          style={{ marginBottom: 16 }}
+        />
+        <List
+          loading={loading}
+          dataSource={getFilteredItems(type.key)}
+          renderItem={(item, index) => (
+            <List.Item
+              key={index}
+              actions={[
+                <Button
+                  key={`edit-${index}`}
+                  icon={<EditOutlined />}
+                  onClick={() => openModal(type.key, item)}
+                  type="link"
+                />,
+                <Button
+                  key={`delete-${index}`}
+                  icon={<DeleteOutlined />}
+                  danger
+                  onClick={() => handleDelete(type.key, item.id)}
+                  type="link"
+                />
+              ]}
+            >
+              {item.value || item.label || item.bankName || item.pumpName || item.vehicleNo}
+            </List.Item>
+          )}
+          bordered
+          style={{ marginBottom: 16 }}
+        />
+        <Space style={{ width: '100%', justifyContent: 'center' }}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => openModal(type.key)}
+          >
+            Add New {type.label.slice(0, -1)}
+          </Button>
+        </Space>
+      </>
+    )
+  }));
+
+  return (
     <Card style={{ maxWidth: 600, margin: '40px auto', boxShadow: '0 2px 8px #f0f1f2' }}>
       <Title level={3} style={{ textAlign: 'center', marginBottom: 20 }}>Manage List Items</Title>
-      <Tabs activeKey={activeTab} onChange={setActiveTab} centered>
-        {itemTypes.map(type => (
-          <TabPane tab={type.label} key={type.key}>
-            <Input
-              placeholder={`Search ${type.label}`}
-              value={searchValue}
-              onChange={e => setSearchValue(e.target.value)}
-              allowClear
-              style={{ marginBottom: 16 }}
-            />
-            <List
-              loading={loading}
-              dataSource={getFilteredItems(type.key)}
-              renderItem={(item, index) => (
-                <List.Item
-                  key={index}
-                  actions={[
-                    <Button
-                      icon={<EditOutlined />}
-                      onClick={() => openModal(type.key, item)}
-                      type="link"
-                    />,
-                    <Button
-                      icon={<DeleteOutlined />}
-                      danger
-                      onClick={() => handleDelete(type.key, item.id)}
-                      type="link"
-                    />
-                  ]}
-                >
-                  {item.value || item.label || item.bankName || item.pumpName || item.vehicleNo}
-                </List.Item>
-              )}
-              bordered
-              style={{ marginBottom: 16 }}
-            />
-            <Space style={{ width: '100%', justifyContent: 'center' }}>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => openModal(type.key)}
-              >
-                Add New {type.label.slice(0, -1)}
-              </Button>
-            </Space>
-          </TabPane>
-        ))}
-      </Tabs>
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        centered
+        items={tabItems}
+      />
       <Modal
         open={modal.visible}
         title={modal.item ? `Edit ${itemTypes.find(t => t.key === modal.type)?.label?.slice(0, -1)}` : `Add New ${itemTypes.find(t => t.key === modal.type)?.label?.slice(0, -1)}`}
-        onCancel={() => setModal({ visible: false, type: '', item: null, index: null })}
+        onCancel={() => setModal({ visible: false, type: '', item: null })}
         onOk={modal.item ? handleEdit : handleAdd}
         okText={modal.item ? <><SaveOutlined /> Save</> : <><PlusOutlined /> Add</>}
       >
