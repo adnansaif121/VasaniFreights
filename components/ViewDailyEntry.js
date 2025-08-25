@@ -1094,9 +1094,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         title={driver1?.label || 'Driver Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
-                                                                <div><b>Address:</b> {data?.driver1Address || 'Not available'}</div>
-                                                                <div><b>Contact:</b> {data?.driver1Contact || 'Not available'}</div>
-                                                                <div><b>License:</b> {data?.driver1LicenseDate || 'Not available'}</div>
+                                                                <div><b>Address:</b> {data?.driver1?.location || 'Not available'}</div>
+                                                                <div><b>Contact:</b> {data?.driver1?.Contact || 'Not available'}</div>
+                                                                <div><b>License:</b> {data?.driver1?.LicenseDate || 'Not available'}</div>
                                                             </div>
                                                         }
                                                         trigger="click"
@@ -1182,9 +1182,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         title={driver2?.label || 'Driver Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
-                                                                <div><b>Address:</b> {data?.driver2Address || 'Not available'}</div>
-                                                                <div><b>Contact:</b> {data?.driver2Contact || 'Not available'}</div>
-                                                                <div><b>License Date:</b> {data?.driver2LicenseDate || 'Not available'}</div>
+                                                                <div><b>Address:</b> {data?.driver2?.location || 'Not available'}</div>
+                                                                <div><b>Contact:</b> {data?.driver2?.Contact || 'Not available'}</div>
+                                                                <div><b>License Date:</b> {data?.driver2?.LicenseDate || 'Not available'}</div>
                                                             </div>
                                                         }
                                                         trigger="click"
@@ -1250,9 +1250,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         title={conductor?.label || 'Conductor Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
-                                                                <div><b>Address:</b> {data?.conductorAddress || 'Not available'}</div>
-                                                                <div><b>Contact:</b> {data?.conductorContact || 'Not available'}</div>
-                                                                <div><b>License Date:</b> {data?.conductorLicenseDate || 'Not available'}</div>
+                                                                <div><b>Address:</b> {data?.conductor?.location || 'Not available'}</div>
+                                                                <div><b>Contact:</b> {data?.conductor?.Contact || 'Not available'}</div>
+                                                                <div><b>License Date:</b> {data?.conductor?.LicenseDate || 'Not available'}</div>
                                                             </div>
                                                         }
                                                         trigger="click"
@@ -1489,8 +1489,8 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                 filterOption={filterOption}
                                                 options={[
                                                     ...partyList[0],
-                                                    { label: 'UV Logistics', value: 'UvLogs' },
-                                                    { label: 'Naveen Kaka', value: 'NaveenKaka' }
+                                                    { label: 'UV Logistics Ledger', value: 'UvLogs' },
+                                                    { label: 'Naveen Kaka Ledger', value: 'NaveenKaka' }
                                                 ]}
                                             />
                                         </Form.Item>

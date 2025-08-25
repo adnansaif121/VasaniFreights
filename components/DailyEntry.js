@@ -699,7 +699,7 @@ const DailyEntry = () => {
                                 qty: data[key]?.tripDetails[j]?.qty || null,
                                 rate: data[key]?.tripDetails[j]?.rate || null,
                                 revisedRate: data[key]?.tripDetails[j]?.revisedRate || null,
-                                totalFreight: data[key]?.tripDetails[j]?.totalFreight || null,
+                                totalFreight: parseFloat(data[key]?.tripDetails[j]?.totalFreight).toFixed(2) || null,
                                 received: receivedAmt || null,
                                 dieselAndKmDetails: data[key]?.dieselAndKmDetails || null,
                                 tripDetails: data[key]?.tripDetails || null,

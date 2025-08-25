@@ -4,7 +4,7 @@ import TransporterTrips from './TransporterTrips';
 import TransporterParty from './TransporterParty';
 
 const Transporter = () => {
-    const [page, setPage] = useState('No. of trips detail');
+    const [page, setPage] = useState('Payment Received Details');
 
     return (
         <>

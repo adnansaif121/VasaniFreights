@@ -49,22 +49,6 @@ const AddDetails = () => {
     const [newLocation, setNewLocation] = useState('');
     // Maal List
     const [MaalList, setMaalList] = useState([
-        {
-            value: 'Aata',
-            label: 'Aata',
-        },
-        {
-            value: 'Maida',
-            label: 'Maida',
-        },
-        {
-            value: 'Scrape',
-            label: 'Scrape',
-        },
-        {
-            value: 'Loha',
-            label: 'Loha',
-        },
     ]);
     const [newMaal, setNewMaal] = useState('');
     //All Party List for Party Select
@@ -122,6 +106,10 @@ const AddDetails = () => {
         setTotalFreight(isNaN(parseFloat(rate[0]) * parseFloat(qty[0])) ? 0 : (parseFloat(rate[0]) * parseFloat(qty[0])).toFixed(2) || 0);
     }, [rate, qty]);
 
+    useEffect(() => {
+        console.log(transporterList[selectedTransporterIndex]);
+    }, [selectedTransporterIndex])
+
     useDisableNumberInputScroll();
     useEffect(() => {
         const db = getDatabase();
@@ -145,8 +133,8 @@ const AddDetails = () => {
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
             if (data !== null) {
-                Object.values(data).map((party, i) => {
-                    parties.push(party);
+                Object.entries(data).map(([key, party], i) => {
+                    parties.push({ ...party, id: key });
                 })
             }
             setPartyListAll([...parties]);
@@ -158,10 +146,11 @@ const AddDetails = () => {
             // updateStarCount(postElement, data);
             let transporters = []; // Data Source
             if (data) {
-                Object.values(data).map((transporter, i) => {
-                    transporters.push(transporter);
+                Object.entries(data).map(([key, transporter], i) => {
+                    transporters.push({ ...transporter, id: key });
                 })
             }
+            console.log(transporters);
             setTransporterList([...transporters]);
         });
 
@@ -171,8 +160,8 @@ const AddDetails = () => {
             // updateStarCount(postElement, data);
             let drivers = []; // Data Source
             if (data) {
-                Object.values(data).map((driver, i) => {
-                    drivers.push(driver)
+                Object.entries(data).map(([key, driver], i) => {
+                    drivers.push({ ...driver, id: key });
                 })
                 setDriverList([...drivers]);
             }
@@ -254,6 +243,7 @@ const AddDetails = () => {
                 paaneWaaliPartyContact: partyListAll[selectedPartyIndex[1]].contact || 'Not available',
                 paaneWaaliPartyLocation: partyListAll[selectedPartyIndex[1]].location || 'Not available',
                 transporter: trip.transporter || '',
+                transporterId: transporterList[selectedTransporterIndex]?.id || 'Not available',
                 transporterAddress: transporterList[selectedTransporterIndex]?.address || 'Not available',
                 transporterContact: transporterList[selectedTransporterIndex]?.contact || 'Not available',
                 transporterLocation: transporterList[selectedTransporterIndex]?.location || 'Not available',
@@ -355,15 +345,15 @@ const AddDetails = () => {
             //DRIVER DATA
             lrNumber: lrNumber || '',
             driver1: driver1 || null,
-            driver1Address: driver1?.address || 'Not available',
+            driver1Address: driver1?.location || 'Not available',
             driver1Contact: driver1?.contact || 'Not available',
             driver1LicenseDate: driver1?.LicenseDate || 'Not available',
             driver2: driver2 || null,
-            driver2Address: driver2?.address || 'Not available',
+            driver2Address: driver2?.location || 'Not available',
             driver2Contact: driver2?.contact || 'Not available',
             driver2LicenseDate: driver2?.LicenseDate || 'Not available',
             conductor: conductor || null,
-            conductorAddress: conductor?.address || 'Not available',
+            conductorAddress: conductor?.location || 'Not available',
             conductorContact: conductor?.contact || 'Not available',
             conductorLicenseDate: conductor?.LicenseDate || 'Not available',
 
@@ -1473,7 +1463,11 @@ const AddDetails = () => {
                                                                     setDriverList([..._driverList]);
 
                                                                 }
-                                                                setDriver1(option);
+                                                                setDriver1({
+                                                                    ...option,
+                                                                    TripCash: driver1.TripCash || '', // preserve TripCash if already set
+                                                                    DebitCredit: driver1.DebitCredit || '',
+                                                                });
                                                                 setDriver1Value(value);
                                                             }}
                                                             // onSearch={onSearch}
@@ -1514,7 +1508,7 @@ const AddDetails = () => {
                                                                             })()
                                                                             : 'Not available'
                                                                     }</div>
-                                                                    <div><b>Address:</b> {driver1.address || 'Not available'}</div>
+                                                                    <div><b>Location:</b> {driver1.location || 'Not available'}</div>
                                                                 </div>
                                                             }
                                                             trigger="click"
@@ -1639,7 +1633,7 @@ const AddDetails = () => {
                                                                             })()
                                                                             : 'Not available'
                                                                     }</div>
-                                                                    <div><b>Address:</b> {driver2.address || 'Not available'}</div>
+                                                                    <div><b>Location:</b> {driver2.location || 'Not available'}</div>
                                                                 </div>
                                                             }
                                                             trigger="click"
@@ -1738,7 +1732,7 @@ const AddDetails = () => {
                                                                             })()
                                                                             : 'Not available'
                                                                     }</div>
-                                                                    <div><b>Address:</b> {conductor.address || 'Not available'}</div>
+                                                                    <div><b>Location:</b> {conductor.location || 'Not available'}</div>
                                                                 </div>
                                                             }
                                                             trigger="click"

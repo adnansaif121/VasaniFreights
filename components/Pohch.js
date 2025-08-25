@@ -124,6 +124,7 @@ const Pohch = () => {
                                     courierStatus: data[key].tripDetails[j].courierStatus,
                                     courierSentDate: data[key].tripDetails[j].courierSentDate,
                                     pohchId: data[key].firstPayment[j].pohchId,
+                                    pohchSendTo: data[key].firstPayment[j].pohchSendTo
                                 }
                             )
                         }
@@ -330,14 +331,14 @@ const Pohch = () => {
             },
             render: (text, record, index) => {
                 if (text === undefined || text === null || text === '') {
-                    return <span style={{ color: 'red' }}><WarningFilled /></span>
+                    return <span style={{ color: 'red', fontSize: '30px' }}><WarningFilled /></span>
                 }
                 if (text === 'close') {
-                    return <span style={{ color: 'green' }}><CheckCircleFilled /></span>
+                    return <span style={{ color: 'green', fontSize: '30px' }}><CheckCircleFilled /></span>
                 } else if (text === 'open') {
-                    return <span style={{ color: 'red' }}><WarningFilled /></span>
+                    return <span style={{ color: 'red', fontSize: '30px' }}><WarningFilled /></span>
                 } else {
-                    return <span style={{ color: 'orange' }}>{text}</span>
+                    return <span style={{ color: 'orange', fontSize: '30px' }}>{text}</span>
                 }
                 return index + 1;
             }
@@ -498,6 +499,12 @@ const Pohch = () => {
                     </>
                 );
             }
+        },
+        {
+            title: "Pohch Sent To",
+            dataIndex: 'pohchSendTo',
+            key: 'pohchSendTo',
+            ...getColumnSearchProps('pohchSendTo'),
         },
         {
 
@@ -1066,7 +1073,7 @@ const Pohch = () => {
             </Button>
 
             <div style={{ width: "98vw", overflowX: 'auto', height: '83vh', backgroundColor: 'white' }}>
-                <Table bordered style={{ zIndex: '100' }} size="small" scroll={{ y: 450 }} dataSource={dataSource} columns={columns} pagination={{ pageSize: 20 }}
+                <Table bordered style={{ zIndex: '100' }} size="small" dataSource={dataSource} columns={columns} pagination={{ pageSize: 20 }}
                 />
             </div>
 

@@ -366,14 +366,14 @@ const Cheque = () => {
             },
             render: (text, record, index) => {
                 if (text === undefined || text === null || text === '') {
-                    return <span style={{ color: 'red' }}><WarningFilled /></span>
+                    return <span style={{ color: 'red', fontSize: '30px' }}><WarningFilled /></span>
                 }
                 if (text === 'close') {
-                    return <span style={{ color: 'green' }}><CheckCircleFilled /></span>
+                    return <span style={{ color: 'green', fontSize: '30px' }}><CheckCircleFilled /></span>
                 } else if (text === 'open') {
-                    return <span style={{ color: 'red' }}><WarningFilled /></span>
+                    return <span style={{ color: 'red', fontSize: '30px' }}><WarningFilled /></span>
                 } else {
-                    return <span style={{ color: 'orange' }}>{text}</span>
+                    return <span style={{ color: 'orange', fontSize: '30px' }}>{text}</span>
                 }
                 return index + 1;
             }

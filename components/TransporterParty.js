@@ -594,16 +594,16 @@ const TransporterParty = () => {
             dataIndex: 'from',
             key: 'from',
         },
+         {
+            title: 'To',
+            dataIndex: 'to',
+            key: 'to',
+        },
         {
             title: 'Sender',
             dataIndex: 'bhejneWaliParty',
             key: 'bhejneWaliParty',
             ...getColumnSearchProps('bhejneWaliParty'),
-        },
-        {
-            title: 'To',
-            dataIndex: 'to',
-            key: 'to',
         },
         {
             title: 'Receiver',

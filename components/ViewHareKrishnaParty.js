@@ -6,7 +6,7 @@ import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, Exclama
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 const { Meta } = Card;
-const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSource, data, bankData,setBankData, vehicleData, handleDisplayTableChange, setDataUpdateFlag }) => {
+const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSource, data, bankData,setBankData, handleDisplayTableChange, setDataUpdateFlag }) => {
     const [newBank, setNewBank] = useState('');
     const [form] = Form.useForm();
     const [furtherPaymentTotal, setFurtherPaymentTotal] = useState(0);

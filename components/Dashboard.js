@@ -21,6 +21,11 @@ import ManageItems from './ManageItems';
 
 const items = [
     {
+        key: '11',
+        label: <NavLabel label={'Manage Items'}/>,
+        children: <ManageItems />,
+    },
+    {
         key: '0',
         label: <NavLabel label={'Add New Entry'}/>,
         children: <AddDetails />,
@@ -39,11 +44,6 @@ const items = [
         key: '3',
         label: <NavLabel label={'Cheque'}/>,
         children: <Cheque text={'Cheque'}/>,
-    },
-    {
-        key: '4',
-        label: <NavLabel label={'Driver'}/>,
-        children: <Driver />,
     },
     {
         key: '5',
@@ -76,10 +76,11 @@ const items = [
         children: <HareKrishna text={'Hare Krishna'}/>,
     },
     {
-        key: '11',
-        label: <NavLabel label={'Manage Items'}/>,
-        children: <ManageItems />,
+        key: '4',
+        label: <NavLabel label={'Driver'}/>,
+        children: <Driver />,
     }
+    
 ];
 
 export default function Dashboard() {
