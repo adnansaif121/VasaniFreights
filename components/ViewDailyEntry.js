@@ -5,17 +5,56 @@ import styles from '../styles/DailyEntry.module.css';
 import { getDatabase, ref, set, onValue, update } from "firebase/database";
 import { CloseOutlined, EyeOutlined } from '@ant-design/icons';
 import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
+import CreatePartyForm from './common/CreatePartyForm';
+import CreateDriverForm from './common/CreateDriverForm';
 
 const filterOption = (input, option) =>
     (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
-const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driverList, vehicleData, MaalList, bankData, addNewMaal, pumpList }) => {
+const ViewDailyEntry = ({
+    data,
+    Locations,
+    transporterList,
+    partyListAll,
+    driverList,
+    vehicleData,
+    MaalList,
+    bankData,
+    addNewMaal,
+    pumpList,
+    newLocation,
+    setNewLocation,
+    addNewPump,
+    addNewVehicle,
+    addNewDriver,
+    addNewBank,
+    addNewLocation,
+    addNewTransporter,
+    addNewParty,
+    // addPartyInPartyList,
+    partyList,
+    setPartyList,
+    newTransporter,
+    setNewTransporter,
+    newBank,
+    setNewBank,
+    partyModal,
+    setPartyModal,
+    driverModal,
+    setDriverModal,
+    createPartyForm,
+    driverForm,
+    newMaal,
+    setNewMaal,
+    setDriverList
+}) => {
     const [form] = Form.useForm();
     const [form1] = Form.useForm();
     const [form2] = Form.useForm();
     const [form3] = Form.useForm();
     const [toggle, setToggle] = React.useState(false);
     const [vehicleNo, setVehicleNo] = useState('');
+    const [newVehicleNo, setNewVehicleNo] = useState('');
     const [date, setDate] = useState(null);
     // const [mt, setMT] = useState(false);
     // const [vehicleStatus, setVehicleStatus] = useState('');
@@ -26,6 +65,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     const [milometer, setMilometer] = useState('');
     const [dieselQty, setDieselQty] = useState('');
     const [pumpName, setPumpName] = useState('');
+    const [newPumpName, setNewPumpName] = useState('');
     const [average, setAverage] = useState('');
     const [midwayDiesel, setMidwayDiesel] = useState('');
     // const [rate, setRate] = useState([0, 0, 0, 0]);
@@ -35,12 +75,12 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     // to display dynamic Bhada Kaun Dalega list
     const [rate, setRate] = useState([0, 0, 0, 0]);
     const [qty, setQty] = useState([0, 0, 0, 0]);
-    const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
-    const [newDriverName, setNewDriverName] = useState('');
-    const [newLocation, setNewLocation] = useState('');
-    const [newMaal, setNewMaal] = useState('');
+    // const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
+    // const [newDriverName, setNewDriverName] = useState('');
+    // const [newLocation, setNewLocation] = useState('');
+    // const [newMaal, setNewMaal] = useState('');
     const [newParty, setNewParty] = useState('');
-    const [newTransporter, setNewTransporter] = useState('');
+    // const [newTransporter, setNewTransporter] = useState('');
     // Drivers List
     const [_driverList, set_DriverList] = useState([]);
     // FLAG 
@@ -66,6 +106,18 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
     const [pohchAmount, setPohchAmount] = useState(0);
     const [pohchId, setPohchId] = useState(('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000));
+
+    const [bhejneWaalaPartyDetails, setBhejneWaalaPartyDetails] = useState({});
+    const [paaneWaalaPartyDetails, setPaaneWaalaPartyDetails] = useState({});
+    const [transporterDetails, setTransporterDetails] = useState({});
+
+    const [driver1Details, setDriver1Details] = useState({});
+    const [driver2Details, setDriver2Details] = useState({});
+    const [conductorDetails, setConductorDetails] = useState({});
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
+
     // const [MaalList, setMaalList] = useState([]);
 
     useDisableNumberInputScroll();
@@ -146,174 +198,61 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
         }
         setPartyForTransporterPayment(data.firstPayment?.[0]?.partyForTransporterPayment || '');
 
+        for (let i = 0; i < partyListAll.length; i++) {
+            let party = partyListAll[i];
+            if (party.id === data.tripDetails?.[0]?.bhejneWaalaPartyId) {
+                setBhejneWaalaPartyDetails(party);
+            }
+            if (party.id === data.tripDetails?.[0]?.paaneWaalaPartyId) {
+                setPaaneWaalaPartyDetails(party);
+            }
+        }
+
+        for (let i = 0; i < transporterList.length; i++) {
+            let transporter = transporterList[i];
+            if (transporter.id === data.tripDetails?.[0]?.transporterId) {
+                setTransporterDetails(transporter);
+            }
+        }
+        for (let i = 0; i < driverList.length; i++) {
+            let driver = driverList[i];
+            if (driver.id === data.driver1.id) {
+                setDriver1Details(driver);
+            }
+            if (driver.id === data.driver2.id) {
+                setDriver2Details(driver);
+            }
+            if (driver.id === data.conductor.id) {
+                setConductorDetails(driver);
+            }
+        }
     }, []);
 
-    // const handleDriverCancel = () => {
-    //     setIsDriverModalOpen(false);
-    //     setDriverModal({});
-    //     driverForm.resetFields();
-    // }
+    const handleDriverCancel = () => {
+        setIsDriverModalOpen(false);
+        setDriverModal({});
+        driverForm.resetFields();
+    }
 
-    // const handleDriverOk = () => {
+    const handleDriverOk = () => {
 
-    //     addNewDriver();
-    //     driverForm.resetFields();
-    //     setIsDriverModalOpen(false);
-    //     setDriverModal({});
-    // }
+        addNewDriver();
+        driverForm.resetFields();
+        setIsDriverModalOpen(false);
+        setDriverModal({});
+    }
 
-    // const addNewDriver = (e) => {
+    const handleCancel = () => {
+        createPartyForm.resetFields();
+        setIsModalOpen(false);
+    };
 
-    //         // e.preventDefault();
-    //         if (driverModal.label === undefined) {
-    //             alert("Please Enter Driver Name to submit")
-    //         }
-    //         let _newDriverName = driverModal.label;
-    //         for (let i = 0; i < driverList.length; i++) {
-    //             if (_newDriverName.toUpperCase() === driverList[i].value.toUpperCase()) {
-    //                 alert("Driver with this name already exists");
-    //                 return;
-    //             }
-    //         }
-    //         setDriverList([...driverList, { ...driverModal }]);
-    //         setNewDriverName('');
+    const handleOk = () => {
+        addNewParty();
+        createPartyForm.resetFields();
+        setIsModalOpen(false);
+    };
 
-    //         // Create a new party reference with an auto-generated id
-    //         const db = getDatabase();
-    //         const driverListRef = ref(db, 'drivers');
-    //         const newDriverRef = push(driverListRef);
-    //         set(newDriverRef, {
-    //             ...driverModal
-    //         }).then(() => {
-    //             alert("Driver Added Successfully!!");
-    //             setDriverModal({});
-    //             driverForm.resetFields();
-    //             return;
-    //         });
-    //     }
-
-    // const handleSave = () => {
-    //     const tripDetails = form.getFieldsValue(['tripDetails']);
-    //     let listOfTrips = [];
-    //     tripDetails?.tripDetails?.forEach((trip, index) => {
-    //         listOfTrips.push({
-    //             from: trip.from || '',
-    //             to: trip.to || '',
-    //             bhejneWaala: trip.bhejneWaala || '',
-    //             paaneWaala: trip.paaneWaala || '',
-    //             transporter: trip.transporter || '',
-    //             maal: trip.maal || '',
-    //             qty: trip.qty || 0,
-    //             rate: trip.rate || 0,
-    //             totalFreight: (parseFloat(trip.rate) * parseFloat(trip.qty)).toFixed(2) || 0,
-    //             payStatus: trip.payStatus || '',
-    //             courierSentDate: trip.courierSentDate || '',
-    //             courierStatus: trip.courierStatus || '',
-    //             extraAmount: trip.extraAmount || 0,
-    //             extraAmtRemark: trip.extraAmtRemark || '',
-    //             firstPaymentTotal: trip.firstPaymentTotal || 0,
-    //             furtherPaymentTotal: trip.furtherPaymentTotal || 0,
-    //             furtherPayments: trip.furtherPayments || 0,
-    //             transactionStatus: trip.transactionStatus || '',
-    //             remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
-    //                 ((form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index] !== undefined) ?
-    //                     parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].cashAmount || 0) || 0 +
-    //                     parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].onlineAmount || 0) || 0 +
-    //                     parseInt(form3.getFieldsValue(['paymentDetails'])?.paymentDetails[index].chequeAmount || 0) || 0
-    //                     :
-    //                     0
-    //                 )
-    //         });
-    //     }
-    //     );
-
-    //     const kaataParchi = form2.getFieldsValue(['kaataParchi']);
-    //     let listOfKaataParchi = [];
-    //     kaataParchi?.kaataParchi?.forEach((parchi) => {
-    //         listOfKaataParchi.push({
-    //             unloadingDate: parchi.unloadingDate || '',
-    //             khaliGadiWajan: parchi.khaliGadiWajan || '',
-    //             bhariGadiWajan: parchi.bhariGadiWajan || '',
-    //             maalKaWajan: parchi.maalKaWajan || '',
-    //             ghaateAllowed: parchi.ghaateAllowed || '',
-    //             ghaateActual: parchi.ghaateActual || '',
-    //             remarks: parchi.remarks || ''
-    //         });
-    //     }
-    //     );
-
-    //     const firstPayment = form3.getFieldsValue(['paymentDetails']);
-    //     let listOfFirstPayment = [];
-    //     firstPayment?.paymentDetails?.forEach((payment) => {
-
-    //         listOfFirstPayment.push({
-    //             bhadaKaunDalega: bhadaKaunDalega || '',
-    //             partyForNaveenKaka: payment.partyForNaveenKaka || '',
-    //             partyForTransporterPayment: partyForTransporterPayment || '',
-    //             pohchAmount: payment.pohchAmount || '',
-    //             pohchDate: payment.pohchDate || '',
-    //             pohchId: (payment?.pohchAmount !== undefined || payment?.pohchAmount !== '') ? pohchId : '',
-    //             pohchSendTo: payment?.pohchSendTo || '',
-    //             pohchRemarks: payment.pohchRemarks || '',
-    //             cashAmount: payment.cashAmount || '',
-    //             cashDate: payment.cashDate || '',
-    //             cashRemarks: payment.cashRemarks || '',
-    //             onlineAmount: payment.onlineAmount || '',
-    //             onlineDate: payment.onlineDate || '',
-    //             onlineBank: payment.onlineBank || '',
-    //             onlineRemarks: payment.onlineRemarks || '',
-    //             chequeAmount: payment.chequeAmount || '',
-    //             chequeDate: payment.chequeDate || '',
-    //             chequeBank: payment.chequeBank || '',
-    //             chequeRemarks: payment.chequeRemarks || '',
-    //             chequeNumber: payment.chequeNumber || '',
-    //         });
-    //     }
-    //     );
-
-    //     let dieselAndKmDetails = {
-    //         janaKm: janaKm || 0,
-    //         aanaKm: aanaKm || 0,
-    //         tripKm: Math.abs(janaKm - aanaKm) || '',
-    //         milometer: milometer || '',
-    //         dieselQty: dieselQty || '',
-    //         pumpName: pumpName || '',
-    //         average: (Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || '',
-    //         midwayDiesel: midwayDiesel || ''
-    //     }
-
-    //     console.log(listOfTrips, listOfKaataParchi, listOfFirstPayment);
-
-    //     const db = getDatabase();
-    //     // let id = guidGenerator();
-    //     let data_key = data.key.slice(0, -1);
-    //     // let index = data_key[data_key.length-1];
-    //     let starCountRef = ref(db, 'dailyEntry/' + data_key);
-    //     update(starCountRef, {
-    //         // date: date,
-    //         vehicleNo: vehicleNo || '',//done
-    //         // mt: mt,
-    //         // vehicleStatus: vehicleStatus || '',
-    //         // payStatus: payStatus || '',
-    //         dieselAndKmDetails: { ...dieselAndKmDetails },//done
-    //         tripDetails: listOfTrips,//done
-    //         // driversDetails: listOfDrivers,
-    //         kaataParchi: listOfKaataParchi,//done
-    //         firstPayment: listOfFirstPayment,//done
-
-    //         lrNumber: lrNumber,//done
-    //         driver1: driver1,//done
-    //         driver2: driver2,//done
-    //         conductor: conductor//done
-    //     }).then(() => {
-    //         console.log('Data saved');
-    //         alert('Data Saved Successfully');
-    //     }).catch((error) => {
-    //         console.error('Error:', error);
-    //     });
-
-    //     console.log('Save button clicked');
-    // }
 
     // 1. Save Trip Details
     const handleSaveTripDetails = () => {
@@ -471,13 +410,13 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
             let tripDetailRef = ref(db, 'dailyEntry/' + data_key + '/tripDetails/0/');
             update(tripDetailRef, {
                 remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
-                ((payment !== undefined) ?
-                    parseInt(payment.cashAmount || 0) || 0 +
-                    parseInt(payment.onlineAmount || 0) || 0 +
-                    parseInt(payment.chequeAmount || 0) || 0
-                    :
-                    0
-                )
+                    ((payment !== undefined) ?
+                        parseInt(payment.cashAmount || 0) || 0 +
+                        parseInt(payment.onlineAmount || 0) || 0 +
+                        parseInt(payment.chequeAmount || 0) || 0
+                        :
+                        0
+                    )
             });
             alert('Payment Details Saved Successfully');
         }).catch((error) => {
@@ -507,6 +446,24 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
     return (
         // <Collapse items={items} activeKey={['1', '3', '4', '5']}></Collapse>
         <>
+            <CreatePartyForm
+                isModalOpen={isModalOpen}
+                handleOk={handleOk}
+                handleCancel={handleCancel}
+                createPartyForm={createPartyForm}
+                partyModal={partyModal}
+                setPartyModal={setPartyModal}
+            />
+
+            <CreateDriverForm
+                isDriverModalOpen={isDriverModalOpen}
+                handleDriverOk={handleDriverOk}
+                handleDriverCancel={handleDriverCancel}
+                driverForm={driverForm}
+                driverModal={driverModal}
+                setDriverModal={setDriverModal}
+            />
+
             <div className={styles.addNewDetails}>
                 <div style={{ width: '100%', marginTop: '20px' }}>
                     <Row gutter={16}>
@@ -556,7 +513,33 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         options={vehicleData}
                                                         // disabled
                                                         defaultValue={data.vehicleNo}
+                                                        dropdownRender={(menu) => (
+                                                            <>
+                                                                {menu}
+                                                                <Divider
+                                                                    style={{
+                                                                        margin: '8px 0',
+                                                                    }}
+                                                                />
+                                                                <Space
+                                                                    style={{
+                                                                        padding: '0 8px 4px',
+                                                                    }}
+                                                                >
+                                                                    <Input
+                                                                        placeholder="Please enter item"
+                                                                        value={newVehicleNo}
+                                                                        onChange={(e) => setNewVehicleNo(e.target.value)}
+                                                                        onKeyDown={(e) => e.stopPropagation()}
+                                                                    />
+                                                                    <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+                                                                        addNewVehicle(e)
+                                                                    }}>
 
+                                                                    </Button>
+                                                                </Space>
+                                                            </>
+                                                        )}
                                                     />
                                                 </Form.Item>
                                             </Flex>
@@ -610,8 +593,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                             />
                                                                                             <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                                 e.preventDefault();
-                                                                                                setLocations([...locations, { value: newLocation, label: newLocation }]);
-                                                                                                setNewLocation('');
+                                                                                                addNewLocation(e);
                                                                                             }}>
 
                                                                                             </Button>
@@ -654,8 +636,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                             />
                                                                                             <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
                                                                                                 e.preventDefault();
-                                                                                                setLocations([...locations, { value: newLocation, label: newLocation }]);
-                                                                                                setNewLocation('');
+                                                                                                addNewLocation(e);
+                                                                                                // setLocations([...locations, { value: newLocation, label: newLocation }]);
+                                                                                                // setNewLocation('');
                                                                                             }}>
 
                                                                                             </Button>
@@ -677,7 +660,15 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                     showSearch
                                                                                     placeholder="Bhejne waale"
                                                                                     optionFilterProp="children"
-                                                                                    onChange={(value) => addPartyInPartyList(value, name)}
+                                                                                    onChange={(value) => {
+                                                                                        addPartyInPartyList(value, name);
+                                                                                        for (let i = 0; i < partyListAll.length; i++) {
+                                                                                            if (partyListAll[i].value === value) {
+                                                                                                setBhejneWaalaPartyDetails(partyListAll[i]);
+                                                                                                break;
+                                                                                            }
+                                                                                        }
+                                                                                    }}
                                                                                     // onSearch={onSearch}
                                                                                     filterOption={filterOption}
                                                                                     options={partyListAll}
@@ -694,7 +685,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                                     padding: '0 8px 4px',
                                                                                                 }}
                                                                                             >
-                                                                                                <Input
+                                                                                                {/* <Input
                                                                                                     placeholder="Please enter item"
                                                                                                     value={newParty}
                                                                                                     onChange={(e) => setNewParty(e.target.value)}
@@ -702,7 +693,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                                 />
                                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewParty(e)}>
 
-                                                                                                </Button>
+                                                                                                </Button> */}
+
+                                                                                                <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
                                                                                             </Space>
                                                                                         </>
                                                                                     )}
@@ -714,9 +707,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 title={data?.tripDetails?.bhejneWaala || 'Party Details'}
                                                                                 content={
                                                                                     <div style={{ minWidth: 180 }}>
-                                                                                        <div><b>Address:</b> {data?.tripDetails[0]?.bhejneWaaliPartyAddress || 'Not available'}</div>
-                                                                                        <div><b>Contact:</b> {data?.tripDetails[0]?.bhejneWaaliPartyContact || 'Not available'}</div>
-                                                                                        <div><b>Location:</b> {data?.tripDetails[0]?.bhejneWaaliPartyLocation || 'Not available'}</div>
+                                                                                        <div><b>Address:</b> {bhejneWaalaPartyDetails.address || 'Not available'}</div>
+                                                                                        <div><b>Contact:</b> {bhejneWaalaPartyDetails.contact || 'Not available'}</div>
+                                                                                        <div><b>Location:</b> {bhejneWaalaPartyDetails.location || 'Not available'}</div>
                                                                                     </div>
                                                                                 }
                                                                                 trigger="click"
@@ -735,7 +728,15 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                     showSearch
                                                                                     placeholder="Paane waala"
                                                                                     optionFilterProp="children"
-                                                                                    onChange={(value) => addPartyInPartyList(value, name)}
+                                                                                    onChange={(value) => {
+                                                                                        addPartyInPartyList(value, name);
+                                                                                        for (let i = 0; i < partyListAll.length; i++) {
+                                                                                            if (partyListAll[i].value === value) {
+                                                                                                setPaaneWaalaPartyDetails(partyListAll[i]);
+                                                                                                break;
+                                                                                            }
+                                                                                        }
+                                                                                    }}
                                                                                     // onSearch={onSearch}
                                                                                     filterOption={filterOption}
                                                                                     options={partyListAll}
@@ -752,7 +753,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                                     padding: '0 8px 4px',
                                                                                                 }}
                                                                                             >
-                                                                                                <Input
+                                                                                                {/* <Input
                                                                                                     placeholder="Please enter item"
                                                                                                     value={newParty}
                                                                                                     onChange={(e) => setNewParty(e.target.value)}
@@ -760,7 +761,8 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                                 />
                                                                                                 <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewParty(e)}>
 
-                                                                                                </Button>
+                                                                                                </Button> */}
+                                                                                                <Button onClick={() => setIsModalOpen(true)}>Add New</Button>
                                                                                             </Space>
                                                                                         </>
                                                                                     )}
@@ -771,9 +773,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 title={data?.tripDetails?.paaneWaala || 'Party Details'}
                                                                                 content={
                                                                                     <div style={{ minWidth: 180 }}>
-                                                                                        <div><b>Address:</b> {data?.tripDetails[0]?.paaneWaaliPartyAddress || 'Not available'}</div>
-                                                                                        <div><b>Contact:</b> {data?.tripDetails[0]?.paaneWaaliPartyContact || 'Not available'}</div>
-                                                                                        <div><b>Location:</b> {data?.tripDetails[0]?.paaneWaaliPartyLocation || 'Not available'}</div>
+                                                                                        <div><b>Address:</b> {paaneWaalaPartyDetails.address || 'Not available'}</div>
+                                                                                        <div><b>Contact:</b> {paaneWaalaPartyDetails.contact || 'Not available'}</div>
+                                                                                        <div><b>Location:</b> {paaneWaalaPartyDetails.location || 'Not available'}</div>
                                                                                     </div>
                                                                                 }
                                                                                 trigger="click"
@@ -831,7 +833,17 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                     showSearch
                                                                                     placeholder="Transporter Name"
                                                                                     optionFilterProp="children"
-                                                                                    onChange={(value) => addPartyInPartyList(value, name)}
+                                                                                    onChange={(value) => {
+                                                                                        addPartyInPartyList(value, name);
+                                                                                        //  console.log(partyListAll);
+                                                                                        for (let i = 0; i < transporterList.length; i++) {
+                                                                                            if (transporterList[i].value === value) {
+                                                                                                console.log(transporterList[i]);
+                                                                                                setTransporterDetails(transporterList[i]);
+                                                                                                break;
+                                                                                            }
+                                                                                        }
+                                                                                    }}
                                                                                     // onSearch={onSearch}
                                                                                     filterOption={filterOption}
                                                                                     options={transporterList}
@@ -867,9 +879,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 title={data?.tripDetails?.transporter || 'Transporter Details'}
                                                                                 content={
                                                                                     <div style={{ minWidth: 180 }}>
-                                                                                        <div><b>Address:</b> {data?.tripDetails[0]?.transporterAddress || 'Not available'}</div>
-                                                                                        <div><b>Contact:</b> {data?.tripDetails[0]?.transporterContact || 'Not available'}</div>
-                                                                                        <div><b>Location:</b> {data?.tripDetails[0]?.transporterLocation || 'Not available'}</div>
+                                                                                        <div><b>Address:</b> {transporterDetails.address || 'Not available'}</div>
+                                                                                        <div><b>Contact:</b> {transporterDetails.contact || 'Not available'}</div>
+                                                                                        <div><b>Location:</b> {transporterDetails.location || 'Not available'}</div>
                                                                                     </div>
                                                                                 }
                                                                                 trigger="click"
@@ -882,17 +894,6 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
                                                                     <Flex style={{ width: "100%", height: 20 }} justify={'space-around'} align='center'>
                                                                         <Form.Item style={{ width: '45%' }}
-                                                                            label="Rate"
-                                                                            name={[name, 'rate']}
-                                                                        >
-                                                                            <Input type='number'
-                                                                                onWheel={e => e.target.blur()}
-                                                                                value={rate}
-                                                                                onChange={(e) => { let r = rate; r[name] = e.target.value; setRate([...r]) }}
-                                                                            ></Input>
-                                                                        </Form.Item>
-
-                                                                        <Form.Item style={{ width: '45%' }}
                                                                             label="Qty"
                                                                             name={[name, 'qty']}
                                                                         >
@@ -903,6 +904,19 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
                                                                             </Input>
                                                                         </Form.Item>
+
+                                                                        <Form.Item style={{ width: '45%' }}
+                                                                            label="Rate"
+                                                                            name={[name, 'rate']}
+                                                                        >
+                                                                            <Input type='number'
+                                                                                onWheel={e => e.target.blur()}
+                                                                                value={rate}
+                                                                                onChange={(e) => { let r = rate; r[name] = e.target.value; setRate([...r]) }}
+                                                                            ></Input>
+                                                                        </Form.Item>
+
+
 
 
                                                                     </Flex>
@@ -1082,11 +1096,34 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                     TripCash: driver1?.TripCash || '',
                                                                     DebitCredit: driver1?.DebitCredit || '',
                                                                 });
-                                                                console.log(option);
+
+                                                                for (let i = 0; i < driverList.length; i++) {
+                                                                    if (driverList[i].value === value) {
+                                                                        setDriver1Details(driverList[i]);
+                                                                        break;
+                                                                    }
+                                                                }
                                                             }}
                                                             // onSearch={onSearch}
                                                             filterOption={filterOption}
                                                             options={driverList}
+                                                            dropdownRender={(menu) => (
+                                                                <>
+                                                                    {menu}
+                                                                    <Divider
+                                                                        style={{
+                                                                            margin: '8px 0',
+                                                                        }}
+                                                                    />
+                                                                    <Space
+                                                                        style={{
+                                                                            padding: '0 8px 4px',
+                                                                        }}
+                                                                    >
+                                                                        <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
+                                                                    </Space>
+                                                                </>
+                                                            )}
                                                         />
                                                     </Form.Item>
                                                     <Popover
@@ -1094,9 +1131,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         title={driver1?.label || 'Driver Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
-                                                                <div><b>Address:</b> {data?.driver1?.location || 'Not available'}</div>
-                                                                <div><b>Contact:</b> {data?.driver1?.Contact || 'Not available'}</div>
-                                                                <div><b>License:</b> {data?.driver1?.LicenseDate || 'Not available'}</div>
+                                                                <div><b>Contact:</b> {driver1Details?.Contact || 'Not available'}</div>
+                                                                <div><b>License Date:</b> {driver1Details?.LicenseDate || 'Not available'}</div>
+                                                                <div><b>Location:</b> {driver1Details?.location || 'Not available'}</div>
                                                             </div>
                                                         }
                                                         trigger="click"
@@ -1169,12 +1206,35 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
                                                                 }
                                                                 setDriver2(option);
-                                                                console.log(option);
+
+                                                                for (let i = 0; i < driverList.length; i++) {
+                                                                    if (driverList[i].value === value) {
+                                                                        setDriver2Details(driverList[i]);
+                                                                        break;
+                                                                    }
+                                                                }
                                                             }}
                                                             // onSearch={onSearch}
                                                             filterOption={filterOption}
                                                             options={driverList}
+                                                            dropdownRender={(menu) => (
+                                                                <>
+                                                                    {menu}
+                                                                    <Divider
+                                                                        style={{
+                                                                            margin: '8px 0',
+                                                                        }}
+                                                                    />
+                                                                    <Space
+                                                                        style={{
+                                                                            padding: '0 8px 4px',
+                                                                        }}
+                                                                    >
 
+                                                                        <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
+                                                                    </Space>
+                                                                </>
+                                                            )}
                                                         />
                                                     </Form.Item>
                                                     <Popover
@@ -1182,9 +1242,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         title={driver2?.label || 'Driver Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
-                                                                <div><b>Address:</b> {data?.driver2?.location || 'Not available'}</div>
-                                                                <div><b>Contact:</b> {data?.driver2?.Contact || 'Not available'}</div>
-                                                                <div><b>License Date:</b> {data?.driver2?.LicenseDate || 'Not available'}</div>
+                                                                <div><b>Contact:</b> {driver2Details?.Contact || 'Not available'}</div>
+                                                                <div><b>License Date:</b> {driver2Details?.LicenseDate || 'Not available'}</div>
+                                                                <div><b>Location:</b> {driver2Details?.location || 'Not available'}</div>
                                                             </div>
                                                         }
                                                         trigger="click"
@@ -1236,6 +1296,13 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
 
                                                                 }
                                                                 setConductor(option);
+
+                                                                for (let i = 0; i < driverList.length; i++) {
+                                                                    if (driverList[i].value === value) {
+                                                                        setConductorDetails(driverList[i]);
+                                                                        break;
+                                                                    }
+                                                                }
                                                                 console.log(option);
                                                             }}
                                                             // onSearch={onSearch}
@@ -1250,9 +1317,9 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         title={conductor?.label || 'Conductor Details'}
                                                         content={
                                                             <div style={{ minWidth: 180 }}>
-                                                                <div><b>Address:</b> {data?.conductor?.location || 'Not available'}</div>
-                                                                <div><b>Contact:</b> {data?.conductor?.Contact || 'Not available'}</div>
-                                                                <div><b>License Date:</b> {data?.conductor?.LicenseDate || 'Not available'}</div>
+                                                                <div><b>Contact:</b> {conductorDetails?.Contact || 'Not available'}</div>
+                                                                <div><b>License Date:</b> {conductorDetails?.LicenseDate || 'Not available'}</div>
+                                                                <div><b>Location:</b> {conductorDetails?.location || 'Not available'}</div>
                                                             </div>
                                                         }
                                                         trigger="click"
@@ -1310,6 +1377,34 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                         // onSearch={onSearch}
                                                         filterOption={filterOption}
                                                         options={pumpList}
+                                                        dropdownRender={(menu) => (
+                                                            <>
+                                                                {menu}
+                                                                <Divider
+                                                                    style={{
+                                                                        margin: '8px 0',
+                                                                    }}
+                                                                />
+                                                                <Space
+                                                                    style={{
+                                                                        padding: '0 8px 4px',
+                                                                    }}
+                                                                >
+                                                                    <Input
+                                                                        placeholder="Please enter item"
+                                                                        value={newPumpName}
+                                                                        onChange={(e) => setNewPumpName(e.target.value)}
+                                                                        onKeyDown={(e) => e.stopPropagation()}
+                                                                    />
+                                                                    <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+
+                                                                        addNewPump(e);
+                                                                    }}>
+
+                                                                    </Button>
+                                                                </Space>
+                                                            </>
+                                                        )}
                                                     />
                                                 </Form.Item>
                                             </Flex>
@@ -1604,7 +1699,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 <td ><h3>Cash</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'cashAmount']}>
-                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()} />
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -1648,7 +1743,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 <td ><h3>Online</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'onlineAmount']}>
-                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()} />
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -1666,6 +1761,31 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                             // onSearch={onSearch}
                                                                                             filterOption={filterOption}
                                                                                             options={bankData}
+                                                                                            dropdownRender={(menu) => (
+                                                                                                <>
+                                                                                                    {menu}
+                                                                                                    <Divider
+                                                                                                        style={{
+                                                                                                            margin: '8px 0',
+                                                                                                        }}
+                                                                                                    />
+                                                                                                    <Space
+                                                                                                        style={{
+                                                                                                            padding: '0 8px 4px',
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <Input
+                                                                                                            placeholder="Please enter item"
+                                                                                                            value={newBank}
+                                                                                                            onChange={(e) => setNewBank(e.target.value)}
+                                                                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                                                                        />
+                                                                                                        <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
+
+                                                                                                        </Button>
+                                                                                                    </Space>
+                                                                                                </>
+                                                                                            )}
                                                                                         />
                                                                                     </Form.Item>
                                                                                 </td>
@@ -1679,7 +1799,7 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                 <td ><h3>Cheque</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'chequeAmount']}>
-                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()} />
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -1697,6 +1817,31 @@ const ViewDailyEntry = ({ data, Locations, transporterList, partyListAll, driver
                                                                                             // onSearch={onSearch}
                                                                                             filterOption={filterOption}
                                                                                             options={bankData}
+                                                                                            dropdownRender={(menu) => (
+                                                                                                <>
+                                                                                                    {menu}
+                                                                                                    <Divider
+                                                                                                        style={{
+                                                                                                            margin: '8px 0',
+                                                                                                        }}
+                                                                                                    />
+                                                                                                    <Space
+                                                                                                        style={{
+                                                                                                            padding: '0 8px 4px',
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <Input
+                                                                                                            placeholder="Please enter item"
+                                                                                                            value={newBank}
+                                                                                                            onChange={(e) => setNewBank(e.target.value)}
+                                                                                                            onKeyDown={(e) => e.stopPropagation()}
+                                                                                                        />
+                                                                                                        <Button type="text" icon={<PlusOutlined />} onClick={(e) => addNewBank(e)}>
+
+                                                                                                        </Button>
+                                                                                                    </Space>
+                                                                                                </>
+                                                                                            )}
                                                                                         />
                                                                                     </Form.Item>
                                                                                 </td>

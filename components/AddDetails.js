@@ -5,18 +5,51 @@ import styles from '../styles/DailyEntry.module.css';
 import firebase from '../config/firebase'
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import CreatePartyForm from './common/CreatePartyForm';
+import CreateDriverForm from './common/CreateDriverForm';
 import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
 
-const AddDetails = () => {
+const AddDetails = ({
+    Locations,
+    vehicleData,
+    pumpList,
+    bankData,
+    partyListAll,
+    transporterList,
+    driverList,
+    MaalList,
+    addNewPump,
+    addNewVehicle,
+    addNewDriver,
+    addNewBank,
+    addNewLocation,
+    addNewMaal,
+    addNewTransporter,
+    addNewParty,
+    addPartyInPartyList,
+    partyList,
+    newTransporter,
+    setNewTransporter,
+    newLocation,
+    setNewLocation,
+    newBank,
+    setNewBank,
+    partyModal,
+    setPartyModal,  
+    createPartyForm,
+    driverForm,
+    newMaal,
+    setNewMaal,
+    setDriverList,
+    driverModal,
+    setDriverModal
+}) => {
     const [form] = Form.useForm();
     const [form1] = Form.useForm();
     const [form2] = Form.useForm();
     const [form3] = Form.useForm();
-    const [driverForm] = Form.useForm();
-    const [createPartyForm] = Form.useForm();
     const [vehicleNo, setVehicleNo] = useState('');
     const [date, setDate] = useState(todayDate);
     const [mt, setMT] = useState(false);
@@ -37,37 +70,13 @@ const AddDetails = () => {
     const [partyForTransporterPayment, setPartyForTransporterPayment] = useState('');
 
     // to display dynamic Bhada Kaun Dalega list
-    const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
-    const [partyDetailsList, setPartyDetailsList] = useState([[], [], [], [], [], []]);
+   
+    // const [partyDetailsList, setPartyDetailsList] = useState([[], [], [], [], [], []]);
     const [selectedPartyIndex, setSelectedPartyIndex] = useState([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
     const [selectedTransporterIndex, setSelectedTransporterIndex] = useState(-1);
-    // Drivers List
-    const [driverList, setDriverList] = useState([]);
-    const [newDriverName, setNewDriverName] = useState('');
-    // Locations list
-    const [Locations, setLocations] = useState([]);
-    const [newLocation, setNewLocation] = useState('');
-    // Maal List
-    const [MaalList, setMaalList] = useState([
-    ]);
-    const [newMaal, setNewMaal] = useState('');
-    //All Party List for Party Select
-    const [partyListAll, setPartyListAll] = useState([]);
-    const [newParty, setNewParty] = useState('');
-    // All Transporter List for Transporter Select
-    const [transporterList, setTransporterList] = useState([]);
-    const [newTransporter, setNewTransporter] = useState('');
+    
     const [transporterSelected, setTransporterSelected] = useState(false);
-    // Data to display in the table
-    const [completeDataSource, setCompleteDataSource] = useState([]);
-    const [dataSource, setDataSource] = useState([]); // Table Data
-    // FLAG 
-    const [flag, setFlag] = useState(false);
-    //Bank
-    const [newBank, setNewBank] = useState('');
-    const [bankData, setBankData] = useState([]);
-    const [dateFilter, setDateFilter] = useState('');
-
+   
     const [lrNumber, setLrNumber] = useState('');
     const [driver1, setDriver1] = useState({});
     const [driver2, setDriver2] = useState({});
@@ -80,23 +89,12 @@ const AddDetails = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
 
-    // MODAL VARIABLES:
-    const [partyModal, setPartyModal] = useState({});
-    const [vehicleData, setVehicleData] = useState([]);
+   
     const [newVehicleNo, setNewVehicleNo] = useState('');
     // const [driverModal, setDriverModal] = useState({});
     const [toggleKaataParchi, setToggleKaataParchi] = useState(false);
-
-    const [driverModal, setDriverModal] = useState({
-        label: '',
-        value: '',
-        location: '',
-        LicenseDate: '',
-        contact: '',
-        licenseDocument: null, // Add this new field
-    });
     const [pohchAmount, setPohchAmount] = useState(0);
-    const [pumpList, setPumpList] = useState([]);
+    // const [pumpList, setPumpList] = useState([]);
     const [totalFreight, setTotalFreight] = useState(0);
     const { TextArea } = Input;
 
@@ -106,112 +104,7 @@ const AddDetails = () => {
         setTotalFreight(isNaN(parseFloat(rate[0]) * parseFloat(qty[0])) ? 0 : (parseFloat(rate[0]) * parseFloat(qty[0])).toFixed(2) || 0);
     }, [rate, qty]);
 
-    useEffect(() => {
-        console.log(transporterList[selectedTransporterIndex]);
-    }, [selectedTransporterIndex])
-
     useDisableNumberInputScroll();
-    useEffect(() => {
-        const db = getDatabase();
-
-        const locationsRef = ref(db, 'locations/');
-        onValue(locationsRef, (snapshot) => {
-            const data = snapshot.val();
-            // updateStarCount(postElement, data);
-            let locations = []; // Data Source
-            if (data) {
-                Object.values(data).map((location, i) => {
-                    locations.push(location);
-                })
-                setLocations([...locations]);
-            }
-        });
-
-        const partyRef = ref(db, 'parties/');
-        onValue(partyRef, (snapshot) => {
-            const data = snapshot.val();
-            // updateStarCount(postElement, data);
-            let parties = []; // Data Source
-            if (data !== null) {
-                Object.entries(data).map(([key, party], i) => {
-                    parties.push({ ...party, id: key });
-                })
-            }
-            setPartyListAll([...parties]);
-        });
-
-        const transporterRef = ref(db, 'transporters/');
-        onValue(transporterRef, (snapshot) => {
-            const data = snapshot.val();
-            // updateStarCount(postElement, data);
-            let transporters = []; // Data Source
-            if (data) {
-                Object.entries(data).map(([key, transporter], i) => {
-                    transporters.push({ ...transporter, id: key });
-                })
-            }
-            console.log(transporters);
-            setTransporterList([...transporters]);
-        });
-
-        const driversRef = ref(db, 'drivers/');
-        onValue(driversRef, (snapshot) => {
-            const data = snapshot.val();
-            // updateStarCount(postElement, data);
-            let drivers = []; // Data Source
-            if (data) {
-                Object.entries(data).map(([key, driver], i) => {
-                    drivers.push({ ...driver, id: key });
-                })
-                setDriverList([...drivers]);
-            }
-        });
-
-        const bankRef = ref(db, 'bankData/');
-        onValue(bankRef, (snapshot) => {
-            const data = snapshot.val();
-            let _bankData = [];
-            if (data !== null) {
-                for (let i = 0; i < data.data.length; i++) {
-                    _bankData.push({
-                        label: data.data[i].bankName,
-                        value: data.data[i].bankName,
-                        key: data.data[i].key
-                    })
-                }
-            }
-            setBankData([..._bankData]);
-            console.log(_bankData);
-        })
-
-        const maalRef = ref(db, 'maal/');
-        onValue(maalRef, (snapshot) => {
-            const data = snapshot.val();
-            const _maal = [];
-            if (data) {
-                Object.values(data).map((maal, i) => {
-                    _maal.push({ label: maal.label, value: maal.value })
-                })
-                setMaalList([..._maal]);
-            }
-        })
-
-        const vehicleDataRef = ref(db, 'Vehicles/');
-        onValue(vehicleDataRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                setVehicleData(data);
-            }
-        })
-
-        const pumpDataRef = ref(db, 'pumps/');
-        onValue(pumpDataRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                setPumpList(data);
-            }
-        })
-    }, [])
 
     const resetDriverList = () => {
         let _driverList = driverList;
@@ -235,18 +128,20 @@ const AddDetails = () => {
                 from: trip.from || '',
                 to: trip.to || '',
                 bhejneWaala: trip.bhejneWaala || '',
-                bhejneWaaliPartyAddress: partyListAll[selectedPartyIndex[0]].address || 'Not available',
-                bhejneWaaliPartyContact: partyListAll[selectedPartyIndex[0]].contact || 'Not available',
-                bhejneWaaliPartyLocation: partyListAll[selectedPartyIndex[0]].location || 'Not available',
+                bhejneWaalaPartyId: partyListAll[selectedPartyIndex[0]].id || 'Not available',
+                // bhejneWaaliPartyAddress: partyListAll[selectedPartyIndex[0]].address || 'Not available',
+                // bhejneWaaliPartyContact: partyListAll[selectedPartyIndex[0]].contact || 'Not available',
+                // bhejneWaaliPartyLocation: partyListAll[selectedPartyIndex[0]].location || 'Not available',
                 paaneWaala: trip.paaneWaala || '',
-                paaneWaaliPartyAddress: partyListAll[selectedPartyIndex[1]].address || 'Not available',
-                paaneWaaliPartyContact: partyListAll[selectedPartyIndex[1]].contact || 'Not available',
-                paaneWaaliPartyLocation: partyListAll[selectedPartyIndex[1]].location || 'Not available',
+                paaneWaalaPartyId: partyListAll[selectedPartyIndex[1]].id || 'Not available',
+                // paaneWaaliPartyAddress: partyListAll[selectedPartyIndex[1]].address || 'Not available',
+                // paaneWaaliPartyContact: partyListAll[selectedPartyIndex[1]].contact || 'Not available',
+                // paaneWaaliPartyLocation: partyListAll[selectedPartyIndex[1]].location || 'Not available',
                 transporter: trip.transporter || '',
                 transporterId: transporterList[selectedTransporterIndex]?.id || 'Not available',
-                transporterAddress: transporterList[selectedTransporterIndex]?.address || 'Not available',
-                transporterContact: transporterList[selectedTransporterIndex]?.contact || 'Not available',
-                transporterLocation: transporterList[selectedTransporterIndex]?.location || 'Not available',
+                // transporterAddress: transporterList[selectedTransporterIndex]?.address || 'Not available',
+                // transporterContact: transporterList[selectedTransporterIndex]?.contact || 'Not available',
+                // transporterLocation: transporterList[selectedTransporterIndex]?.location || 'Not available',
                 maal: trip.Maal || '',
                 qty: trip.qty || 0,
                 rate: trip.rate || 0,
@@ -345,17 +240,20 @@ const AddDetails = () => {
             //DRIVER DATA
             lrNumber: lrNumber || '',
             driver1: driver1 || null,
-            driver1Address: driver1?.location || 'Not available',
-            driver1Contact: driver1?.contact || 'Not available',
-            driver1LicenseDate: driver1?.LicenseDate || 'Not available',
+            driver1Id: driver1?.id || 'Not available',
+            // driver1Address: driver1?.location || 'Not available',
+            // driver1Contact: driver1?.contact || 'Not available',
+            // driver1LicenseDate: driver1?.LicenseDate || 'Not available',
             driver2: driver2 || null,
-            driver2Address: driver2?.location || 'Not available',
-            driver2Contact: driver2?.contact || 'Not available',
-            driver2LicenseDate: driver2?.LicenseDate || 'Not available',
+            driver2Id: driver2?.id || 'Not available',
+            // driver2Address: driver2?.location || 'Not available',
+            // driver2Contact: driver2?.contact || 'Not available',
+            // driver2LicenseDate: driver2?.LicenseDate || 'Not available',
             conductor: conductor || null,
-            conductorAddress: conductor?.location || 'Not available',
-            conductorContact: conductor?.contact || 'Not available',
-            conductorLicenseDate: conductor?.LicenseDate || 'Not available',
+            conductorId: conductor?.id || 'Not available'
+            // conductorAddress: conductor?.location || 'Not available',
+            // conductorContact: conductor?.contact || 'Not available',
+            // conductorLicenseDate: conductor?.LicenseDate || 'Not available',
 
         }).then(() => {
             alert('Data Saved Successfully');
@@ -387,221 +285,6 @@ const AddDetails = () => {
             console.error('Error:', error);
         });
 
-    }
-
-    const addPartyInPartyList = (value, index) => {
-        let pl = partyList;
-        let party1 = (index === 'party1') ? value : pl[0][0]?.label;
-        let party2 = (index === 'party2') ? value : pl[0][1]?.label;
-        let transporter = (index === 'transporter') ? value : pl[0][2]?.label;
-        pl[0] = [{ label: party1, value: party1 }, { label: party2, value: party2 }, { label: transporter, value: transporter }];
-        setPartyList([...pl]);
-    }
-
-    const addNewParty = () => {
-        // e.preventDefault();
-        if (partyModal.label === undefined) {
-            alert('Please Enter Party name');
-            return;
-        }
-        let _newParty = partyModal.label;
-        for (let i = 0; i < partyListAll.length; i++) {
-            if (_newParty.toUpperCase() === partyListAll[i].value.toUpperCase()) {
-                alert(`Party with name ${partyListAll[i].value} already exists.`);
-                return;
-            }
-        }
-        setPartyListAll([...partyListAll, { ...partyModal }]);
-        // setNewParty('');
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const partyListRef = ref(db, 'parties');
-        const newPartyRef = push(partyListRef);
-        set(newPartyRef, {
-            ...partyModal
-        }).then(() => {
-            alert("Party Created Successfully!!");
-            setPartyModal({});
-            createPartyForm.resetFields();
-            return;
-        })
-    }
-
-    const addNewTransporter = (e) => {
-        if (newTransporter.trim() === "") {
-            alert("please enter a value to add transporter.")
-            return;
-        }
-        e.preventDefault();
-        for (let i = 0; i < transporterList.length; i++) {
-            if (newTransporter.toUpperCase() === transporterList[i].value.toUpperCase()) {
-                alert(`Transporter with name ${transporterList[i].value} already exixts`);
-                return;
-            }
-        }
-        setTransporterList([...transporterList, { value: newTransporter, label: newTransporter }]);
-        setNewTransporter('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const transporterListRef = ref(db, 'transporters');
-        const newTransporterRef = push(transporterListRef);
-        set(newTransporterRef, {
-            value: newTransporter,
-            label: newTransporter,
-        });
-    }
-
-    const addNewMaal = (e, _newMaal) => {
-        if (_newMaal === undefined) {
-            _newMaal = newMaal;
-        }
-        if (_newMaal.trim() === "") {
-            alert("please enter a value to add maal.")
-            return;
-        }
-        e.preventDefault();
-        for (let i = 0; i < MaalList.length; i++) {
-            if (_newMaal.toUpperCase() === MaalList[i].value.toUpperCase()) {
-                alert(`Maal with name ${MaalList[i].value} already exixts`);
-                return;
-            }
-        }
-        setMaalList([...MaalList, { value: _newMaal, label: _newMaal }]);
-        setNewMaal('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const maalListRef = ref(db, 'maal');
-        const newMaalRef = push(maalListRef);
-        set(newMaalRef, {
-            value: _newMaal,
-            label: _newMaal,
-        });
-    }
-
-    const addNewLocation = (e) => {
-        e.preventDefault();
-        if (newLocation.trim() === '') {
-            alert('Please enter location to add location in the list. Field is empty');
-            return;
-        }
-
-        for (let i = 0; i < Locations.length; i++) {
-            if (newLocation.toUpperCase() === Locations[i].value.toUpperCase()) {
-                alert(`Location with name ${Locations[i].value} already exists`);
-                return;
-            }
-        }
-        setLocations([...Locations, { value: newLocation, label: newLocation }]);
-        setNewLocation('');
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const locationsRef = ref(db, 'locations');
-        const newLocationRef = push(locationsRef);
-        set(newLocationRef, {
-            value: newLocation,
-            label: newLocation,
-        }).then(() => {
-            alert("Location Added Successfully!!");
-            setNewLocation('');
-            return;
-        }).catch((error) => {
-            console.error("Error adding location:", error);
-            alert("Error adding location: " + error.message);
-        });
-    }
-
-    const addNewBank = (e) => {
-        e.preventDefault();
-        if (newBank.trim() === '') {
-            alert('Please enter bank name to add bank in the list. Field is empty');
-            return;
-        }
-        let key = bankData.length;
-        setBankData([...bankData, { bankName: newBank, value: newBank, label: newBank, key: key }]);
-
-        const db = getDatabase();
-        const bankRef = ref(db, 'bankData/data/' + key);
-        // const newBankRef = push(bankRef);
-        set(bankRef, {
-            bankName: newBank,
-            key: key,
-        })
-
-        setNewBank('');
-
-    }
-
-    const addNewDriver = (e) => {
-
-        // e.preventDefault();
-        if (driverModal.label === undefined) {
-            alert("Please Enter Driver Name to submit")
-        }
-        let _newDriverName = driverModal.label;
-        for (let i = 0; i < driverList.length; i++) {
-            if (_newDriverName.toUpperCase() === driverList[i].value.toUpperCase()) {
-                alert("Driver with this name already exists");
-                return;
-            }
-        }
-        setDriverList([...driverList, { ...driverModal }]);
-        setNewDriverName('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const driverListRef = ref(db, 'drivers');
-        const newDriverRef = push(driverListRef);
-        set(newDriverRef, {
-            ...driverModal
-        }).then(() => {
-            alert("Driver Added Successfully!!");
-            setDriverModal({});
-            driverForm.resetFields();
-            return;
-        });
-    }
-
-    const addNewVehicle = (e) => {
-        e.preventDefault();
-        if (newVehicleNo.trim() === '') {
-            alert('Please enter vehicle no. to add vehicle in the list. Field is empty');
-            return;
-        }
-        let key = vehicleData.length;
-        setVehicleData([...vehicleData, { vehicleNo: newVehicleNo, value: newVehicleNo, label: newVehicleNo, key: key }]);
-        const db = getDatabase();
-        const vehicleRef = ref(db, 'Vehicles/' + key);
-        // const newBankRef = push(bankRef);
-        set(vehicleRef, {
-            vehicleNo: newVehicleNo,
-            key: key,
-            label: newVehicleNo,
-            value: newVehicleNo
-        })
-        setNewVehicleNo('');
-
-    }
-
-    const addNewPump = (e) => {
-        e.preventDefault();
-        if (newPumpName.trim() === '') {
-            alert('Please enter pump name to add pump in the list. Field is empty');
-            return;
-        }
-        let key = pumpList.length;
-        setPumpList([...pumpList, { pumpName: newPumpName, value: newPumpName, label: newPumpName, key: key }]);
-        const db = getDatabase();
-        const pumpRef = ref(db, 'pumps/' + key);
-        // const newBankRef = push(bankRef);
-        set(pumpRef, {
-            pumpName: newPumpName,
-            key: key,
-            label: newPumpName,
-            value: newPumpName
-        })
-        setNewPumpName('');
     }
 
     // Filter `option.label` match the user type `input`
@@ -648,228 +331,14 @@ const AddDetails = () => {
                 setPartyModal={setPartyModal}
             />
 
-            <Modal title="Create Driver" open={isDriverModalOpen} onOk={handleDriverOk} onCancel={handleDriverCancel}
-                footer={[
-                    <Button key="back" onClick={handleDriverCancel}>
-                        Cancel
-                    </Button>,
-                    <Button key="submit" type="primary" onClick={handleDriverOk}>
-                        Submit
-                    </Button>
-                ]}
-            >
-                <Form name="DriverForm" layout="vertical" form={driverForm}>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="name"
-                                label="Name"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter user name',
-                                    },
-                                ]}
-                            >
-                                <Input onChange={(e) => {
-                                    setDriverModal({
-                                        ...driverModal,
-                                        label: e.target.value,
-                                        value: e.target.value,
-                                    });
-                                }} placeholder="Please enter user name" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name="DriverLocation"
-                                label="Driver Location"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please enter url',
-                                    },
-                                ]}
-                            >
-                                <Input
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    placeholder="Driver Location"
-                                    onChange={(e) => {
-                                        setDriverModal({
-                                            ...driverModal,
-                                            location: e.target.value,
-                                        });
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={8}>
-                            <Form.Item
-                                name="LicenseDate"
-                                label="License Date"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please select an owner',
-                                    },
-                                ]}
-                            >
-                                <Input
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    type='date'
-                                    placeholder="License Date"
-                                    onChange={(e) => {
-                                        setDriverModal({
-                                            ...driverModal,
-                                            LicenseDate: e.target.value,
-                                        });
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-
-                        <Col span={8}>
-                            <Form.Item
-                                label="License type"
-                                name="License type"
-                            >
-                                <Select
-                                    placeholder="License type"
-                                    optionFilterProp="children"
-                                    onChange={(value) => {
-                                        setDriverModal({
-                                            ...driverModal,
-                                            LicenseType: value,
-                                        });
-                                    }}
-                                    options={[
-                                        {
-                                            value: 'Heavy Vehicle',
-                                            label: 'Heavy Vehicle',
-                                        },
-                                        {
-                                            value: 'Light Vehicle',
-                                            label: 'Light Vehicle',
-                                        }
-                                    ]}
-                                />
-                            </Form.Item>
-
-                        </Col>
-                        <Col span={8}>
-                            <Form.Item
-                                name="ContactNumber"
-                                label="Contact Number"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Provide Contact Number',
-                                    },
-                                ]}
-                            >
-                                <Input
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                    placeholder="Contact Number"
-                                    onChange={(e) => {
-                                        setDriverModal({
-                                            ...driverModal,
-                                            Contact: e.target.value,
-                                        });
-                                    }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <Form.Item
-                                name="description"
-                                label="Description"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'please enter url description',
-                                    },
-                                ]}
-                            >
-                                <Input.TextArea rows={4} placeholder="please enter url description" onChange={(e) => {
-
-                                    setDriverModal({
-                                        ...driverModal,
-                                        description: e.target.value,
-                                    });
-                                }} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    {/* // Add this inside your Driver Modal Form, you can place it after the Contact Number Form.Item */}
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <Form.Item
-                                name="licenseDocument"
-                                label="Driver's License Document"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please upload driver license document',
-                                    },
-                                ]}
-                            >
-                                <Upload.Dragger
-                                    name="licenseDocument"
-                                    accept="image/*,.pdf"
-                                    multiple={false}
-                                    beforeUpload={(file) => {
-                                        // Check file size (example: max 5MB)
-                                        const isLt5M = file.size / 1024 / 1024 < 5;
-                                        if (!isLt5M) {
-                                            message.error('Image must be smaller than 5MB!');
-                                            return Upload.LIST_IGNORE;
-                                        }
-
-                                        // Handle the file
-                                        const reader = new FileReader();
-                                        reader.readAsDataURL(file);
-                                        reader.onload = () => {
-                                            setDriverModal({
-                                                ...driverModal,
-                                                licenseDocument: reader.result, // stores base64 string
-                                            });
-                                        };
-
-                                        // Prevent default upload
-                                        return false;
-                                    }}
-                                    onRemove={() => {
-                                        setDriverModal({
-                                            ...driverModal,
-                                            licenseDocument: null,
-                                        });
-                                    }}
-                                >
-                                    <p className="ant-upload-drag-icon">
-                                        <InboxOutlined />
-                                    </p>
-                                    <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                                    <p className="ant-upload-hint">
-                                        Support for a single image upload. Please upload drivers license document.
-                                    </p>
-                                </Upload.Dragger>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Form>
-            </Modal>
+           <CreateDriverForm
+               isDriverModalOpen={isDriverModalOpen}
+               handleDriverOk={handleDriverOk}
+               handleDriverCancel={handleDriverCancel}
+               driverForm={driverForm}
+               driverModal={driverModal}
+               setDriverModal={setDriverModal}
+           />
 
             <div className={styles.addNewDetails}>
                 <div style={{ width: '100%' }}>
@@ -878,52 +347,53 @@ const AddDetails = () => {
                         <Col span={12}>
                             <Card style={{ marginBottom: '10px' }} >
                                 <div>
-                                     <Flex style={{ width: "100%", height: 53 }} justify='space-between' align='center'>
-                                            <Form.Item style={{ width: '48%' }} label="Date">
-                                                <Input type='date' value={date} onChange={(e) => setDate(e.target.value)}></Input>
-                                            </Form.Item>
+                                    <Flex style={{ width: "100%", height: 53 }} justify='space-between' align='center'>
+                                        <Form.Item style={{ width: '48%' }} label="Date">
+                                            <Input type='date' value={date} onChange={(e) => setDate(e.target.value)}></Input>
+                                        </Form.Item>
 
-                                            <Form.Item style={{ width: '48%' }} label="Vehicle">
-                                                <Select
-                                                    showSearch
-                                                    placeholder="Vehicle No."
-                                                    optionFilterProp="children"
-                                                    onChange={(value) => setVehicleNo(value)}
-                                                    // onSearch={onSearch}
-                                                    filterOption={filterOption}
-                                                    options={vehicleData}
-                                                    dropdownRender={(menu) => (
-                                                        <>
-                                                            {menu}
-                                                            <Divider
-                                                                style={{
-                                                                    margin: '8px 0',
-                                                                }}
+                                        <Form.Item style={{ width: '48%' }} label="Vehicle">
+                                            <Select
+                                                showSearch
+                                                value={vehicleNo}
+                                                placeholder="Vehicle No."
+                                                optionFilterProp="children"
+                                                onChange={(value) => setVehicleNo(value)}
+                                                // onSearch={onSearch}
+                                                filterOption={filterOption}
+                                                options={vehicleData}
+                                                dropdownRender={(menu) => (
+                                                    <>
+                                                        {menu}
+                                                        <Divider
+                                                            style={{
+                                                                margin: '8px 0',
+                                                            }}
+                                                        />
+                                                        <Space
+                                                            style={{
+                                                                padding: '0 8px 4px',
+                                                            }}
+                                                        >
+                                                            <Input
+                                                                placeholder="Please enter item"
+                                                                value={newVehicleNo}
+                                                                onChange={(e) => setNewVehicleNo(e.target.value)}
+                                                                onKeyDown={(e) => e.stopPropagation()}
                                                             />
-                                                            <Space
-                                                                style={{
-                                                                    padding: '0 8px 4px',
-                                                                }}
-                                                            >
-                                                                <Input
-                                                                    placeholder="Please enter item"
-                                                                    value={newVehicleNo}
-                                                                    onChange={(e) => setNewVehicleNo(e.target.value)}
-                                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                                />
-                                                                <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-                                                                    addNewVehicle(e)
-                                                                }}>
+                                                            <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
+                                                                addNewVehicle(e)
+                                                            }}>
 
-                                                                </Button>
-                                                            </Space>
-                                                        </>
-                                                    )}
-                                                />
-                                            </Form.Item>
+                                                            </Button>
+                                                        </Space>
+                                                    </>
+                                                )}
+                                            />
+                                        </Form.Item>
 
 
-                                        </Flex>
+                                    </Flex>
 
                                     <Form
                                         name="Trip Details"
@@ -938,7 +408,7 @@ const AddDetails = () => {
                                         form={form}
                                     >
 
-                                       
+
                                         <Flex gap="middle" vertical>
 
 
@@ -2016,7 +1486,7 @@ const AddDetails = () => {
                                             />
                                         </Form.Item>
 
-                                        {(bhadaKaunDalega === 'HareKrishna' || bhadaKaunDalega === 'NaveenKaka' || bhadaKaunDalega === transporterSelected) &&
+                                        {(bhadaKaunDalega === 'HareKrishna' || bhadaKaunDalega === 'HareKrishna' || bhadaKaunDalega === 'NaveenKaka' || bhadaKaunDalega === transporterSelected) &&
                                             <Form.Item label="Select Party" name={[0, 'partyForTransporterPayment']}>
                                                 <Select
                                                     showSearch
@@ -2106,7 +1576,7 @@ const AddDetails = () => {
                                                                                 <td ><h3>Cash</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'cashAmount']}>
-                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()} />
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -2127,7 +1597,7 @@ const AddDetails = () => {
                                                                                 <td ><h3>Online</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'onlineAmount']}>
-                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()} />
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >
@@ -2183,7 +1653,7 @@ const AddDetails = () => {
                                                                                 <td ><h3>Cheque</h3></td>
                                                                                 <td >
                                                                                     <Form.Item name={[name, 'chequeAmount']}>
-                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()}/>
+                                                                                        <Input placeholder='amount' type='number' onWheel={e => e.target.blur()} />
                                                                                     </Form.Item>
                                                                                 </td >
                                                                                 <td >

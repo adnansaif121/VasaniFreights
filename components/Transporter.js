@@ -9,7 +9,7 @@ const Transporter = () => {
     return (
         <>
             <div style={{ marginTop: '-20px', marginBottom: '5px' }}>
-                <Segmented size='large' options={['No. of trips detail', 'Payment Received Details']} onChange={(value) => setPage(value)} block />
+                <Segmented size='large' options={[ 'Payment Received Details','No. of trips detail']} onChange={(value) => setPage(value)} block />
             </div>
             {page === "No. of trips detail" &&
                 <TransporterTrips></TransporterTrips>
