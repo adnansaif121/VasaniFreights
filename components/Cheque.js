@@ -853,24 +853,6 @@ const Cheque = () => {
         driverForm.resetFields();
     }
 
-    const handleDateFilter = (e) => {
-        let date = e.target.value;
-        console.log(date);
-        // let _custom_date = new Date(date).getTime();
-        // let _custom_end_date = new Date(customEndDate).getTime();
-        console.log(completeDataSource);
-        let _displayDataSource = completeDataSource.filter(
-            (item) => {
-                // let itemDate = new Date(item.date).getTime();
-                console.log(item.date, date);
-                return item.date === date;
-            }
-        )
-        setDataSource(_displayDataSource);
-        setDateFilter(e.target.value);
-        // setDisplayDataSource(_displayDataSource);
-    }
-
     return (
         <>
 

@@ -7,6 +7,7 @@ const { TabPane } = Tabs;
 const { Title } = Typography;
 
 const itemTypes = [
+  {key: 'Transporter', label: 'Transporter'},
   { key: 'locations', label: 'Locations' },
   { key: 'pumps', label: 'Pump Names' },
   { key: 'bankData', label: 'Bank Names' },
@@ -30,6 +31,19 @@ const ManageItems = () => {
     const db = getDatabase();
     const newItems = {};
 
+    await new Promise(resolve => {
+      onValue(ref(db, 'transporters/'), (snapshot) => {
+        const data = snapshot.val();
+        let arr = [];
+        if (data) {
+          Object.entries(data).forEach(([id, item]) => {
+            arr.push({ id, ...item });
+          });
+        }
+        newItems['Transporter'] = arr;
+        resolve();
+      }, { onlyOnce: true });
+    })
     // Locations
     await new Promise(resolve => {
       onValue(ref(db, 'locations/'), (snapshot) => {
@@ -133,6 +147,11 @@ const ManageItems = () => {
     let newItem = {};
     let arr = [];
     switch (modal.type) {
+      case 'Transporter':
+        refPath = 'transporters';
+        newItem = { label: inputValue, value: inputValue };
+        await set(ref(db, `${refPath}/${Date.now().toString()}`), newItem);
+        break;
       case 'locations':
         refPath = 'locations';
         newItem = { value: inputValue, label: inputValue };
@@ -239,6 +258,10 @@ const ManageItems = () => {
         let refPath = '';
         let arr = [];
         switch (type) {
+          case 'Transporter':
+            refPath =  `transporters/${id}`;
+            await set(ref(db, refPath), null);
+            break;
           case 'locations':
             refPath = `locations/${id}`;
             await set(ref(db, refPath), null);
@@ -348,7 +371,7 @@ const ManageItems = () => {
   }));
 
   return (
-    <Card style={{ maxWidth: 600, margin: '40px auto', boxShadow: '0 2px 8px #f0f1f2' }}>
+    <Card style={{ maxWidth: 700, margin: '40px auto', boxShadow: '0 2px 8px #f0f1f2' }}>
       <Title level={3} style={{ textAlign: 'center', marginBottom: 20 }}>Manage List Items</Title>
       <Tabs
         activeKey={activeTab}

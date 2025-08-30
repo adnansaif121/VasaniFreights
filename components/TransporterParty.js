@@ -517,7 +517,7 @@ const TransporterParty = () => {
         const partyRef = ref(db, 'transporters/' + partyIds[partySelectedForEdit]);
         update(partyRef, {
             label: partyName,
-            value: partyName,
+            // value: partyName,
             location: partyLocation || '',
             address: partyAddress || '',
             contact: partyContact || '',
@@ -531,7 +531,7 @@ const TransporterParty = () => {
         let dpl = displayPartyList;
         dpl[partySelectedForEdit] = {
             label: partyName,
-            value: partyName,
+            // value: partyName,
             location: (partyLocation || ''),
             address: (partyAddress || ''),
             contact: (partyContact || ''),

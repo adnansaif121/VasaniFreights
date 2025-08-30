@@ -3,7 +3,7 @@ import styles from '../styles/Party.module.css';
 import '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Divider } from 'antd';
 import { UserOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
-import { getDatabase, ref, set, onValue, push } from "firebase/database";
+import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
 import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 const { Meta } = Card;
 const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSource, data, bankData,setBankData, handleDisplayTableChange, setDataUpdateFlag }) => {
@@ -93,7 +93,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
         obj_to_save.extraAmtRemark = extraAmtRemark;
         obj_to_save.transactionStatus = (transactionStatus !== null ? transactionStatus : 'open');
 
-        set(ref(db, 'dailyEntry/' + data_key + '/tripDetails/' + index + '/'), {
+        update(ref(db, 'dailyEntry/' + data_key + '/tripDetails/' + index + '/'), {
             ...obj_to_save
         }).then(() => {
             console.log('Data saved');

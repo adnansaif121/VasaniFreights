@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Badge, Modal, Tooltip } from 'antd';
 import { BellOutlined, EyeTwoTone, UserOutlined, SearchOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
-import { getDatabase, ref, set, onValue, get, child } from "firebase/database";
+import { getDatabase, ref, set, onValue, get, child, update } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
 import * as XLSX from 'xlsx';
@@ -25,6 +25,7 @@ const HareKrishna = () => {
     const [selectedPartyIndex, setSelectedPartyIndex] = useState(0);
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
+    const [completeDataSource, setCompleteDataSource] = useState([]);
     const [allTableData, setAllTableData] = useState({});
     const [customStartDate, setCustomStartDate] = useState(null);
     const [customEndDate, setCustomEndDate] = useState(null);
@@ -41,8 +42,11 @@ const HareKrishna = () => {
     const [bankData, setBankData] = useState([]);
     const [remarkModalOpen, setRemarkModalOpen] = useState(false);
     const [remarkData, setRemarkData] = useState([]);
-    
-    // const [dateFilter, setDateFilter] = useState('');
+    // const [partySelectedType, setPartySelectedType] = useState('parties');
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
+    const [dateFilter, setDateFilter] = useState('');
+    const [objKey, setObjKey] = useState(null);
     // const [filteredRows, setFilteredRows] = useState(allRows);
 
     // Add a handler to open the modal
@@ -164,9 +168,9 @@ const HareKrishna = () => {
                 // updateStarCount(postElement, data);
                 let parties = []; // Data Source
                 if (data !== null) {
-                    Object.values(data).map((party, i) => {
+                    Object.entries(data).map(([key, party], i) => {
                         if (partyNameList.includes(party.label)) {
-                            parties.push(party);
+                            parties.push({ ...party, id: key });
                         }
                         // partyNameList.push(party.label);
                     })
@@ -483,84 +487,35 @@ const HareKrishna = () => {
         }
     ]
 
-    const handleFilterChange = (value) => {
-        console.log(`selected ${value} value`);
-        setFilterType(value);
-        let _displayDataSource = [];
-        let today = new Date();
-        let year = today.getFullYear();
-        let month = today.getMonth();
-        switch (value) {
-            case "lastMonth":
-                let month_first_date = (new Date(year, month, 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= month_first_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                console.log(_displayDataSource);
-                break;
-            case "lastQuarter":
-                // let year = (new Date()).getFullYear();
-                let quarter = Math.floor(((new Date()).getMonth() + 3) / 3);
-                let quarterStartMonth = [0, 3, 6, 9] //jan, April, July, Oct
-                let quarter_first_date = (new Date(year, quarterStartMonth[quarter - 1], 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= quarter_first_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            case "last6Months":
-                let _last6thMonthYear = year;
-                let _last6thmonth = month - 6;
-                if (_last6thmonth >= 0) {
-                    _last6thMonthYear--;
-                    _last6thmonth = 12 + _last6thMonthYear;
-                }
-                let last6month_start_date = (new Date(_last6thMonthYear, _last6thmonth, 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= last6month_start_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            case "lastYear":
-                let _lastYear_start_date = (new Date(year - 1, 0, 1)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= _lastYear_start_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            case "lastFinancialYear":
-                let _lastFinancialYear_start_date = (new Date(year - 1, 3, 1)).getTime();
-                let _lastFinancialYear_end_date = (new Date(year, 2, 31)).getTime();
-                _displayDataSource = dataSource.filter(
-                    (item) => {
-                        let itemDate = new Date(item.date).getTime();
-                        return itemDate >= _lastFinancialYear_start_date && itemDate <= _lastFinancialYear_end_date;
-                    }
-                )
-                setDisplayDataSource([..._displayDataSource]);
-                break;
-            default:
-                console.log(value);
-                setDisplayDataSource([...dataSource]);
+    const applyDateFilter = (e) => {
+        let startDate = fromDate;
+        let endDate = toDate;
+        console.log(startDate, endDate);
+        if (startDate === null || endDate === null) {
+            alert("Please select start and end date");
+            return;
         }
-    };
+        let _startDate = new Date(startDate).getTime();
+        let _endDate = new Date(endDate).getTime();
+        // console.log(completeDataSource);
+        let _displayDataSource = dataSource.filter(
+            (item) => {
+                let itemDate = new Date(item.date).getTime();
+                console.log(item.date, itemDate);
+                return itemDate >= _startDate && itemDate <= _endDate;
+            }
+        )
+        setDisplayDataSource(_displayDataSource);
+        setDateFilter(e.target.value);
+        // setDisplayDataSource(_displayDataSource);
+        // setFromDate(null);
+
+    }
 
     const [open, setOpen] = useState(false);
     const showDrawer = (index) => {
         setPartySelectedForEdit(index);
+        setObjKey(displayPartyList[index].id);
         setModelPartySelected(displayPartyList[index]);
         setPartyName(displayPartyList[index].label);
         setPartyLocation(displayPartyList[index].location);
@@ -578,14 +533,14 @@ const HareKrishna = () => {
         console.log('Edit Party');
         console.log(partySelected);
         const db = getDatabase();
-        const partyRef = ref(db, 'parties/' + partyIds[partySelectedForEdit]);
-        set(partyRef, {
+        const partyRef = ref(db, 'parties/' + objKey);
+        update(partyRef, {
             label: partyName,
-            value: partyName,
-            location: partyLocation,
-            address: partyAddress,
-            contact: partyContact,
-            description: partyDescription
+            // value: partyName,
+            location: partyLocation || '',
+            address: partyAddress || '',
+            contact: partyContact || '',
+            description: partyDescription || ''
         });
 
         // let pl = partyList;
@@ -601,26 +556,6 @@ const HareKrishna = () => {
         //  setPartyList([...parties]);
         setDisplayPartyList([...dpl]);
         onClose();
-    }
-
-    const handleCustomFilter = () => {
-        if (customStartDate === null) {
-            alert("Please Enter Start Date");
-            return;
-        }
-        if (customEndDate === null) {
-            alert("Please Enter End Date");
-            return;
-        }
-        let _custom_start_date = new Date(customStartDate).getTime();
-        let _custom_end_date = new Date(customEndDate).getTime();
-        let _displayDataSource = dataSource.filter(
-            (item) => {
-                let itemDate = new Date(item.date).getTime();
-                return itemDate >= _custom_start_date && itemDate <= _custom_end_date;
-            }
-        )
-        setDisplayDataSource(_displayDataSource);
     }
 
     const handleDisplayTableChange = (list) => {
@@ -648,7 +583,7 @@ const HareKrishna = () => {
                                 return (
                                     <div key={index} style={{ padding: '6px 0px 6px 0px', color: 'blue' }}>
                                         <Button onClick={() => showDrawer(index)} icon={
-                                            (item.contact === undefined || item.address === undefined) ?
+                                           (item.contact === undefined || item.contact === '' || item.address === undefined || item.address === '' || item.location === undefined || item.location === '') ?
                                                 <span style={{ color: 'red' }}><UserOutlined /></span>
                                                 :
                                                 <UserOutlined />
@@ -682,43 +617,20 @@ const HareKrishna = () => {
                 </div>
                 <div className={styles.part2}>
                     <div >
-                        <Row style={{ width: '75vw' }}>
-
-                            <Col>
-                                <Select
-                                    defaultValue="none"
-                                    style={{
-                                        width: 120,
-                                    }}
-                                    onChange={handleFilterChange}
-                                    options={filterMenuItems}
-                                />
-                            </Col>
-                            <Col>
-                                {
-                                    filterType === 'custom' ? <Row>
-                                        <Col>
-                                            <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
-                                        </Col>
-                                        <Col>
-                                            <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
-                                        </Col>
-                                        <Col>
-                                            <Button onClick={handleCustomFilter}>Apply</Button>
-                                        </Col>
-                                    </Row> : null
-                                }
-                            </Col>
-                            <Col>
-                                <Button onClick={handleClearFilter}>Clear Filter</Button>
-                            </Col>
-                            <Col>
-                                <Button type="primary" style={{ marginLeft: '20px' }} onClick={exportToExcel}>
-                                    Export to Excel
-                                </Button>
-                            </Col>
-
-                        </Row>
+                        <span style={{ marginLeft: '40px' }}>From Date:</span>
+                        <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+                        <span style={{ marginLeft: '40px' }}>To Date:</span>
+                        <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
+                        <Button onClick={applyDateFilter}>Apply Filter</Button>
+                        <Button onClick={() => {
+                            setDisplayDataSource(dataSource);
+                            setFromDate(null);
+                            setToDate(null);
+                            setDateFilter(null);
+                        }}>Clear Date</Button>
+                        <Button type="primary" style={{ marginLeft: '20px' }} onClick={exportToExcel}>
+                            Export to Excel
+                        </Button>
 
                         <Drawer
                             title="Create a new account"
