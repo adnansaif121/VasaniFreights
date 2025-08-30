@@ -140,7 +140,7 @@ const Cheque = () => {
                                     qty: data[key].tripDetails[j].qty,
                                     rate: data[key].tripDetails[j].rate,
                                     revisedRate: data[key].tripDetails[j].revisedRate,
-                                    totalFreight: data[key].tripDetails[j].totalFreight,
+                                    totalFreight:parseFloat(data[key].tripDetails[j].totalFreight).toFixed(2),
                                     // pohchRecievedDate: data[key].firstPayment[j].pohchDate,
                                     // pohchAmt: data[key].firstPayment[j].pohchAmount,
                                     paymentStatus: data[key].tripDetails[j].transactionStatus,

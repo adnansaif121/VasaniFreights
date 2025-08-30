@@ -25,15 +25,20 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
             form4.setFieldsValue(furtherPayments);
         }
 
+        let firstPaymentTotalLocal = 0;
         if (data.firstPayment !== undefined) {
-            let total = (data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].cashAmount || 0)) +
-                (data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].onlineAmount || 0)) +
-                (data.firstPayment === undefined ? 0 : parseInt(data.firstPayment[0].chequeAmount || 0));
+            let total = (parseFloat(data.firstPayment[0].cashAmount || 0)) +
+                (parseFloat(data.firstPayment[0].onlineAmount || 0)) +
+                ( parseFloat(data.firstPayment[0].chequeAmount || 0));
+            
+            console.log(total);
+            firstPaymentTotalLocal = total;
             setFirstPaymentTotal(total);
         }
 
+        let furtherPaymentTotalLocal = 0;
         if (data.tripDetails[index].furtherPayments !== undefined && data.tripDetails[index].furtherPayments !== null && data.tripDetails[index].furtherPayments.FurtherPayments !== undefined) {
-            updateTotal();
+            furtherPaymentTotalLocal = updateTotal();
         }
 
         if (data.tripDetails[index].extraAmount !== undefined) setExtraAmount(data.tripDetails[index].extraAmount);
@@ -43,16 +48,16 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
 
         // Set Remaining Balance form fields
         form.setFieldsValue({
-            totalFreight: data.tripDetails[index].totalFreight || 0,
-            firstPay: firstPaymentTotal || 0,
-            furtherPayment: furtherPaymentTotal || 0,
+            totalFreight: parseFloat(data.tripDetails[index].totalFreight).toFixed(2) || 0,
+            firstPay: firstPaymentTotalLocal || 0,
+            furtherPayment: furtherPaymentTotalLocal || 0,
             advance: data.tripDetails[index].advance || 0,
             commission: data.tripDetails[index].commission || 0,
             ghataWajan: data.tripDetails[index].ghataWajan || 0,
             tds: data.tripDetails[index].tds || 0,
             khotiKharabi: data.tripDetails[index].khotiKharabi || 0,
             extraAmount: data.tripDetails[index].extraAmount || 0,
-            remainingBalance: data.tripDetails[index].remainingBalance || 0,
+            remainingBalance: parseFloat(data.tripDetails[index].remainingBalance).toFixed(2) || 0,
         });
     }, []);
 
@@ -133,9 +138,11 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
         let f_payment = form4.getFieldsValue(['FurtherPayments'])
         let total = 0;
         for (let i = 0; i < f_payment.FurtherPayments.length; i++) {
+            if(f_payment.FurtherPayments[i].amount === undefined || f_payment.FurtherPayments[i].amount === null || f_payment.FurtherPayments[i].amount === '') f_payment.FurtherPayments[i].amount = 0;
             total += parseInt(f_payment.FurtherPayments[i].amount);
         }
         setFurtherPaymentTotal(total);
+        return total;
         // console.log(f_payment);
     }
 
@@ -506,7 +513,7 @@ const ViewPartyDetails = ({ indexAtAllData, allDataAtDisplay, setDisplayDataSour
                             <Form
                                 layout="vertical"
                                 initialValues={{
-                                    totalFreight: data.tripDetails !== undefined ? data.tripDetails[parseInt(data.key[data.key.length - 1])].totalFreight : 0,
+                                    totalFreight: data.tripDetails !== undefined ? parseFloat(data.tripDetails[parseInt(data.key[data.key.length - 1])].totalFreight).toFixed(2) : 0,
                                     firstPay: firstPaymentTotal || 0,
                                     furtherPayment: furtherPaymentTotal || 0,
                                     advance: 0,

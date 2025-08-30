@@ -337,7 +337,7 @@ const Party = () => {
                                     bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
                                     vehicleStatus: data[key].vehicleStatus,
                                     furtherPayments: data[key].furtherPayments || {},
-                                    remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : data[key].tripDetails[j].remainingBalance),
+                                    remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : parseFloat(data[key].tripDetails[j].remainingBalance).toFixed(2)),
                                     extraAmtRemark: data[key].tripDetails[j].extraAmtRemark
                                 }
                             )
