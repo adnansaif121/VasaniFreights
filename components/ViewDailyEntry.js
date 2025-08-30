@@ -216,13 +216,13 @@ const ViewDailyEntry = ({
         }
         for (let i = 0; i < driverList.length; i++) {
             let driver = driverList[i];
-            if (driver.id === data.driver1.id) {
+            if (driver.id === data?.driver1?.id) {
                 setDriver1Details(driver);
             }
-            if (driver.id === data.driver2.id) {
+            if (driver.id === data?.driver2?.id) {
                 setDriver2Details(driver);
             }
-            if (driver.id === data.conductor.id) {
+            if (driver.id === data?.conductor?.id) {
                 setConductorDetails(driver);
             }
         }
@@ -1397,8 +1397,16 @@ const ViewDailyEntry = ({
                                                                         onKeyDown={(e) => e.stopPropagation()}
                                                                     />
                                                                     <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
-
-                                                                        addNewPump(e);
+                                                                        // check if pump name already exists in the list
+                                                                        for(let i = 0; i < pumpList.length; i++){
+                                                                            if(pumpList[i].label === newPumpName) {
+                                                                                // pump name already exists
+                                                                                // message.warning('Pump name already exists');
+                                                                                alert(`Pump name ${newPumpName} already exists`);
+                                                                                return;
+                                                                            }
+                                                                        }
+                                                                        addNewPump(e, newPumpName);setNewPumpName('');
                                                                     }}>
 
                                                                     </Button>

@@ -1291,7 +1291,7 @@ const AddDetails = ({
                                                                     />
                                                                     <Button type="text" icon={<PlusOutlined />} onClick={(e) => {
 
-                                                                        addNewPump(e);
+                                                                        addNewPump(e, newPumpName);setNewPumpName('');
                                                                     }}>
 
                                                                     </Button>

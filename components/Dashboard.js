@@ -390,7 +390,7 @@ export default function Dashboard() {
 
     }
 
-    const addNewPump = (e) => {
+    const addNewPump = (e, newPumpName) => {
         e.preventDefault();
         if (newPumpName.trim() === '') {
             alert('Please enter pump name to add pump in the list. Field is empty');
@@ -407,7 +407,7 @@ export default function Dashboard() {
             label: newPumpName,
             value: newPumpName
         })
-        setNewPumpName('');
+        
     }
 
     const fetchEntries = (direction = 'next', refKey = null) => {
