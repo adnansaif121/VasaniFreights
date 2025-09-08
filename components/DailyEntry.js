@@ -51,7 +51,9 @@ const DailyEntry = ({
     driverForm,
     newMaal,
     setNewMaal,
-    setDriverList
+    setDriverList,
+    driverModal,
+    setDriverModal
 }) => {
     // const [driverForm] = Form.useForm();
     // const [createPartyForm] = Form.useForm();
@@ -722,6 +724,7 @@ const DailyEntry = ({
                             newMaal = { newMaal }
                             setNewMaal = { setNewMaal }
                             setDriverList = { setDriverList }
+                            setDriverModal={setDriverModal}
                         />
                     )}
                 </Modal>

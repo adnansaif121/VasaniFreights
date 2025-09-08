@@ -259,6 +259,17 @@ const ViewDailyEntry = ({
         const tripDetails = form.getFieldsValue(['tripDetails']);
         const payment = form3.getFieldsValue(['paymentDetails'])?.paymentDetails[0];
         const trip = tripDetails?.tripDetails?.[0] || {};
+        let furtherPaymentTotal = 0;
+        let otherPayments = 0;
+        if(trip.furtherPaymentTotal !== undefined){
+            furtherPaymentTotal = trip.furtherPaymentTotal || 0;
+        }
+        otherPayments = (trip?.advance || 0) + 
+                        (trip?.commission || 0) + 
+                        (trip?.ghataWajan || 0) + 
+                        (trip?.tds || 0) + 
+                        (trip?.khotiKharabi || 0) + 
+                        (trip?.extraAmount || 0) ;
         let listOfTrips = [];
         listOfTrips[0] = data.tripDetails[0];
         // tripDetails?.tripDetails?.forEach((trip, index) => {
@@ -272,7 +283,7 @@ const ViewDailyEntry = ({
             maal: trip.maal || '',
             qty: trip.qty || 0,
             rate: trip.rate || 0,
-            totalFreight: (parseFloat(trip.rate) * parseFloat(trip.qty)).toFixed(2) || 0,
+            totalFreight: parseFloat((parseFloat(trip.rate) * parseFloat(trip.qty))).toFixed(2) || 0,
             payStatus: trip.payStatus || '',
             // courierSentDate: trip.courierSentDate || '',
             // courierStatus: trip.courierStatus || '',
@@ -282,14 +293,14 @@ const ViewDailyEntry = ({
             // furtherPaymentTotal: trip.furtherPaymentTotal || 0,
             // furtherPayments: trip.furtherPayments || 0,
             // transactionStatus: trip.transactionStatus || '',
-            remainingBalance: (parseInt(trip.rate) * parseInt(trip.qty)) -
+            remainingBalance: parseFloat(parseFloat(trip.rate) * parseFloat(trip.qty)).toFixed(2) -
                 ((payment !== undefined) ?
-                    parseInt(payment.cashAmount || 0) || 0 +
-                    parseInt(payment.onlineAmount || 0) || 0 +
-                    parseInt(payment.chequeAmount || 0) || 0
+                    parseFloat(payment.cashAmount || 0) || 0 +
+                    parseFloat(payment.onlineAmount || 0) || 0 +
+                    parseFloat(payment.chequeAmount || 0) || 0
                     :
                     0
-                )
+                ) - furtherPaymentTotal - otherPayments || 0,
         };
         // });
 
@@ -1041,9 +1052,7 @@ const ViewDailyEntry = ({
 
                                                 <Form.Item style={{ width: '48%' }} label="Trip Cash">
                                                     <Input value={driver1 !== null ? driver1.TripCash : null} onChange={(e) => {
-                                                        let _obj = driver1 ? { ...driver1 } : {};
-                                                        _obj.TripCash = e.target.value;
-                                                        setDriver1(_obj);
+                                                        setDriver1({ ...driver1, TripCash: e.target.value });
                                                     }} placeholder='Trip Cash' type='number' onWheel={e => e.target.blur()} />
                                                 </Form.Item>
 
@@ -1339,11 +1348,11 @@ const ViewDailyEntry = ({
                                                 height: 30,
                                             }} justify={'space-around'} align={'center'}>
                                                 <Form.Item style={{ width: '45%' }} label="Jana KM">
-                                                    <Input value={janaKm} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number' onWheel={e => e.target.blur()}></Input>
+                                                    <Input value={janaKm || 0} onChange={(e) => { setJanaKm(e.target.value) }} placeholder='Jana KM' type='number' onWheel={e => e.target.blur()}></Input>
                                                 </Form.Item>
 
                                                 <Form.Item style={{ width: '45%' }} label="Aana KM">
-                                                    <Input value={aanaKm} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number' onWheel={e => e.target.blur()}></Input>
+                                                    <Input value={aanaKm || 0} onChange={(e) => { setAanaKm(e.target.value) }} placeholder='Aana KM' type='number' onWheel={e => e.target.blur()}></Input>
                                                 </Form.Item>
                                             </Flex>
                                             <Flex style={{
@@ -1351,10 +1360,10 @@ const ViewDailyEntry = ({
                                                 height: 30,
                                             }} justify={'space-around'} align={'center'}>
                                                 <Form.Item style={{ width: '45%' }} label="Trip KM">
-                                                    <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))}></Input>
+                                                    <Input value={Math.abs(parseInt(janaKm || 0) - parseInt(aanaKm || 0))}></Input>
                                                 </Form.Item>
                                                 <Form.Item style={{ width: '45%' }} label="Milometer">
-                                                    <Input value={milometer} onChange={(e) => { setMilometer(e.target.value) }} placeholder='Milometer'></Input>
+                                                    <Input value={milometer || 0} onChange={(e) => { setMilometer(e.target.value) }} placeholder='Milometer'></Input>
                                                 </Form.Item>
                                             </Flex>
 
@@ -1364,7 +1373,7 @@ const ViewDailyEntry = ({
                                                 height: 30,
                                             }} justify={'space-around'} align={'center'}>
                                                 <Form.Item style={{ width: '45%' }} label="Diesel">
-                                                    <Input value={dieselQty} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number' onWheel={e => e.target.blur()}></Input>
+                                                    <Input value={dieselQty || 0} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number' onWheel={e => e.target.blur()}></Input>
                                                 </Form.Item>
 
                                                 <Form.Item style={{ width: '45%' }} label="Pump Name">
@@ -1421,13 +1430,13 @@ const ViewDailyEntry = ({
                                                 height: 30,
                                             }} justify={'space-around'} align={'center'}>
                                                 <Form.Item style={{ width: '45%' }} label="Average">
-                                                    <Input value={(Math.abs(parseInt(janaKm) - parseInt(aanaKm)) / ((parseInt(dieselQty) || 1) + (parseInt(midwayDiesel) || 0))).toFixed(2) || 0}></Input>
+                                                    <Input value={(Math.abs(parseInt(janaKm || 0) - parseInt(aanaKm || 0)) / ((parseInt(dieselQty || 0) || 1) + (parseInt(midwayDiesel || 0) || 0))).toFixed(2) || 0}></Input>
 
                                                     {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))/((parseInt(dieselQty)||0) + (parseInt(midwayDiesel)||0))} onChange={(e) => { setAverage(e.target.value) }} placeholder='Average' type='number'></Input> */}
                                                 </Form.Item>
 
                                                 <Form.Item style={{ width: '45%' }} label="Midway Diesel">
-                                                    <Input value={midwayDiesel} onChange={(e) => setMidwayDiesel(e.target.value)} placeholder='Midway Diesel'></Input>
+                                                    <Input value={midwayDiesel || 0} onChange={(e) => setMidwayDiesel(e.target.value)} placeholder='Midway Diesel' type='number'></Input>
                                                 </Form.Item>
                                             </Flex>
                                         </Flex>

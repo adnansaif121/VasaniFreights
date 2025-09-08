@@ -15,7 +15,7 @@ const collectRemarks = (obj, path = '') => {
     furtherPayments.forEach((payment, index) => {
         remarks.push({ key: `Further Pay ${index + 1}`, value: payment.remarks || '(empty)' });
     });
-    remarks.push({ key: 'Extra Amount Remark', value: obj?.tripDetails[0]?.extraAmtRemark || '(empty)' });
+    remarks.push({ key: 'Final Remark', value: obj?.tripDetails[0]?.extraAmtRemark || '(empty)' });
 
     // if (Array.isArray(obj)) {
     //     obj.forEach((item, idx) => {

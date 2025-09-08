@@ -255,6 +255,8 @@ export default function Dashboard() {
         set(newTransporterRef, {
             value: newTransporter,
             label: newTransporter,
+        }).then(() => {
+            alert("Transporter Added Successfully!!");
         });
     }
 
@@ -435,8 +437,14 @@ export default function Dashboard() {
                                 parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
                                 parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
                                 // parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
-                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
-                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
+                                (data[key].tripDetails[j].furtherPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
+                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount) + 
+                                (data[key].tripDetails[j].advance === undefined ? 0 : data[key].tripDetails[j].advance) +
+                                (data[key].tripDetails[j].commission === undefined ? 0 : data[key].tripDetails[j].commission) +
+                                (data[key].tripDetails[j].ghataWajan === undefined ? 0 : data[key].tripDetails[j].ghataWajan) +
+                                (data[key].tripDetails[j].tds === undefined ? 0 : data[key].tripDetails[j].tds) +
+                                (data[key].tripDetails[j].khotiKharabi === undefined ? 0 : data[key].tripDetails[j].khotiKharabi)
+                              
                             )
                             : 0;
 
