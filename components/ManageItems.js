@@ -7,7 +7,7 @@ const { TabPane } = Tabs;
 const { Title } = Typography;
 
 const itemTypes = [
-  {key: 'Transporter', label: 'Transporter'},
+  { key: 'Transporter', label: 'Transporter' },
   { key: 'locations', label: 'Locations' },
   { key: 'pumps', label: 'Pump Names' },
   { key: 'bankData', label: 'Bank Names' },
@@ -82,7 +82,7 @@ const ManageItems = () => {
       onValue(ref(db, 'bankData/data/'), (snapshot) => {
         const data = snapshot.val();
         let arr = [];
-         if (Array.isArray(data)) {
+        if (Array.isArray(data)) {
           arr = data.map((item, idx) => item ? { ...item, id: idx } : null).filter(Boolean);
         } else if (data) {
           Object.entries(data).forEach(([id, item]) => {
@@ -99,7 +99,7 @@ const ManageItems = () => {
       onValue(ref(db, 'Vehicles/'), (snapshot) => {
         const data = snapshot.val();
         let arr = [];
-         if (Array.isArray(data)) {
+        if (Array.isArray(data)) {
           arr = data.map((item, idx) => item ? { ...item, id: idx } : null).filter(Boolean);
         } else if (data) {
           Object.entries(data).forEach(([id, item]) => {
@@ -248,7 +248,7 @@ const ManageItems = () => {
     setLoading(false);
   };
 
-// Delete item
+  // Delete item
   const handleDelete = async (type, id) => {
     Modal.confirm({
       title: 'Are you sure you want to delete this item?',
@@ -259,7 +259,7 @@ const ManageItems = () => {
         let arr = [];
         switch (type) {
           case 'Transporter':
-            refPath =  `transporters/${id}`;
+            refPath = `transporters/${id}`;
             await set(ref(db, refPath), null);
             break;
           case 'locations':
@@ -322,13 +322,24 @@ const ManageItems = () => {
     label: type.label,
     children: (
       <>
-        <Input
-          placeholder={`Search ${type.label}`}
-          value={searchValue}
-          onChange={e => setSearchValue(e.target.value)}
-          allowClear
-          style={{ marginBottom: 16 }}
-        />
+
+        <Space style={{ width: '100%', justifyContent: 'center' }}>
+          <Input
+            placeholder={`Search ${type.label}`}
+            value={searchValue}
+            onChange={e => setSearchValue(e.target.value)}
+            allowClear
+            style={{ marginBottom: 16 }}
+          />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => openModal(type.key)}
+            style={{ marginBottom: 16 }}
+          >
+            Add New {type.label.slice(0, -1)}
+          </Button>
+        </Space>
         <List
           loading={loading}
           dataSource={getFilteredItems(type.key)}
@@ -357,15 +368,7 @@ const ManageItems = () => {
           bordered
           style={{ marginBottom: 16 }}
         />
-        <Space style={{ width: '100%', justifyContent: 'center' }}>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => openModal(type.key)}
-          >
-            Add New {type.label.slice(0, -1)}
-          </Button>
-        </Space>
+
       </>
     )
   }));

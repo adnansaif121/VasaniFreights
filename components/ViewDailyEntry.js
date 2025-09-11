@@ -1317,6 +1317,24 @@ const ViewDailyEntry = ({
                                                             // onSearch={onSearch}
                                                             filterOption={filterOption}
                                                             options={driverList}
+                                                            dropdownRender={(menu) => (
+                                                                <>
+                                                                    {menu}
+                                                                    <Divider
+                                                                        style={{
+                                                                            margin: '8px 0',
+                                                                        }}
+                                                                    />
+                                                                    <Space
+                                                                        style={{
+                                                                            padding: '0 8px 4px',
+                                                                        }}
+                                                                    >
+
+                                                                        <Button onClick={() => setIsDriverModalOpen(true)}>Add New</Button>
+                                                                    </Space>
+                                                                </>
+                                                            )}
 
                                                         />
                                                     </Form.Item>

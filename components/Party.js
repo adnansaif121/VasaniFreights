@@ -516,12 +516,14 @@ const Party = () => {
                             <span>From Date:</span>
                             <DatePicker
                                 value={dateRange[0]}
+                                format={"DD-MM-YYYY"}
                                 onChange={date => setDateRange([date, dateRange[1]])}
                                 style={{ width: 140 }}
                             />
                             <span>To Date:</span>
                             <DatePicker
                                 value={dateRange[1]}
+                                format={"DD-MM-YYYY"}
                                 onChange={date => setDateRange([dateRange[0], date])}
                                 style={{ width: 140 }}
                             />
