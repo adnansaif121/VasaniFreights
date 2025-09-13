@@ -283,7 +283,7 @@ const ViewDailyEntry = ({
             maal: trip.maal || '',
             qty: trip.qty || 0,
             rate: trip.rate || 0,
-            totalFreight: parseFloat((parseFloat(trip.rate) * parseFloat(trip.qty))).toFixed(2) || 0,
+            totalFreight: (data.tripDetails[0]?.revisedRate) ? parseFloat((parseFloat(trip.revisedRate) * parseFloat(trip.qty))).toFixed(2) || 0 : parseFloat((parseFloat(trip.rate) * parseFloat(trip.qty))).toFixed(2) || 0,
             payStatus: trip.payStatus || '',
             // courierSentDate: trip.courierSentDate || '',
             // courierStatus: trip.courierStatus || '',
@@ -293,7 +293,16 @@ const ViewDailyEntry = ({
             // furtherPaymentTotal: trip.furtherPaymentTotal || 0,
             // furtherPayments: trip.furtherPayments || 0,
             // transactionStatus: trip.transactionStatus || '',
-            remainingBalance: parseFloat(parseFloat(trip.rate) * parseFloat(trip.qty)).toFixed(2) -
+            remainingBalance: (data.tripDetails[0]?.revisedRate) 
+                ? parseFloat(parseFloat(trip.revisedRate) * parseFloat(trip.qty)).toFixed(2) -
+                ((payment !== undefined) ?
+                    parseFloat(payment.cashAmount || 0) || 0 +
+                    parseFloat(payment.onlineAmount || 0) || 0 +
+                    parseFloat(payment.chequeAmount || 0) || 0
+                    :
+                    0
+                ) - furtherPaymentTotal - otherPayments || 0  
+                : parseFloat(parseFloat(trip.rate) * parseFloat(trip.qty)).toFixed(2) -
                 ((payment !== undefined) ?
                     parseFloat(payment.cashAmount || 0) || 0 +
                     parseFloat(payment.onlineAmount || 0) || 0 +
