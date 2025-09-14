@@ -8,6 +8,7 @@ import CreatePartyForm from './common/CreatePartyForm';
 import Highlighter from 'react-highlight-words';
 import dayjs from 'dayjs';
 import RemarkModal, { RemarkButton } from './common/RemarkModal';
+import * as XLSX from 'xlsx';
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
