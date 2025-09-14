@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, {useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Upload, Tooltip } from 'antd';
-import { InboxOutlined, UserOutlined, EyeTwoTone, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
+import {SearchOutlined, InboxOutlined, UserOutlined, EyeTwoTone, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
 import ViewDriverDetails from './ViewDriverDetails';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import RemarkModal, { RemarkButton } from './common/RemarkModal';
 
 const Driver = ({ dailyEntryData, driverData }) => {
     const [partyList, setPartyList] = useState([]);
@@ -28,8 +31,13 @@ const Driver = ({ dailyEntryData, driverData }) => {
     const [modelPartySelected, setModelPartySelected] = useState(null);
     const [licenseDate, setLicenseDate] = useState(null);
     const [licenseType, setLicenseType] = useState(null);
-
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
+    const [remarkModalOpen, setRemarkModalOpen] = useState(false);
+    const [remarkData, setRemarkData] = useState(null);
+    const searchInput = useRef(null);
     const { Dragger } = Upload;
+    const [searchedColumn, setSearchedColumn] = useState('');
     const props = {
         name: 'file',
         multiple: true,
@@ -62,6 +70,7 @@ const Driver = ({ dailyEntryData, driverData }) => {
         if (data) {
             setAllTableData(data);
             Object.keys(data).map((key, i) => {
+
                 ds.push(
                     {
                         key: key,
@@ -79,8 +88,8 @@ const Driver = ({ dailyEntryData, driverData }) => {
                         maal: data[key].tripDetails[0].maal,
                         qty: data[key].tripDetails[0].qty,
                         rate: data[key].tripDetails[0].rate,
-                        totalFreight: data[key].tripDetails[0].totalFreight,
-                        received: '100000',
+                        totalFreight: parseFloat(data[key].tripDetails[0].totalFreight || 0).toFixed(2),
+                        // received: receivedAmt,
                         dieselAndKmDetails: data[key].dieselAndKmDetails,
                         tripDetails: data[key].tripDetails,
                         driversDetails: data[key].driversDetails,
@@ -90,6 +99,8 @@ const Driver = ({ dailyEntryData, driverData }) => {
                         vehicleStatus: data[key].vehicleStatus,
                         furtherPayments: data[key].furtherPayments || {},
                         driver: data[key]?.driver1?.value || null,
+                        driver2: data[key]?.driver2?.value || null,
+                        conductor: data[key]?.conductor?.value || null,
                     }
                 )
             });
@@ -202,6 +213,87 @@ const Driver = ({ dailyEntryData, driverData }) => {
     //     },
     // ];
 
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            <div
+                style={{
+                    padding: 8,
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            >
+                {dataIndex === 'date' ? (
+                    <DatePicker
+                        format="YYYY-MM-DD"
+                        onChange={(date, dateString) => setSelectedKeys(dateString ? [dateString] : [])}
+                    />
+                ) : (
+                    <Input
+                        ref={searchInput}
+                        placeholder={`Search ${dataIndex}`}
+                        value={selectedKeys[0]}
+                        onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                        style={{
+                            marginBottom: 8,
+                            display: 'block',
+                        }}
+                    />)}
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handle_Search(selectedKeys, confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Search
+                    </Button>
+                    <Button
+                        size="small"
+                        onClick={() => { setSelectedKeys([]); handle_Search([], confirm, dataIndex) }}
+                    >
+                        Clear
+                    </Button>
+
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <SearchOutlined
+                style={{ fontSize: 20, color: filtered ? 'red' : undefined }}
+            />
+        ),
+        onFilter: (value, record) => {
+            if (dataIndex === 'date') {
+                if (!record[dataIndex]) return false;
+                const recordDate = dayjs(record[dataIndex]).format('YYYY-MM-DD');
+                return recordDate === value;
+            }
+            return record[dataIndex].toString().toLowerCase().includes(value.toLowerCase());
+        },
+        onFilterDropdownOpenChange: (visible) => {
+            if (visible) {
+                setTimeout(() => searchInput.current?.select(), 100);
+            }
+        },
+        render: (text) =>
+            searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{
+                        backgroundColor: '#ffc069',
+                        padding: 0,
+                    }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
+
     const columns = [
         {
             title: 'Sr no.',
@@ -222,19 +314,41 @@ const Driver = ({ dailyEntryData, driverData }) => {
             }
         },
         {
+            title: 'Remark',
+            key: 'remark',
+            render: (text, record) => (
+                <RemarkButton record={record} />
+            ),
+        },
+        {
             title: 'Truck No.',
             dataIndex: 'vehicleNo',
             key: 'vehicleNo',
+            ...getColumnSearchProps('vehicleNo')
+        },
+        {
+            title: 'Driver 2',
+            dataIndex: 'driver2',
+            key: 'driver2',
+            ...getColumnSearchProps('driver2')
+        },
+        {
+            title: 'Conductor',
+            dataIndex: 'conductor',
+            key: 'conductor',
+            ...getColumnSearchProps('conductor')
         },
         {
             title: 'From',
             dataIndex: 'from',
             key: 'from',
+            ...getColumnSearchProps('from')
         },
         {
             title: 'To',
             dataIndex: 'to',
             key: 'to',
+            ...getColumnSearchProps('to')
         },
 
         {
@@ -249,6 +363,29 @@ const Driver = ({ dailyEntryData, driverData }) => {
             key: 'totalFreight',
         },
     ];
+
+    const exportToExcel = () => {
+        // Get the list of keys to export from columns (skip columns without dataIndex)
+        const exportKeys = columns
+            .filter(col => col.dataIndex)
+            .map(col => col.dataIndex);
+
+        // Prepare data: only include keys present in exportKeys
+        const exportData = displayDataSource.map(row => {
+            const filteredRow = {};
+            exportKeys.forEach(key => {
+                filteredRow[key] = row[key];
+            });
+            return filteredRow;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "Driver.xlsx");
+    };
 
     const filterMenuItems = [
         {
@@ -365,9 +502,9 @@ const Driver = ({ dailyEntryData, driverData }) => {
 
     const [open, setOpen] = useState(false);
     const showDrawer = (index) => {
-        console.log('showDrawer', index);
-        console.log(displayPartyList, displayPartyList[index]);
-        console.log(displayPartyList[index].LicenseType || null);
+        // console.log('showDrawer', index);
+        // console.log(displayPartyList, displayPartyList[index]);
+        // console.log(displayPartyList[index].LicenseType || null);
         setPartySelectedForEdit(index);
         setModelPartySelected(displayPartyList[index]);
         setPartyName(displayPartyList[index].label);
@@ -384,18 +521,18 @@ const Driver = ({ dailyEntryData, driverData }) => {
     };
 
     const editParty = () => {
-        console.log('Edit Party');
-        console.log(partySelected);
+        // console.log('Edit Party');
+        // console.log(partySelected);
         const db = getDatabase();
         const partyRef = ref(db, 'drivers/' + partyIds[partySelectedForEdit]);
         set(partyRef, {
             label: partyName,
             value: partyName,
-            location: partyLocation,
-            LicenseDate: licenseDate,
-            LicenseType: licenseType,
-            Contact: partyContact,
-            description: partyDescription
+            location: partyLocation || '',
+            LicenseDate: licenseDate || '',
+            LicenseType: licenseType || '',
+            Contact: partyContact || '',
+            description: partyDescription || '',
         });
 
         // let pl = partyList;
@@ -434,6 +571,28 @@ const Driver = ({ dailyEntryData, driverData }) => {
         setDisplayDataSource(_displayDataSource);
     }
 
+    const applyDateFilter = (e) => {
+        let startDate = fromDate;
+        let endDate = toDate;
+        console.log(startDate, endDate);
+        if (startDate === null || endDate === null) {
+            alert("Please select start and end date");
+            return;
+        }
+        let _startDate = new Date(startDate).getTime();
+        let _endDate = new Date(endDate).getTime();
+        // console.log(completeDataSource);
+        let _displayDataSource = dataSource.filter(
+            (item) => {
+                let itemDate = new Date(item.date).getTime();
+                console.log(item.date, itemDate);
+                return itemDate >= _startDate && itemDate <= _endDate;
+            }
+        )
+        setDataSource(_displayDataSource);
+
+    }
+
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
@@ -452,7 +611,7 @@ const Driver = ({ dailyEntryData, driverData }) => {
                                 return (
                                     <div key={index} style={{ padding: '6px 0px 6px 0px', color: 'blue' }}>
                                         <Button onClick={() => showDrawer(index)} icon={
-                                            (item.contact === undefined || item.contact === '' || item.address === undefined || item.address === '' || item.location === undefined || item.location === '') ?
+                                            (item.Contact === undefined || item.Contact === '' || item.location === undefined || item.location === '' || item.LicenseType === undefined || item.LicenseType === '' || item.LicenseDate === undefined || item.LicenseDate === '') ?
                                                 <span style={{ color: 'red' }}><UserOutlined /></span>
                                                 :
                                                 <UserOutlined />
@@ -482,58 +641,24 @@ const Driver = ({ dailyEntryData, driverData }) => {
                     </div>
                 </div>
                 <div className={styles.part2}>
-                    <div >
-                        <Row justify={'space-between'} style={{ width: '75vw' }}>
-                            <Col>
-                                <Select
-                                    defaultValue="none"
-                                    style={{
-                                        width: 120,
-                                    }}
-                                    onChange={handleFilterChange}
-                                    options={filterMenuItems}
-                                />
-                            </Col>
-                            <Col>
-                                {
-                                    filterType === 'custom' ? <Row>
-                                        <Col>
-                                            <Input type='date' placeholder='start Date' onChange={(e) => setCustomStartDate(e.target.value)}></Input>
-                                        </Col>
-                                        <Col>
-                                            <Input type='date' placeholder='end Date' onChange={(e) => setCustomEndDate(e.target.value)}></Input>
-                                        </Col>
-                                        <Col>
-                                            <Button onClick={handleCustomFilter}>Apply</Button>
-                                        </Col>
-                                    </Row> : null
-                                }
-                            </Col>
-                            {/* <Col>
-                                <Button type="primary" onClick={showDrawer}>
-                                    View/Edit Party Profile
-                                </Button>
-                            </Col> */}
-                        </Row>
-
-
-                        {/* <Form >
-                            <Row>
-                                <Col>
-                                    <Form.Item label="Start" name="startDate">
-                                        <Input type='date'></Input>
-                                    </Form.Item>
-                                </Col>
-                                <Col>
-                                    <Form.Item label="End" name="startDate">
-                                        <Input type='date'></Input>
-                                    </Form.Item>
-                                </Col>
-                                <Col>
-                                    <Button>Save</Button>
-                                </Col>
-                            </Row>
-                        </Form> */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white' }}>
+                        <div>
+                            <span style={{ marginLeft: '10px' }}>From Date:</span>
+                            <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+                            <span style={{ marginLeft: '10px' }}>To Date:</span>
+                            <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
+                            <Button onClick={applyDateFilter}>Apply Filter</Button>
+                            <Button onClick={() => {
+                                setDataSource(dataSource);
+                                setFromDate(null);
+                                setToDate(null);
+                            }}>Clear Date</Button>
+                        </div>
+                        <div>
+                            <Button type="primary" onClick={exportToExcel} style={{ marginRight: '20px' }}>
+                                Export to Excel
+                            </Button>
+                        </div>
 
                         <Drawer
                             title="Create a new account"
@@ -697,12 +822,25 @@ const Driver = ({ dailyEntryData, driverData }) => {
 
 
                     </div>
-                    <Table size="small" className={styles.table} dataSource={displayDataSource} columns={columns} expandable={{
-                        expandedRowRender: (record) => <ViewDriverDetails />
-                        ,
-                        rowExpandable: (record) => true,
-                    }}
+                    <Table size="small" className={styles.table} dataSource={displayDataSource} columns={columns}
+                        // expandable={{
+                        //     expandedRowRender: (record) => <ViewDriverDetails />
+                        //     ,
+                        //     rowExpandable: (record) => true,
+                        // }}
                         // pagination={'none'}
+                        pagination={{
+                            pageSize: 20,
+                            // current: currentPage,
+                            showSizeChanger: false,
+                            total: 1000 // You can set a large number or fetch the count if needed
+                        }}
+                    />
+
+                    <RemarkModal
+                        open={remarkModalOpen}
+                        onCancel={() => setRemarkModalOpen(false)}
+                        remarkData={remarkData}
                     />
                 </div>
             </div>

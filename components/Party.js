@@ -7,6 +7,8 @@ import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
 import RemarkModal, { RemarkButton } from './common/RemarkModal';
 import dayjs from 'dayjs';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
     const [partyList, setPartyList] = useState([]);
@@ -357,6 +359,7 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
             title: 'Transporter',
             dataIndex: 'transporter',
             key: 'transporter',
+            ...getColumnSearchProps('transporter'),
         },
         {
             title: 'Maal',
@@ -392,6 +395,29 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
         },
     ];
 
+    const exportToExcel = () => {
+        // Get the list of keys to export from columns (skip columns without dataIndex)
+        const exportKeys = columns
+            .filter(col => col.dataIndex)
+            .map(col => col.dataIndex);
+
+        // Prepare data: only include keys present in exportKeys
+        const exportData = displayDataSource.map(row => {
+            const filteredRow = {};
+            exportKeys.forEach(key => {
+                filteredRow[key] = row[key];
+            });
+            return filteredRow;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "Party.xlsx");
+    };
+
     const [open, setOpen] = useState(false);
     const showDrawer = (index) => {
         setPartySelectedForEdit(index);
@@ -409,13 +435,13 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
     };
 
     const editParty = () => {
-        console.log('Edit Party');
-        console.log(partySelected);
+        // console.log('Edit Party');
+        // console.log(partySelected);
         const db = getDatabase();
         const partyRef = ref(db, 'parties/' + partyIds[partySelectedForEdit]);
         update(partyRef, {
             label: partyName,
-            // value: partyName,
+            value: partyName,
             location: partyLocation || '',
             address: partyAddress || '',
             contact: partyContact || '',
@@ -426,7 +452,7 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
         let dpl = displayPartyList;
         dpl[partySelectedForEdit] = {
             label: partyName,
-            // value: partyName,
+            value: partyName,
             location: (partyLocation || ''),
             address: (partyAddress || ''),
             contact: (partyContact || ''),
@@ -508,7 +534,7 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
                 <div className={styles.part2}>
                     <div >
 
-                        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center',justifyContent: 'space-between', gap: 16 }}>
+                        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
                             <div>
                                 <span>From Date:</span>
                                 <DatePicker
@@ -527,7 +553,9 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
                                 <Button type="primary" onClick={handleDateFilter}>Apply</Button>
                                 <Button onClick={handleClearDateFilter}>Close</Button>
                             </div>
-
+                            <Button type="primary" onClick={exportToExcel} style={{marginRight: '20px'}}>
+                                Export to Excel
+                            </Button>
                         </div>
                         <Drawer
                             title="Create a new account"

@@ -87,21 +87,6 @@ const Cheque = ({ dailyEntryData }) => {
 
     }, [dailyEntryData])
 
-    const exportToExcel = () => {
-        // Prepare data: remove unwanted fields if needed
-        const exportData = dataSource.map(row => {
-            const { key, ...rest } = row; // remove key if you don't want it in Excel
-            return rest;
-        });
-
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-        saveAs(data, "Uvlogistics.xlsx");
-    };
-
     const applyDateSort = (ds) => {
         ds.sort(function (a, b) {
             if (a.dateToSort === b.dateToSort) {
@@ -578,6 +563,29 @@ const Cheque = ({ dailyEntryData }) => {
         }
 
     ];
+
+    const exportToExcel = () => {
+    // Get the list of keys to export from columns (skip columns without dataIndex)
+    const exportKeys = columns
+        .filter(col => col.dataIndex)
+        .map(col => col.dataIndex);
+
+    // Prepare data: only include keys present in exportKeys
+    const exportData = dataSource.map(row => {
+        const filteredRow = {};
+        exportKeys.forEach(key => {
+            filteredRow[key] = row[key];
+        });
+        return filteredRow;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "cheque.xlsx");
+};
 
     return (
         <>

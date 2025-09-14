@@ -712,7 +712,7 @@ const DailyEntry = ({
                     columns={columns}
                     pagination={{
                         pageSize: 20,
-                        current: currentPage,
+                        // current: currentPage,
                         showSizeChanger: false,
                         total: 1000 // You can set a large number or fetch the count if needed
                     }}

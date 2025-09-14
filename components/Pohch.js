@@ -131,10 +131,18 @@ const Pohch = ({ dailyEntryData }) => {
     }, [dailyEntryData])
 
     const exportToExcel = () => {
-        // Prepare data: remove unwanted fields if needed
+        // Get the list of keys to export from columns (skip columns without dataIndex)
+        const exportKeys = columns
+            .filter(col => col.dataIndex)
+            .map(col => col.dataIndex);
+
+        // Prepare data: only include keys present in exportKeys
         const exportData = dataSource.map(row => {
-            const { key, ...rest } = row; // remove key if you don't want it in Excel
-            return rest;
+            const filteredRow = {};
+            exportKeys.forEach(key => {
+                filteredRow[key] = row[key];
+            });
+            return filteredRow;
         });
 
         const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -142,7 +150,7 @@ const Pohch = ({ dailyEntryData }) => {
         XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
         const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
         const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-        saveAs(data, "pohch.xlsx");
+        saveAs(data, "Pohch.xlsx");
     };
 
     const updatePohchId = async (key) => {
@@ -1060,13 +1068,10 @@ const Pohch = ({ dailyEntryData }) => {
                 setToDate(null);
                 setDateFilter(null);
             }}>Clear Date</Button>
-            <Button type="primary" style={{ margin: '20px' }} onClick={exportToExcel}>
+            <Button type="primary" onClick={exportToExcel}>
                 Export to Excel
             </Button>
-            <Pagination
-                pageSize={20}
 
-            />
             <div style={{ width: "98vw", overflowX: 'auto', height: '83vh', backgroundColor: 'white' }}>
                 <Table bordered style={{ zIndex: '100' }} size="small" dataSource={dataSource} columns={columns} pagination={{ pageSize: 20 }}
                 />

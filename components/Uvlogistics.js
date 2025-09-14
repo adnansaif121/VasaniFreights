@@ -207,81 +207,7 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
 
     }, [dailyEntryData])
 
-    const exportToExcel = () => {
-        // Prepare data: remove unwanted fields if needed
-        const exportData = dataSource.map(row => {
-            const { key, ...rest } = row; // remove key if you don't want it in Excel
-            return rest;
-        });
-
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-        saveAs(data, "Uvlogistics.xlsx");
-    };
-
-    const updatePohchId = async (key) => {
-        const pohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
-
-        const db = getDatabase();
-        const starCountRef = ref(db, 'dailyEntry/' + key + '/firstPayment/0/');
-        await update(starCountRef, {
-            pohchId: pohchId
-        }).then(() => {
-            // alert("Pohch Id Updated Successfully!!");
-            return;
-        })
-    }
-
-    const applyDateSort = (ds) => {
-        ds.sort(function (a, b) {
-            // Turn your strings into dates, and then subtract them
-            // to get a value that is either negative, positive, or zero.
-            return new Date(b.date) - new Date(a.date);
-        });
-
-        setDataSource(ds);
-        setCompleteDataSource(ds);
-    }
-
-    const handle_Search = (selectedKeys, confirm, dataIndex) => {
-        confirm();
-        setSearchText(selectedKeys[0]);
-        setSearchedColumn(dataIndex);
-    };
-
-    const handleReset = (clearFilters) => {
-        clearFilters();
-        setSearchText('');
-    };
-
-    const applyDateFilter = (e) => {
-        let startDate = fromDate;
-        let endDate = toDate;
-        console.log(startDate, endDate);
-        if (startDate === null || endDate === null) {
-            alert("Please select start and end date");
-            return;
-        }
-        let _startDate = new Date(startDate).getTime();
-        let _endDate = new Date(endDate).getTime();
-        console.log(completeDataSource);
-        let _displayDataSource = completeDataSource.filter(
-            (item) => {
-                let itemDate = new Date(item.date).getTime();
-                console.log(item.date, itemDate);
-                return itemDate >= _startDate && itemDate <= _endDate;
-            }
-        )
-        setDataSource(_displayDataSource);
-        setDateFilter(e.target.value);
-        // setDisplayDataSource(_displayDataSource);
-        // setFromDate(null);
-
-    }
-    const getColumnSearchProps = (dataIndex) => ({
+     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
                 style={{
@@ -351,23 +277,180 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
             ),
     });
 
+
     const columns = [
 
         {
-            width: '3%',
-            title: 'Sr no.',
+            width: '1%',
+            title: 'Sn',
             dataIndex: 'id',
             key: 'id',
             fixed: 'left',
             render: (text, record, index) => { return index + 1; }
         },
         {
-            width: '9%',
+            width: '6%',
             title: 'Truck No.',
             dataIndex: 'vehicleNo',
             key: 'vehicleNo',
             fixed: 'left',
             ...getColumnSearchProps('vehicleNo'),
+        },
+        {
+            width: 200,
+            title: 'Payment Status',
+            dataIndex: 'UVLogsPaymentStatus',
+            key: 'UVLogsPaymentStatus',
+            // fixed: 'right',
+            ...getColumnSearchProps('UVLogsPaymentStatus'),
+            render: (text, record) => {
+                if (editingPaymentStatusKey === record.key) {
+                    return (
+                        <>
+                            <Select
+                                style={{ width: 120 }}
+                                value={editingPaymentStatusValues[record.key] ?? text}
+                                onChange={(value) =>
+                                    setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: value }))
+                                }
+                                options={uvPaymentStatusList}
+                                placeholder="Select Payment Status"
+                                dropdownRender={menu => (
+                                    <div>
+                                        {menu}
+                                        <Divider style={{ margin: '8px 0' }} />
+                                        <Space style={{ padding: '0 8px 4px' }}>
+                                            <Input
+                                                style={{ width: '100px' }}
+                                                placeholder="Add new status"
+                                                value={newPaymentStatus}
+                                                onChange={(e) => setNewPaymentStatus(e.target.value)}
+                                            />
+                                            <Button
+                                                type="text"
+                                                icon={<PlusOutlined />}
+                                                onClick={() => {
+                                                    if (!newPaymentStatus) return;
+                                                    setUvPaymentStatusList([...uvPaymentStatusList, { value: newPaymentStatus, label: newPaymentStatus }]);
+                                                    setNewPaymentStatus('');
+                                                }}
+                                            />
+                                        </Space>
+                                    </div>
+                                )}
+                            />
+                            <Button
+                                icon={<SaveOutlined />}
+                                onClick={() => {
+                                    const value = editingPaymentStatusValues[record.key];
+                                    if (!value) {
+                                        alert('Please select a value to save');
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to save the changes?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        UVLogsPaymentStatus: value
+                                    }).then(() => {
+                                        alert("Payment Status Updated Successfully!!");
+                                        setEditingPaymentStatusKey(null);
+                                        setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: '' }));
+                                        return;
+                                    })
+                                }}
+                                style={{ marginLeft: 8 }}
+                            />
+                            <Button
+                                onClick={() => {
+                                    setEditingPaymentStatusKey(null);
+                                    setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: '' }));
+                                }}
+                                style={{ marginLeft: 8 }}
+                            >Cancel</Button>
+                        </>
+                    );
+                }
+
+                if (text === undefined || text === null || text === '') {
+                    return (
+                        <>
+                            <Select
+                                style={{ width: 120 }}
+                                value={editingPaymentStatusValues[record.key] ?? text}
+                                onChange={(value) =>
+                                    setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: value }))
+                                }
+                                options={uvPaymentStatusList}
+                                placeholder="Select Payment Status"
+                                dropdownRender={menu => (
+                                    <div>
+                                        {menu}
+                                        <Divider style={{ margin: '8px 0' }} />
+                                        <Space style={{ padding: '0 8px 4px' }}>
+                                            <Input
+                                                style={{ width: '100px' }}
+                                                placeholder="Add new status"
+                                                value={newPaymentStatus}
+                                                onChange={(e) => setNewPaymentStatus(e.target.value)}
+                                            />
+                                            <Button
+                                                type="text"
+                                                icon={<PlusOutlined />}
+                                                onClick={() => {
+                                                    if (!newPaymentStatus) return;
+                                                    setUvPaymentStatusList([...uvPaymentStatusList, { value: newPaymentStatus, label: newPaymentStatus }]);
+                                                    setNewPaymentStatus('');
+                                                }}
+                                            />
+                                        </Space>
+                                    </div>
+                                )}
+                            />
+                            <Button
+                                icon={<SaveOutlined />}
+                                onClick={() => {
+                                    const value = editingPaymentStatusValues[record.key];
+                                    if (!value) {
+                                        alert('Please select a value to save');
+                                        return;
+                                    }
+                                    if (!confirm("Are you sure you want to save the changes?")) {
+                                        return;
+                                    }
+                                    const db = getDatabase();
+                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    update(starCountRef, {
+                                        UVLogsPaymentStatus: value
+                                    }).then(() => {
+                                        alert("Payment Status Updated Successfully!!");
+                                        setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: '' }));
+                                        return;
+                                    })
+                                }}
+                                style={{ marginLeft: 8 }}
+                            />
+                        </>
+                    );
+                }
+
+                return (
+                    <>
+                        <span>{text}</span>
+                        <Button
+                            icon={<EditOutlined />}
+                            size="small"
+                            style={{ marginLeft: 8 }}
+                            onClick={() => {
+                                setEditingPaymentStatusKey(record.key);
+                                setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: text }));
+                            }}
+                        />
+                    </>
+                );
+            }
         },
         {
             width: '7%',
@@ -388,6 +471,7 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
             title: 'To',
             dataIndex: 'to',
             key: 'to',
+            ...getColumnSearchProps('to'),
             render: (text) => {
                 // make 1st letter capital and other small and return
                 return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
@@ -398,6 +482,7 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
             title: 'Revised To',
             dataIndex: 'revisedTo',
             key: 'revisedTo',
+            ...getColumnSearchProps('revisedTo'),
             render: (text, record) => {
                 // Add editing state for Revised To
                 if (editingRevisedToKey === record.key) {
@@ -862,167 +947,97 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
                 return text ? parseFloat(text) : 0;
             }
         },
-        {
-            width: 200,
-            title: 'Payment Status',
-            dataIndex: 'UVLogsPaymentStatus',
-            key: 'UVLogsPaymentStatus',
-            fixed: 'right',
-            ...getColumnSearchProps('UVLogsPaymentStatus'),
-            render: (text, record) => {
-                if (editingPaymentStatusKey === record.key) {
-                    return (
-                        <>
-                            <Select
-                                style={{ width: 120 }}
-                                value={editingPaymentStatusValues[record.key] ?? text}
-                                onChange={(value) =>
-                                    setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: value }))
-                                }
-                                options={uvPaymentStatusList}
-                                placeholder="Select Payment Status"
-                                dropdownRender={menu => (
-                                    <div>
-                                        {menu}
-                                        <Divider style={{ margin: '8px 0' }} />
-                                        <Space style={{ padding: '0 8px 4px' }}>
-                                            <Input
-                                                style={{ width: '100px' }}
-                                                placeholder="Add new status"
-                                                value={newPaymentStatus}
-                                                onChange={(e) => setNewPaymentStatus(e.target.value)}
-                                            />
-                                            <Button
-                                                type="text"
-                                                icon={<PlusOutlined />}
-                                                onClick={() => {
-                                                    if (!newPaymentStatus) return;
-                                                    setUvPaymentStatusList([...uvPaymentStatusList, { value: newPaymentStatus, label: newPaymentStatus }]);
-                                                    setNewPaymentStatus('');
-                                                }}
-                                            />
-                                        </Space>
-                                    </div>
-                                )}
-                            />
-                            <Button
-                                icon={<SaveOutlined />}
-                                onClick={() => {
-                                    const value = editingPaymentStatusValues[record.key];
-                                    if (!value) {
-                                        alert('Please select a value to save');
-                                        return;
-                                    }
-                                    if (!confirm("Are you sure you want to save the changes?")) {
-                                        return;
-                                    }
-                                    const db = getDatabase();
-                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
-                                    update(starCountRef, {
-                                        UVLogsPaymentStatus: value
-                                    }).then(() => {
-                                        alert("Payment Status Updated Successfully!!");
-                                        setEditingPaymentStatusKey(null);
-                                        setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: '' }));
-                                        return;
-                                    })
-                                }}
-                                style={{ marginLeft: 8 }}
-                            />
-                            <Button
-                                onClick={() => {
-                                    setEditingPaymentStatusKey(null);
-                                    setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: '' }));
-                                }}
-                                style={{ marginLeft: 8 }}
-                            >Cancel</Button>
-                        </>
-                    );
-                }
 
-                if (text === undefined || text === null || text === '') {
-                    return (
-                        <>
-                            <Select
-                                style={{ width: 120 }}
-                                value={editingPaymentStatusValues[record.key] ?? text}
-                                onChange={(value) =>
-                                    setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: value }))
-                                }
-                                options={uvPaymentStatusList}
-                                placeholder="Select Payment Status"
-                                dropdownRender={menu => (
-                                    <div>
-                                        {menu}
-                                        <Divider style={{ margin: '8px 0' }} />
-                                        <Space style={{ padding: '0 8px 4px' }}>
-                                            <Input
-                                                style={{ width: '100px' }}
-                                                placeholder="Add new status"
-                                                value={newPaymentStatus}
-                                                onChange={(e) => setNewPaymentStatus(e.target.value)}
-                                            />
-                                            <Button
-                                                type="text"
-                                                icon={<PlusOutlined />}
-                                                onClick={() => {
-                                                    if (!newPaymentStatus) return;
-                                                    setUvPaymentStatusList([...uvPaymentStatusList, { value: newPaymentStatus, label: newPaymentStatus }]);
-                                                    setNewPaymentStatus('');
-                                                }}
-                                            />
-                                        </Space>
-                                    </div>
-                                )}
-                            />
-                            <Button
-                                icon={<SaveOutlined />}
-                                onClick={() => {
-                                    const value = editingPaymentStatusValues[record.key];
-                                    if (!value) {
-                                        alert('Please select a value to save');
-                                        return;
-                                    }
-                                    if (!confirm("Are you sure you want to save the changes?")) {
-                                        return;
-                                    }
-                                    const db = getDatabase();
-                                    const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
-                                    update(starCountRef, {
-                                        UVLogsPaymentStatus: value
-                                    }).then(() => {
-                                        alert("Payment Status Updated Successfully!!");
-                                        setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: '' }));
-                                        return;
-                                    })
-                                }}
-                                style={{ marginLeft: 8 }}
-                            />
-                        </>
-                    );
-                }
-
-                return (
-                    <>
-                        <span>{text}</span>
-                        <Button
-                            icon={<EditOutlined />}
-                            size="small"
-                            style={{ marginLeft: 8 }}
-                            onClick={() => {
-                                setEditingPaymentStatusKey(record.key);
-                                setEditingPaymentStatusValues(prev => ({ ...prev, [record.key]: text }));
-                            }}
-                        />
-                    </>
-                );
-            }
-        },
 
 
 
 
     ];
+
+    const exportToExcel = () => {
+        // Get the list of keys to export from columns (skip columns without dataIndex)
+        const exportKeys = columns
+            .filter(col => col.dataIndex)
+            .map(col => col.dataIndex);
+
+        // Prepare data: only include keys present in exportKeys
+        const exportData = dataSource.map(row => {
+            const filteredRow = {};
+            exportKeys.forEach(key => {
+                filteredRow[key] = row[key];
+            });
+            return filteredRow;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "Uvlogistics.xlsx");
+    };
+
+    const updatePohchId = async (key) => {
+        const pohchId = ('' + new Date().getFullYear()).substring(2) + '' + (new Date().getMonth() + 1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
+
+        const db = getDatabase();
+        const starCountRef = ref(db, 'dailyEntry/' + key + '/firstPayment/0/');
+        await update(starCountRef, {
+            pohchId: pohchId
+        }).then(() => {
+            // alert("Pohch Id Updated Successfully!!");
+            return;
+        })
+    }
+
+    const applyDateSort = (ds) => {
+        ds.sort(function (a, b) {
+            // Turn your strings into dates, and then subtract them
+            // to get a value that is either negative, positive, or zero.
+            return new Date(b.date) - new Date(a.date);
+        });
+
+        setDataSource(ds);
+        setCompleteDataSource(ds);
+    }
+
+    const handle_Search = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+
+    const handleReset = (clearFilters) => {
+        clearFilters();
+        setSearchText('');
+    };
+
+    const applyDateFilter = (e) => {
+        let startDate = fromDate;
+        let endDate = toDate;
+        console.log(startDate, endDate);
+        if (startDate === null || endDate === null) {
+            alert("Please select start and end date");
+            return;
+        }
+        let _startDate = new Date(startDate).getTime();
+        let _endDate = new Date(endDate).getTime();
+        console.log(completeDataSource);
+        let _displayDataSource = completeDataSource.filter(
+            (item) => {
+                let itemDate = new Date(item.date).getTime();
+                console.log(item.date, itemDate);
+                return itemDate >= _startDate && itemDate <= _endDate;
+            }
+        )
+        setDataSource(_displayDataSource);
+        setDateFilter(e.target.value);
+        // setDisplayDataSource(_displayDataSource);
+        // setFromDate(null);
+
+    }
+   
+
     // Filter `option.label` match the user type `input`
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
