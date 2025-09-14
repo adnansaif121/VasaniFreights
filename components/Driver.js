@@ -58,6 +58,7 @@ const Driver = ({ dailyEntryData, driverData }) => {
             console.log('Dropped files', e.dataTransfer.files);
         },
     };
+    const [searchText, setSearchText] = useState('');
 
     useEffect(() => {
         const db = getDatabase();
@@ -99,9 +100,9 @@ const Driver = ({ dailyEntryData, driverData }) => {
                         bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
                         vehicleStatus: data[key].vehicleStatus,
                         furtherPayments: data[key].furtherPayments || {},
-                        driver: data[key]?.driver1?.value || null,
-                        driver2: data[key]?.driver2?.value || null,
-                        conductor: data[key]?.conductor?.value || null,
+                        driver: data[key]?.driver1?.value || '',
+                        driver2: data[key]?.driver2?.value || '',
+                        conductor: data[key]?.conductor?.value || '',
                     }
                 )
             });
@@ -590,9 +591,15 @@ const Driver = ({ dailyEntryData, driverData }) => {
                 return itemDate >= _startDate && itemDate <= _endDate;
             }
         )
-        setDataSource(_displayDataSource);
+        setDisplayDataSource(_displayDataSource);
 
     }
+
+    const handle_Search = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
 
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());

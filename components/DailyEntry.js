@@ -438,8 +438,8 @@ const DailyEntry = ({
         // console.log(completeDataSource);
         let _displayDataSource = completeDataSource.filter(
             (item) => {
-                let itemDate = new Date(item.date).getTime();
-                console.log(item.date, itemDate);
+                let itemDate = new Date(item.dateToSort).getTime();
+                console.log(item.dateToSort, itemDate);
                 return itemDate >= _startDate && itemDate <= _endDate;
             }
         )

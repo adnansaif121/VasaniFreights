@@ -100,7 +100,16 @@ const CashDetailRecords = () => {
   // Filter by dropdown for Nature, Heading, Sub Heading, Type
   const columns = [
     { title: 'Sr.no', dataIndex: 'srno', key: 'srno', width: 70 },
-    { title: 'Date', dataIndex: 'date', key: 'date', width: 120 , 
+   
+    {
+      title: 'Nature',
+      dataIndex: 'nature',
+      key: 'nature',
+      filters: filterOptions(data, 'nature'),
+      onFilter: (value, record) => record.nature === value,
+      ...getColumnSearchProps('nature'),
+    },
+     { title: 'Date', dataIndex: 'date', key: 'date', width: 120 , 
       render:
         (text) => {
               if (!text) return '';
@@ -112,14 +121,23 @@ const CashDetailRecords = () => {
             return `${day}-${month}-${year}`;
         }
     },
-    {
-      title: 'Nature',
-      dataIndex: 'nature',
-      key: 'nature',
-      filters: filterOptions(data, 'nature'),
-      onFilter: (value, record) => record.nature === value,
-      ...getColumnSearchProps('nature'),
+    { title: 'Trip Date', dataIndex: 'tripDate', key: 'tripDate', width: 120 , 
+      render:
+        (text) => {
+              if (!text) return '';
+            // display date in dd-mm-yyyy format
+            const date = new Date(text);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
     },
+    { title: 'Truck No', dataIndex: 'truckNo', key: 'truckNo', width: 100 , 
+      render: (text) => <b>{text}</b>
+    },
+    {title: 'From', dataIndex: 'from', key: 'from', width: 100},
+    {title: 'To', dataIndex: 'to', key: 'to', width: 100},
     {
       title: 'Heading',
       dataIndex: 'heading',
@@ -136,9 +154,9 @@ const CashDetailRecords = () => {
       onFilter: (value, record) => record.subHeading === value,
       ...getColumnSearchProps('subHeading'),
     },
-    { title: 'Particulars/Remarks', dataIndex: 'remarks', key: 'remarks', width: 180 },
+    { title: 'Remarks', dataIndex: 'remarks', key: 'remarks', width: 180 },
     {
-      title: 'Type',
+      title: 'Payment Mode',
       dataIndex: 'type',
       key: 'type',
       filters: filterOptions(data, 'type'),

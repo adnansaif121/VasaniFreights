@@ -539,6 +539,72 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
 
     return (
         <>
+             <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 32,
+                    padding: '10px 0',
+                    background: '#fafafa',
+                    borderTop: '1px solid #eee',
+                    fontSize: 13,
+                    width: '100%',
+                }}
+            >
+                <div>
+                    <b>Opening Balance:</b>
+                    <Input
+                        style={{ width: 120, marginLeft: 8 }}
+                        type="number"
+                        value={openingBalance}
+                        onWheel={e => e.target.blur()}
+                    // onChange={e => setOpeningBalance(Number(e.target.value))}
+                    />
+                </div>
+                <div>
+                    <b>Daily Cash Change:</b>
+                    <Input
+                        style={{ width: 120, marginLeft: 8 }}
+                        type="number"
+                        value={totalIncome - totalExpense}
+                        readOnly
+                        onWheel={e => e.target.blur()}
+                    // onChange={e => setDailyChange(Number(e.target.value))}
+                    />
+                </div>
+                <div>
+                    <b>Closing Balance:</b>
+                    <Input
+                        style={{ width: 120, marginLeft: 8 }}
+                        type="number"
+                        value={closingBalance}
+                        onWheel={e => e.target.blur()}
+                    // onChange={e => setClosingBalance(Number(e.target.value))}
+                    />
+                </div>
+                <div>
+                    <b>Diff Amount:</b>
+                    <Input
+                        style={{ width: 120, marginLeft: 8 }}
+                        type="number"
+                        value={diffAmount}
+                        onChange={e => setDiffAmount(Number(e.target.value))}
+                        onWheel={e => e.target.blur()}
+                        placeholder="Enter diff amount"
+                    />
+                </div>
+                <div>
+                    <b>Remark:</b>
+                    <Input
+                        style={{ width: 220, marginLeft: 8 }}
+                        value={remark}
+                        onChange={e => setRemark(e.target.value)}
+                        placeholder="Enter remark"
+                    />
+                </div>
+                <div><Button type="primary" onClick={handleSave}>Save DiffAmount And Remark</Button></div>
+            </div>
 
             <div style={{ display: 'flex', gap: 4, padding: 24, height: '100%' }}>
                 <div style={{ flex: 1, background: '#f6f6f6', padding: 16, borderRadius: 8 }}>
@@ -803,73 +869,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                 </div>
             </div>
 
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: 32,
-                    padding: '24px 0',
-                    background: '#fafafa',
-                    borderTop: '1px solid #eee',
-                    fontSize: 18,
-                    width: '100%',
-                }}
-            >
-                <div>
-                    <b>Opening Balance:</b>
-                    <Input
-                        style={{ width: 120, marginLeft: 8 }}
-                        type="number"
-                        value={openingBalance}
-                        onWheel={e => e.target.blur()}
-                    // onChange={e => setOpeningBalance(Number(e.target.value))}
-                    />
-                </div>
-                <div>
-                    <b>Daily Cash Change:</b>
-                    <Input
-                        style={{ width: 120, marginLeft: 8 }}
-                        type="number"
-                        value={totalIncome - totalExpense}
-                        readOnly
-                        onWheel={e => e.target.blur()}
-                    // onChange={e => setDailyChange(Number(e.target.value))}
-                    />
-                </div>
-                <div>
-                    <b>Closing Balance:</b>
-                    <Input
-                        style={{ width: 120, marginLeft: 8 }}
-                        type="number"
-                        value={closingBalance}
-                        onWheel={e => e.target.blur()}
-                    // onChange={e => setClosingBalance(Number(e.target.value))}
-                    />
-                </div>
-                <div>
-                    <b>Diff Amount:</b>
-                    <Input
-                        style={{ width: 120, marginLeft: 8 }}
-                        type="number"
-                        value={diffAmount}
-                        onChange={e => setDiffAmount(Number(e.target.value))}
-                        onWheel={e => e.target.blur()}
-                        placeholder="Enter diff amount"
-                    />
-                </div>
-                <div>
-                    <b>Remark:</b>
-                    <Input
-                        style={{ width: 220, marginLeft: 8 }}
-                        value={remark}
-                        onChange={e => setRemark(e.target.value)}
-                        placeholder="Enter remark"
-                    />
-                </div>
-                <div><Button type="primary" onClick={handleSave}>Save DiffAmount And Remark</Button></div>
-            </div>
-
+           
         </>
     );
 };

@@ -1059,8 +1059,8 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
             <Button type="primary" onClick={exportToExcel}>
                 Export to Excel
             </Button>
-            <div style={{ width: "100vw", overflowX: 'scroll', overflowY: 'scroll', height: '84vh', backgroundColor: 'white' }}>
-                <Table scroll={{ x: 2000, y: 400 }} bordered style={{ zIndex: '100', height: '100%' }} size="small" dataSource={dataSource} columns={columns} pagination={false} />
+            <div style={{ width: "100vw", overflowX: 'scroll', overflowY: 'scroll', backgroundColor: 'white' }}>
+                <Table scroll={{ x: 2000, y: 570 }} bordered style={{ zIndex: '100', height: '100%' }} size="small" dataSource={dataSource} columns={columns}  />
             </div>
 
         </>
