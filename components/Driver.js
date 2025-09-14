@@ -8,6 +8,7 @@ import ViewDriverDetails from './ViewDriverDetails';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import RemarkModal, { RemarkButton } from './common/RemarkModal';
+import Highlighter from 'react-highlight-words';
 
 const Driver = ({ dailyEntryData, driverData }) => {
     const [partyList, setPartyList] = useState([]);
