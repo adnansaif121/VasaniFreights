@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs, DatePicker } from 'antd';
+import { Input, Button, Table, Collapse, Row, Col, Select, Form, Flex, Radio, Space, Checkbox, Tooltip, Card, Divider, Modal, Upload, message, Tabs, DatePicker, Pagination } from 'antd';
 import { SearchOutlined, InboxOutlined, MinusCircleOutlined, PlusOutlined, CloseOutlined, CheckCircleFilled, WarningFilled, EditOutlined, SaveOutlined } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
 import Highlighter from 'react-highlight-words';
@@ -11,178 +11,81 @@ let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' 
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
 console.log(todayDate);
 
-const Cheque = () => {
-
-    const [driverForm] = Form.useForm();
-    const [createPartyForm] = Form.useForm();
-    // Drivers List
-    const [driverList, setDriverList] = useState([]);
-    const [newDriverName, setNewDriverName] = useState('');
-    // Locations list
-    const [Locations, setLocations] = useState([
-        {
-            value: 'mumbai',
-            label: 'Mumbai',
-        },
-        {
-            value: 'pune',
-            label: 'Pune',
-        },
-        {
-            value: 'nagpur',
-            label: 'Nagpur',
-        },
-        {
-            value: 'nashik',
-            label: 'Nashik',
-        },
-        {
-            value: 'aurangabad',
-            label: 'Aurangabad',
-        }
-    ]);
+const Cheque = ({ dailyEntryData }) => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
-    const [MaalList, setMaalList] = useState([
-        {
-            value: 'Aata',
-            label: 'Aata',
-        },
-        {
-            value: 'Maida',
-            label: 'Maida',
-        },
-        {
-            value: 'Scrape',
-            label: 'Scrape',
-        },
-        {
-            value: 'Loha',
-            label: 'Loha',
-        },
-    ]);
-    const [newMaal, setNewMaal] = useState('');
-    //All Party List for Party Select
-    const [partyListAll, setPartyListAll] = useState([]);
-    // All Transporter List for Transporter Select
-    const [transporterList, setTransporterList] = useState([]);
-    const [newTransporter, setNewTransporter] = useState('');
-    // Data to display in the table
     const [completeDataSource, setCompleteDataSource] = useState([]);
     const [dataSource, setDataSource] = useState([]); // Table Data
-    // FLAG 
-    //Bank
-    const [newBank, setNewBank] = useState('');
-    const [bankData, setBankData] = useState([]);
-    const [dateFilter, setDateFilter] = useState('');
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
-
-    // MODAL VARIABLES:
-    const [partyModal, setPartyModal] = useState({});
-
-    const [driverModal, setDriverModal] = useState({
-        label: '',
-        value: '',
-        location: '',
-        LicenseDate: '',
-        contact: '',
-        licenseDocument: null, // Add this new field
-    });
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
-    const [uvPaymentStatusList, setUvPaymentStatusList] = useState([
-        {
-            value: 'Received',
-            label: 'Received',
-        },
-        {
-            value: 'Pending',
-            label: 'Pending',
-        },
-    ]);
     const [editingDepositDateRow, setEditingDepositDateRow] = useState(null);
     const [newDepositDate, setNewDepositDate] = useState('');
 
     useEffect(() => {
-        const db = getDatabase();
+        // const db = getDatabase();
         // Get data from database
-        const starCountRef = ref(db, 'dailyEntry/');
+        // const starCountRef = ref(db, 'dailyEntry/');
         // console.log(starCountRef);
-        onValue(starCountRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
-            let ds = []; // Data Source
-            if (data) {
-                Object.keys(data).map((key, i) => {
-                    for (let j = 0; j < data[key].tripDetails.length; j++) {
-                        if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].chequeAmount !== '') {
-                            console.log(data[key]);
-                            // let _pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
-                            // updatePohchId(key, _pohchId);
-                            ds.push(
-                                {
-                                    date: data[key].date,
-                                    timestamp: key,
-                                    key: key,
-                                    id: i + 1,
-                                    vehicleNo: data[key].vehicleNo,
-                                    from: data[key].tripDetails[j].from,
-                                    to: data[key].tripDetails[j].to,
-                                    revisedTo: data[key].tripDetails[j].revisedTo,
-                                    paid: data[key].tripDetails[j].payStatus,
-                                    bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
-                                    paaneWaliParty: data[key].tripDetails[j].paaneWaala,
-                                    maal: data[key].tripDetails[j].maal,
-                                    qty: data[key].tripDetails[j].qty,
-                                    rate: data[key].tripDetails[j].rate,
-                                    revisedRate: data[key].tripDetails[j].revisedRate,
-                                    totalFreight:parseFloat(data[key].tripDetails[j].totalFreight).toFixed(2),
-                                    // pohchRecievedDate: data[key].firstPayment[j].pohchDate,
-                                    // pohchAmt: data[key].firstPayment[j].pohchAmount,
-                                    paymentStatus: data[key].tripDetails[j].transactionStatus,
-                                    courierStatus: data[key].tripDetails[j].courierStatus,
-                                    courierSentDate: data[key].tripDetails[j].courierSentDate,
-                                    pohchId: data[key].firstPayment[j].pohchId,
-                                    depositStatus: data[key].tripDetails[j].chequeDepositStatus,
-                                    depositDate: data[key].tripDetails[j].chequeDepositDate,
-                                    chequeNumber: data[key].firstPayment[j].chequeNumber,
-                                    chequeDate: data[key].firstPayment[j].chequeDate,
-                                    chequeAmount: data[key].firstPayment[j].chequeAmount,
-                                    chequeName: data[key].firstPayment[j].chequeBank,
-                                    tripExpense: data[key]?.driver1?.TripCash,
-                                    tollExpense: data[key].tripDetails[j].tollExpense,
-                                    UVLogsPaymentStatus: data[key].tripDetails[j].UVLogsPaymentStatus,
-                                }
-                            )
-                        }
+        // onValue(starCountRef, (snapshot) => {
+        // });
+        if (dailyEntryData === null) return;
+        const data = dailyEntryData;
+        // console.log(data);
+        // updateStarCount(postElement, data);
+        let ds = []; // Data Source
+        if (data) {
+            Object.keys(data).map((key, i) => {
+                for (let j = 0; j < data[key].tripDetails.length; j++) {
+                    if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].chequeAmount !== '') {
+                        console.log(data[key]);
+                        // let _pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
+                        // updatePohchId(key, _pohchId);
+                        ds.push(
+                            {
+                                date: data[key].date,
+                                timestamp: key,
+                                key: key,
+                                id: i + 1,
+                                vehicleNo: data[key].vehicleNo,
+                                from: data[key].tripDetails[j].from,
+                                to: data[key].tripDetails[j].to,
+                                revisedTo: data[key].tripDetails[j].revisedTo,
+                                paid: data[key].tripDetails[j].payStatus,
+                                bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                maal: data[key].tripDetails[j].maal,
+                                qty: data[key].tripDetails[j].qty,
+                                rate: data[key].tripDetails[j].rate,
+                                revisedRate: data[key].tripDetails[j].revisedRate,
+                                totalFreight: parseFloat(data[key].tripDetails[j].totalFreight).toFixed(2),
+                                // pohchRecievedDate: data[key].firstPayment[j].pohchDate,
+                                // pohchAmt: data[key].firstPayment[j].pohchAmount,
+                                paymentStatus: data[key].tripDetails[j].transactionStatus,
+                                courierStatus: data[key].tripDetails[j].courierStatus,
+                                courierSentDate: data[key].tripDetails[j].courierSentDate,
+                                pohchId: data[key].firstPayment[j].pohchId,
+                                depositStatus: data[key].tripDetails[j].chequeDepositStatus,
+                                depositDate: data[key].tripDetails[j].chequeDepositDate,
+                                chequeNumber: data[key].firstPayment[j].chequeNumber,
+                                chequeDate: data[key].firstPayment[j].chequeDate,
+                                chequeAmount: data[key].firstPayment[j].chequeAmount,
+                                chequeName: data[key].firstPayment[j].chequeBank,
+                                tripExpense: data[key]?.driver1?.TripCash,
+                                tollExpense: data[key].tripDetails[j].tollExpense,
+                                UVLogsPaymentStatus: data[key].tripDetails[j].UVLogsPaymentStatus,
+                            }
+                        )
                     }
-                });
-            }
-            console.log(ds);
-            applyDateSort(ds);
-            // setDataSource(ds);
-            // setCompleteDataSource(ds);
-        });
+                }
+            });
+        }
+        console.log(ds);
+        applyDateSort(ds);
+        // setDataSource(ds);
+        // setCompleteDataSource(ds);
 
-        const locationsRef = ref(db, 'locations/');
-        onValue(locationsRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'Locations');
-            // updateStarCount(postElement, data);
-            let locations = []; // Data Source
-            if (data) {
-                Object.values(data).map((location, i) => {
-                    locations.push(location);
-                })
-                setLocations([...locations]);
-            }
-        });
-
-    }, [])
+    }, [dailyEntryData])
 
     const exportToExcel = () => {
         // Prepare data: remove unwanted fields if needed
@@ -220,11 +123,6 @@ const Cheque = () => {
         setSearchedColumn(dataIndex);
     };
 
-    const handleReset = (clearFilters) => {
-        clearFilters();
-        setSearchText('');
-    };
-
     const applyDateFilter = (e) => {
         let startDate = fromDate;
         let endDate = toDate;
@@ -244,9 +142,6 @@ const Cheque = () => {
             }
         )
         setDataSource(_displayDataSource);
-        setDateFilter(e.target.value);
-        // setDisplayDataSource(_displayDataSource);
-        // setFromDate(null);
 
     }
     const getColumnSearchProps = (dataIndex) => ({
@@ -684,192 +579,39 @@ const Cheque = () => {
 
     ];
 
-    function guidGenerator() {
-        var S4 = function () {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        };
-        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
-    }
-
-    const addNewParty = () => {
-        // e.preventDefault();
-        if (partyModal.label === undefined) {
-            alert('Please Enter Party name');
-            return;
-        }
-        let _newParty = partyModal.label;
-        for (let i = 0; i < partyListAll.length; i++) {
-            if (_newParty.toUpperCase() === partyListAll[i].value.toUpperCase()) {
-                alert(`Party with name ${partyListAll[i].value} already exists.`);
-                return;
-            }
-        }
-        setPartyListAll([...partyListAll, { ...partyModal }]);
-        // setNewParty('');
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const partyListRef = ref(db, 'parties');
-        const newPartyRef = push(partyListRef);
-        set(newPartyRef, {
-            ...partyModal
-        }).then(() => {
-            alert("Party Created Successfully!!");
-            setPartyModal({});
-            return;
-        })
-    }
-
-    const addNewTransporter = (e) => {
-        if (newTransporter.trim() === "") {
-            alert("please enter a value to add transporter.")
-            return;
-        }
-        e.preventDefault();
-        for (let i = 0; i < transporterList.length; i++) {
-            if (newTransporter.toUpperCase() === transporterList[i].value.toUpperCase()) {
-                alert(`Transporter with name ${transporterList[i].value} already exixts`);
-                return;
-            }
-        }
-        setTransporterList([...transporterList, { value: newTransporter, label: newTransporter }]);
-        setNewTransporter('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const transporterListRef = ref(db, 'transporters');
-        const newTransporterRef = push(transporterListRef);
-        set(newTransporterRef, {
-            value: newTransporter,
-            label: newTransporter,
-        });
-    }
-
-    const addNewMaal = (e, _newMaal) => {
-        if (_newMaal === undefined) {
-            _newMaal = newMaal;
-        }
-        if (_newMaal.trim() === "") {
-            alert("please enter a value to add maal.")
-            return;
-        }
-        e.preventDefault();
-        for (let i = 0; i < MaalList.length; i++) {
-            if (_newMaal.toUpperCase() === MaalList[i].value.toUpperCase()) {
-                alert(`Maal with name ${MaalList[i].value} already exixts`);
-                return;
-            }
-        }
-        setMaalList([...MaalList, { value: _newMaal, label: _newMaal }]);
-        setNewMaal('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const maalListRef = ref(db, 'maal');
-        const newMaalRef = push(maalListRef);
-        set(newMaalRef, {
-            value: _newMaal,
-            label: _newMaal,
-        });
-    }
-
-    const addNewBank = (e) => {
-        e.preventDefault();
-        if (newBank.trim() === '') {
-            alert('Please enter bank name to add bank in the list. Field is empty');
-            return;
-        }
-        let key = bankData.length;
-        setBankData([...bankData, { bankName: newBank, value: newBank, label: newBank, key: key }]);
-
-        const db = getDatabase();
-        const bankRef = ref(db, 'bankData/data/' + key);
-        // const newBankRef = push(bankRef);
-        set(bankRef, {
-            bankName: newBank,
-            key: key,
-        })
-
-        setNewBank('');
-    }
-
-    const addNewDriver = (e) => {
-
-        // e.preventDefault();
-        if (driverModal.label === undefined) {
-            alert("Please Enter Driver Name to submit")
-        }
-        let _newDriverName = driverModal.label;
-        for (let i = 0; i < driverList.length; i++) {
-            if (_newDriverName.toUpperCase() === driverList[i].value.toUpperCase()) {
-                alert("Driver with this name already exists");
-                return;
-            }
-        }
-        setDriverList([...driverList, { ...driverModal }]);
-        setNewDriverName('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const driverListRef = ref(db, 'drivers');
-        const newDriverRef = push(driverListRef);
-        set(newDriverRef, {
-            ...driverModal
-        }).then(() => {
-            alert("Driver Added Successfully!!");
-            setDriverModal({});
-            return;
-        });
-    }
-
-    // Filter `option.label` match the user type `input`
-    const filterOption = (input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
-
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const handleOk = () => {
-        createPartyForm.resetFields();
-        addNewParty();
-        setIsModalOpen(false);
-    };
-
-    const handleDriverOk = () => {
-        addNewDriver();
-        setIsDriverModalOpen(false);
-        setDriverModal({});
-        driverForm.resetFields();
-    }
-
-    const handleCancel = () => {
-        createPartyForm.resetFields();
-        setIsModalOpen(false);
-    };
-
-    const handleDriverCancel = () => {
-        setIsDriverModalOpen(false);
-        setDriverModal({});
-        driverForm.resetFields();
-    }
-
     return (
         <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                <div>
+                    <span style={{ marginLeft: '40px' }}>From Date:</span>
+                    <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+                    <span style={{ marginLeft: '40px' }}>To Date:</span>
+                    <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
+                    <Button onClick={applyDateFilter}>Apply Filter</Button>
+                    <Button onClick={() => {
+                        setDataSource(completeDataSource);
+                        setFromDate(null);
+                        setToDate(null);
+                    }}>Clear Date</Button>
+                </div>
+                <div>
+                    <Button type="primary" style={{ margin: '20px' }} onClick={exportToExcel}>
+                        Export to Excel
+                    </Button>
+                </div>
 
-            <span style={{ marginLeft: '40px' }}>From Date:</span>
-            <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-            <span style={{ marginLeft: '40px' }}>To Date:</span>
-            <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
-            <Button onClick={applyDateFilter}>Apply Filter</Button>
-            <Button onClick={() => {
-                setDataSource(completeDataSource);
-                setFromDate(null);
-                setToDate(null);
-                setDateFilter(null);
-            }}>Clear Date</Button>
-            <Button type="primary" style={{ margin: '20px' }} onClick={exportToExcel}>
-                Export to Excel
-            </Button>
+
+                {/* <div>
+                    <Pagination
+                        pageSize={20}
+                        current={currentPage}
+                        total={1000} // Or your dynamic total
+                        showSizeChanger={false}
+                        onChange={handleTableChange}
+                    />
+                </div> */}
+            </div>
+
             <div style={{ width: "100vw", overflowX: 'scroll', overflowY: 'scroll', height: '84vh', backgroundColor: 'white' }}>
                 <Table scroll={{ x: 2000, y: 400 }} bordered style={{ zIndex: '100', height: '100%' }} size="small" dataSource={dataSource} columns={columns} pagination={false} />
             </div>

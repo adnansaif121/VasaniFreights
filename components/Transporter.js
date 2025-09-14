@@ -3,7 +3,7 @@ import { Segmented } from 'antd';
 import TransporterTrips from './TransporterTrips';
 import TransporterParty from './TransporterParty';
 
-const Transporter = () => {
+const Transporter = ({dailyEntryData, bankData, setBankData, partyData, transporterData}) => {
     const [page, setPage] = useState('Payment Received Details');
 
     return (
@@ -12,10 +12,10 @@ const Transporter = () => {
                 <Segmented size='large' options={[ 'Payment Received Details','No. of trips detail']} onChange={(value) => setPage(value)} block />
             </div>
             {page === "No. of trips detail" &&
-                <TransporterTrips></TransporterTrips>
+                <TransporterTrips dailyEntryData={dailyEntryData} bankData={bankData} setBankData={setBankData} partyData={partyData} transporterData={transporterData}></TransporterTrips>
             }
             {page === "Payment Received Details" &&
-                <TransporterParty></TransporterParty>
+                <TransporterParty dailyEntryData={dailyEntryData} bankData={bankData} setBankData={setBankData} partyData={partyData} transporterData={transporterData} />
             }
             
         </>

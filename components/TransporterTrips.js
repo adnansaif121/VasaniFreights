@@ -4,7 +4,8 @@ import { SearchOutlined, EyeTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import styles from '../styles/Party.module.css';
 import Highlighter from 'react-highlight-words';
-const TransporterTrips = () => {
+
+const TransporterTrips = ({dailyEntryData, bankData, setBankData, partyData, transporterData}) => {
     const [displayPartyList, setDisplayPartyList] = useState([]);
     const [allTableData, setAllTableData] = useState({});
     const [dataSource, setDataSource] = useState([]); // Table Data
@@ -20,77 +21,76 @@ const TransporterTrips = () => {
     const searchInput = useRef(null);
 
     useEffect(() => {
-        const db = getDatabase();
 
-        const partyRef = ref(db, 'transporters/');
+        // const partyRef = ref(db, 'transporters/');
         let partyNameList = [];
-        onValue(partyRef, (snapshot) => {
-            const data = snapshot.val();
-            // updateStarCount(postElement, data);
-            let parties = []; // Data Source
-            if (data !== null) {
-                Object.values(data).map((party, i) => {
-                    if (party.label.toUpperCase().trim() === ('Hare Krishna').toUpperCase()) return; // Skip Hare Krishna party
-                    parties.push(party);
-                    partyNameList.push(party.label);
-                })
-            }
-            // setPartyIds(Object.keys(data));
-            // setPartyListAll([...parties]);
-            setPartyList([...parties]);
-            setDisplayPartyList([...parties]);
-        });
+        // onValue(partyRef, (snapshot) => {
+        // });
+        // const data = snapshot.val();
+        // updateStarCount(postElement, data);
+        let parties = []; // Data Source
+        if (transporterData !== null) {
+            Object.values(transporterData).map((party, i) => {
+                if (party.label.toUpperCase().trim() === ('Hare Krishna').toUpperCase()) return; // Skip Hare Krishna party
+                parties.push(party);
+                partyNameList.push(party.label);
+            })
+        }
+        // setPartyIds(Object.keys(data));
+        // setPartyListAll([...parties]);
+        setPartyList([...parties]);
+        setDisplayPartyList([...parties]);
 
         // Get data from database
-        const starCountRef = ref(db, 'dailyEntry/');
-        onValue(starCountRef, (snapshot) => {
-            const data = snapshot.val();
-            let ds = []; // Data Source
-            let _partyList = [{ label: 'All', value: 'All' }];
-            let _totalRemaining = 0;
-            let _totalPohchAmt = 0;
-            if (data) {
-                setAllTableData(data);
-                let count = 1;
-                Object.keys(data).map((key, i) => {
-                    for (let j = 0; j < data[key].tripDetails.length; j++) {
-                        if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "none")) {
-                            ds.push(
-                                {
-                                    key: key + j,
-                                    id: count,
-                                    date: data[key].date,
-                                    vehicleNo: data[key].vehicleNo,
-                                    from: data[key].tripDetails[j].from,
-                                    to: data[key].tripDetails[j].to,
-                                    transporter: data[key].tripDetails[j].transporter,
-                                    maal: data[key].tripDetails[j].maal,
-                                    qty: data[key].tripDetails[j].qty,
-                                    rate: data[key].tripDetails[j].rate,
-                                    totalFreight: data[key].tripDetails[j].totalFreight,
-                                    //received: '100000',
-                                    remainingBalance: parseInt(data[key].tripDetails[j].totalFreight) - (parseInt(data[key].firstPayment[j].cashAmount || 0) + parseInt(data[key].firstPayment[j].chequeAmount || 0) + parseInt(data[key].firstPayment[j].onlineAmount || 0)),//totalFreight-(firstPaymentTotal)
-                                    firstPayment: data[key].firstPayment,
-                                    bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
-                                }
-                            )
-                            count++;
-                            _totalPohchAmt += parseInt(data[key].firstPayment[j].pohchAmount);
-                            _totalRemaining += ds[ds.length - 1].remainingBalance;
-                            _partyList.push({ label: data[key].firstPayment[j].partyForNaveenKaka, value: data[key].firstPayment[j].partyForNaveenKaka })
-                        }
+        // const starCountRef = ref(db, 'dailyEntry/');
+        // onValue(starCountRef, (snapshot) => {
+        // });
+        const data = dailyEntryData;
+        let ds = []; // Data Source
+        let _partyList = [{ label: 'All', value: 'All' }];
+        let _totalRemaining = 0;
+        let _totalPohchAmt = 0;
+        if (data) {
+            setAllTableData(data);
+            let count = 1;
+            Object.keys(data).map((key, i) => {
+                for (let j = 0; j < data[key].tripDetails.length; j++) {
+                    if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "none")) {
+                        ds.push(
+                            {
+                                key: key + j,
+                                id: count,
+                                date: data[key].date,
+                                vehicleNo: data[key].vehicleNo,
+                                from: data[key].tripDetails[j].from,
+                                to: data[key].tripDetails[j].to,
+                                transporter: data[key].tripDetails[j].transporter,
+                                maal: data[key].tripDetails[j].maal,
+                                qty: data[key].tripDetails[j].qty,
+                                rate: data[key].tripDetails[j].rate,
+                                totalFreight: data[key].tripDetails[j].totalFreight,
+                                //received: '100000',
+                                remainingBalance: parseInt(data[key].tripDetails[j].totalFreight) - (parseInt(data[key].firstPayment[j].cashAmount || 0) + parseInt(data[key].firstPayment[j].chequeAmount || 0) + parseInt(data[key].firstPayment[j].onlineAmount || 0)),//totalFreight-(firstPaymentTotal)
+                                firstPayment: data[key].firstPayment,
+                                bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
+                            }
+                        )
+                        count++;
+                        _totalPohchAmt += parseInt(data[key].firstPayment[j].pohchAmount);
+                        _totalRemaining += ds[ds.length - 1].remainingBalance;
+                        _partyList.push({ label: data[key].firstPayment[j].partyForNaveenKaka, value: data[key].firstPayment[j].partyForNaveenKaka })
                     }
-                });
-            }
-            ds = ds.sort(
-                (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
-            );
-            setDisplayDataSource(ds);
-            setDataSource(ds);
-            setPartyList([..._partyList]);
-            setTotalPohchAmt(_totalPohchAmt);
-            setTotalRemaining(_totalRemaining);
-        });
+                }
+            });
+        }
+        ds = ds.sort(
+            (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
+        );
+        setDisplayDataSource(ds);
+        setDataSource(ds);
+        setPartyList([..._partyList]);
+        setTotalPohchAmt(_totalPohchAmt);
+        setTotalRemaining(_totalRemaining);
     }, []);
 
     const filterMenuItems = [

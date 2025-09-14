@@ -53,7 +53,10 @@ const DailyEntry = ({
     setNewMaal,
     setDriverList,
     driverModal,
-    setDriverModal
+    setDriverModal,
+    newVehicleNo,
+    setNewVehicleNo,
+    setDataSource,
 }) => {
     // const [driverForm] = Form.useForm();
     // const [createPartyForm] = Form.useForm();
@@ -64,6 +67,8 @@ const DailyEntry = ({
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
+    const [fromDate, setFromDate] = useState(null);
+    const [toDate, setToDate] = useState(null);
     // const [Locations, setLocations] = useState([]);
     // Maal List
     // const [MaalList, setMaalList] = useState([]);
@@ -419,8 +424,42 @@ const DailyEntry = ({
         // setDisplayDataSource(_displayDataSource);
     }
 
+     const applyDateFilter = (e) => {
+        let startDate = fromDate;
+        let endDate = toDate;
+        console.log(startDate, endDate);
+        if (startDate === null || endDate === null) {
+            alert("Please select start and end date");
+            return;
+        }
+        let _startDate = new Date(startDate).getTime();
+        let _endDate = new Date(endDate).getTime();
+        // console.log(completeDataSource);
+        let _displayDataSource = completeDataSource.filter(
+            (item) => {
+                let itemDate = new Date(item.date).getTime();
+                console.log(item.date, itemDate);
+                return itemDate >= _startDate && itemDate <= _endDate;
+            }
+        )
+        setDataSource(_displayDataSource);
 
+    }
 
+    const exportToExcel = () => {
+            // Prepare data: remove unwanted fields if needed
+            const exportData = dataSource.map(row => {
+                const { key, ...rest } = row; // remove key if you don't want it in Excel
+                return rest;
+            });
+    
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+            const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+            const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+            saveAs(data, "Uvlogistics.xlsx");
+        };
     return (
         <>
             <CreatePartyForm
@@ -645,11 +684,24 @@ const DailyEntry = ({
                 </Form>
             </Modal>
 
-            <Input style={{ width: "20%", marginLeft: '20px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
+            {/* <Input style={{ width: "20%", marginLeft: '20px' }} type='date' value={dateFilter} onChange={handleDateFilter} />
             <Button onClick={() => {
                 setDataSource(completeDataSource);
                 setDateFilter(null);
+            }}>Clear Date</Button> */}
+            <span style={{ marginLeft: '40px' }}>From Date:</span>
+            <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+            <span style={{ marginLeft: '40px' }}>To Date:</span>
+            <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
+            <Button onClick={applyDateFilter}>Apply Filter</Button>
+            <Button onClick={() => {
+                setDataSource(completeDataSource);
+                setFromDate(null);
+                setToDate(null);
             }}>Clear Date</Button>
+            <Button type="primary"  onClick={exportToExcel}>
+                Export to Excel
+            </Button>
             <div style={{ width: "100vw", overflowX: 'auto', marginLeft: '0px', height: '84.5vh', backgroundColor: 'white' }}>
                 <Table
                     style={{ zIndex: '100' }}
@@ -720,11 +772,13 @@ const DailyEntry = ({
                             partyModal={partyModal}
                             setPartyModal={setPartyModal}
                             createPartyForm={createPartyForm}
-                            driverForm = { driverForm }
-                            newMaal = { newMaal }
-                            setNewMaal = { setNewMaal }
-                            setDriverList = { setDriverList }
+                            driverForm={driverForm}
+                            newMaal={newMaal}
+                            setNewMaal={setNewMaal}
+                            setDriverList={setDriverList}
                             setDriverModal={setDriverModal}
+                            newVehicleNo={newVehicleNo}
+                            setNewVehicleNo={setNewVehicleNo}
                         />
                     )}
                 </Modal>

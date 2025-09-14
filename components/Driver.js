@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
 import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Typography, Drawer, DatePicker, Upload, Tooltip } from 'antd';
-import { InboxOutlined, UserOutlined,EyeTwoTone, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
+import { InboxOutlined, UserOutlined, EyeTwoTone, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, push, update } from "firebase/database";
 import ViewPartyDetails from './ViewPartyDetails';
 import ViewDriverDetails from './ViewDriverDetails';
 
-const Driver = () => {
+const Driver = ({ dailyEntryData, driverData }) => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
     const [tableData, setTableData] = useState([]);
@@ -54,76 +54,72 @@ const Driver = () => {
         const db = getDatabase();
         // Get data from database
         const starCountRef = ref(db, 'dailyEntry/');
-        // console.log(starCountRef);
-        onValue(starCountRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
-            let ds = []; // Data Source
-            if (data) {
-                setAllTableData(data);
-                Object.keys(data).map((key, i) => {
-                    ds.push(
-                        {
-                            key: key,
-                            id: i + 1,
-                            date: data[key].date,
-                            vehicleNo: data[key].vehicleNo,
-                            transactionStatus: data[key].transactionStatus || 'open',
-                            mt: data[key].mt,
-                            from: data[key].tripDetails[0].from,
-                            to: data[key].tripDetails[0].to,
-                            paid: data[key].tripDetails[0].payStatus,
-                            bhejneWaliParty: data[key].tripDetails[0].bhejneWaala,
-                            paaneWaliParty: data[key].tripDetails[0].paaneWaala,
-                            transporter: data[key].tripDetails[0].transporter,
-                            maal: data[key].tripDetails[0].maal,
-                            qty: data[key].tripDetails[0].qty,
-                            rate: data[key].tripDetails[0].rate,
-                            totalFreight: data[key].tripDetails[0].totalFreight,
-                            received: '100000',
-                            dieselAndKmDetails: data[key].dieselAndKmDetails,
-                            tripDetails: data[key].tripDetails,
-                            driversDetails: data[key].driversDetails,
-                            kaataParchi: data[key].kaataParchi,
-                            firstPayment: data[key].firstPayment,
-                            bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
-                            vehicleStatus: data[key].vehicleStatus,
-                            furtherPayments: data[key].furtherPayments || {},
-                            driver: data[key]?.driver1?.value || null,
-                        }
-                    )
-                });
-            }
-            console.log(ds);
-            ds = ds.sort(
-                (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
-            );
-            setDisplayDataSource(ds);
-            setDataSource(ds);
-        });
+
+        const data = dailyEntryData;
+        console.log(data);
+        // updateStarCount(postElement, data);
+        let ds = []; // Data Source
+        if (data) {
+            setAllTableData(data);
+            Object.keys(data).map((key, i) => {
+                ds.push(
+                    {
+                        key: key,
+                        id: i + 1,
+                        date: data[key].date,
+                        vehicleNo: data[key].vehicleNo,
+                        transactionStatus: data[key].transactionStatus || 'open',
+                        mt: data[key].mt,
+                        from: data[key].tripDetails[0].from,
+                        to: data[key].tripDetails[0].to,
+                        paid: data[key].tripDetails[0].payStatus,
+                        bhejneWaliParty: data[key].tripDetails[0].bhejneWaala,
+                        paaneWaliParty: data[key].tripDetails[0].paaneWaala,
+                        transporter: data[key].tripDetails[0].transporter,
+                        maal: data[key].tripDetails[0].maal,
+                        qty: data[key].tripDetails[0].qty,
+                        rate: data[key].tripDetails[0].rate,
+                        totalFreight: data[key].tripDetails[0].totalFreight,
+                        received: '100000',
+                        dieselAndKmDetails: data[key].dieselAndKmDetails,
+                        tripDetails: data[key].tripDetails,
+                        driversDetails: data[key].driversDetails,
+                        kaataParchi: data[key].kaataParchi,
+                        firstPayment: data[key].firstPayment,
+                        bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[0]?.bhadaKaunDalega,
+                        vehicleStatus: data[key].vehicleStatus,
+                        furtherPayments: data[key].furtherPayments || {},
+                        driver: data[key]?.driver1?.value || null,
+                    }
+                )
+            });
+        }
+        console.log(ds);
+        ds = ds.sort(
+            (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
+        );
+        setDisplayDataSource(ds);
+        setDataSource(ds);
 
         // create dummy party List
 
-        const driverRef = ref(db, 'drivers/');
-        onValue(driverRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'drivers');
-            // updateStarCount(postElement, data);
-            let drivers = []; // Data Source
-            if (data !== null) {
-                Object.values(data).map((driver, i) => {
-
-                    drivers.push(driver);
-
-                })
-            }
-            setPartyIds(Object.keys(data));
-            // setPartyListAll([...parties]);
-            setPartyList([...drivers]);
-            setDisplayPartyList([...drivers]);
-            console.log("Display Party list", [...drivers])
-        });
+        // const driverRef = ref(db, 'drivers/');
+        // onValue(driverRef, (snapshot) => {
+        // });
+        // const data = snapshot.val();
+        // console.log(data, 'drivers');
+        // updateStarCount(postElement, data);
+        let drivers = []; // Data Source
+        if (driverData !== null) {
+            Object.entries(driverData).map(([key, driver], i) => {
+                drivers.push({ ...driver, id: key });
+            })
+        }
+        setPartyIds(Object.keys(driverData));
+        // setPartyListAll([...parties]);
+        setPartyList([...drivers]);
+        setDisplayPartyList([...drivers]);
+        console.log("Display Party list", [...drivers])
 
     }, []);
 
@@ -706,7 +702,7 @@ const Driver = () => {
                         ,
                         rowExpandable: (record) => true,
                     }}
-                        pagination={'none'}
+                        // pagination={'none'}
                     />
                 </div>
             </div>

@@ -15,7 +15,6 @@ const itemTypes = [
   { key: 'maal', label: 'Maals' }
 ];
 
-const arrayTypes = ['pumps', 'bankData', 'Vehicles']; // These should be stored as arrays
 
 const ManageItems = () => {
   const [activeTab, setActiveTab] = useState('locations');
@@ -209,6 +208,11 @@ const ManageItems = () => {
     let updateObj = {};
     let arr = [];
     switch (modal.type) {
+      case 'Transporter':
+        refPath = `transporters/${modal.item.id}`;
+        updateObj = { label: inputValue, value: inputValue };
+        await update(ref(db, refPath), updateObj);
+        break;
       case 'locations':
         refPath = `locations/${modal.item.id}`;
         updateObj = { value: inputValue, label: inputValue };

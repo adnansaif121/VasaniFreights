@@ -5,7 +5,7 @@ import { getDatabase, ref, set, onValue, push } from "firebase/database";
 import styles from '../styles/Party.module.css';
 import _default from 'antd/es/grid';
 import Highlighter from 'react-highlight-words';
-const PohchHisab = () => {
+const PohchHisab = ({dailyEntryData, partyData, transporterData}) => {
     const [allTableData, setAllTableData] = useState({});
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
@@ -20,68 +20,62 @@ const PohchHisab = () => {
     const searchInput = useRef(null);
 
     useEffect(() => {
-        const db = getDatabase();
-        // Get data from database
-        const starCountRef = ref(db, 'dailyEntry/');
-        // console.log(starCountRef);
-        onValue(starCountRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
-            let ds = []; // Data Source
-            let _partyList = [{ label: 'All', value: 'All' }];
-            let _totalRemaining = 0;
-            let _totalPohchAmt = 0;
-            if (data) {
-                setAllTableData(data);
-                let count = 1;
-                Object.keys(data).map((key, i) => {
-                    for (let j = 0; j < data[key].tripDetails.length; j++) {
-                        //console.log(data[key], j);  
-                        if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === "NaveenKaka") {
-                            ds.push(
-                                {
-                                    key: key + j,
-                                    id: count,
-                                    date: data[key].date,
-                                    vehicleNo: data[key].vehicleNo,
-                                    partyName: data[key].firstPayment[j].partyForNaveenKaka,
-                                    PohchDate: data[key].firstPayment[j].pohchDate,
-                                    PohchAmt: data[key].firstPayment[j].pohchAmount,
-                                    from: data[key].tripDetails[j].from,
-                                    to: data[key].tripDetails[j].to,
-                                    transporter: data[key].tripDetails[j].transporter,
-                                    maal: data[key].tripDetails[j].maal,
-                                    qty: data[key].tripDetails[j].qty,
-                                    rate: data[key].tripDetails[j].rate,
-                                    totalFreight: data[key].tripDetails[j].totalFreight,
-                                    //received: '100000',
-                                    remainingBalance: parseInt(data[key].tripDetails[j].totalFreight) - (parseInt(data[key].firstPayment[j].cashAmount || 0) + parseInt(data[key].firstPayment[j].chequeAmount || 0) + parseInt(data[key].firstPayment[j].onlineAmount || 0)),//totalFreight-(firstPaymentTotal)
+        const data = dailyEntryData;
+        console.log(data);
+        // updateStarCount(postElement, data);
+        let ds = []; // Data Source
+        let _partyList = [{ label: 'All', value: 'All' }];
+        let _totalRemaining = 0;
+        let _totalPohchAmt = 0;
+        if (data) {
+            setAllTableData(data);
+            let count = 1;
+            Object.keys(data).map((key, i) => {
+                for (let j = 0; j < data[key].tripDetails.length; j++) {
+                    //console.log(data[key], j);  
+                    if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === "NaveenKaka") {
+                        ds.push(
+                            {
+                                key: key + j,
+                                id: count,
+                                date: data[key].date,
+                                vehicleNo: data[key].vehicleNo,
+                                partyName: data[key].firstPayment[j].partyForNaveenKaka,
+                                PohchDate: data[key].firstPayment[j].pohchDate,
+                                PohchAmt: data[key].firstPayment[j].pohchAmount,
+                                from: data[key].tripDetails[j].from,
+                                to: data[key].tripDetails[j].to,
+                                transporter: data[key].tripDetails[j].transporter,
+                                maal: data[key].tripDetails[j].maal,
+                                qty: data[key].tripDetails[j].qty,
+                                rate: data[key].tripDetails[j].rate,
+                                totalFreight: data[key].tripDetails[j].totalFreight,
+                                //received: '100000',
+                                remainingBalance: parseInt(data[key].tripDetails[j].totalFreight) - (parseInt(data[key].firstPayment[j].cashAmount || 0) + parseInt(data[key].firstPayment[j].chequeAmount || 0) + parseInt(data[key].firstPayment[j].onlineAmount || 0)),//totalFreight-(firstPaymentTotal)
 
-                                }
-                            )
-                            count++;
-                            _totalPohchAmt += parseInt(data[key].firstPayment[j].pohchAmount);
-                            _totalRemaining += ds[ds.length - 1].remainingBalance;
-                            _partyList.push({ label: data[key].firstPayment[j].partyForNaveenKaka, value: data[key].firstPayment[j].partyForNaveenKaka })
-                        }
+                            }
+                        )
+                        count++;
+                        _totalPohchAmt += parseInt(data[key].firstPayment[j].pohchAmount);
+                        _totalRemaining += ds[ds.length - 1].remainingBalance;
+                        _partyList.push({ label: data[key].firstPayment[j].partyForNaveenKaka, value: data[key].firstPayment[j].partyForNaveenKaka })
                     }
-                });
-            }
-            console.log(ds);
-            ds = ds.sort(
-                (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
-            );
-            setDisplayDataSource(ds);
-            setDataSource(ds);
-            setPartyList([..._partyList]);
-            setTotalPohchAmt(_totalPohchAmt);
-            setTotalRemaining(_totalRemaining);
-        });
+                }
+            });
+        }
+        console.log(ds);
+        ds = ds.sort(
+            (a, b) => Number(new Date(b.date)) - Number(new Date(a.date)),
+        );
+        setDisplayDataSource(ds);
+        setDataSource(ds);
+        setPartyList([..._partyList]);
+        setTotalPohchAmt(_totalPohchAmt);
+        setTotalRemaining(_totalRemaining);
 
 
 
-    }, []);
+    }, [dailyEntryData, partyData, transporterData]);
 
     const filterMenuItems = [
         {

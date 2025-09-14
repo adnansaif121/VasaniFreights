@@ -38,7 +38,7 @@ let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' 
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
 console.log(todayDate);
 
-const Uvlogistics = () => {
+const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transporterData, Locations, setLocations }) => {
 
     const [driverForm] = Form.useForm();
     const [createPartyForm] = Form.useForm();
@@ -46,28 +46,28 @@ const Uvlogistics = () => {
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
     // Locations list
-    const [Locations, setLocations] = useState([
-        {
-            value: 'mumbai',
-            label: 'Mumbai',
-        },
-        {
-            value: 'pune',
-            label: 'Pune',
-        },
-        {
-            value: 'nagpur',
-            label: 'Nagpur',
-        },
-        {
-            value: 'nashik',
-            label: 'Nashik',
-        },
-        {
-            value: 'aurangabad',
-            label: 'Aurangabad',
-        }
-    ]);
+    // const [Locations, setLocations] = useState([
+    //     {
+    //         value: 'mumbai',
+    //         label: 'Mumbai',
+    //     },
+    //     {
+    //         value: 'pune',
+    //         label: 'Pune',
+    //     },
+    //     {
+    //         value: 'nagpur',
+    //         label: 'Nagpur',
+    //     },
+    //     {
+    //         value: 'nashik',
+    //         label: 'Nashik',
+    //     },
+    //     {
+    //         value: 'aurangabad',
+    //         label: 'Aurangabad',
+    //     }
+    // ]);
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
@@ -101,7 +101,7 @@ const Uvlogistics = () => {
     // FLAG 
     //Bank
     const [newBank, setNewBank] = useState('');
-    const [bankData, setBankData] = useState([]);
+    // const [bankData, setBankData] = useState([]);
     const [dateFilter, setDateFilter] = useState('');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -145,81 +145,67 @@ const Uvlogistics = () => {
     const [editingRevisedToValues, setEditingRevisedToValues] = useState({});
     const [newLocation, setNewLocation] = useState('');
     useEffect(() => {
-        const db = getDatabase();
-        // set(ref(db, 'users/' + '0'), {
-        //   username: 'Adnan',
-        //   email: 'adnan@tcs.com',
-        // });
-        // Get data from database
-        const starCountRef = ref(db, 'dailyEntry/');
-        // console.log(starCountRef);
-        onValue(starCountRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
-            let ds = []; // Data Source
-            if (data) {
-                Object.keys(data).map((key, i) => {
-                    for (let j = 0; j < data[key].tripDetails.length; j++) {
-                        if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'UvLogs') {
-                            console.log(data[key]);
-                            // let _pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
-                            // updatePohchId(key, _pohchId);
-                            ds.push(
-                                {
-                                    date: data[key].date,
-                                    key: key,
-                                    id: i + 1,
-                                    vehicleNo: data[key].vehicleNo,
-                                    from: data[key].tripDetails[j].from,
-                                    to: data[key].tripDetails[j].to,
-                                    revisedTo: data[key].tripDetails[j].revisedTo,
-                                    paid: data[key].tripDetails[j].payStatus,
-                                    // bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
-                                    paaneWaliParty: data[key].tripDetails[j].paaneWaala,
-                                    maal: data[key].tripDetails[j].maal,
-                                    qty: data[key].tripDetails[j].qty,
-                                    rate: data[key].tripDetails[j].rate,
-                                    revisedRate: data[key].tripDetails[j].revisedRate,
-                                    totalFreight: data[key].tripDetails[j].totalFreight,
-                                    // pohchRecievedDate: data[key].firstPayment[j].pohchDate,
-                                    // pohchAmt: data[key].firstPayment[j].pohchAmount,
-                                    paymentStatus: data[key].tripDetails[j].transactionStatus,
-                                    courierStatus: data[key].tripDetails[j].courierStatus,
-                                    courierSentDate: data[key].tripDetails[j].courierSentDate,
-                                    pohchId: data[key].firstPayment[j].pohchId,
+        const data = dailyEntryData;
+        let ds = []; // Data Source
+        if (data) {
+            Object.keys(data).map((key, i) => {
+                for (let j = 0; j < data[key].tripDetails.length; j++) {
+                    if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'UvLogs') {
+                        console.log(data[key]);
+                        // let _pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
+                        // updatePohchId(key, _pohchId);
+                        ds.push(
+                            {
+                                date: data[key].date,
+                                key: key,
+                                id: i + 1,
+                                vehicleNo: data[key].vehicleNo,
+                                from: data[key].tripDetails[j].from,
+                                to: data[key].tripDetails[j].to,
+                                revisedTo: data[key].tripDetails[j].revisedTo,
+                                paid: data[key].tripDetails[j].payStatus,
+                                // bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                maal: data[key].tripDetails[j].maal,
+                                qty: data[key].tripDetails[j].qty,
+                                rate: data[key].tripDetails[j].rate,
+                                revisedRate: data[key].tripDetails[j].revisedRate,
+                                totalFreight: data[key].tripDetails[j].totalFreight,
+                                // pohchRecievedDate: data[key].firstPayment[j].pohchDate,
+                                // pohchAmt: data[key].firstPayment[j].pohchAmount,
+                                paymentStatus: data[key].tripDetails[j].transactionStatus,
+                                courierStatus: data[key].tripDetails[j].courierStatus,
+                                courierSentDate: data[key].tripDetails[j].courierSentDate,
+                                pohchId: data[key].firstPayment[j].pohchId,
 
-
-                                    tripExpense: data[key]?.driver1?.TripCash,
-                                    tollExpense: data[key].tripDetails[j].tollExpense,
-                                    UVLogsPaymentStatus: data[key].tripDetails[j].UVLogsPaymentStatus,
-                                }
-                            )
-                        }
+                                dieselAmount: data[key]?.dieselAndKmDetails?.milometer,
+                                tripExpense: data[key]?.driver1?.TripCash,
+                                tollExpense: data[key].tripDetails[j].tollExpense,
+                                UVLogsPaymentStatus: data[key].tripDetails[j].UVLogsPaymentStatus,
+                                data: data
+                            }
+                        )
                     }
-                });
-            }
-            console.log(ds);
-            applyDateSort(ds);
-            // setDataSource(ds);
-            // setCompleteDataSource(ds);
-        });
+                }
+            });
+        }
+        applyDateSort(ds);
 
-        const locationsRef = ref(db, 'locations/');
-        onValue(locationsRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'Locations');
-            // updateStarCount(postElement, data);
-            let locations = []; // Data Source
-            if (data) {
-                Object.values(data).map((location, i) => {
-                    locations.push(location);
-                })
-                setLocations([...locations]);
-            }
-        });
+        // const locationsRef = ref(db, 'locations/');
+        // onValue(locationsRef, (snapshot) => {
+        //     const data = snapshot.val();
+        //     console.log(data, 'Locations');
+        //     // updateStarCount(postElement, data);
+        //     let locations = []; // Data Source
+        //     if (data) {
+        //         Object.values(data).map((location, i) => {
+        //             locations.push(location);
+        //         })
+        //         setLocations([...locations]);
+        //     }
+        // });
 
-    }, [])
+    }, [dailyEntryData])
 
     const exportToExcel = () => {
         // Prepare data: remove unwanted fields if needed
@@ -642,8 +628,22 @@ const Uvlogistics = () => {
                                     }
                                     const db = getDatabase();
                                     const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
+                                    let furtherPaymentTotal = 0;
+                                    let otherPayments = 0;
+                                    let trip = record.data[record.key]?.tripDetails[0];
+                                    if (trip.furtherPaymentTotal !== undefined) {
+                                        furtherPaymentTotal = trip.furtherPaymentTotal || 0;
+                                    }
+                                    otherPayments = (trip?.advance || 0) +
+                                        (trip?.commission || 0) +
+                                        (trip?.ghataWajan || 0) +
+                                        (trip?.tds || 0) +
+                                        (trip?.khotiKharabi || 0) +
+                                        (trip?.extraAmount || 0);
+
                                     update(starCountRef, {
-                                        revisedRate: value
+                                        revisedRate: value,
+                                        totalFreight: parseFloat((parseFloat(trip.revisedRate) * parseFloat(trip.qty))).toFixed(2) || 0,
                                     }).then(() => {
                                         alert("Revised Rate Updated Successfully!!");
                                         setEditingRevisedRateKey(null);
@@ -856,8 +856,11 @@ const Uvlogistics = () => {
         {
             width: 100,
             title: 'Diesel Amount',
-            dataIndex: 'dieselExpense',
-            key: 'dieselExpense',
+            dataIndex: 'dieselAmount',
+            key: 'dieselAmount',
+            render: (text) => {
+                return text ? parseFloat(text) : 0;
+            }
         },
         {
             width: 200,
@@ -1020,193 +1023,9 @@ const Uvlogistics = () => {
 
 
     ];
-
-    function guidGenerator() {
-        var S4 = function () {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        };
-        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
-    }
-
-    const addNewParty = () => {
-        // e.preventDefault();
-        if (partyModal.label === undefined) {
-            alert('Please Enter Party name');
-            return;
-        }
-        let _newParty = partyModal.label;
-        for (let i = 0; i < partyListAll.length; i++) {
-            if (_newParty.toUpperCase() === partyListAll[i].value.toUpperCase()) {
-                alert(`Party with name ${partyListAll[i].value} already exists.`);
-                return;
-            }
-        }
-        setPartyListAll([...partyListAll, { ...partyModal }]);
-        // setNewParty('');
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const partyListRef = ref(db, 'parties');
-        const newPartyRef = push(partyListRef);
-        set(newPartyRef, {
-            ...partyModal
-        }).then(() => {
-            alert("Party Created Successfully!!");
-            setPartyModal({});
-            return;
-        })
-    }
-
-    const addNewTransporter = (e) => {
-        if (newTransporter.trim() === "") {
-            alert("please enter a value to add transporter.")
-            return;
-        }
-        e.preventDefault();
-        for (let i = 0; i < transporterList.length; i++) {
-            if (newTransporter.toUpperCase() === transporterList[i].value.toUpperCase()) {
-                alert(`Transporter with name ${transporterList[i].value} already exixts`);
-                return;
-            }
-        }
-        setTransporterList([...transporterList, { value: newTransporter, label: newTransporter }]);
-        setNewTransporter('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const transporterListRef = ref(db, 'transporters');
-        const newTransporterRef = push(transporterListRef);
-        set(newTransporterRef, {
-            value: newTransporter,
-            label: newTransporter,
-        });
-    }
-
-    const addNewMaal = (e, _newMaal) => {
-        if (_newMaal === undefined) {
-            _newMaal = newMaal;
-        }
-        if (_newMaal.trim() === "") {
-            alert("please enter a value to add maal.")
-            return;
-        }
-        e.preventDefault();
-        for (let i = 0; i < MaalList.length; i++) {
-            if (_newMaal.toUpperCase() === MaalList[i].value.toUpperCase()) {
-                alert(`Maal with name ${MaalList[i].value} already exixts`);
-                return;
-            }
-        }
-        setMaalList([...MaalList, { value: _newMaal, label: _newMaal }]);
-        setNewMaal('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const maalListRef = ref(db, 'maal');
-        const newMaalRef = push(maalListRef);
-        set(newMaalRef, {
-            value: _newMaal,
-            label: _newMaal,
-        });
-    }
-
-    const addNewBank = (e) => {
-        e.preventDefault();
-        if (newBank.trim() === '') {
-            alert('Please enter bank name to add bank in the list. Field is empty');
-            return;
-        }
-        let key = bankData.length;
-        setBankData([...bankData, { bankName: newBank, value: newBank, label: newBank, key: key }]);
-
-        const db = getDatabase();
-        const bankRef = ref(db, 'bankData/data/' + key);
-        // const newBankRef = push(bankRef);
-        set(bankRef, {
-            bankName: newBank,
-            key: key,
-        })
-
-        setNewBank('');
-    }
-
-    const addNewDriver = (e) => {
-
-        // e.preventDefault();
-        if (driverModal.label === undefined) {
-            alert("Please Enter Driver Name to submit")
-        }
-        let _newDriverName = driverModal.label;
-        for (let i = 0; i < driverList.length; i++) {
-            if (_newDriverName.toUpperCase() === driverList[i].value.toUpperCase()) {
-                alert("Driver with this name already exists");
-                return;
-            }
-        }
-        setDriverList([...driverList, { ...driverModal }]);
-        setNewDriverName('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const driverListRef = ref(db, 'drivers');
-        const newDriverRef = push(driverListRef);
-        set(newDriverRef, {
-            ...driverModal
-        }).then(() => {
-            alert("Driver Added Successfully!!");
-            setDriverModal({});
-            return;
-        });
-    }
-
     // Filter `option.label` match the user type `input`
     const filterOption = (input, option) =>
         (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
-
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const handleOk = () => {
-        createPartyForm.resetFields();
-        addNewParty();
-        setIsModalOpen(false);
-    };
-
-    const handleDriverOk = () => {
-        addNewDriver();
-        setIsDriverModalOpen(false);
-        setDriverModal({});
-        driverForm.resetFields();
-    }
-
-    const handleCancel = () => {
-        createPartyForm.resetFields();
-        setIsModalOpen(false);
-    };
-
-    const handleDriverCancel = () => {
-        setIsDriverModalOpen(false);
-        setDriverModal({});
-        driverForm.resetFields();
-    }
-
-    const handleDateFilter = (e) => {
-        let date = e.target.value;
-        console.log(date);
-        // let _custom_date = new Date(date).getTime();
-        // let _custom_end_date = new Date(customEndDate).getTime();
-        console.log(completeDataSource);
-        let _displayDataSource = completeDataSource.filter(
-            (item) => {
-                // let itemDate = new Date(item.date).getTime();
-                console.log(item.date, date);
-                return item.date === date;
-            }
-        )
-        setDataSource(_displayDataSource);
-        setDateFilter(e.target.value);
-        // setDisplayDataSource(_displayDataSource);
-    }
 
     return (
         <>
@@ -1222,7 +1041,7 @@ const Uvlogistics = () => {
                 setToDate(null);
                 setDateFilter(null);
             }}>Clear Date</Button>
-            <Button type="primary" style={{ margin: '20px' }} onClick={exportToExcel}>
+            <Button type="primary" onClick={exportToExcel}>
                 Export to Excel
             </Button>
             <div style={{ width: "100vw", overflowX: 'scroll', overflowY: 'scroll', height: '84vh', backgroundColor: 'white' }}>

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styles from '../styles/Party.module.css';
-import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Modal, Typography, Drawer, DatePicker, Badge, Tooltip } from 'antd';
+import { Input, Card, Menu, Table, Form, Select, Button, Row, Col, Radio, Dropdown, Space, Modal, Typography, Drawer, DatePicker, Badge, Tooltip, Pagination } from 'antd';
 import { BellOutlined, UserOutlined, SearchOutlined, FileTextOutlined, CloseOutlined, PlusOutlined, MinusCircleOutlined, ExclamationOutlined, CheckOutlined, DownOutlined, ExclamationCircleTwoTone, EyeTwoTone } from '@ant-design/icons';
 import { getDatabase, ref, set, onValue, get, child, update } from "firebase/database";
 import ViewPartyDetails from './ViewHareKrishnaParty';
@@ -8,11 +8,9 @@ import Highlighter from 'react-highlight-words';
 import RemarkModal, { RemarkButton } from './common/RemarkModal';
 import dayjs from 'dayjs';
 
-const Party = () => {
+const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
-    const [tableData, setTableData] = useState([]);
-    const [filterType, setFilterType] = useState('none');
     const [partySelected, setPartySelected] = useState({});
     const [partyName, setPartyName] = useState('');
     const [partyLocation, setPartyLocation] = useState('');
@@ -25,8 +23,6 @@ const Party = () => {
     const [dataSource, setDataSource] = useState([]); // Table Data
     const [displayDataSource, setDisplayDataSource] = useState([]);
     const [allTableData, setAllTableData] = useState({});
-    const [customStartDate, setCustomStartDate] = useState(null);
-    const [customEndDate, setCustomEndDate] = useState(null);
     const [modelPartySelected, setModelPartySelected] = useState(null);
     const [dataUpdateFlag, setDataUpdateFlag] = useState(0);
 
@@ -40,7 +36,7 @@ const Party = () => {
     const [remarkData, setRemarkData] = useState([]);
     const [remarkModalOpen, setRemarkModalOpen] = useState(false);
     const [dateRange, setDateRange] = useState([null, null]);
-    const [bankData, setBankData] = useState([]);
+    // const [bankData, setBankData] = useState([]);
 
     const handleViewClick = (record, index) => {
         setSelectedRow({ record, index });
@@ -56,106 +52,106 @@ const Party = () => {
 
         const partyRef = ref(db, 'parties/');
         let partyNameList = [];
-        onValue(partyRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data, 'parties');
-            // updateStarCount(postElement, data);
-            let parties = []; // Data Source
-            if (data !== null) {
-                Object.values(data).map((party, i) => {
-                    parties.push(party);
-                    partyNameList.push(party.label);
-                })
-                setPartyIds(Object.keys(data));
-            }
+        // onValue(partyRef, (snapshot) => {
+        // });
+        // const data = snapshot.val();
+        // console.log(data, 'parties');
+        // updateStarCount(postElement, data);
+        let parties = []; // Data Source
+        if (partyData !== null) {
+            Object.values(partyData).map((party, i) => {
+                parties.push(party);
+                partyNameList.push(party.label);
+            })
+            setPartyIds(Object.keys(partyData));
+        }
 
-            // setPartyListAll([...parties]);
-            setPartyList([...parties]);
-            setDisplayPartyList([...parties]);
-        });
+        // setPartyListAll([...parties]);
+        setPartyList([...parties]);
+        setDisplayPartyList([...parties]);
 
-        const bankRef = ref(db, 'bankData/');
-        onValue(bankRef, (snapshot) => {
-            const data = snapshot.val();
-            let _bankData = [];
-            if (data !== null) {
-                for (let i = 0; i < data.data.length; i++) {
-                    _bankData.push({
-                        label: data.data[i].bankName,
-                        value: data.data[i].bankName,
-                        key: data.data[i].key
-                    })
-                }
-            }
-            setBankData([..._bankData]);
-        })
+        // const bankRef = ref(db, 'bankData/');
+        // onValue(bankRef, (snapshot) => {
+        //     const data = snapshot.val();
+        //     let _bankData = [];
+        //     if (data !== null) {
+        //         for (let i = 0; i < data.data.length; i++) {
+        //             _bankData.push({
+        //                 label: data.data[i].bankName,
+        //                 value: data.data[i].bankName,
+        //                 key: data.data[i].key
+        //             })
+        //         }
+        //     }
+        //     setBankData([..._bankData]);
+        // })
 
-        get(child(dbref, 'dailyEntry')).then((snapshot) => {
-            const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
-            if (data) {
-                setAllTableData(data);
-                Object.keys(data).map((key, i) => {
-                    for (let j = 0; j < data[key].tripDetails.length; j++) {
+        // get(child(dbref, 'dailyEntry')).then((snapshot) => {
+        // }).catch((error) => {
+        //     console.log(error);
+        // })
+        const data = dailyEntryData;
+        console.log(data);
+        // updateStarCount(postElement, data);
+        if (data) {
+            setAllTableData(data);
+            Object.keys(data).map((key, i) => {
+                for (let j = 0; j < data[key].tripDetails.length; j++) {
 
-                        let receivedAmt = (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "nn")) ?
-                            (
-                                parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
-                                parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
-                                parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
-                                parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
-                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
-                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
-                            )
-                            : 0;
+                    let receivedAmt = (data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "nn")) ?
+                        (
+                            parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
+                            parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
+                            parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
+                            parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
+                            (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
+                            (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
+                        )
+                        : 0;
 
-                        if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "nn"))) {
-                            ds.push(
-                                {
-                                    key: key + j,
-                                    id: i + 1,
-                                    date: data[key].date,
-                                    vehicleNo: data[key].vehicleNo,
-                                    transactionStatus: data[key].tripDetails[j].transactionStatus || 'open',
-                                    mt: data[key].mt,
-                                    from: data[key].tripDetails[j].from,
-                                    to: data[key].tripDetails[j].to,
-                                    paid: data[key].tripDetails[j].payStatus,
-                                    bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
-                                    paaneWaliParty: data[key].tripDetails[j].paaneWaala,
-                                    transporter: data[key].tripDetails[j].transporter,
-                                    maal: data[key].tripDetails[j].maal,
-                                    qty: data[key].tripDetails[j].qty,
-                                    rate: data[key].tripDetails[j].rate,
-                                    totalFreight: data[key].tripDetails[j].totalFreight,
-                                    received: receivedAmt,
-                                    dieselAndKmDetails: data[key].dieselAndKmDetails,
-                                    tripDetails: data[key].tripDetails,
-                                    driversDetails: data[key].driversDetails,
-                                    kaataParchi: data[key].kaataParchi,
-                                    firstPayment: data[key].firstPayment,
-                                    bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
-                                    vehicleStatus: data[key].vehicleStatus,
-                                    furtherPayments: data[key].furtherPayments || {},
-                                    remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : parseFloat(data[key].tripDetails[j].remainingBalance).toFixed(2)),
-                                    extraAmtRemark: data[key].tripDetails[j].extraAmtRemark
-                                }
-                            )
-                        }
+                    if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && partyNameList.includes(data[key].firstPayment[j].bhadaKaunDalega || "nn"))) {
+                        ds.push(
+                            {
+                                key: key + j,
+                                id: i + 1,
+                                date: data[key].date,
+                                vehicleNo: data[key].vehicleNo,
+                                transactionStatus: data[key].tripDetails[j].transactionStatus || 'open',
+                                mt: data[key].mt,
+                                from: data[key].tripDetails[j].from,
+                                to: data[key].tripDetails[j].to,
+                                paid: data[key].tripDetails[j].payStatus,
+                                bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                transporter: data[key].tripDetails[j].transporter,
+                                maal: data[key].tripDetails[j].maal,
+                                qty: data[key].tripDetails[j].qty,
+                                rate: data[key].tripDetails[j].rate,
+                                totalFreight: data[key].tripDetails[j].totalFreight,
+                                received: receivedAmt,
+                                dieselAndKmDetails: data[key].dieselAndKmDetails,
+                                tripDetails: data[key].tripDetails,
+                                driversDetails: data[key].driversDetails,
+                                kaataParchi: data[key].kaataParchi,
+                                firstPayment: data[key].firstPayment,
+                                bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
+                                vehicleStatus: data[key].vehicleStatus,
+                                furtherPayments: data[key].furtherPayments || {},
+                                remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : parseFloat(data[key].tripDetails[j].remainingBalance).toFixed(2)),
+                                extraAmtRemark: data[key].tripDetails[j].extraAmtRemark
+                            }
+                        )
                     }
-                });
-            }
-            console.log(ds);
-            ds = ds.sort(
-                (a, b) => Number(new Date(a.date)) - Number(new Date(b.date)),
-            );
-            setDisplayDataSource(ds);
-            setDataSource(ds);
-            console.log(ds);
-        }).catch((error) => {
-            console.log(error);
-        })
+                }
+            });
+        }
+        console.log(ds);
+        ds = ds.sort(
+            (a, b) => Number(new Date(a.date)) - Number(new Date(b.date)),
+        );
+        setDisplayDataSource(ds);
+        setDataSource(ds);
+        console.log(ds);
 
     }, [refreshKey]);
 
@@ -512,23 +508,26 @@ const Party = () => {
                 <div className={styles.part2}>
                     <div >
 
-                        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
-                            <span>From Date:</span>
-                            <DatePicker
-                                value={dateRange[0]}
-                                format={"DD-MM-YYYY"}
-                                onChange={date => setDateRange([date, dateRange[1]])}
-                                style={{ width: 140 }}
-                            />
-                            <span>To Date:</span>
-                            <DatePicker
-                                value={dateRange[1]}
-                                format={"DD-MM-YYYY"}
-                                onChange={date => setDateRange([dateRange[0], date])}
-                                style={{ width: 140 }}
-                            />
-                            <Button type="primary" onClick={handleDateFilter}>Apply</Button>
-                            <Button onClick={handleClearDateFilter}>Close</Button>
+                        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center',justifyContent: 'space-between', gap: 16 }}>
+                            <div>
+                                <span>From Date:</span>
+                                <DatePicker
+                                    value={dateRange[0]}
+                                    format={"DD-MM-YYYY"}
+                                    onChange={date => setDateRange([date, dateRange[1]])}
+                                    style={{ width: 140 }}
+                                />
+                                <span>To Date:</span>
+                                <DatePicker
+                                    value={dateRange[1]}
+                                    format={"DD-MM-YYYY"}
+                                    onChange={date => setDateRange([dateRange[0], date])}
+                                    style={{ width: 140 }}
+                                />
+                                <Button type="primary" onClick={handleDateFilter}>Apply</Button>
+                                <Button onClick={handleClearDateFilter}>Close</Button>
+                            </div>
+
                         </div>
                         <Drawer
                             title="Create a new account"
@@ -653,15 +652,15 @@ const Party = () => {
                     </div>
 
                     <Table key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns}
-                        // expandable={{
-                        //     expandedRowRender: (record, index) => <ViewPartyDetails
-                        //         indexAtAllData={index}
-                        //         allDataAtDisplay={displayDataSource} 
-                        //         setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag} />
-                        //     ,
-                        //     rowExpandable: (record) => true,
-                        // }}
-                        pagination={'none'}
+                    // expandable={{
+                    //     expandedRowRender: (record, index) => <ViewPartyDetails
+                    //         indexAtAllData={index}
+                    //         allDataAtDisplay={displayDataSource} 
+                    //         setDisplayDataSource={setDisplayDataSource} data={record} vehicleData={vehicleData} bankData={bankData} handleDisplayTableChange={handleDisplayTableChange} setDataUpdateFlag={setDataUpdateFlag} />
+                    //     ,
+                    //     rowExpandable: (record) => true,
+                    // }}
+                    // pagination={false}
                     />
                     <Modal
                         open={viewModalOpen}

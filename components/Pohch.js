@@ -14,7 +14,7 @@ let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' 
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
 console.log(todayDate);
 
-const Pohch = () => {
+const Pohch = ({ dailyEntryData }) => {
     const [driverForm] = Form.useForm();
     const [createPartyForm] = Form.useForm();
     const [driverList, setDriverList] = useState([]);
@@ -45,7 +45,6 @@ const Pohch = () => {
     const [newMaal, setNewMaal] = useState('');
     //All Party List for Party Select
     const [partyListAll, setPartyListAll] = useState([]);
-    const [newParty, setNewParty] = useState('');
     // All Transporter List for Transporter Select
     const [transporterList, setTransporterList] = useState([]);
     const [newTransporter, setNewTransporter] = useState('');
@@ -62,10 +61,6 @@ const Pohch = () => {
 
     // MODAL VARIABLES:
     const [partyModal, setPartyModal] = useState({});
-    const [vehicleData, setVehicleData] = useState([]);
-    const [newVehicleNo, setNewVehicleNo] = useState('');
-    // const [driverModal, setDriverModal] = useState({});
-    const [toggleKaataParchi, setToggleKaataParchi] = useState(false);
 
     const [driverModal, setDriverModal] = useState({
         label: '',
@@ -75,68 +70,65 @@ const Pohch = () => {
         contact: '',
         licenseDocument: null, // Add this new field
     });
-    const [key, setKey] = useState('');
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
     const [editingCourierDateRow, setEditingCourierDateRow] = useState(null);
     const [newCourierDate, setNewCourierDate] = useState('');
 
     useEffect(() => {
-        const db = getDatabase();
+        // const db = getDatabase();
         // set(ref(db, 'users/' + '0'), {
         //   username: 'Adnan',
         //   email: 'adnan@tcs.com',
         // });
         // Get data from database
-        const starCountRef = ref(db, 'dailyEntry/');
+        // const starCountRef = ref(db, 'dailyEntry/');
         // console.log(starCountRef);
-        onValue(starCountRef, (snapshot) => {
-            const data = snapshot.val();
-            console.log(data);
-            // updateStarCount(postElement, data);
-            let ds = []; // Data Source
-            if (data) {
-                Object.keys(data).map((key, i) => {
-                    for (let j = 0; j < data[key].tripDetails.length; j++) {
-                        if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].pohchAmount !== null && data[key].firstPayment[j].pohchAmount !== '') {
-                            console.log(data[key]);
-                            // let _pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
-                            // updatePohchId(key, _pohchId);
-                            ds.push(
-                                {
-                                    timestamp: key,
-                                    date: data[key].date,
-                                    key: key,
-                                    id: i + 1,
-                                    vehicleNo: data[key].vehicleNo,
-                                    from: data[key].tripDetails[j].from,
-                                    to: data[key].tripDetails[j].to,
-                                    paid: data[key].tripDetails[j].payStatus,
-                                    bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
-                                    paaneWaliParty: data[key].tripDetails[j].paaneWaala,
-                                    maal: data[key].tripDetails[j].maal,
-                                    qty: data[key].tripDetails[j].qty,
-                                    rate: data[key].tripDetails[j].rate,
-                                    totalFreight: data[key].tripDetails[j].totalFreight,
-                                    pohchRecievedDate: data[key].firstPayment[j].pohchDate,
-                                    pohchAmt: data[key].firstPayment[j].pohchAmount,
-                                    paymentStatus: data[key].tripDetails[j].transactionStatus,
-                                    courierStatus: data[key].tripDetails[j].courierStatus,
-                                    courierSentDate: data[key].tripDetails[j].courierSentDate,
-                                    pohchId: data[key].firstPayment[j].pohchId,
-                                    pohchSendTo: data[key].firstPayment[j].pohchSendTo
-                                }
-                            )
-                        }
+        // onValue(starCountRef, (snapshot) => {
+        // });
+        const data = dailyEntryData;
+        console.log(data);
+        // updateStarCount(postElement, data);
+        let ds = []; // Data Source
+        if (data) {
+            Object.keys(data).map((key, i) => {
+                for (let j = 0; j < data[key].tripDetails.length; j++) {
+                    if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].pohchAmount !== null && data[key].firstPayment[j].pohchAmount !== '') {
+                        console.log(data[key]);
+                        // let _pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
+                        // updatePohchId(key, _pohchId);
+                        ds.push(
+                            {
+                                timestamp: key,
+                                date: data[key].date,
+                                key: key,
+                                id: i + 1,
+                                vehicleNo: data[key].vehicleNo,
+                                from: data[key].tripDetails[j].from,
+                                to: data[key].tripDetails[j].to,
+                                paid: data[key].tripDetails[j].payStatus,
+                                bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                maal: data[key].tripDetails[j].maal,
+                                qty: data[key].tripDetails[j].qty,
+                                rate: data[key].tripDetails[j].rate,
+                                totalFreight: data[key].tripDetails[j].totalFreight,
+                                pohchRecievedDate: data[key].firstPayment[j].pohchDate,
+                                pohchAmt: data[key].firstPayment[j].pohchAmount,
+                                paymentStatus: data[key].tripDetails[j].transactionStatus,
+                                courierStatus: data[key].tripDetails[j].courierStatus,
+                                courierSentDate: data[key].tripDetails[j].courierSentDate,
+                                pohchId: data[key].firstPayment[j].pohchId,
+                                pohchSendTo: data[key].firstPayment[j].pohchSendTo
+                            }
+                        )
                     }
-                });
-            }
-            console.log(ds);
-            applyDateSort(ds);
-            // setDataSource(ds);
-            // setCompleteDataSource(ds);
-        });
-    }, [])
+                }
+            });
+        }
+        console.log(ds);
+        applyDateSort(ds);
+    }, [dailyEntryData])
 
     const exportToExcel = () => {
         // Prepare data: remove unwanted fields if needed
@@ -600,7 +592,7 @@ const Pohch = () => {
                 return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : null;
             }
         },
-        
+
         {
             width: '6%',
             title: 'Receiver',
@@ -1057,10 +1049,10 @@ const Pohch = () => {
                 </Form>
             </Modal>
 
-            <span style={{ marginLeft: '40px' }}>Pohch Received From Date:</span>
-            <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-            <span style={{ marginLeft: '40px' }}>Pohch Received To Date:</span>
-            <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
+            <span style={{ marginLeft: '10px' }}>Pohch Received From Date:</span>
+            <Input style={{ width: "15%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+            <span style={{ marginLeft: '10px' }}>Pohch Received To Date:</span>
+            <Input style={{ width: "15%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
             <Button onClick={applyDateFilter}>Apply Filter</Button>
             <Button onClick={() => {
                 setDataSource(completeDataSource);
@@ -1071,7 +1063,10 @@ const Pohch = () => {
             <Button type="primary" style={{ margin: '20px' }} onClick={exportToExcel}>
                 Export to Excel
             </Button>
+            <Pagination
+                pageSize={20}
 
+            />
             <div style={{ width: "98vw", overflowX: 'auto', height: '83vh', backgroundColor: 'white' }}>
                 <Table bordered style={{ zIndex: '100' }} size="small" dataSource={dataSource} columns={columns} pagination={{ pageSize: 20 }}
                 />

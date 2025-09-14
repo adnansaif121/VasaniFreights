@@ -26,9 +26,6 @@ export default function Dashboard() {
     // Drivers List
     const [driverList, setDriverList] = useState([]);
     const [newDriverName, setNewDriverName] = useState('');
-    // Locations list
-    const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
     const [newLocation, setNewLocation] = useState('');
     const [Locations, setLocations] = useState([]);
     // Maal List
@@ -45,11 +42,6 @@ export default function Dashboard() {
     //Bank
     const [newBank, setNewBank] = useState('');
     const [bankData, setBankData] = useState([]);
-    const [dateFilter, setDateFilter] = useState('');
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
-
     // MODAL VARIABLES:
     const [partyModal, setPartyModal] = useState({});
     const [vehicleData, setVehicleData] = useState([]);
@@ -63,11 +55,6 @@ export default function Dashboard() {
         contact: '',
         licenseDocument: null, // Add this new field
     });
-    const [viewModalOpen, setViewModalOpen] = useState(false);
-    const [selectedRow, setSelectedRow] = useState(null);
-
-    const [remarkModalOpen, setRemarkModalOpen] = useState(false);
-    const [remarkData, setRemarkData] = useState([]);
 
      const [partyList, setPartyList] = useState([[], [], [], [], [], []]);
 
@@ -76,7 +63,10 @@ export default function Dashboard() {
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [pumpList, setPumpList] = useState([]);
-
+    const [dailyEntryData, setDailyEntryData] = useState(null);
+    const [partyData, setPartyData] = useState(null);
+    const [transporterData, setTransporterData] = useState(null);
+    const [driverData, setDriverData] = useState(null);
     useEffect(() => {
         const db = getDatabase();
 
@@ -96,6 +86,7 @@ export default function Dashboard() {
         const partyRef = ref(db, 'parties/');
         onValue(partyRef, (snapshot) => {
             const data = snapshot.val();
+            setPartyData(data);
             // updateStarCount(postElement, data);
             let parties = []; // Data Source
             if (data !== null) {
@@ -109,6 +100,7 @@ export default function Dashboard() {
         const transporterRef = ref(db, 'transporters/');
         onValue(transporterRef, (snapshot) => {
             const data = snapshot.val();
+            setTransporterData(data);
             // updateStarCount(postElement, data);
             let transporters = []; // Data Source
             if (data) {
@@ -123,6 +115,7 @@ export default function Dashboard() {
         const driversRef = ref(db, 'drivers/');
         onValue(driversRef, (snapshot) => {
             const data = snapshot.val();
+            setDriverData(data);
             // updateStarCount(postElement, data);
             let drivers = []; // Data Source
             if (data) {
@@ -147,7 +140,6 @@ export default function Dashboard() {
                 }
             }
             setBankData([..._bankData]);
-            console.log(_bankData);
         })
 
         const maalRef = ref(db, 'maal/');
@@ -285,7 +277,9 @@ export default function Dashboard() {
         set(newMaalRef, {
             value: _newMaal,
             label: _newMaal,
-        });
+        }).then(() => {
+            alert(`Maal ${_newMaal} added successfully`);
+        })
     }
 
     const addNewLocation = (e) => {
@@ -325,6 +319,13 @@ export default function Dashboard() {
         if (newBank.trim() === '') {
             alert('Please enter bank name to add bank in the list. Field is empty');
             return;
+        }
+        // Check for duplicates
+        for (let i = 0; i < bankData.length; i++) {
+            if (newBank.toUpperCase() === bankData[i].value.toUpperCase()) {
+                alert(`Bank with name ${bankData[i].value} already exists`);
+                return;
+            }
         }
         let key = bankData.length;
         setBankData([...bankData, { bankName: newBank, value: newBank, label: newBank, key: key }]);
@@ -377,6 +378,12 @@ export default function Dashboard() {
             alert('Please enter vehicle no. to add vehicle in the list. Field is empty');
             return;
         }
+        for (let i = 0; i < vehicleData.length; i++) {
+            if (newVehicleNo.toUpperCase() === vehicleData[i].value.toUpperCase()) {
+                alert(`Vehicle with no. ${vehicleData[i].value} already exists`);
+                return;
+            }
+        }
         let key = vehicleData.length;
         setVehicleData([...vehicleData, { vehicleNo: newVehicleNo, value: newVehicleNo, label: newVehicleNo, key: key }]);
         const db = getDatabase();
@@ -398,6 +405,12 @@ export default function Dashboard() {
             alert('Please enter pump name to add pump in the list. Field is empty');
             return;
         }
+        for (let i = 0; i < pumpList.length; i++) {
+            if (newPumpName.toUpperCase() === pumpList[i].value.toUpperCase()) {
+                alert(`Pump with name ${pumpList[i].value} already exists`);
+                return;
+            }
+        }
         let key = pumpList.length;
         setPumpList([...pumpList, { pumpName: newPumpName, value: newPumpName, label: newPumpName, key: key }]);
         const db = getDatabase();
@@ -408,6 +421,8 @@ export default function Dashboard() {
             key: key,
             label: newPumpName,
             value: newPumpName
+        }).then(() => {
+            alert(`pump ${newPumpName} added successfully`)
         })
         
     }
@@ -415,14 +430,14 @@ export default function Dashboard() {
     const fetchEntries = (direction = 'next', refKey = null) => {
         setIsLoading(true);
         const db = getDatabase();
-        let q;
-        if (direction === 'next' && refKey) {
-            q = query(ref(db, 'dailyEntry/'), orderByKey(), endAt(refKey), limitToLast(20));
-        } else if (direction === 'prev' && refKey) {
-            q = query(ref(db, 'dailyEntry/'), orderByKey(), startAt(refKey), limitToFirst(20));
-        } else {
-            q = query(ref(db, 'dailyEntry/'), orderByKey(), limitToLast(20));
-        }
+        let q = ref(db, 'dailyEntry/');
+        // if (direction === 'next' && refKey) {
+        //     q = query(ref(db, 'dailyEntry/'), orderByKey(), endAt(refKey), limitToLast(20));
+        // } else if (direction === 'prev' && refKey) {
+        //     q = query(ref(db, 'dailyEntry/'), orderByKey(), startAt(refKey), limitToFirst(20));
+        // } else {
+        //     q = query(ref(db, 'dailyEntry/'), orderByKey(), limitToLast(20));
+        // }
         onValue(q, (snapshot) => {
             const data = snapshot.val();
             let ds = [];
@@ -493,6 +508,7 @@ export default function Dashboard() {
             setLastKey(keys[keys.length - 1]);
             applyDateSort(ds);
             setIsLoading(false);
+            setDailyEntryData(data);
         });
     };
 
@@ -586,6 +602,7 @@ export default function Dashboard() {
                 currentPage={currentPage}
                 isLoading={isLoading}
                 dataSource={dataSource}
+                setDataSource={setDataSource}
                 completeDataSource={completeDataSource}
                 handleTableChange={handleTableChange}
                addPartyInPartyList={addPartyInPartyList}
@@ -612,47 +629,47 @@ export default function Dashboard() {
         {
             key: '2',
             label: <NavLabel label={'Cash'} />,
-            children: <Cash text={'Cash'} />,
+            children: <Cash text={'Cash'} dailyEntryData={dailyEntryData}/>,
         },
         {
             key: '3',
             label: <NavLabel label={'Cheque'} />,
-            children: <Cheque text={'Cheque'} />,
+            children: <Cheque text={'Cheque'} dailyEntryData={dailyEntryData}/>,
         },
         {
             key: '5',
             label: <NavLabel label={'Pohch'} />,
-            children: <Pohch text={'Pohch'} />,
+            children: <Pohch text={'Pohch'} dailyEntryData={dailyEntryData}/>,
         },
         {
             key: '6',
             label: <NavLabel label={'Party'} />,
-            children: <Party />,
+            children: <Party dailyEntryData={dailyEntryData} partyData={partyData} bankData={bankData} setBankData={setBankData} />,
         },
         {
             key: '7',
             label: <NavLabel label={'Transporter'} />,
-            children: <Transporter />,
+            children: <Transporter dailyEntryData={dailyEntryData} bankData={bankData} setBankData={setBankData} partyData={partyData} transporterData={transporterData} />,
         },
         {
             key: '8',
             label: <NavLabel label={'Naveen Kaka'} />,
-            children: <NaveenKaka />,
+            children: <NaveenKaka dailyEntryData={dailyEntryData} bankData={bankData} setBankData={setBankData} partyData={partyData} transporterData={transporterData}/>,
         },
         {
             key: '9',
             label: <NavLabel label={'UV Logistics'} />,
-            children: <Uvlogistics text={'UV Logistics'} />,
+            children: <Uvlogistics text={'UV Logistics'} dailyEntryData={dailyEntryData} bankData={bankData} setBankData={setBankData} partyData={partyData} transporterData={transporterData} Locations={Locations} setLocations={setLocations} />,
         },
         {
             key: '10',
             label: <NavLabel label={'Hare Krishna'} />,
-            children: <HareKrishna text={'Hare Krishna'} />,
+            children: <HareKrishna text={'Hare Krishna'} dailyEntryData={dailyEntryData} bankData={bankData} setBankData={setBankData} partyData={partyData} transporterData={transporterData} />,
         },
         {
             key: '4',
             label: <NavLabel label={'Driver'} />,
-            children: <Driver />,
+            children: <Driver dailyEntryData={dailyEntryData} bankData={bankData} setBankData={setBankData} partyData={partyData} transporterData={transporterData} driverList={driverList} driverData={driverData} />,
         }
 
     ];

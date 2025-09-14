@@ -9,7 +9,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import RemarkModal, { RemarkButton } from './common/RemarkModal';
 
-const HareKrishna = () => {
+const HareKrishna = ({dailyEntryData, bankData, setBankData, partyData}) => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
     const [tableData, setTableData] = useState([]);
@@ -39,7 +39,7 @@ const HareKrishna = () => {
 
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
-    const [bankData, setBankData] = useState([]);
+    // const [bankData, setBankData] = useState([]);
     const [remarkModalOpen, setRemarkModalOpen] = useState(false);
     const [remarkData, setRemarkData] = useState([]);
     // const [partySelectedType, setPartySelectedType] = useState('parties');
@@ -59,128 +59,115 @@ const HareKrishna = () => {
     useEffect(() => {
         const getData = async () => {
 
-            const db = getDatabase();
-            // Get data from database
-            const starCountRef = ref(db, 'dailyEntry/');
-            // console.log(starCountRef);
-            let ds = []; // Data Source
-            const dbref = ref(db);
-
-            const partyRef = ref(db, 'parties/');
             let partyNameList = [];
-
-            await get(child(dbref, 'dailyEntry')).then((snapshot) => {
-                const data = snapshot.val();
-                console.log(data);
-                // updateStarCount(postElement, data);
-                if (data) {
-                    setAllTableData(data);
-                    Object.keys(data).map((key, i) => {
-                        for (let j = 0; j < data[key].tripDetails.length; j++) {
-                            console.log(data[key].firstPayment, 'firstPayment');
-                            if (data[key].firstPayment === undefined || data[key].firstPayment[j] === undefined) continue;
-                            let partyName = data[key]?.firstPayment[j]?.partyForTransporterPayment || '';
-                            if (partyName !== '' && !partyNameList.includes(partyName)) {
-                                partyNameList.push(partyName);
-                            }
-                            // partyNameList.push(data[key]?.firstPayment[j]?.partyForTransporterPayment || null);
-
-                            let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase().trim() === ('Hare Krishna').toUpperCase()) ?
-                                (
-                                    parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
-                                    parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
-                                    parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
-                                    parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
-                                    (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
-                                    (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
-                                )
-                                : 0;
-
-                            if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase().trim() === ('Hare Krishna').toUpperCase())) {
-                                ds.push(
-                                    {
-                                        partyForTransporterPayment: data[key]?.firstPayment[j]?.partyForTransporterPayment || '',
-                                        key: key + j,
-                                        id: i + 1,
-                                        lrno: data[key]?.lrNumber || '',
-                                        date: data[key]?.date,
-                                        vehicleNo: data[key]?.vehicleNo,
-                                        transactionStatus: data[key]?.tripDetails[j].transactionStatus || 'open',
-                                        mt: data[key]?.mt,
-                                        from: data[key].tripDetails[j].from,
-                                        to: data[key].tripDetails[j].to,
-                                        paid: data[key].tripDetails[j].payStatus,
-                                        bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
-                                        paaneWaliParty: data[key].tripDetails[j].paaneWaala,
-                                        transporter: data[key].tripDetails[j].transporter,
-                                        maal: data[key].tripDetails[j].maal,
-                                        qty: data[key].tripDetails[j].qty,
-                                        rate: data[key].tripDetails[j].rate,
-                                        totalFreight: parseFloat(data[key].tripDetails[j].totalFreight).toFixed(2),
-                                        received: receivedAmt,
-                                        dieselAndKmDetails: data[key].dieselAndKmDetails,
-                                        tripDetails: data[key].tripDetails,
-                                        driversDetails: data[key].driversDetails,
-                                        kaataParchi: data[key].kaataParchi,
-                                        commission: data[key].tripDetails[j].commission || 0,
-                                        advance: data[key].tripDetails[j].advance || 0,
-                                        firstPayment: data[key].firstPayment,
-                                        bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
-                                        vehicleStatus: data[key].vehicleStatus,
-                                        furtherPayments: data[key].furtherPayments || {},
-                                        remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : parseFloat(data[key].tripDetails[j].remainingBalance).toFixed(2)),
-                                        extraAmtRemark: data[key].tripDetails[j].extraAmtRemark
-                                    }
-                                )
-                            }
+            let ds = []; // Data Source
+            const data = dailyEntryData;
+            // updateStarCount(postElement, data);
+            if (data) {
+                setAllTableData(data);
+                Object.keys(data).map((key, i) => {
+                    for (let j = 0; j < data[key].tripDetails.length; j++) {
+                        console.log(data[key].firstPayment, 'firstPayment');
+                        if (data[key].firstPayment === undefined || data[key].firstPayment[j] === undefined) continue;
+                        let partyName = data[key]?.firstPayment[j]?.partyForTransporterPayment || '';
+                        if (partyName !== '' && !partyNameList.includes(partyName)) {
+                            partyNameList.push(partyName);
                         }
-                    });
-                }
-                console.log(ds);
-                ds = ds.sort(
-                    (a, b) => Number(new Date(a.date)) - Number(new Date(b.date)),
-                );
-                setDisplayDataSource(ds);
-                setDataSource(ds);
-            }).catch((error) => {
-                console.log(error);
-            })
+                        // partyNameList.push(data[key]?.firstPayment[j]?.partyForTransporterPayment || null);
 
-            const bankRef = ref(db, 'bankData/');
-            onValue(bankRef, (snapshot) => {
-                const data = snapshot.val();
-                let _bankData = [];
-                if (data !== null) {
-                    for (let i = 0; i < data.data.length; i++) {
-                        _bankData.push({
-                            label: data.data[i].bankName,
-                            value: data.data[i].bankName,
-                            key: data.data[i].key
-                        })
+                        let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase().trim() === ('Hare Krishna').toUpperCase()) ?
+                            (
+                                parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
+                                parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
+                                parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
+                                parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
+                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
+                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
+                            )
+                            : 0;
+
+                        if ((data[key].firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega.toUpperCase().trim() === ('Hare Krishna').toUpperCase())) {
+                            ds.push(
+                                {
+                                    partyForTransporterPayment: data[key]?.firstPayment[j]?.partyForTransporterPayment || '',
+                                    key: key + j,
+                                    id: i + 1,
+                                    lrno: data[key]?.lrNumber || '',
+                                    date: data[key]?.date,
+                                    vehicleNo: data[key]?.vehicleNo,
+                                    transactionStatus: data[key]?.tripDetails[j].transactionStatus || 'open',
+                                    mt: data[key]?.mt,
+                                    from: data[key].tripDetails[j].from,
+                                    to: data[key].tripDetails[j].to,
+                                    paid: data[key].tripDetails[j].payStatus,
+                                    bhejneWaliParty: data[key].tripDetails[j].bhejneWaala,
+                                    paaneWaliParty: data[key].tripDetails[j].paaneWaala,
+                                    transporter: data[key].tripDetails[j].transporter,
+                                    maal: data[key].tripDetails[j].maal,
+                                    qty: data[key].tripDetails[j].qty,
+                                    rate: data[key].tripDetails[j].rate,
+                                    totalFreight: parseFloat(data[key].tripDetails[j].totalFreight).toFixed(2),
+                                    received: receivedAmt,
+                                    dieselAndKmDetails: data[key].dieselAndKmDetails,
+                                    tripDetails: data[key].tripDetails,
+                                    driversDetails: data[key].driversDetails,
+                                    kaataParchi: data[key].kaataParchi,
+                                    commission: data[key].tripDetails[j].commission || 0,
+                                    advance: data[key].tripDetails[j].advance || 0,
+                                    firstPayment: data[key].firstPayment,
+                                    bhadaKaunDalega: (data[key]?.firstPayment === undefined) ? null : data[key]?.firstPayment[j]?.bhadaKaunDalega,
+                                    vehicleStatus: data[key].vehicleStatus,
+                                    furtherPayments: data[key].furtherPayments || {},
+                                    remainingBalance: (data[key].tripDetails[j].remainingBalance === undefined ? null : parseFloat(data[key].tripDetails[j].remainingBalance).toFixed(2)),
+                                    extraAmtRemark: data[key].tripDetails[j].extraAmtRemark
+                                }
+                            )
+                        }
                     }
-                }
-                setBankData([..._bankData]);
-            })
+                });
+            }
+            console.log(ds);
+            ds = ds.sort(
+                (a, b) => Number(new Date(a.date)) - Number(new Date(b.date)),
+            );
+            setDisplayDataSource(ds);
+            setDataSource(ds);
 
-            await onValue(partyRef, (snapshot) => {
-                const data = snapshot.val();
-                console.log(data, 'parties');
-                // updateStarCount(postElement, data);
-                let parties = []; // Data Source
-                if (data !== null) {
-                    Object.entries(data).map(([key, party], i) => {
-                        if (partyNameList.includes(party.label)) {
-                            parties.push({ ...party, id: key });
-                        }
-                        // partyNameList.push(party.label);
-                    })
-                    setPartyIds(Object.keys(data));
-                }
+            // const bankRef = ref(db, 'bankData/');
+            // onValue(bankRef, (snapshot) => {
+            //     const data = snapshot.val();
+            //     let _bankData = [];
+            //     if (data !== null) {
+            //         for (let i = 0; i < data.data.length; i++) {
+            //             _bankData.push({
+            //                 label: data.data[i].bankName,
+            //                 value: data.data[i].bankName,
+            //                 key: data.data[i].key
+            //             })
+            //         }
+            //     }
+            //     setBankData([..._bankData]);
+            // })
 
-                // setPartyListAll([...parties]);
-                setPartyList([...parties]);
-                setDisplayPartyList([...parties]);
-            });
+            // await onValue(partyRef, (snapshot) => {
+            // });
+            // const data = snapshot.val();
+            // console.log(data, 'parties');
+            // updateStarCount(postElement, data);
+            let parties = []; // Data Source
+            if (partyData !== null) {
+                Object.entries(partyData).map(([key, party], i) => {
+                    if (partyNameList.includes(party.label)) {
+                        parties.push({ ...party, id: key });
+                    }
+                    // partyNameList.push(party.label);
+                })
+                setPartyIds(Object.keys(partyData));
+            }
+
+            // setPartyListAll([...parties]);
+            setPartyList([...parties]);
+            setDisplayPartyList([...parties]);
         }
 
         getData();

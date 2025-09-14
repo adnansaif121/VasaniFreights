@@ -4,7 +4,7 @@ import PohchHisab from './PohchHisab';
 import CashHisab from './CashHisab';
 import NaveenKakaParty from './NaveenKakaParty';
 
-const NaveenKaka = () => {
+const NaveenKaka = ({dailyEntryData, bankData, setBankData, partyData, transporterData}) => {
     const [page, setPage] = useState('Party Hisab');
 
     return (
@@ -13,10 +13,10 @@ const NaveenKaka = () => {
                 <Segmented size='large' options={['Party Hisab', 'Pohch Hisab', 'Cash Hisab']} onChange={(value) => setPage(value)} block />
             </div>
             {page === "Party Hisab" &&
-                <NaveenKakaParty></NaveenKakaParty>
+                <NaveenKakaParty dailyEntryData={dailyEntryData} bankData={bankData} setBankData={setBankData} partyData={partyData} transporterData={transporterData} />
             }
             {page === "Pohch Hisab" &&
-                <PohchHisab></PohchHisab>
+                <PohchHisab dailyEntryData={dailyEntryData} bankData={bankData} setBankData={setBankData} />
             }
             {page === "Cash Hisab" &&
                <CashHisab></CashHisab>

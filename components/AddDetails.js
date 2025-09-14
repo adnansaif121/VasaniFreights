@@ -44,7 +44,9 @@ const AddDetails = ({
     setNewMaal,
     setDriverList,
     driverModal,
-    setDriverModal
+    setDriverModal,
+    newVehicleNo,
+    setNewVehicleNo
 }) => {
     const [form] = Form.useForm();
     const [form1] = Form.useForm();
@@ -90,7 +92,7 @@ const AddDetails = ({
     const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
 
    
-    const [newVehicleNo, setNewVehicleNo] = useState('');
+    // const [newVehicleNo, setNewVehicleNo] = useState('');
     // const [driverModal, setDriverModal] = useState({});
     const [toggleKaataParchi, setToggleKaataParchi] = useState(false);
     const [pohchAmount, setPohchAmount] = useState(0);
@@ -1244,9 +1246,11 @@ const AddDetails = ({
                                                     {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))} onChange={(e) => { setTripKm(e.target.value) }} placeholder='Trip KM' type='number'></Input> */}
                                                     <Input value={Math.abs(parseInt(janaKm || 0) - parseInt(aanaKm || 0))}></Input>
                                                 </Form.Item>
-                                                <Form.Item style={{ width: '48%' }} label="Milometer">
-                                                    <Input value={milometer || 0} onChange={(e) => { setMilometer(e.target.value) }} placeholder='Milometer'></Input>
+
+                                                <Form.Item style={{ width: '48%' }} label="Diesel">
+                                                    <Input value={dieselQty || 0} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number' onWheel={e => e.target.blur()}></Input>
                                                 </Form.Item>
+
                                             </Flex>
 
                                             {/* Diesel */}
@@ -1254,10 +1258,23 @@ const AddDetails = ({
                                                 width: '100%',
                                                 height: 20,
                                             }} justify='space-between' align={'center'}>
-                                                <Form.Item style={{ width: '48%' }} label="Diesel">
-                                                    <Input value={dieselQty || 0} onChange={(e) => setDieselQty(e.target.value)} placeholder='Diesel' type='number' onWheel={e => e.target.blur()}></Input>
+                                                
+                                                <Form.Item style={{ width: '48%' }} label="Diesel Amount">
+                                                    <Input value={milometer || 0} onChange={(e) => { setMilometer(e.target.value) }} placeholder='Milometer'></Input>
                                                 </Form.Item>
 
+                                                
+
+                                                <Form.Item style={{ width: '48%' }} label="Average">
+                                                    <Input value={(Math.abs(parseInt(janaKm ||0) - parseInt(aanaKm || 0)) / ((parseFloat(dieselQty) || 1) + (parseFloat(midwayDiesel) || 0))).toFixed(2) || 0}></Input>
+                                                    {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))/((parseInt(dieselQty)||0) + (parseInt(midwayDiesel)||0))} onChange={(e) => { setAverage(e.target.value) }} placeholder='Average' type='number'></Input> */}
+                                                </Form.Item>
+                                            </Flex>
+
+                                            <Flex style={{
+                                                width: '100%',
+                                                height: 20,
+                                            }} justify='space-between' align={'center'}>
                                                 <Form.Item style={{ width: '48%' }} label="Pump Name">
                                                     <Select
                                                         showSearch
@@ -1297,17 +1314,6 @@ const AddDetails = ({
                                                             </>
                                                         )}
                                                     />
-                                                </Form.Item>
-
-                                            </Flex>
-
-                                            <Flex style={{
-                                                width: '100%',
-                                                height: 20,
-                                            }} justify='space-between' align={'center'}>
-                                                <Form.Item style={{ width: '48%' }} label="Average">
-                                                    <Input value={(Math.abs(parseInt(janaKm ||0) - parseInt(aanaKm || 0)) / ((parseFloat(dieselQty) || 1) + (parseFloat(midwayDiesel) || 0))).toFixed(2) || 0}></Input>
-                                                    {/* <Input value={Math.abs(parseInt(janaKm) - parseInt(aanaKm))/((parseInt(dieselQty)||0) + (parseInt(midwayDiesel)||0))} onChange={(e) => { setAverage(e.target.value) }} placeholder='Average' type='number'></Input> */}
                                                 </Form.Item>
 
                                                 <Form.Item style={{ width: '48%' }} label="Midway Diesel">
