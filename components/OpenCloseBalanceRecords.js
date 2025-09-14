@@ -54,7 +54,16 @@ const OpenCloseBalanceRecords = () => {
   // Table columns
   const columns = [
     { title: 'Sr.no', dataIndex: 'srno', key: 'srno', width: 70 },
-    { title: 'Date', dataIndex: 'date', key: 'date', width: 120 },
+    { title: 'Date', dataIndex: 'date', key: 'date', width: 120,
+      render: (text) => {
+        if (!text) return '';
+        const date = new Date(text);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+      }
+    },
     { title: 'Opening Balance', dataIndex: 'openingBalance', key: 'openingBalance', render: val => <b>{val}</b> },
     { title: 'Daily Change', dataIndex: 'dailyChange', key: 'dailyChange', render: val => <b>{val}</b> },
     { title: 'Closing Balance', dataIndex: 'closingBalance', key: 'closingBalance', render: val => <b>{val}</b> },

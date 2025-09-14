@@ -100,7 +100,18 @@ const CashDetailRecords = () => {
   // Filter by dropdown for Nature, Heading, Sub Heading, Type
   const columns = [
     { title: 'Sr.no', dataIndex: 'srno', key: 'srno', width: 70 },
-    { title: 'Date', dataIndex: 'date', key: 'date', width: 120 },
+    { title: 'Date', dataIndex: 'date', key: 'date', width: 120 , 
+      render:
+        (text) => {
+              if (!text) return '';
+            // display date in dd-mm-yyyy format
+            const date = new Date(text);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+    },
     {
       title: 'Nature',
       dataIndex: 'nature',

@@ -7,12 +7,16 @@ const { TabPane } = Tabs;
 const { Title } = Typography;
 
 const itemTypes = [
-  { key: 'Transporter', label: 'Transporter' },
+  { key: 'Transporter', label: 'Transporters' },
   { key: 'locations', label: 'Locations' },
   { key: 'pumps', label: 'Pump Names' },
   { key: 'bankData', label: 'Bank Names' },
   { key: 'Vehicles', label: 'Vehicle Numbers' },
-  { key: 'maal', label: 'Maals' }
+  { key: 'maal', label: 'Maals' },
+  { key: 'heading', label: 'Headings' },
+  { key: 'subheading', label: 'Subheadings' },
+  { key: 'payMedium', label: 'Payment Mediums' },
+  { key: 'nature', label: 'Natures' },
 ];
 
 
@@ -30,6 +34,59 @@ const ManageItems = () => {
     const db = getDatabase();
     const newItems = {};
 
+    await new Promise(resolve => {
+      onValue(ref(db, 'headings/'), (snapshot) => {
+        const data = snapshot.val();
+        let arr = [];
+        if (Array.isArray(data)) {
+          arr = data.map((item, idx) => item ? { ...item, id: idx } : null).filter(Boolean);
+        }
+        newItems['heading'] = arr;
+        resolve();
+      }, { onlyOnce: true });
+    })
+
+    await new Promise(resolve => {
+      onValue(ref(db, 'subheadings/'), (snapshot) => {
+        const data = snapshot.val();
+        let arr = [];
+        if (Array.isArray(data)) {
+          arr = data.map((item, idx) => item ? { ...item, id: idx } : null).filter(Boolean);
+        }
+        newItems['subheading'] = arr;
+        resolve();
+      }
+      , { onlyOnce: true });
+    }
+    )
+
+    await new Promise(resolve => {
+      onValue(ref(db, 'payMedium/'), (snapshot) => {
+        const data = snapshot.val();
+        let arr = [];
+        if (Array.isArray(data)) {
+          arr = data.map((item, idx) => item ? { ...item, id: idx } : null).filter(Boolean);
+        }
+        newItems['payMedium'] = arr;
+        resolve();
+      }, { onlyOnce: true });
+    }
+    )
+
+    await new Promise(resolve => {
+      onValue(ref(db, 'nature/'), (snapshot) => {
+        const data = snapshot.val();
+        let arr = [];
+        if (Array.isArray(data)) {
+          arr = data.map((item, idx) => item ? { ...item, id: idx } : null).filter(Boolean);
+        }
+        newItems['nature'] = arr;
+        resolve();
+      }
+      , { onlyOnce: true });
+    }
+    )
+    // Transporters
     await new Promise(resolve => {
       onValue(ref(db, 'transporters/'), (snapshot) => {
         const data = snapshot.val();
@@ -146,6 +203,34 @@ const ManageItems = () => {
     let newItem = {};
     let arr = [];
     switch (modal.type) {
+      case 'heading':
+        refPath = 'headings';
+        newItem = { value: inputValue, label: inputValue };
+        arr = items['heading'] ? [...items['heading']] : [];
+        arr.push(newItem);
+        await set(ref(db, refPath), arr);
+        break;
+      case 'subheading':
+        refPath = 'subheadings';
+        newItem = { value: inputValue, label: inputValue };
+        arr = items['subheading'] ? [...items['subheading']] : [];
+        arr.push(newItem);
+        await set(ref(db, refPath), arr);
+        break;
+      case 'payMedium':
+        refPath = 'payMedium';
+        newItem = { value: inputValue, label: inputValue };
+        arr = items['payMedium'] ? [...items['payMedium']] : [];
+        arr.push(newItem);
+        await set(ref(db, refPath), arr);
+        break;
+      case 'nature':
+        refPath = 'nature';
+        newItem = { value: inputValue, label: inputValue };
+        arr = items['nature'] ? [...items['nature']] : [];
+        arr.push(newItem);
+        await set(ref(db, refPath), arr);
+        break;
       case 'Transporter':
         refPath = 'transporters';
         newItem = { label: inputValue, value: inputValue };
@@ -208,6 +293,26 @@ const ManageItems = () => {
     let updateObj = {};
     let arr = [];
     switch (modal.type) {
+      case 'heading':
+        refPath = `headings/${modal.item.id}`;
+        updateObj = { value: inputValue, label: inputValue };
+        await update(ref(db, refPath), updateObj);
+        break;
+      case 'subheading':
+        refPath = `subheadings/${modal.item.id}`;
+        updateObj = { value: inputValue, label: inputValue };
+        await update(ref(db, refPath), updateObj);
+        break;
+      case 'payMedium':
+        refPath = `payMedium/${modal.item.id}`;
+        updateObj = { value: inputValue, label: inputValue };
+        await update(ref(db, refPath), updateObj);
+        break;
+      case 'nature':
+        refPath = `nature/${modal.item.id}`;
+        updateObj = { value: inputValue, label: inputValue };
+        await update(ref(db, refPath), updateObj);
+        break;
       case 'Transporter':
         refPath = `transporters/${modal.item.id}`;
         updateObj = { label: inputValue, value: inputValue };
@@ -262,6 +367,22 @@ const ManageItems = () => {
         let refPath = '';
         let arr = [];
         switch (type) {
+          case 'heading':
+            refPath = `headings/${id}`;
+            await set(ref(db, refPath), null);
+            break;
+          case 'subheading':
+            refPath = `subheadings/${id}`;
+            await set(ref(db, refPath), null);
+            break;
+          case 'payMedium':
+            refPath = `payMedium/${id}`;
+            await set(ref(db, refPath), null);
+            break;
+          case 'nature':
+            refPath = `nature/${id}`;
+            await set(ref(db, refPath), null);
+            break;
           case 'Transporter':
             refPath = `transporters/${id}`;
             await set(ref(db, refPath), null);
@@ -378,7 +499,7 @@ const ManageItems = () => {
   }));
 
   return (
-    <Card style={{ maxWidth: 700, margin: '40px auto', boxShadow: '0 2px 8px #f0f1f2' }}>
+    <Card style={{ maxWidth: 1200, margin: '40px auto', boxShadow: '0 2px 8px #f0f1f2' }}>
       <Title level={3} style={{ textAlign: 'center', marginBottom: 20 }}>Manage List Items</Title>
       <Tabs
         activeKey={activeTab}

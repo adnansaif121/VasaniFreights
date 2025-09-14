@@ -394,6 +394,8 @@ export default function Dashboard() {
             key: key,
             label: newVehicleNo,
             value: newVehicleNo
+        }).then(() => {
+            alert(`Vehicle ${newVehicleNo} added successfully`);
         })
         setNewVehicleNo('');
 

@@ -7,7 +7,18 @@ const { Title } = Typography;
 // Table columns for Truck Income
 const incomeColumns = [
     { title: 'Sr.no', dataIndex: 'srno', key: 'srno', width: 70 },
-    { title: 'Date', dataIndex: 'cashDate', key: 'cashDate' },
+    { title: 'Date', dataIndex: 'cashDate', key: 'cashDate',
+        render: 
+            (text) => {
+                  if (!text) return '';
+                // display date in dd-mm-yyyy format
+                const date = new Date(text);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}-${month}-${year}`;
+            }
+     },
     { title: 'Trip Date', dataIndex: 'tripDate', key: 'tripDate' },
     { title: 'Truck No', dataIndex: 'truckNo', key: 'truckNo' },
     { title: 'From', dataIndex: 'from', key: 'from' },
@@ -19,7 +30,14 @@ const incomeColumns = [
 // Table columns for Truck Expense
 const expenseColumns = [
     { title: 'Sr.no', dataIndex: 'srno', key: 'srno', width: 70 },
-    { title: 'Trip Date', dataIndex: 'tripDate', key: 'tripDate' },
+    { title: 'Trip Date', dataIndex: 'tripDate', key: 'tripDate', render: (text) => {
+        if (!text) return '';
+        const date = new Date(text);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    }},
     { title: 'First Driver', dataIndex: 'driver', key: 'driver'},
     { title: 'Truck No', dataIndex: 'truckNo', key: 'truckNo' },
     { title: 'From', dataIndex: 'from', key: 'from' },
@@ -219,7 +237,7 @@ const DailyTruckCash = () => {
                             <Input />
                         </Form.Item>
                         <Form.Item name="amount" label="Amount" rules={[{ required: true }]}>
-                            <Input type="number" />
+                            <Input type="number"  onWheel={e => e.target.blur()}/>
                         </Form.Item>
                         <Form.Item name="verify" label="Verify" valuePropName="checked">
                             <Input type="checkbox" />
@@ -271,7 +289,7 @@ const DailyTruckCash = () => {
                             <Input />
                         </Form.Item>
                         <Form.Item name="amount" label="Amount" rules={[{ required: true }]}>
-                            <Input type="number" />
+                            <Input type="number"  onWheel={e => e.target.blur()}/>
                         </Form.Item>
                         <Form.Item name="verify" label="Verify" valuePropName="checked">
                             <Input type="checkbox" />

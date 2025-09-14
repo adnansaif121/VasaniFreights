@@ -6,7 +6,19 @@ const { Title } = Typography;
 
 const tableColumns = [
     { title: 'Sr.no', dataIndex: 'srNo', key: 'srNo', render: (_, __, index) => index + 1 },
-    { title: 'Date', dataIndex: 'date', key: 'date' },
+    {
+        title: 'Date', dataIndex: 'date', key: 'date',
+        render:
+            (text) => {
+                if (!text) return '';
+                // display date in dd-mm-yyyy format
+                const date = new Date(text);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}-${month}-${year}`;
+            }
+    },
     { title: 'Nature', dataIndex: 'nature', key: 'nature' },
     { title: 'Heading', dataIndex: 'heading', key: 'heading' },
     { title: 'Sub Heading', dataIndex: 'subHeading', key: 'subHeading' },
@@ -59,6 +71,10 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
     const [totalExpense, setTotalExpense] = useState(0);
     const [remark, setRemark] = useState('');
     const [diffAmount, setDiffAmount] = useState(0);
+    const [items, setItems] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [newNature, setNewNature] = useState('');
+    const [newPayMedium, setNewPayMedium] = useState('');
 
     useDisableNumberInputScroll();
     useEffect(() => {
@@ -179,7 +195,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
             } else {
                 setIncomingData([]);
                 setExpenseData([]);
-                
+
                 // Initialize cash data for today if it doesn't exist
                 set(cashRef, {
                     income: [{
@@ -237,22 +253,169 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                 });
             }
         }, { onlyOnce: true });
+
     }, [dataSource, dailyTruckCashIncome, dailyTruckCashExpense]);
 
+    useEffect(() => {
+        fetchItems();
+        // eslint-disable-next-line
+    }, []);
+
+    // Fetch all lists from Firebase Realtime Database
+    const fetchItems = async () => {
+        setLoading(true);
+        const db = getDatabase();
+        const newItems = {};
+
+        await new Promise(resolve => {
+            onValue(ref(db, 'headings/'), (snapshot) => {
+                const data = snapshot.val();
+                let arr = [];
+                if (Array.isArray(data)) {
+                    arr = data.map((item, idx) => item ? { ...item, id: idx } : null).filter(Boolean);
+                }
+                newItems['heading'] = arr;
+                resolve();
+            }, { onlyOnce: true });
+        })
+
+        await new Promise(resolve => {
+            onValue(ref(db, 'subheadings/'), (snapshot) => {
+                const data = snapshot.val();
+                let arr = [];
+                if (Array.isArray(data)) {
+                    arr = data.map((item, idx) => item ? { ...item, id: idx } : null).filter(Boolean);
+                }
+                newItems['subheading'] = arr;
+                resolve();
+            }
+                , { onlyOnce: true });
+        }
+        )
+
+        await new Promise(resolve => {
+            onValue(ref(db, 'payMedium/'), (snapshot) => {
+                const data = snapshot.val();
+                let arr = [];
+                if (Array.isArray(data)) {
+                    arr = data.map((item, idx) => item ? { ...item, id: idx } : null).filter(Boolean);
+                }
+                newItems['payMedium'] = arr;
+                resolve();
+            }, { onlyOnce: true });
+        }
+        )
+
+        await new Promise(resolve => {
+            onValue(ref(db, 'nature/'), (snapshot) => {
+                const data = snapshot.val();
+                let arr = [];
+                if (Array.isArray(data)) {
+                    arr = data.map((item, idx) => item ? { ...item, id: idx } : null).filter(Boolean);
+                }
+                newItems['nature'] = arr;
+                resolve();
+            }
+                , { onlyOnce: true });
+        }
+        )
+        console.log('Fetched Items: ', newItems);
+        setItems(newItems);
+        setLoading(false);
+    };
+
+     const addNewPayMedium = async () => {
+        // Check for duplicates before adding
+        if (newPayMedium && items.payMedium && items.payMedium.some(opt => opt.value === newPayMedium)) {
+            alert('Pay Medium already exists');
+            return;
+        }
+        if (newPayMedium && items.payMedium && !items.payMedium.some(opt => opt.value === newPayMedium)) {
+            const db = getDatabase();
+            const refPath = 'payMedium';
+            const newItem = { value: newPayMedium, label: newPayMedium };
+            let arr = items['payMedium'] ? [...items['payMedium']] : [];
+            arr.push(newItem);
+            await set(ref(db, refPath), arr).then(() => {
+                alert('New pay medium added successfully');
+                setItems(prev => ({
+                    ...prev,
+                    payMedium: arr
+                }));
+                setNewPayMedium('');
+            });
+        }
+    };
+
+     const addNewNature = async () => {
+        // Check for duplicates before adding
+        if (newNature && items.nature && items.nature.some(opt => opt.value === newNature)) {
+            alert('Nature already exists');
+            return;
+        }
+        if (newNature && items.nature && !items.nature.some(opt => opt.value === newNature)) {
+            const db = getDatabase();
+            const refPath = 'nature';
+            const newItem = { value: newNature, label: newNature };
+            let arr = items['nature'] ? [...items['nature']] : [];
+            arr.push(newItem);
+            await set(ref(db, refPath), arr).then(() => {
+                alert('New nature added successfully');
+                setItems(prev => ({
+                    ...prev,
+                    nature: arr
+                }));
+                setNewNature('');
+            });
+        }
+    };
+
     // Add new option handlers
-    const addNewHeading = () => {
-        if (newHeading && !headingOptions.some(opt => opt.value === newHeading)) {
-            setHeadingOptions([...headingOptions, { value: newHeading, label: newHeading }]);
-            setNewHeading('');
+    const addNewHeading = async () => {
+        // Check for duplicates before adding
+        if (newHeading && items.heading && items.heading.some(opt => opt.value === newHeading)) {
+            alert('Heading already exists');
+            return;
+        }
+        if (newHeading && items.heading && !items.heading.some(opt => opt.value === newHeading)) {
+            const db = getDatabase();
+            const refPath = 'headings';
+            const newItem = { value: newHeading, label: newHeading };
+            let arr = items['heading'] ? [...items['heading']] : [];
+            arr.push(newItem);
+            await set(ref(db, refPath), arr).then(() => {
+                alert('New heading added successfully');
+                setItems(prev => ({
+                    ...prev,
+                    heading: arr
+                }));
+                setNewHeading('');
+            });
         }
     };
-    const addNewSubHeading = () => {
-        if (newSubHeading && !subHeadingOptions.some(opt => opt.value === newSubHeading)) {
-            setSubHeadingOptions([...subHeadingOptions, { value: newSubHeading, label: newSubHeading }]);
-            setNewSubHeading('');
+    const addNewSubHeading = async () => {
+        // Check for duplicates before adding
+        if (newSubHeading && items.subheading && items.subheading.some(opt => opt.value === newSubHeading)) {
+            alert('Sub-heading already exists');
+            return;
+        }
+        if (newSubHeading && items.subheading && !items.subheading.some(opt => opt.value === newSubHeading)) {
+            const db = getDatabase();
+            const refPath = 'subheadings';
+            const newItem = { value: newSubHeading, label: newSubHeading };
+            let arr = items['subheading'] ? [...items['subheading']] : [];
+            arr.push(newItem);
+            await set(ref(db, refPath), arr).then(() => {
+                alert('New sub-heading added successfully');
+                setItems(prev => ({
+                    ...prev,
+                    subheading: arr
+                }));
+                setNewSubHeading('');
+            });
         }
     };
-    const addNewHeading2 = () => {
+    const addNewHeading2 = async () => {
         if (newHeading2 && !headingOptions2.some(opt => opt.value === newHeading2)) {
             setHeadingOptions2([...headingOptions2, { value: newHeading2, label: newHeading2 }]);
             setNewHeading2('');
@@ -282,35 +445,35 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
             ]);
             form.resetFields();
             setIncomingModalOpen(false);
-        
-        // save the data to the Firebase database
-        const db = getDatabase();
-        const index = incomingData.length;
-        const cashRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/income/'+ index + '/');
-        set(cashRef, {
-            date: values.date.format('YYYY-MM-DD'),
-            nature: values.nature,
-            heading: values.heading,
-            subHeading: values.subHeading,
-            remarks: values.remarks,
-            type: values.type,
-            amount: values.amount,
-        }).then(() => {
-            console.log('Incoming entry added successfully');
-        }).catch((error) => {
-            console.error('Error adding incoming entry:', error);
-        });
 
-        const updateRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') +'/');
-        update(updateRef, {
-            dailyChange: totalIncome - totalExpense,
-            closingBalance: closingBalance + parseFloat(values.amount),
-        })
+            // save the data to the Firebase database
+            const db = getDatabase();
+            const index = incomingData.length;
+            const cashRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/income/' + index + '/');
+            set(cashRef, {
+                date: values.date.format('YYYY-MM-DD'),
+                nature: values.nature,
+                heading: values.heading,
+                subHeading: values.subHeading,
+                remarks: values.remarks,
+                type: values.type,
+                amount: values.amount,
+            }).then(() => {
+                console.log('Incoming entry added successfully');
+            }).catch((error) => {
+                console.error('Error adding incoming entry:', error);
+            });
 
-        if(values.type === 'Cash'){
-            setClosingBalance(parseFloat(closingBalance) + parseFloat(values.amount));
-            setTotalIncome(parseFloat(totalIncome) + parseFloat(values.amount));
-        }
+            const updateRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/');
+            update(updateRef, {
+                dailyChange: totalIncome - totalExpense,
+                closingBalance: closingBalance + parseFloat(values.amount),
+            })
+
+            if (values.type === 'Cash') {
+                setClosingBalance(parseFloat(closingBalance) + parseFloat(values.amount));
+                setTotalIncome(parseFloat(totalIncome) + parseFloat(values.amount));
+            }
         });
 
     };
@@ -332,36 +495,36 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
             ]);
             form2.resetFields();
             setExpenseModalOpen(false);
-       
-        // save the data to the Firebase database
-        const db = getDatabase();
-        const index = expenseData.length;
-        const cashRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/expense/' + index + '/');
-        set(cashRef, {
-            date: values.date.format('YYYY-MM-DD'),
-            nature: values.nature,
-            heading: values.heading,
-            subHeading: values.subHeading,
-            remarks: values.remarks,
-            type: values.type,
-            amount: values.amount,
-        }).then(() => {
-            console.log('Expense entry added successfully');
-        }).catch((error) => {
-            console.error('Error adding expense entry:', error);
+
+            // save the data to the Firebase database
+            const db = getDatabase();
+            const index = expenseData.length;
+            const cashRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/expense/' + index + '/');
+            set(cashRef, {
+                date: values.date.format('YYYY-MM-DD'),
+                nature: values.nature,
+                heading: values.heading,
+                subHeading: values.subHeading,
+                remarks: values.remarks,
+                type: values.type,
+                amount: values.amount,
+            }).then(() => {
+                console.log('Expense entry added successfully');
+            }).catch((error) => {
+                console.error('Error adding expense entry:', error);
+            });
+
+            const updateRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/');
+            update(updateRef, {
+                dailyChange: totalIncome - totalExpense,
+                closingBalance: closingBalance + parseFloat(values.amount),
+            })
+
+            if (values.type === 'Cash') {
+                setTotalExpense(parseFloat(totalExpense) + parseFloat(values.amount));
+                setClosingBalance(closingBalance - values.amount);
+            }
         });
-
-        const updateRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') +'/');
-        update(updateRef, {
-            dailyChange: totalIncome - totalExpense,
-            closingBalance: closingBalance + parseFloat(values.amount),
-        })
-
-        if(values.type === 'Cash'){
-            setTotalExpense(parseFloat(totalExpense) + parseFloat(values.amount));
-            setClosingBalance(closingBalance - values.amount);
-        }
-         });
     };
 
     const handleSave = () => {
@@ -407,14 +570,31 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                                 <Select
                                     showSearch
                                     placeholder="Select Nature"
-                                    options={[{ value: 'income', label: 'Income' }, { value: 'addition', label: 'Addition' }]}
+                                    options={items.nature ? items.nature.map(n => ({ value: n.value, label: n.label })) : []}
+                                    dropdownRender={menu => (
+                                        <>
+                                            {menu}
+                                            <Divider style={{ margin: '8px 0' }} />
+                                            <Space style={{ padding: '0 8px 4px' }}>
+                                                <Input
+                                                    placeholder="Add new nature"
+                                                    value={newNature}
+                                                    onChange={e => setNewNature(e.target.value)}
+                                                    onKeyDown={e => e.stopPropagation()}
+                                                />
+                                                <Button type="text" onClick={addNewNature}>
+                                                    Add
+                                                </Button>
+                                            </Space>
+                                        </>
+                                    )}
                                 />
                             </Form.Item>
                             <Form.Item name="heading" label="Heading" rules={[{ required: true }]}>
                                 <Select
                                     showSearch
                                     placeholder="Select Heading"
-                                    options={headingOptions}
+                                    options={items.heading ? items.heading.map(h => ({ value: h.value, label: h.label })) : []}
                                     dropdownRender={menu => (
                                         <>
                                             {menu}
@@ -438,7 +618,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                                 <Select
                                     showSearch
                                     placeholder="Select Sub Heading"
-                                    options={subHeadingOptions}
+                                    options={items.subheading ? items.subheading.map(sh => ({ value: sh.value, label: sh.label })) : []}
                                     dropdownRender={menu => (
                                         <>
                                             {menu}
@@ -458,14 +638,35 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                                     )}
                                 />
                             </Form.Item>
-                            <Form.Item name="remarks" label="Particulars/Remarks" rules={[{ required: true }]}>
+                            <Form.Item name="remarks" label="Remarks" rules={[{ required: true }]}>
                                 <Input />
                             </Form.Item>
-                            <Form.Item name="type" label="Type" rules={[{ required: true }]}>
-                                <Select options={typeOptions} />
+                            <Form.Item name="type" label="Pay Medium" rules={[{ required: true }]}>
+                                <Select 
+                                    showSearch
+                                    placeholder="Select Pay Medium"
+                                    options={items.payMedium ? items.payMedium.map(pm => ({ value: pm.value, label: pm.label })) : []}
+                                    dropdownRender={menu => (
+                                        <>
+                                            {menu}
+                                            <Divider style={{ margin: '8px 0' }} />
+                                            <Space style={{ padding: '0 8px 4px' }}>
+                                                <Input
+                                                    placeholder="Add new pay medium"
+                                                    value={newPayMedium}
+                                                    onChange={e => setNewPayMedium(e.target.value)}
+                                                    onKeyDown={e => e.stopPropagation()}
+                                                />
+                                                <Button type="text" onClick={addNewPayMedium}>
+                                                    Add
+                                                </Button>
+                                            </Space>
+                                        </>
+                                    )}
+                                />
                             </Form.Item>
-                            <Form.Item name="amount" label="Amount" rules={[{ required: true }]}>
-                                <Input type="number" />
+                            <Form.Item name="amount" label="Amount" rules={[{ required: true }]} >
+                                <Input type="number" onWheel={e => e.target.blur()} />
                             </Form.Item>
                         </Form>
                     </Modal>
@@ -499,14 +700,31 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                                 <Select
                                     showSearch
                                     placeholder="Select Nature"
-                                    options={[{ value: 'expense', label: 'Expense' }, { value: 'deduction', label: 'Deduction' }]}
+                                    options={items.nature ? items.nature.map(n => ({ value: n.value, label: n.label })) : []}
+                                    dropdownRender={menu => (
+                                        <>
+                                            {menu}
+                                            <Divider style={{ margin: '8px 0' }} />
+                                            <Space style={{ padding: '0 8px 4px' }}>
+                                                <Input
+                                                    placeholder="Add new nature"
+                                                    value={newNature}
+                                                    onChange={e => setNewNature(e.target.value)}
+                                                    onKeyDown={e => e.stopPropagation()}
+                                                />
+                                                <Button type="text" onClick={addNewNature}>
+                                                    Add
+                                                </Button>
+                                            </Space>
+                                        </>
+                                    )}
                                 />
                             </Form.Item>
                             <Form.Item name="heading" label="Heading" rules={[{ required: true }]}>
                                 <Select
                                     showSearch
                                     placeholder="Select Heading"
-                                    options={headingOptions2}
+                                    options={items.heading ? items.heading.map(h => ({ value: h.value, label: h.label })) : []}
                                     dropdownRender={menu => (
                                         <>
                                             {menu}
@@ -514,11 +732,11 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                                             <Space style={{ padding: '0 8px 4px' }}>
                                                 <Input
                                                     placeholder="Add new heading"
-                                                    value={newHeading2}
-                                                    onChange={e => setNewHeading2(e.target.value)}
+                                                    value={newHeading}
+                                                    onChange={e => setNewHeading(e.target.value)}
                                                     onKeyDown={e => e.stopPropagation()}
                                                 />
-                                                <Button type="text" onClick={addNewHeading2}>
+                                                <Button type="text" onClick={addNewHeading}>
                                                     Add
                                                 </Button>
                                             </Space>
@@ -530,7 +748,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                                 <Select
                                     showSearch
                                     placeholder="Select Sub Heading"
-                                    options={subHeadingOptions2}
+                                    options={items.subheading ? items.subheading.map(sh => ({ value: sh.value, label: sh.label })) : []}
                                     dropdownRender={menu => (
                                         <>
                                             {menu}
@@ -538,11 +756,11 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                                             <Space style={{ padding: '0 8px 4px' }}>
                                                 <Input
                                                     placeholder="Add new sub heading"
-                                                    value={newSubHeading2}
-                                                    onChange={e => setNewSubHeading2(e.target.value)}
+                                                    value={newSubHeading}
+                                                    onChange={e => setNewSubHeading(e.target.value)}
                                                     onKeyDown={e => e.stopPropagation()}
                                                 />
-                                                <Button type="text" onClick={addNewSubHeading2}>
+                                                <Button type="text" onClick={addNewSubHeading}>
                                                     Add
                                                 </Button>
                                             </Space>
@@ -550,14 +768,35 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                                     )}
                                 />
                             </Form.Item>
-                            <Form.Item name="remarks" label="Particulars/Remarks" rules={[{ required: true }]}>
+                            <Form.Item name="remarks" label="Remarks" rules={[{ required: true }]}>
                                 <Input />
                             </Form.Item>
-                            <Form.Item name="type" label="Type" rules={[{ required: true }]}>
-                                <Select options={typeOptions} />
+                            <Form.Item name="type" label="Pay Medium" rules={[{ required: true }]}>
+                                <Select 
+                                    showSearch
+                                    placeholder="Select Pay Medium"
+                                    options={items.payMedium ? items.payMedium.map(pm => ({ value: pm.value, label: pm.label })) : []}
+                                    dropdownRender={menu => (
+                                        <>
+                                            {menu}
+                                            <Divider style={{ margin: '8px 0' }} />
+                                            <Space style={{ padding: '0 8px 4px' }}>
+                                                <Input
+                                                    placeholder="Add new pay medium"
+                                                    value={newPayMedium}
+                                                    onChange={e => setNewPayMedium(e.target.value)}
+                                                    onKeyDown={e => e.stopPropagation()}
+                                                />
+                                                <Button type="text" onClick={addNewPayMedium}>
+                                                    Add
+                                                </Button>
+                                            </Space>
+                                        </>
+                                    )}
+                                />
                             </Form.Item>
-                            <Form.Item name="amount" label="Amount" rules={[{ required: true }]}>
-                                <Input type="number" />
+                            <Form.Item name="amount" label="Amount" rules={[{ required: true }]} >
+                                <Input type="number" onWheel={e => e.target.blur()} />
                             </Form.Item>
                         </Form>
                     </Modal>
@@ -583,7 +822,8 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                         style={{ width: 120, marginLeft: 8 }}
                         type="number"
                         value={openingBalance}
-                        // onChange={e => setOpeningBalance(Number(e.target.value))}
+                        onWheel={e => e.target.blur()}
+                    // onChange={e => setOpeningBalance(Number(e.target.value))}
                     />
                 </div>
                 <div>
@@ -593,7 +833,8 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                         type="number"
                         value={totalIncome - totalExpense}
                         readOnly
-                        // onChange={e => setDailyChange(Number(e.target.value))}
+                        onWheel={e => e.target.blur()}
+                    // onChange={e => setDailyChange(Number(e.target.value))}
                     />
                 </div>
                 <div>
@@ -602,7 +843,8 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                         style={{ width: 120, marginLeft: 8 }}
                         type="number"
                         value={closingBalance}
-                        // onChange={e => setClosingBalance(Number(e.target.value))}
+                        onWheel={e => e.target.blur()}
+                    // onChange={e => setClosingBalance(Number(e.target.value))}
                     />
                 </div>
                 <div>
@@ -612,6 +854,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                         type="number"
                         value={diffAmount}
                         onChange={e => setDiffAmount(Number(e.target.value))}
+                        onWheel={e => e.target.blur()}
                         placeholder="Enter diff amount"
                     />
                 </div>

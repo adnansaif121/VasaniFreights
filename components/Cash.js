@@ -7,7 +7,7 @@ import OpenCloseBalanceRecords from './OpenCloseBalanceRecords';
 import { getDatabase, ref, set, onValue, push, query, orderByKey, limitToLast, limitToFirst, endAt, startAt } from "firebase/database";
 
 const Cash = () => {
-    const [page, setPage] = useState('Daily Total Cash Details');
+    const [page, setPage] = useState('DAILY INCOME & EXPENSES');
     const [dailyTruckCashIncome, setDailyTruckCashIncome] = useState(0);
     const [dailyTruckCashExpense, setDailyTruckCashExpense] = useState(0);
     const [dataSource, setDataSource] = useState([]);
@@ -86,9 +86,9 @@ const Cash = () => {
     return (
         <>
             <div style={{ marginTop: '-20px', marginBottom: '5px' }}>
-                <Segmented size='large' options={['Daily Total Cash Details', 'Daily Truck Cash', 'Cash Detail Records', 'Open/Close Balance Records']} onChange={(value) => setPage(value)} block />
+                <Segmented size='large' options={['DAILY INCOME & EXPENSES', 'Daily Truck Cash', 'TOTAL INCOME & EXPENSES', 'Open/Close Balance Records']} onChange={(value) => setPage(value)} block />
             </div>
-            {page === "Daily Total Cash Details" &&
+            {page === "DAILY INCOME & EXPENSES" &&
                 <DailyTotalCashDetails
                     dailyTruckCashIncome={dailyTruckCashIncome}
                     dailyTruckCashExpense={dailyTruckCashExpense}
@@ -100,7 +100,7 @@ const Cash = () => {
             {page === "Daily Truck Cash" &&
                 <DailyTruckCash />
             }
-            {page === "Cash Detail Records" &&
+            {page === "TOTAL INCOME & EXPENSES" &&
                 <CashDetailRecords/>
             }
             {page === "Open/Close Balance Records" &&
