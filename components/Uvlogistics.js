@@ -728,7 +728,7 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
 
                                     update(starCountRef, {
                                         revisedRate: value,
-                                        totalFreight: parseFloat((parseFloat(trip.revisedRate) * parseFloat(trip.qty))).toFixed(2) || 0,
+                                        totalFreight: parseFloat((parseFloat(value) * parseFloat(trip.qty))).toFixed(2) || 0,
                                     }).then(() => {
                                         alert("Revised Rate Updated Successfully!!");
                                         setEditingRevisedRateKey(null);

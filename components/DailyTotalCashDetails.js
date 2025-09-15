@@ -53,10 +53,6 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
 
     const [form] = Form.useForm();
     const [form2] = Form.useForm();
-
-    // Dropdown state for Heading/SubHeading
-    const [headingOptions, setHeadingOptions] = useState(initialHeadingOptions);
-    const [subHeadingOptions, setSubHeadingOptions] = useState(initialSubHeadingOptions);
     const [newHeading, setNewHeading] = useState('');
     const [newSubHeading, setNewSubHeading] = useState('');
 
