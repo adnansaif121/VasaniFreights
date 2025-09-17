@@ -8,9 +8,9 @@ import Highlighter from 'react-highlight-words';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import Transporter from './Transporter';
-import RemarkModal, {RemarkButton} from './common/RemarkModal';
+import RemarkModal, { RemarkButton } from './common/RemarkModal';
 
-const TransporterParty = ({dailyEntryData, bankData, setBankData, partyData, transporterData}) => {
+const TransporterParty = ({ dailyEntryData, bankData, setBankData, partyData, transporterData }) => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
     const [filterType, setFilterType] = useState('none');
@@ -43,6 +43,7 @@ const TransporterParty = ({dailyEntryData, bankData, setBankData, partyData, tra
 
     const [remarkData, setRemarkData] = useState([]);
     const [remarkModalOpen, setRemarkModalOpen] = useState(false);
+    const [exportRows, setExportRows] = useState([]);
     // const [bankData, setBankData] = useState([]);
 
     useEffect(() => {
@@ -191,7 +192,10 @@ const TransporterParty = ({dailyEntryData, bankData, setBankData, partyData, tra
 
     const exportToExcel = () => {
         // Prepare data: remove unwanted fields if needed
-        const exportData = displayDataSource.map(row => {
+        let array = [];
+        if((fromDate !== null || toDate !== null)|| exportRows.length === 0)array = displayDataSource;
+        else array = exportRows;
+        const exportData = array.map(row => {
             const { key, ...rest } = row; // remove key if you don't want it in Excel
             return rest;
         });
@@ -392,7 +396,7 @@ const TransporterParty = ({dailyEntryData, bankData, setBankData, partyData, tra
             dataIndex: 'from',
             key: 'from',
         },
-         {
+        {
             title: 'To',
             dataIndex: 'to',
             key: 'to',
@@ -845,6 +849,9 @@ const TransporterParty = ({dailyEntryData, bankData, setBankData, partyData, tra
                         //     rowExpandable: (record) => true,
                         // }}
                         pagination={'none'}
+                        onChange={(pagination, filters, sorter, extra) => {
+                            setExportRows(extra.currentDataSource); // This is the filtered/sorted data
+                        }}
                     />
 
                     <Modal

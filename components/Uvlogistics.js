@@ -14,25 +14,6 @@ import { saveAs } from 'file-saver';
 // const ViewDailyEntry = dynamic(() => import('../components/ViewDailyEntry'), {ssr: false});
 // import { render } from 'react-dom';
 const { Dragger } = Upload;
-const props = {
-    name: 'file',
-    multiple: true,
-    action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-    onChange(info) {
-        const { status } = info.file;
-        if (status !== 'uploading') {
-            console.log(info.file, info.fileList);
-        }
-        if (status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully.`);
-        } else if (status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
-        }
-    },
-    onDrop(e) {
-        console.log('Dropped files', e.dataTransfer.files);
-    },
-};
 
 let todayDate = (new Date()).toLocaleString("en-Us", { timeZone: 'Asia/Kolkata' }).split(',')[0].split('/');
 todayDate = todayDate[2] + '-' + (parseInt(todayDate[0]) < 10 ? '0' + todayDate[0] : todayDate[0]) + '-' + (parseInt(todayDate[1]) < 10 ? '0' + todayDate[1] : todayDate[1]);
@@ -40,34 +21,6 @@ console.log(todayDate);
 
 const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transporterData, Locations, setLocations }) => {
 
-    const [driverForm] = Form.useForm();
-    const [createPartyForm] = Form.useForm();
-    // Drivers List
-    const [driverList, setDriverList] = useState([]);
-    const [newDriverName, setNewDriverName] = useState('');
-    // Locations list
-    // const [Locations, setLocations] = useState([
-    //     {
-    //         value: 'mumbai',
-    //         label: 'Mumbai',
-    //     },
-    //     {
-    //         value: 'pune',
-    //         label: 'Pune',
-    //     },
-    //     {
-    //         value: 'nagpur',
-    //         label: 'Nagpur',
-    //     },
-    //     {
-    //         value: 'nashik',
-    //         label: 'Nashik',
-    //     },
-    //     {
-    //         value: 'aurangabad',
-    //         label: 'Aurangabad',
-    //     }
-    // ]);
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
@@ -144,6 +97,8 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
     const [editingRevisedToKey, setEditingRevisedToKey] = useState(null);
     const [editingRevisedToValues, setEditingRevisedToValues] = useState({});
     const [newLocation, setNewLocation] = useState('');
+    const [exportRows, setExportRows] = useState([]);
+
     useEffect(() => {
         const data = dailyEntryData;
         let ds = []; // Data Source
@@ -193,7 +148,7 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
 
     }, [dailyEntryData])
 
-     const getColumnSearchProps = (dataIndex) => ({
+    const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
                 style={{
@@ -950,8 +905,11 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
             .filter(col => col.dataIndex)
             .map(col => col.dataIndex);
 
+        let array = [];
+        if((fromDate !== null || toDate !== null)|| exportRows.length === 0)array = dataSource;
+        else array = exportRows;
         // Prepare data: only include keys present in exportKeys
-        const exportData = dataSource.map(row => {
+        const exportData = array.map(row => {
             const filteredRow = {};
             exportKeys.forEach(key => {
                 filteredRow[key] = row[key];
@@ -1026,7 +984,7 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
         // setFromDate(null);
 
     }
-   
+
 
     // Filter `option.label` match the user type `input`
     const filterOption = (input, option) =>
@@ -1050,7 +1008,9 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
                 Export to Excel
             </Button>
             <div style={{ width: "100vw", overflowX: 'scroll', overflowY: 'scroll', backgroundColor: 'white' }}>
-                <Table scroll={{ x: 2000, y: 570 }} bordered style={{ zIndex: '100', height: '100%' }} size="small" dataSource={dataSource} columns={columns}  />
+                <Table scroll={{ x: 2000, y: 570 }} bordered style={{ zIndex: '100', height: '100%' }} size="small" dataSource={dataSource} columns={columns} onChange={(pagination, filters, sorter, extra) => {
+                    setExportRows(extra.currentDataSource); // This is the filtered/sorted data
+                }} />
             </div>
 
         </>

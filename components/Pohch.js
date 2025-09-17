@@ -74,6 +74,7 @@ const Pohch = ({ dailyEntryData }) => {
     const [toDate, setToDate] = useState(null);
     const [editingCourierDateRow, setEditingCourierDateRow] = useState(null);
     const [newCourierDate, setNewCourierDate] = useState('');
+    const [exportRows, setExportRows] = useState([]);
 
     useEffect(() => {
         // const db = getDatabase();
@@ -137,7 +138,10 @@ const Pohch = ({ dailyEntryData }) => {
             .map(col => col.dataIndex);
 
         // Prepare data: only include keys present in exportKeys
-        const exportData = dataSource.map(row => {
+        let array = [];
+        if((fromDate !== null || toDate !== null)|| exportRows.length === 0)array = dataSource;
+        else array = exportRows;
+        const exportData = array.map(row => {
             const filteredRow = {};
             exportKeys.forEach(key => {
                 filteredRow[key] = row[key];
@@ -1073,7 +1077,9 @@ const Pohch = ({ dailyEntryData }) => {
             </Button>
 
             <div style={{ width: "98vw", overflowX: 'auto', height: '83vh', backgroundColor: 'white' }}>
-                <Table bordered style={{ zIndex: '100' }} size="small" dataSource={dataSource} columns={columns} pagination={{ pageSize: 20 }}
+                <Table bordered style={{ zIndex: '100' }} size="small" dataSource={dataSource} columns={columns} pagination={{ pageSize: 20 }} onChange={(pagination, filters, sorter, extra) => {
+                    setExportRows(extra.currentDataSource); // This is the filtered/sorted data
+                }}
                 />
             </div>
 

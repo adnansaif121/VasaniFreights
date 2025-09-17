@@ -7,9 +7,9 @@ import ViewPartyDetails from './ViewHareKrishnaParty';
 import Highlighter from 'react-highlight-words';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import RemarkModal, {RemarkButton} from './common/RemarkModal';
+import RemarkModal, { RemarkButton } from './common/RemarkModal';
 
-const NaveenKakaParty = ({dailyEntryData, bankData, setBankData, partyData, transporterData}) => {
+const NaveenKakaParty = ({ dailyEntryData, bankData, setBankData, partyData, transporterData }) => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
     const [tableData, setTableData] = useState([]);
@@ -44,10 +44,11 @@ const NaveenKakaParty = ({dailyEntryData, bankData, setBankData, partyData, tran
     const [remarkModalOpen, setRemarkModalOpen] = useState(false);
     // const [bankData, setBankData] = useState([]);
     const [fromDate, setFromDate] = useState(null);
-        const [toDate, setToDate] = useState(null);
-        const [partySelectedType, setPartySelectedType] = useState('parties');
+    const [toDate, setToDate] = useState(null);
+    const [partySelectedType, setPartySelectedType] = useState('parties');
     const [dateFilter, setDateFilter] = useState('');
     const [objKey, setObjKey] = useState(null);
+    const [exportRows, setExportRows] = useState([]);
     // const [filteredRows, setFilteredRows] = useState(allRows);
 
     useEffect(() => {
@@ -152,11 +153,11 @@ const NaveenKakaParty = ({dailyEntryData, bankData, setBankData, partyData, tran
             // const data = snapshot.val();
             // console.log(data, 'parties');
             // updateStarCount(postElement, data);
-            
+
             if (partyData !== null) {
                 Object.entries(partyData).map(([key, party], i) => {
                     if (partyNameList.includes(party.label)) {
-                        parties.push({...party, type: 'parties', id: key});
+                        parties.push({ ...party, type: 'parties', id: key });
                     }
                     // partyNameList.push(party.label);
                 })
@@ -177,12 +178,12 @@ const NaveenKakaParty = ({dailyEntryData, bankData, setBankData, partyData, tran
             if (transporterData !== null) {
                 Object.entries(transporterData).map(([key, transporter], i) => {
                     if (partyNameList.includes(transporter.label)) {
-                        parties.push({...transporter, type: 'transporters', id: key});
+                        parties.push({ ...transporter, type: 'transporters', id: key });
                     }
                     // transporters.push(transporter);
                 })
             }
-             setPartyList([...parties]);
+            setPartyList([...parties]);
             // setDisplayPartyList([...parties]);
             // setTransporterList([...transporters]);
 
@@ -200,7 +201,10 @@ const NaveenKakaParty = ({dailyEntryData, bankData, setBankData, partyData, tran
 
     const exportToExcel = () => {
         // Prepare data: remove unwanted fields if needed
-        const exportData = dataSource.map(row => {
+        let array = [];
+        if((fromDate !== null && toDate !== null) || exportRows.length === 0)array = dataSource;
+        else array = exportRows;
+        const exportData = array.map(row => {
             const { key, ...rest } = row; // remove key if you don't want it in Excel
             return rest;
         });
@@ -521,7 +525,7 @@ const NaveenKakaParty = ({dailyEntryData, bankData, setBankData, partyData, tran
         console.log('Edit Party');
         console.log(partySelected);
         const db = getDatabase();
-        const partyRef = ref(db, partySelectedType+'/' + objKey);
+        const partyRef = ref(db, partySelectedType + '/' + objKey);
         update(partyRef, {
             label: partyName,
             // value: partyName,
@@ -631,17 +635,17 @@ const NaveenKakaParty = ({dailyEntryData, bankData, setBankData, partyData, tran
                 </div>
                 <div className={styles.part2}>
                     <div >
-                                    <span style={{ marginLeft: '40px' }}>From Date:</span>
-                                    <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-                                    <span style={{ marginLeft: '40px' }}>To Date:</span>
-                                    <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
-                                    <Button onClick={applyDateFilter}>Apply Filter</Button>
-                                    <Button onClick={() => {
-                                        setDataSource(completeDataSource);
-                                        setFromDate(null);
-                                        setToDate(null);
-                                        setDateFilter(null);
-                                    }}>Clear Date</Button>
+                        <span style={{ marginLeft: '40px' }}>From Date:</span>
+                        <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+                        <span style={{ marginLeft: '40px' }}>To Date:</span>
+                        <Input style={{ width: "20%", marginLeft: '10px' }} type='date' value={toDate} onChange={(e) => setToDate(e.target.value)} />
+                        <Button onClick={applyDateFilter}>Apply Filter</Button>
+                        <Button onClick={() => {
+                            setDataSource(completeDataSource);
+                            setFromDate(null);
+                            setToDate(null);
+                            setDateFilter(null);
+                        }}>Clear Date</Button>
 
                         {/* <Row style={{ width: '75vw' }}>
 
@@ -677,9 +681,9 @@ const NaveenKakaParty = ({dailyEntryData, bankData, setBankData, partyData, tran
                             </Col>
 
                         </Row> */}
-                                <Button type="primary" style={{ marginLeft: '20px' }} onClick={exportToExcel}>
-                                    Export to Excel
-                                </Button>
+                        <Button type="primary" style={{ marginLeft: '20px' }} onClick={exportToExcel}>
+                            Export to Excel
+                        </Button>
 
                         <Drawer
                             title="Create a new account"
@@ -815,6 +819,9 @@ const NaveenKakaParty = ({dailyEntryData, bankData, setBankData, partyData, tran
                         //     rowExpandable: (record) => true,
                         // }}
                         pagination={'none'}
+                        onChange={(pagination, filters, sorter, extra) => {
+                            setExportRows(extra.currentDataSource); // This is the filtered/sorted data
+                        }}
                     />
 
                     <Modal

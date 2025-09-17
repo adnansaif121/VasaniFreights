@@ -9,7 +9,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import RemarkModal, { RemarkButton } from './common/RemarkModal';
 
-const HareKrishna = ({dailyEntryData, bankData, setBankData, partyData}) => {
+const HareKrishna = ({ dailyEntryData, bankData, setBankData, partyData }) => {
     const [partyList, setPartyList] = useState([]);
     const [displayPartyList, setDisplayPartyList] = useState([]);
     const [tableData, setTableData] = useState([]);
@@ -47,6 +47,7 @@ const HareKrishna = ({dailyEntryData, bankData, setBankData, partyData}) => {
     const [toDate, setToDate] = useState(null);
     const [dateFilter, setDateFilter] = useState('');
     const [objKey, setObjKey] = useState(null);
+    const [exportRows, setExportRows] = useState([]);
     // const [filteredRows, setFilteredRows] = useState(allRows);
 
     // Add a handler to open the modal
@@ -175,7 +176,10 @@ const HareKrishna = ({dailyEntryData, bankData, setBankData, partyData}) => {
 
     const exportToExcel = () => {
         // Prepare data: remove unwanted fields if needed
-        const exportData = displayDataSource.map(row => {
+        let array = [];
+        if ((fromDate !== null || toDate !== null)|| exportRows.length === 0) array = displayDataSource;
+        else array = exportRows;
+        const exportData = array.map(row => {
             const { key, ...rest } = row; // remove key if you don't want it in Excel
             return rest;
         });
@@ -570,7 +574,7 @@ const HareKrishna = ({dailyEntryData, bankData, setBankData, partyData}) => {
                                 return (
                                     <div key={index} style={{ padding: '6px 0px 6px 0px', color: 'blue' }}>
                                         <Button onClick={() => showDrawer(index)} icon={
-                                           (item.contact === undefined || item.contact === '' || item.address === undefined || item.address === '' || item.location === undefined || item.location === '') ?
+                                            (item.contact === undefined || item.contact === '' || item.address === undefined || item.address === '' || item.location === undefined || item.location === '') ?
                                                 <span style={{ color: 'red' }}><UserOutlined /></span>
                                                 :
                                                 <UserOutlined />
@@ -753,6 +757,9 @@ const HareKrishna = ({dailyEntryData, bankData, setBankData, partyData}) => {
                         //     rowExpandable: (record) => true,
                         // }}
                         pagination={'none'}
+                        onChange={(pagination, filters, sorter, extra) => {
+                            setExportRows(extra.currentDataSource); // This is the filtered/sorted data
+                        }}
                     />
 
                     <Modal

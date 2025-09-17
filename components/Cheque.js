@@ -21,6 +21,7 @@ const Cheque = ({ dailyEntryData }) => {
     const [toDate, setToDate] = useState(null);
     const [editingDepositDateRow, setEditingDepositDateRow] = useState(null);
     const [newDepositDate, setNewDepositDate] = useState('');
+    const [exportRows, setExportRows] = useState([]);
 
     useEffect(() => {
         // const db = getDatabase();
@@ -566,27 +567,30 @@ const Cheque = ({ dailyEntryData }) => {
     ];
 
     const exportToExcel = () => {
-    // Get the list of keys to export from columns (skip columns without dataIndex)
-    const exportKeys = columns
-        .filter(col => col.dataIndex)
-        .map(col => col.dataIndex);
+        // Get the list of keys to export from columns (skip columns without dataIndex)
+        const exportKeys = columns
+            .filter(col => col.dataIndex)
+            .map(col => col.dataIndex);
 
-    // Prepare data: only include keys present in exportKeys
-    const exportData = dataSource.map(row => {
-        const filteredRow = {};
-        exportKeys.forEach(key => {
-            filteredRow[key] = row[key];
+        // Prepare data: only include keys present in exportKeys
+        let array = [];
+        if((fromDate !== null || toDate !== null)|| exportRows.length === 0)array = dataSource;
+        else array = exportRows;
+        const exportData = array.map(row => {
+            const filteredRow = {};
+            exportKeys.forEach(key => {
+                filteredRow[key] = row[key];
+            });
+            return filteredRow;
         });
-        return filteredRow;
-    });
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "cheque.xlsx");
-};
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "cheque.xlsx");
+    };
 
     return (
         <>
@@ -622,7 +626,9 @@ const Cheque = ({ dailyEntryData }) => {
             </div>
 
             <div style={{ width: "100vw", overflowX: 'scroll', overflowY: 'scroll', height: '84vh', backgroundColor: 'white' }}>
-                <Table scroll={{ x: 2000, y: 400 }} bordered style={{ zIndex: '100', height: '100%' }} size="small" dataSource={dataSource} columns={columns} pagination={false} />
+                <Table scroll={{ x: 2000, y: 400 }} bordered style={{ zIndex: '100', height: '100%' }} size="small" dataSource={dataSource} columns={columns} pagination={false} onChange={(pagination, filters, sorter, extra) => {
+                    setExportRows(extra.currentDataSource); // This is the filtered/sorted data
+                }} />
             </div>
 
         </>

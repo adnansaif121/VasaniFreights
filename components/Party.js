@@ -38,6 +38,7 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
     const [remarkData, setRemarkData] = useState([]);
     const [remarkModalOpen, setRemarkModalOpen] = useState(false);
     const [dateRange, setDateRange] = useState([null, null]);
+    const [exportRows, setExportRows] = useState([]);
     // const [bankData, setBankData] = useState([]);
 
     const handleViewClick = (record, index) => {
@@ -402,7 +403,10 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
             .map(col => col.dataIndex);
 
         // Prepare data: only include keys present in exportKeys
-        const exportData = displayDataSource.map(row => {
+        let array = [];
+        if((fromDate !== null || toDate !== null)|| exportRows.length === 0)array = displayDataSource;
+        else array = exportRows;
+        const exportData = array.map(row => {
             const filteredRow = {};
             exportKeys.forEach(key => {
                 filteredRow[key] = row[key];
@@ -553,7 +557,7 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
                                 <Button type="primary" onClick={handleDateFilter}>Apply</Button>
                                 <Button onClick={handleClearDateFilter}>Close</Button>
                             </div>
-                            <Button type="primary" onClick={exportToExcel} style={{marginRight: '20px'}}>
+                            <Button type="primary" onClick={exportToExcel} style={{ marginRight: '20px' }}>
                                 Export to Excel
                             </Button>
                         </div>
@@ -679,7 +683,9 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
                         </Drawer>
                     </div>
 
-                    <Table key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns}
+                    <Table key={refreshKey} size="small" className={styles.table} dataSource={displayDataSource} columns={columns} onChange={(pagination, filters, sorter, extra) => {
+                        setExportRows(extra.currentDataSource); // This is the filtered/sorted data
+                    }}
                     // expandable={{
                     //     expandedRowRender: (record, index) => <ViewPartyDetails
                     //         indexAtAllData={index}

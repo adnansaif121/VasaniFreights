@@ -59,10 +59,7 @@ const DailyEntry = ({
     setNewVehicleNo,
     setDataSource,
 }) => {
-    // const [driverForm] = Form.useForm();
-    // const [createPartyForm] = Form.useForm();
-    // Drivers List
-    // const [driverList, setDriverList] = useState([]);
+    
     const [newDriverName, setNewDriverName] = useState('');
     // Locations list
     const [searchText, setSearchText] = useState('');
@@ -70,51 +67,19 @@ const DailyEntry = ({
     const searchInput = useRef(null);
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
-    // const [Locations, setLocations] = useState([]);
-    // Maal List
-    // const [MaalList, setMaalList] = useState([]);
-    // const [newMaal, setNewMaal] = useState('');
-    //All Party List for Party Select
-    // const [partyListAll, setPartyListAll] = useState([]);
-    // All Transporter List for Transporter Select
-    // const [transporterList, setTransporterList] = useState([]);
-    // const [newTransporter, setNewTransporter] = useState('');
-    // Data to display in the table
-    // const [completeDataSource, setCompleteDataSource] = useState([]);
-    // const [dataSource, setDataSource] = useState([]); // Table Data
-    //Bank
-    // const [newBank, setNewBank] = useState('');
-    // const [bankData, setBankData] = useState([]);
+  
     const [dateFilter, setDateFilter] = useState('');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDriverModalOpen, setIsDriverModalOpen] = useState(false);
 
-    // MODAL VARIABLES:
-    // const [partyModal, setPartyModal] = useState({});
-    // const [vehicleData, setVehicleData] = useState([]);
-    // const [newVehicleNo, setNewVehicleNo] = useState('');
-
-    // const [driverModal, setDriverModal] = useState({
-    //     label: '',
-    //     value: '',
-    //     location: '',
-    //     LicenseDate: '',
-    //     contact: '',
-    //     licenseDocument: null, // Add this new field
-    // });
+  
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
 
     const [remarkModalOpen, setRemarkModalOpen] = useState(false);
     const [remarkData, setRemarkData] = useState([]);
-
-
-    // const [lastKey, setLastKey] = useState(null);
-    // const [firstKey, setFirstKey] = useState(null);
-    // const [currentPage, setCurrentPage] = useState(1);
-    // const [isLoading, setIsLoading] = useState(false);
-    // const [pumpList, setPumpList] = useState([]);
+    const [exportRows, setExportRows] = useState([]);
 
     // Handler to open modal
     const handleViewClick = (record) => {
@@ -143,7 +108,7 @@ const DailyEntry = ({
             >
                 {dataIndex === 'date' ? (
                     <DatePicker
-                            format="DD-MM-YYYY"
+                        format="DD-MM-YYYY"
                         style={{ marginBottom: 8, display: 'block' }}
                         value={selectedKeys[0] ? dayjs(selectedKeys[0]) : null}
                         onChange={date => setSelectedKeys(date ? [date.format('YYYY-MM-DD')] : [])}
@@ -449,8 +414,12 @@ const DailyEntry = ({
     }
 
     const exportToExcel = () => {
+            console.log("Exporting to Excel", exportRows);
             // Prepare data: remove unwanted fields if needed
-            const exportData = dataSource.map(row => {
+            let array = [];
+            if((fromDate !== null && toDate !== null) || exportRows.length === 0) array = dataSource;
+            else array = exportRows;
+            const exportData = array.map(row => {
                 const { key, ...rest } = row; // remove key if you don't want it in Excel
                 return rest;
             });
@@ -460,7 +429,7 @@ const DailyEntry = ({
             XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
             const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
             const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-            saveAs(data, "Uvlogistics.xlsx");
+            saveAs(data, "DailyEntry.xlsx");
         };
     return (
         <>
@@ -719,7 +688,11 @@ const DailyEntry = ({
                         total: dataSource.length // You can set a large number or fetch the count if needed
                     }}
                     loading={isLoading}
-                    onChange={handleTableChange}
+                    onChange={(pagination, filters, sorter, extra) => {
+                        console.log("Table changed", pagination, filters, sorter, extra);
+                        handleTableChange(pagination);
+                        setExportRows(extra.currentDataSource);
+                    }}
                 />
 
                 <Modal
