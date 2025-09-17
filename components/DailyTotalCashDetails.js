@@ -446,7 +446,8 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
             // save the data to the Firebase database
             const db = getDatabase();
             const index = incomingData.length;
-            const cashRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/income/' + index + '/');
+            const todaysDate = new Date().toISOString().split('T')[0];
+            const cashRef = ref(db, 'cash/' + todaysDate + '/income/' + index + '/');
             set(cashRef, {
                 date: values.date.format('YYYY-MM-DD'),
                 truckNo: values.truckNo,
@@ -462,7 +463,7 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
                 console.error('Error adding incoming entry:', error);
             });
 
-            const updateRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/');
+            const updateRef = ref(db, 'cash/' + todaysDate + '/');
             update(updateRef, {
                 dailyChange: totalIncome - totalExpense,
                 closingBalance: closingBalance + parseFloat(values.amount),
@@ -498,7 +499,8 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
             // save the data to the Firebase database
             const db = getDatabase();
             const index = expenseData.length;
-            const cashRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/expense/' + index + '/');
+            const todaysDate = new Date().toISOString().split('T')[0];
+            const cashRef = ref(db, 'cash/' + todaysDate + '/expense/' + index + '/');
             set(cashRef, {
                 date: values.date.format('YYYY-MM-DD'),
                 truckNo: values.truckNo,
@@ -514,7 +516,7 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
                 console.error('Error adding expense entry:', error);
             });
 
-            const updateRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/');
+            const updateRef = ref(db, 'cash/' + todaysDate + '/');
             update(updateRef, {
                 dailyChange: totalIncome - totalExpense,
                 closingBalance: closingBalance + parseFloat(values.amount),
