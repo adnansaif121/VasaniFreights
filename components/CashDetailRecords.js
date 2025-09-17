@@ -78,6 +78,7 @@ const CashDetailRecords = ({ dailyEntryData }) => {
               // srno: ds_income.length + 1,
               key: key + '_' + j + '_income',
               cashDate: cashDate,
+              date: cashDate || '',
               tripDate: data[key]?.date,
               truckNo: data[key]?.vehicleNo || 'N/A',
               from: data[key]?.tripDetails[j]?.from || 'N/A',
@@ -93,6 +94,7 @@ const CashDetailRecords = ({ dailyEntryData }) => {
               // srno: ds_expense.length + 1,
               key: key + '_' + j + '_expense',
               tripDate: data[key]?.date,
+              date: data[key]?.date,
               driver: data[key]?.driver1?.label || 'Not Available',
               truckNo: data[key]?.vehicleNo || 'N/A',
               from: data[key]?.tripDetails[j]?.from || 'N/A',
@@ -265,8 +267,8 @@ const CashDetailRecords = ({ dailyEntryData }) => {
   // Date filter logic
   const handleDateFilter = () => {
     if (dateRange[0] && dateRange[1]) {
-      const from = dateRange[0].format('YYYY-MM-DD');
-      const to = dateRange[1].format('YYYY-MM-DD');
+      const from = dateRange[0].format('DD-MM-YYYY');
+      const to = dateRange[1].format('DD-MM-YYYY');
       const filtered = data.filter(
         item => item.date >= from && item.date <= to
       );
@@ -287,12 +289,14 @@ const CashDetailRecords = ({ dailyEntryData }) => {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
         <span>From Date:</span>
         <DatePicker
+          format="DD-MM-YYYY"
           value={dateRange[0]}
           onChange={date => setDateRange([date, dateRange[1]])}
           style={{ width: 140 }}
         />
         <span>To Date:</span>
         <DatePicker
+          format="DD-MM-YYYY"
           value={dateRange[1]}
           onChange={date => setDateRange([dateRange[0], date])}
           style={{ width: 140 }}
@@ -309,7 +313,7 @@ const CashDetailRecords = ({ dailyEntryData }) => {
         // rowKey="srno"
         rowKey={record => record.key}
       />
-      <Divider />
+      {/* <Divider /> */}
       <div style={{ textAlign: 'right', fontWeight: 'bold', fontSize: 16 }}>
         Total Amount: {totalAmount}
       </div>

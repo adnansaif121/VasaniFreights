@@ -225,7 +225,7 @@ const DailyTruckCash = ({dailyEntryData}) => {
                 >
                     <Form form={incomeForm} layout="vertical">
                         <Form.Item name="tripDate" label="Trip Date" rules={[{ required: true }]}>
-                            <DatePicker style={{ width: '100%' }} />
+                            <DatePicker format="DD-MM-YYYY" style={{ width: '100%' }} />
                         </Form.Item>
                         <Form.Item name="driverName" label="First Driver Name" rules={[{ required: true }]}>
                             <Input />
@@ -278,10 +278,10 @@ const DailyTruckCash = ({dailyEntryData}) => {
                 >
                     <Form form={expenseForm} layout="vertical">
                         <Form.Item name="date" label="Date" rules={[{ required: true }]}>
-                            <DatePicker style={{ width: '100%' }} />
+                            <DatePicker format="DD-MM-YYYY" style={{ width: '100%' }} />
                         </Form.Item>
                         <Form.Item name="tripDate" label="Trip Date" rules={[{ required: true }]}>
-                            <DatePicker style={{ width: '100%' }} />
+                            <DatePicker format="DD-MM-YYYY" style={{ width: '100%' }} />
                         </Form.Item>
                         <Form.Item name="truckNo" label="Truck No" rules={[{ required: true }]}>
                             <Input />

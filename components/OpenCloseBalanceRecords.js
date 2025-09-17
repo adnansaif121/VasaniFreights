@@ -93,12 +93,14 @@ const OpenCloseBalanceRecords = () => {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
         <span>From Date:</span>
         <DatePicker
+          format={"DD-MM-YYYY"}
           value={dateRange[0]}
           onChange={date => setDateRange([date, dateRange[1]])}
           style={{ width: 140 }}
         />
         <span>To Date:</span>
         <DatePicker
+          format={"DD-MM-YYYY"}
           value={dateRange[1]}
           onChange={date => setDateRange([dateRange[0], date])}
           style={{ width: 140 }}

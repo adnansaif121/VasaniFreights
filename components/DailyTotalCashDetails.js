@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, DatePicker, Typography, Select, Divider, Space } from 'antd';
+import { Table, Button, Modal, Form, Input, DatePicker, Typography, Select, Divider, Space, Row, Col } from 'antd';
 import { getDatabase, ref, set, onValue, get, push, query, orderByKey, limitToLast, limitToFirst, endAt, startAt, update } from "firebase/database";
 import useDisableNumberInputScroll from './hooks/useDisableNumberInputScroll';
 const { Title } = Typography;
@@ -19,6 +19,7 @@ const tableColumns = [
                 return `${day}-${month}-${year}`;
             }
     },
+    { title: 'Truck No', dataIndex: 'truckNo', key: 'truckNo' },
     { title: 'Nature', dataIndex: 'nature', key: 'nature' },
     { title: 'Heading', dataIndex: 'heading', key: 'heading' },
     { title: 'Sub Heading', dataIndex: 'subHeading', key: 'subHeading' },
@@ -44,7 +45,7 @@ const initialSubHeadingOptions = [
     { value: 'Purchase', label: 'Purchase' },
 ];
 
-const DailyTotalCashDetails = ({dailyEntryData, dailyTruckCashIncome, dailyTruckCashExpense, dataSource, fetchEntries, yesterdayData }) => {
+const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruckCashExpense, dataSource, fetchEntries, yesterdayData, vehicleData }) => {
     const [incomingData, setIncomingData] = useState([]);
     const [expenseData, setExpenseData] = useState([]);
 
@@ -422,18 +423,6 @@ const DailyTotalCashDetails = ({dailyEntryData, dailyTruckCashIncome, dailyTruck
             });
         }
     };
-    const addNewHeading2 = async () => {
-        if (newHeading2 && !headingOptions2.some(opt => opt.value === newHeading2)) {
-            setHeadingOptions2([...headingOptions2, { value: newHeading2, label: newHeading2 }]);
-            setNewHeading2('');
-        }
-    };
-    const addNewSubHeading2 = () => {
-        if (newSubHeading2 && !subHeadingOptions2.some(opt => opt.value === newSubHeading2)) {
-            setSubHeadingOptions2([...subHeadingOptions2, { value: newSubHeading2, label: newSubHeading2 }]);
-            setNewSubHeading2('');
-        }
-    };
 
     const handleIncomingSubmit = () => {
         form.validateFields().then(values => {
@@ -442,6 +431,7 @@ const DailyTotalCashDetails = ({dailyEntryData, dailyTruckCashIncome, dailyTruck
                 {
                     key: Date.now(),
                     date: values.date.format('YYYY-MM-DD'),
+                    truckNo: values.truckNo,
                     nature: values.nature,
                     heading: values.heading,
                     subHeading: values.subHeading,
@@ -459,6 +449,7 @@ const DailyTotalCashDetails = ({dailyEntryData, dailyTruckCashIncome, dailyTruck
             const cashRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/income/' + index + '/');
             set(cashRef, {
                 date: values.date.format('YYYY-MM-DD'),
+                truckNo: values.truckNo,
                 nature: values.nature,
                 heading: values.heading,
                 subHeading: values.subHeading,
@@ -491,6 +482,7 @@ const DailyTotalCashDetails = ({dailyEntryData, dailyTruckCashIncome, dailyTruck
                 ...expenseData,
                 {
                     key: Date.now(),
+                    truckNo: values.truckNo,
                     date: values.date.format('YYYY-MM-DD'),
                     nature: values.nature,
                     heading: values.heading,
@@ -509,6 +501,7 @@ const DailyTotalCashDetails = ({dailyEntryData, dailyTruckCashIncome, dailyTruck
             const cashRef = ref(db, 'cash/' + values.date.format('YYYY-MM-DD') + '/expense/' + index + '/');
             set(cashRef, {
                 date: values.date.format('YYYY-MM-DD'),
+                truckNo: values.truckNo,
                 nature: values.nature,
                 heading: values.heading,
                 subHeading: values.subHeading,
@@ -543,6 +536,10 @@ const DailyTotalCashDetails = ({dailyEntryData, dailyTruckCashIncome, dailyTruck
             remarks: remark,
         })
     }
+
+    // Filter `option.label` match the user type `input`
+    const filterOption = (input, option) =>
+        (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     return (
         <>
@@ -636,113 +633,161 @@ const DailyTotalCashDetails = ({dailyEntryData, dailyTruckCashIncome, dailyTruck
                         onCancel={() => setIncomingModalOpen(false)}
                         onOk={handleIncomingSubmit}
                         okText="Submit"
+                        width={'80%'}
                     >
                         <Form form={form} layout="vertical">
-                            <Form.Item name="date" label="Date" rules={[{ required: true }]}>
-                                <DatePicker style={{ width: '100%' }} />
-                            </Form.Item>
-                            <Form.Item name="nature" label="Nature" rules={[{ required: true }]}>
-                                <Select
-                                    showSearch
-                                    placeholder="Select Nature"
-                                    options={items.nature ? items.nature.map(n => ({ value: n.value, label: n.label })) : []}
-                                    dropdownRender={menu => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Space style={{ padding: '0 8px 4px' }}>
-                                                <Input
-                                                    placeholder="Add new nature"
-                                                    value={newNature}
-                                                    onChange={e => setNewNature(e.target.value)}
-                                                    onKeyDown={e => e.stopPropagation()}
-                                                />
-                                                <Button type="text" onClick={addNewNature}>
-                                                    Add
-                                                </Button>
-                                            </Space>
-                                        </>
-                                    )}
-                                />
-                            </Form.Item>
-                            <Form.Item name="heading" label="Heading" rules={[{ required: true }]}>
-                                <Select
-                                    showSearch
-                                    placeholder="Select Heading"
-                                    options={items.heading ? items.heading.map(h => ({ value: h.value, label: h.label })) : []}
-                                    dropdownRender={menu => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Space style={{ padding: '0 8px 4px' }}>
-                                                <Input
-                                                    placeholder="Add new heading"
-                                                    value={newHeading}
-                                                    onChange={e => setNewHeading(e.target.value)}
-                                                    onKeyDown={e => e.stopPropagation()}
-                                                />
-                                                <Button type="text" onClick={addNewHeading}>
-                                                    Add
-                                                </Button>
-                                            </Space>
-                                        </>
-                                    )}
-                                />
-                            </Form.Item>
-                            <Form.Item name="subHeading" label="Sub Heading" rules={[{ required: true }]}>
-                                <Select
-                                    showSearch
-                                    placeholder="Select Sub Heading"
-                                    options={items.subheading ? items.subheading.map(sh => ({ value: sh.value, label: sh.label })) : []}
-                                    dropdownRender={menu => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Space style={{ padding: '0 8px 4px' }}>
-                                                <Input
-                                                    placeholder="Add new sub heading"
-                                                    value={newSubHeading}
-                                                    onChange={e => setNewSubHeading(e.target.value)}
-                                                    onKeyDown={e => e.stopPropagation()}
-                                                />
-                                                <Button type="text" onClick={addNewSubHeading}>
-                                                    Add
-                                                </Button>
-                                            </Space>
-                                        </>
-                                    )}
-                                />
-                            </Form.Item>
+                            <Row gutter={16}>
+                                <Col span={6}>
+                                    <Form.Item name="date" label="Date" rules={[{ required: true }]}>
+                                        <DatePicker format="DD-MM-YYYY" style={{ width: '100%' }} />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col span={6}>
+                                    <Form.Item name="nature" label="Nature" rules={[{ required: true }]}>
+                                        <Select
+                                            showSearch
+                                            placeholder="Select Nature"
+                                            options={items.nature ? items.nature.map(n => ({ value: n.value, label: n.label })) : []}
+                                            dropdownRender={menu => (
+                                                <>
+                                                    {menu}
+                                                    <Divider style={{ margin: '8px 0' }} />
+                                                    <Space style={{ padding: '0 8px 4px' }}>
+                                                        <Input
+                                                            placeholder="Add new nature"
+                                                            value={newNature}
+                                                            onChange={e => setNewNature(e.target.value)}
+                                                            onKeyDown={e => e.stopPropagation()}
+                                                        />
+                                                        <Button type="text" onClick={addNewNature}>
+                                                            Add
+                                                        </Button>
+                                                    </Space>
+                                                </>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col span={6}>
+                                    <Form.Item name="truckNo" label="Truck No">
+                                        <Select
+                                            showSearch
+                                            placeholder="Vehicle No."
+                                            optionFilterProp="children"
+                                            // onChange={(value) => setVehicleNo(value)}
+                                            // onSearch={onSearch}
+                                            filterOption={filterOption}
+                                            options={vehicleData}
+                                            dropdownRender={(menu) => (
+                                                <>
+                                                    {menu}
+
+                                                </>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col span={6}>
+                                    <Form.Item name="type" label="Pay Medium" rules={[{ required: true }]}>
+                                        <Select
+                                            showSearch
+                                            placeholder="Select Pay Medium"
+                                            options={items.payMedium ? items.payMedium.map(pm => ({ value: pm.value, label: pm.label })) : []}
+                                            dropdownRender={menu => (
+                                                <>
+                                                    {menu}
+                                                    <Divider style={{ margin: '8px 0' }} />
+                                                    <Space style={{ padding: '0 8px 4px' }}>
+                                                        <Input
+                                                            placeholder="Add new pay medium"
+                                                            value={newPayMedium}
+                                                            onChange={e => setNewPayMedium(e.target.value)}
+                                                            onKeyDown={e => e.stopPropagation()}
+                                                        />
+                                                        <Button type="text" onClick={addNewPayMedium}>
+                                                            Add
+                                                        </Button>
+                                                    </Space>
+                                                </>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+
+                            </Row>
+
+                            <Row gutter={16}>
+
+                                <Col span={8}>
+                                    <Form.Item name="heading" label="Heading" rules={[{ required: true }]}>
+                                        <Select
+                                            showSearch
+                                            placeholder="Select Heading"
+                                            options={items.heading ? items.heading.map(h => ({ value: h.value, label: h.label })) : []}
+                                            dropdownRender={menu => (
+                                                <>
+                                                    {menu}
+                                                    <Divider style={{ margin: '8px 0' }} />
+                                                    <Space style={{ padding: '0 8px 4px' }}>
+                                                        <Input
+                                                            placeholder="Add new heading"
+                                                            value={newHeading}
+                                                            onChange={e => setNewHeading(e.target.value)}
+                                                            onKeyDown={e => e.stopPropagation()}
+                                                        />
+                                                        <Button type="text" onClick={addNewHeading}>
+                                                            Add
+                                                        </Button>
+                                                    </Space>
+                                                </>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col span={8}>
+                                    <Form.Item name="subHeading" label="Sub Heading" rules={[{ required: true }]}>
+                                        <Select
+                                            showSearch
+                                            placeholder="Select Sub Heading"
+                                            options={items.subheading ? items.subheading.map(sh => ({ value: sh.value, label: sh.label })) : []}
+                                            dropdownRender={menu => (
+                                                <>
+                                                    {menu}
+                                                    <Divider style={{ margin: '8px 0' }} />
+                                                    <Space style={{ padding: '0 8px 4px' }}>
+                                                        <Input
+                                                            placeholder="Add new sub heading"
+                                                            value={newSubHeading}
+                                                            onChange={e => setNewSubHeading(e.target.value)}
+                                                            onKeyDown={e => e.stopPropagation()}
+                                                        />
+                                                        <Button type="text" onClick={addNewSubHeading}>
+                                                            Add
+                                                        </Button>
+                                                    </Space>
+                                                </>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col span={8}>
+                                    <Form.Item name="amount" label="Amount" rules={[{ required: true }]} >
+                                        <Input type="number" onWheel={e => e.target.blur()} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+
                             <Form.Item name="remarks" label="Remarks" rules={[{ required: true }]}>
-                                <Input />
+                                <Input.TextArea />
                             </Form.Item>
-                            <Form.Item name="type" label="Pay Medium" rules={[{ required: true }]}>
-                                <Select
-                                    showSearch
-                                    placeholder="Select Pay Medium"
-                                    options={items.payMedium ? items.payMedium.map(pm => ({ value: pm.value, label: pm.label })) : []}
-                                    dropdownRender={menu => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Space style={{ padding: '0 8px 4px' }}>
-                                                <Input
-                                                    placeholder="Add new pay medium"
-                                                    value={newPayMedium}
-                                                    onChange={e => setNewPayMedium(e.target.value)}
-                                                    onKeyDown={e => e.stopPropagation()}
-                                                />
-                                                <Button type="text" onClick={addNewPayMedium}>
-                                                    Add
-                                                </Button>
-                                            </Space>
-                                        </>
-                                    )}
-                                />
-                            </Form.Item>
-                            <Form.Item name="amount" label="Amount" rules={[{ required: true }]} >
-                                <Input type="number" onWheel={e => e.target.blur()} />
-                            </Form.Item>
+
                         </Form>
                     </Modal>
                 </div>
@@ -768,113 +813,163 @@ const DailyTotalCashDetails = ({dailyEntryData, dailyTruckCashIncome, dailyTruck
                         onCancel={() => setExpenseModalOpen(false)}
                         onOk={handleExpenseSubmit}
                         okText="Submit"
+                        width={'80%'}
                     >
                         <Form form={form2} layout="vertical">
-                            <Form.Item name="date" label="Date" rules={[{ required: true }]}>
-                                <DatePicker style={{ width: '100%' }} />
-                            </Form.Item>
-                            <Form.Item name="nature" label="Nature" rules={[{ required: true }]}>
-                                <Select
-                                    showSearch
-                                    placeholder="Select Nature"
-                                    options={items.nature ? items.nature.map(n => ({ value: n.value, label: n.label })) : []}
-                                    dropdownRender={menu => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Space style={{ padding: '0 8px 4px' }}>
-                                                <Input
-                                                    placeholder="Add new nature"
-                                                    value={newNature}
-                                                    onChange={e => setNewNature(e.target.value)}
-                                                    onKeyDown={e => e.stopPropagation()}
-                                                />
-                                                <Button type="text" onClick={addNewNature}>
-                                                    Add
-                                                </Button>
-                                            </Space>
-                                        </>
-                                    )}
-                                />
-                            </Form.Item>
-                            <Form.Item name="heading" label="Heading" rules={[{ required: true }]}>
-                                <Select
-                                    showSearch
-                                    placeholder="Select Heading"
-                                    options={items.heading ? items.heading.map(h => ({ value: h.value, label: h.label })) : []}
-                                    dropdownRender={menu => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Space style={{ padding: '0 8px 4px' }}>
-                                                <Input
-                                                    placeholder="Add new heading"
-                                                    value={newHeading}
-                                                    onChange={e => setNewHeading(e.target.value)}
-                                                    onKeyDown={e => e.stopPropagation()}
-                                                />
-                                                <Button type="text" onClick={addNewHeading}>
-                                                    Add
-                                                </Button>
-                                            </Space>
-                                        </>
-                                    )}
-                                />
-                            </Form.Item>
-                            <Form.Item name="subHeading" label="Sub Heading" rules={[{ required: true }]}>
-                                <Select
-                                    showSearch
-                                    placeholder="Select Sub Heading"
-                                    options={items.subheading ? items.subheading.map(sh => ({ value: sh.value, label: sh.label })) : []}
-                                    dropdownRender={menu => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Space style={{ padding: '0 8px 4px' }}>
-                                                <Input
-                                                    placeholder="Add new sub heading"
-                                                    value={newSubHeading}
-                                                    onChange={e => setNewSubHeading(e.target.value)}
-                                                    onKeyDown={e => e.stopPropagation()}
-                                                />
-                                                <Button type="text" onClick={addNewSubHeading}>
-                                                    Add
-                                                </Button>
-                                            </Space>
-                                        </>
-                                    )}
-                                />
-                            </Form.Item>
-                            <Form.Item name="remarks" label="Remarks" rules={[{ required: true }]}>
-                                <Input />
-                            </Form.Item>
-                            <Form.Item name="type" label="Pay Medium" rules={[{ required: true }]}>
-                                <Select
-                                    showSearch
-                                    placeholder="Select Pay Medium"
-                                    options={items.payMedium ? items.payMedium.map(pm => ({ value: pm.value, label: pm.label })) : []}
-                                    dropdownRender={menu => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Space style={{ padding: '0 8px 4px' }}>
-                                                <Input
-                                                    placeholder="Add new pay medium"
-                                                    value={newPayMedium}
-                                                    onChange={e => setNewPayMedium(e.target.value)}
-                                                    onKeyDown={e => e.stopPropagation()}
-                                                />
-                                                <Button type="text" onClick={addNewPayMedium}>
-                                                    Add
-                                                </Button>
-                                            </Space>
-                                        </>
-                                    )}
-                                />
-                            </Form.Item>
-                            <Form.Item name="amount" label="Amount" rules={[{ required: true }]} >
-                                <Input type="number" onWheel={e => e.target.blur()} />
-                            </Form.Item>
+                            <Row gutter={16}>
+                                <Col span={6}>
+                                    <Form.Item name="date" label="Date" rules={[{ required: true }]}>
+                                        <DatePicker format="DD-MM-YYYY" style={{ width: '100%' }} />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col span={6}>
+                                    <Form.Item name="nature" label="Nature" rules={[{ required: true }]}>
+                                        <Select
+                                            showSearch
+                                            placeholder="Select Nature"
+                                            options={items.nature ? items.nature.map(n => ({ value: n.value, label: n.label })) : []}
+                                            dropdownRender={menu => (
+                                                <>
+                                                    {menu}
+                                                    <Divider style={{ margin: '8px 0' }} />
+                                                    <Space style={{ padding: '0 8px 4px' }}>
+                                                        <Input
+                                                            placeholder="Add new nature"
+                                                            value={newNature}
+                                                            onChange={e => setNewNature(e.target.value)}
+                                                            onKeyDown={e => e.stopPropagation()}
+                                                        />
+                                                        <Button type="text" onClick={addNewNature}>
+                                                            Add
+                                                        </Button>
+                                                    </Space>
+                                                </>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                 <Col span={6}>
+                                    <Form.Item name="truckNo" label="Truck No">
+                                        <Select
+                                            showSearch
+                                            placeholder="Vehicle No."
+                                            optionFilterProp="children"
+                                            // onChange={(value) => setVehicleNo(value)}
+                                            // onSearch={onSearch}
+                                            filterOption={filterOption}
+                                            options={vehicleData}
+                                            dropdownRender={(menu) => (
+                                                <>
+                                                    {menu}
+
+                                                </>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                 <Col span={6}>
+                                    <Form.Item name="type" label="Pay Medium" rules={[{ required: true }]}>
+                                        <Select
+                                            showSearch
+                                            placeholder="Select Pay Medium"
+                                            options={items.payMedium ? items.payMedium.map(pm => ({ value: pm.value, label: pm.label })) : []}
+                                            dropdownRender={menu => (
+                                                <>
+                                                    {menu}
+                                                    <Divider style={{ margin: '8px 0' }} />
+                                                    <Space style={{ padding: '0 8px 4px' }}>
+                                                        <Input
+                                                            placeholder="Add new pay medium"
+                                                            value={newPayMedium}
+                                                            onChange={e => setNewPayMedium(e.target.value)}
+                                                            onKeyDown={e => e.stopPropagation()}
+                                                        />
+                                                        <Button type="text" onClick={addNewPayMedium}>
+                                                            Add
+                                                        </Button>
+                                                    </Space>
+                                                </>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                
+                            </Row>
+
+                            <Row gutter={16}>
+                               <Col span={8}>
+                                    <Form.Item name="heading" label="Heading" rules={[{ required: true }]}>
+                                        <Select
+                                            showSearch
+                                            placeholder="Select Heading"
+                                            options={items.heading ? items.heading.map(h => ({ value: h.value, label: h.label })) : []}
+                                            dropdownRender={menu => (
+                                                <>
+                                                    {menu}
+                                                    <Divider style={{ margin: '8px 0' }} />
+                                                    <Space style={{ padding: '0 8px 4px' }}>
+                                                        <Input
+                                                            placeholder="Add new heading"
+                                                            value={newHeading}
+                                                            onChange={e => setNewHeading(e.target.value)}
+                                                            onKeyDown={e => e.stopPropagation()}
+                                                        />
+                                                        <Button type="text" onClick={addNewHeading}>
+                                                            Add
+                                                        </Button>
+                                                    </Space>
+                                                </>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col span={8}>
+                                    <Form.Item name="subHeading" label="Sub Heading" rules={[{ required: true }]}>
+                                        <Select
+                                            showSearch
+                                            placeholder="Select Sub Heading"
+                                            options={items.subheading ? items.subheading.map(sh => ({ value: sh.value, label: sh.label })) : []}
+                                            dropdownRender={menu => (
+                                                <>
+                                                    {menu}
+                                                    <Divider style={{ margin: '8px 0' }} />
+                                                    <Space style={{ padding: '0 8px 4px' }}>
+                                                        <Input
+                                                            placeholder="Add new sub heading"
+                                                            value={newSubHeading}
+                                                            onChange={e => setNewSubHeading(e.target.value)}
+                                                            onKeyDown={e => e.stopPropagation()}
+                                                        />
+                                                        <Button type="text" onClick={addNewSubHeading}>
+                                                            Add
+                                                        </Button>
+                                                    </Space>
+                                                </>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                 <Col span={8}>
+                                    <Form.Item name="amount" label="Amount" rules={[{ required: true }]} >
+                                        <Input type="number" onWheel={e => e.target.blur()} />
+                                    </Form.Item>
+                                </Col>
+                               
+
+                               
+                            </Row>
+
+                             <Form.Item name="remarks" label="Remarks" rules={[{ required: true }]}>
+                                        <Input.TextArea />
+                                    </Form.Item>
+                            
+
                         </Form>
                     </Modal>
                 </div>

@@ -6,7 +6,7 @@ import CashDetailRecords from './CashDetailRecords';
 import OpenCloseBalanceRecords from './OpenCloseBalanceRecords';
 import { getDatabase, ref, set, onValue, push, query, orderByKey, limitToLast, limitToFirst, endAt, startAt } from "firebase/database";
 
-const Cash = ({dailyEntryData}) => {
+const Cash = ({dailyEntryData, vehicleData}) => {
     const [page, setPage] = useState('Daily Truck Cash');
     const [dailyTruckCashIncome, setDailyTruckCashIncome] = useState(0);
     const [dailyTruckCashExpense, setDailyTruckCashExpense] = useState(0);
@@ -97,6 +97,7 @@ const Cash = ({dailyEntryData}) => {
             }
             {page === "DAILY INCOME & EXPENSES" &&
                 <DailyTotalCashDetails
+                    vehicleData={vehicleData}
                     dailyEntryData={dailyEntryData}
                     dailyTruckCashIncome={dailyTruckCashIncome}
                     dailyTruckCashExpense={dailyTruckCashExpense}

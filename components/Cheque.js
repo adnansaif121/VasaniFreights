@@ -139,6 +139,7 @@ const Cheque = ({ dailyEntryData }) => {
             >
                 {dataIndex === 'chequeDate' || dataIndex === 'date' ? (
                     <DatePicker
+                        format="DD-MM-YYYY"
                         style={{ marginBottom: 8, display: 'block' }}
                         value={selectedKeys[0] ? dayjs(selectedKeys[0]) : null}
                         onChange={date => setSelectedKeys(date ? [date.format('YYYY-MM-DD')] : [])}

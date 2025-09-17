@@ -211,7 +211,7 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
             >
                 {dataIndex === 'date' ? (
                     <DatePicker
-                        format="YYYY-MM-DD"
+                        format="DD-MM-YYYY"
                         onChange={(date, dateString) => setSelectedKeys(dateString ? [dateString] : [])}
                     />
                 ) : (

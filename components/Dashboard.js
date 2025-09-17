@@ -631,7 +631,7 @@ export default function Dashboard() {
         {
             key: '2',
             label: <NavLabel label={'Expenses'} />,
-            children: <Cash text={'Cash'} dailyEntryData={dailyEntryData}/>,
+            children: <Cash text={'Cash'} dailyEntryData={dailyEntryData} vehicleData={vehicleData}/>,
         },
         {
             key: '3',

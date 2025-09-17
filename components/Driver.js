@@ -225,7 +225,7 @@ const Driver = ({ dailyEntryData, driverData }) => {
             >
                 {dataIndex === 'date' ? (
                     <DatePicker
-                        format="YYYY-MM-DD"
+                        format="DD-MM-YYYY"
                         onChange={(date, dateString) => setSelectedKeys(dateString ? [dateString] : [])}
                     />
                 ) : (
