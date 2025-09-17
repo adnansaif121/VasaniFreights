@@ -112,7 +112,8 @@ const OpenCloseBalanceRecords = () => {
         pagination={{ pageSize: 20 }}
         bordered
         size="small"
-        rowKey="srno"
+        // rowKey="srno"
+        rowKey={record => record.key}
       />
       <Divider />
     </div>

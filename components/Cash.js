@@ -6,8 +6,8 @@ import CashDetailRecords from './CashDetailRecords';
 import OpenCloseBalanceRecords from './OpenCloseBalanceRecords';
 import { getDatabase, ref, set, onValue, push, query, orderByKey, limitToLast, limitToFirst, endAt, startAt } from "firebase/database";
 
-const Cash = () => {
-    const [page, setPage] = useState('DAILY INCOME & EXPENSES');
+const Cash = ({dailyEntryData}) => {
+    const [page, setPage] = useState('Daily Truck Cash');
     const [dailyTruckCashIncome, setDailyTruckCashIncome] = useState(0);
     const [dailyTruckCashExpense, setDailyTruckCashExpense] = useState(0);
     const [dataSource, setDataSource] = useState([]);
@@ -32,33 +32,33 @@ const Cash = () => {
 
     const fetchEntries = (direction = 'next', refKey = null) => {
         // setIsLoading(true);
-        const db = getDatabase();
-        let q;
-        if (direction === 'next' && refKey) {
-            q = query(ref(db, 'dailyEntry/'), orderByKey(), endAt(refKey), limitToLast(20));
-        } else if (direction === 'prev' && refKey) {
-            q = query(ref(db, 'dailyEntry/'), orderByKey(), startAt(refKey), limitToFirst(20));
-        } else {
-            q = query(ref(db, 'dailyEntry/'), orderByKey(), limitToLast(20));
-        }
-        onValue(q, (snapshot) => {
-            const data = snapshot.val();
-            console.log('Fetched Data:', data);
-            let ds = [];
-            let keys = [];
-            if (data) {
-                Object.keys(data).forEach((key, i) => {
-                    keys.push(key);
-                    ds.push({
-                        key: key,
-                        ...data[key],
-                    });
+        // const db = getDatabase();
+        // let q;
+        // if (direction === 'next' && refKey) {
+        //     q = query(ref(db, 'dailyEntry/'), orderByKey(), endAt(refKey), limitToLast(50));
+        // } else if (direction === 'prev' && refKey) {
+        //     q = query(ref(db, 'dailyEntry/'), orderByKey(), startAt(refKey), limitToFirst(50));
+        // } else {
+        //     q = query(ref(db, 'dailyEntry/'), orderByKey(), limitToLast(50));
+        // }
+        // onValue(q, (snapshot) => {
+        // }, { onlyOnce: true });
+        const data = dailyEntryData;
+        console.log('Fetched Data:', data);
+        let ds = [];
+        let keys = [];
+        if (data) {
+            Object.keys(data).forEach((key, i) => {
+                keys.push(key);
+                ds.push({
+                    key: key,
+                    ...data[key],
                 });
-            }
-            console.log('Data Source:', ds);
-            setDataSource(ds);
-            calDailyTruckCashIncomeExpense(ds);
-        }, { onlyOnce: true });
+            });
+        }
+        console.log('Data Source:', ds);
+        setDataSource(ds);
+        calDailyTruckCashIncomeExpense(ds);
     };
 
     const calDailyTruckCashIncomeExpense = (data) => {
@@ -86,10 +86,18 @@ const Cash = () => {
     return (
         <>
             <div style={{ marginTop: '-20px', marginBottom: '5px' }}>
-                <Segmented size='large' options={['DAILY INCOME & EXPENSES', 'Daily Truck Cash', 'TOTAL INCOME & EXPENSES', 'Open/Close Balance Records']} onChange={(value) => setPage(value)} block />
+                <Segmented size='large' options={[ 'Daily Truck Cash','DAILY INCOME & EXPENSES', 'TOTAL INCOME & EXPENSES', 'Open/Close Balance Records']} onChange={(value) => setPage(value)} block />
             </div>
+             {page === "Daily Truck Cash" &&
+                <DailyTruckCash 
+                    dailyEntryData={dailyEntryData}
+                    dailyTruckCashIncome={dailyTruckCashIncome}
+                    dailyTruckCashExpense={dailyTruckCashExpense}
+                />
+            }
             {page === "DAILY INCOME & EXPENSES" &&
                 <DailyTotalCashDetails
+                    dailyEntryData={dailyEntryData}
                     dailyTruckCashIncome={dailyTruckCashIncome}
                     dailyTruckCashExpense={dailyTruckCashExpense}
                     dataSource={dataSource}
@@ -97,11 +105,8 @@ const Cash = () => {
                     yesterdayData={yesterdayData}
                 />
             }
-            {page === "Daily Truck Cash" &&
-                <DailyTruckCash />
-            }
             {page === "TOTAL INCOME & EXPENSES" &&
-                <CashDetailRecords/>
+                <CashDetailRecords dailyEntryData={dailyEntryData}/>
             }
             {page === "Open/Close Balance Records" &&
                 <OpenCloseBalanceRecords/>

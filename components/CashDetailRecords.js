@@ -8,7 +8,7 @@ const { RangePicker } = DatePicker;
 
 // Sample data
 const initialData = [
-  
+
 ];
 
 const filterOptions = (data, key) => {
@@ -16,35 +16,110 @@ const filterOptions = (data, key) => {
   return unique.map(val => ({ text: val, value: val }));
 };
 
-const CashDetailRecords = () => {
+const CashDetailRecords = ({ dailyEntryData }) => {
   const [data, setData] = useState(initialData);
   const [filteredData, setFilteredData] = useState(initialData);
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const [dateRange, setDateRange] = useState([null, null]);
 
+  console.log('CashDetailRecords rendered with dailyEntryData:');
   useEffect(() => {
     const db = getDatabase();
-     const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
     const cashRef = ref(db, 'cash/' + today);
+    console.log('Cash Details Records useEffect running for date:', today);
     onValue(cashRef, snapshot => {
       const data = snapshot.val() || [];
-      if (!data.income || !data.expense) {
-        console.error('Data structure is missing income or expense arrays');
-        if(!data.income) data.income = [];
-        if(!data.expense) data.expense = [];
-        const records = [...data.income , ...data.expense ];
+      console.log('Fetched Cash Data for Today:', data);
+      if (data.income || data.expense) {
+        if (!data.income) data.income = [];
+        if (!data.expense) data.expense = [];
+        let incomeEntries = Array.isArray(data.income)
+          ? data.income.filter(entry => entry.type !== 'Total').map((entry, idx) => ({
+            ...entry,
+            key: entry.key || `${entry.date || today}-${entry.heading || ''}-${idx}`
+          }))
+          : [];
+        let expenseEntries = Array.isArray(data.expense)
+          ? data.expense.filter(entry => entry.type !== 'Total').map((entry, idx) => ({
+            ...entry,
+            key: entry.key || `${entry.date || today}-${entry.heading || ''}-${idx}`
+          }))
+          : [];
+        const records = [...incomeEntries, ...expenseEntries];
         console.log('records', records);
-        setData(records);
-        setFilteredData(records);
+        // setData(records);
+        // setFilteredData(records);
+        addRecordsFromDailyEntryData(records);
       }
     });
   }, []);
+
+  const addRecordsFromDailyEntryData = (existingRecords) => {
+    const data = dailyEntryData;
+    let ds_income = []; // Data Source
+    let ds_expense = []; // Data Source for expenses
+    if (data) {
+      Object.keys(data).map((key, i) => {
+        for (let j = 0; j < data[key].tripDetails.length; j++) {
+
+          let cashAmount = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined) ?
+            parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount)
+            : 0;
+          let cashDate = (data[key]?.firstPayment !== undefined && data[key].firstPayment[j] !== undefined) ?
+            data[key].firstPayment[j].cashDate
+            : null;
+          let _date = new Date(data[key]?.date);
+          // Check if this date is today's date
+          if (_date.toDateString() === new Date().toDateString()) {
+            // If it is, add it to the data source
+            ds_income.push({
+              // srno: ds_income.length + 1,
+              key: key + '_' + j + '_income',
+              cashDate: cashDate,
+              tripDate: data[key]?.date,
+              truckNo: data[key]?.vehicleNo || 'N/A',
+              from: data[key]?.tripDetails[j]?.from || 'N/A',
+              to: data[key]?.tripDetails[j]?.to || 'N/A',
+              verify: data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined ? data[key].firstPayment[j].verify : false,
+              // cashAmount: cashAmount,
+              amount: cashAmount,
+              heading: 'Cash Received from Trip',
+              type: 'Cash',
+            });
+
+            ds_expense.push({
+              // srno: ds_expense.length + 1,
+              key: key + '_' + j + '_expense',
+              tripDate: data[key]?.date,
+              driver: data[key]?.driver1?.label || 'Not Available',
+              truckNo: data[key]?.vehicleNo || 'N/A',
+              from: data[key]?.tripDetails[j]?.from || 'N/A',
+              to: data[key]?.tripDetails[j]?.to || 'N/A',
+              // tripCash: data[key]?.driver1?.TripCash || 0,
+              amount: data[key]?.driver1?.TripCash ? parseInt(data[key]?.driver1?.TripCash) : 0,
+              heading: 'Trip Cash Paid to Driver',
+              type: 'Cash',
+              verify: data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined ? data[key].firstPayment[j].verify : false,
+            });
+
+          }
+        }
+      });
+    }
+
+    console.log('CASH DETAIL RECORDS',[...existingRecords, ...ds_income, ...ds_expense]);
+    setData([...existingRecords, ...ds_income, ...ds_expense]);
+    setFilteredData([...existingRecords, ...ds_income, ...ds_expense]);
+    // setIncomeData([...ds_income]);
+    // setExpenseData([...ds_expense]);
+  }
   // Table column search/filter helpers
   let searchInput = null;
   const getColumnSearchProps = dataIndex => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-      <div style={{ padding: 8 }}  onKeyDown={(e) => e.stopPropagation()}>
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={node => { searchInput = node; }}
           placeholder={`Search ${dataIndex}`}
@@ -99,8 +174,8 @@ const CashDetailRecords = () => {
 
   // Filter by dropdown for Nature, Heading, Sub Heading, Type
   const columns = [
-    { title: 'Sr.no', dataIndex: 'srno', key: 'srno', width: 70 },
-   
+    { title: 'Sr.no', dataIndex: 'srno', key: 'srno', width: 70, render: (_, __, index) => index + 1 },
+
     {
       title: 'Nature',
       dataIndex: 'nature',
@@ -109,35 +184,38 @@ const CashDetailRecords = () => {
       onFilter: (value, record) => record.nature === value,
       ...getColumnSearchProps('nature'),
     },
-     { title: 'Date', dataIndex: 'date', key: 'date', width: 120 , 
+    {
+      title: 'Date', dataIndex: 'date', key: 'date', width: 120,
       render:
         (text) => {
-              if (!text) return '';
-            // display date in dd-mm-yyyy format
-            const date = new Date(text);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}-${month}-${year}`;
+          if (!text) return '';
+          // display date in dd-mm-yyyy format
+          const date = new Date(text);
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = date.getFullYear();
+          return `${day}-${month}-${year}`;
         }
     },
-    { title: 'Trip Date', dataIndex: 'tripDate', key: 'tripDate', width: 120 , 
+    {
+      title: 'Trip Date', dataIndex: 'tripDate', key: 'tripDate', width: 120,
       render:
         (text) => {
-              if (!text) return '';
-            // display date in dd-mm-yyyy format
-            const date = new Date(text);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}-${month}-${year}`;
+          if (!text) return '';
+          // display date in dd-mm-yyyy format
+          const date = new Date(text);
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = date.getFullYear();
+          return `${day}-${month}-${year}`;
         }
     },
-    { title: 'Truck No', dataIndex: 'truckNo', key: 'truckNo', width: 100 , 
+    {
+      title: 'Truck No', dataIndex: 'truckNo', key: 'truckNo', width: 100,
       render: (text) => <b>{text}</b>
     },
-    {title: 'From', dataIndex: 'from', key: 'from', width: 100},
-    {title: 'To', dataIndex: 'to', key: 'to', width: 100},
+    { title: 'From', dataIndex: 'from', key: 'from', width: 100 },
+    { title: 'To', dataIndex: 'to', key: 'to', width: 100 },
     {
       title: 'Heading',
       dataIndex: 'heading',
@@ -168,6 +246,7 @@ const CashDetailRecords = () => {
       dataIndex: 'amount',
       key: 'amount',
       render: val => <b>{val}</b>,
+      // render: (record) => <b>{record?.cashAmount || record?.tripCash || record?.amount || 0}</b>,
       width: 120,
     },
   ];
@@ -227,7 +306,8 @@ const CashDetailRecords = () => {
         pagination={{ pageSize: 20 }}
         bordered
         size="small"
-        rowKey="srno"
+        // rowKey="srno"
+        rowKey={record => record.key}
       />
       <Divider />
       <div style={{ textAlign: 'right', fontWeight: 'bold', fontSize: 16 }}>

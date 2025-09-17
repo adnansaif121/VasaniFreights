@@ -44,7 +44,7 @@ const initialSubHeadingOptions = [
     { value: 'Purchase', label: 'Purchase' },
 ];
 
-const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, dataSource, fetchEntries, yesterdayData }) => {
+const DailyTotalCashDetails = ({dailyEntryData, dailyTruckCashIncome, dailyTruckCashExpense, dataSource, fetchEntries, yesterdayData }) => {
     const [incomingData, setIncomingData] = useState([]);
     const [expenseData, setExpenseData] = useState([]);
 
@@ -74,8 +74,8 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
 
     useDisableNumberInputScroll();
     useEffect(() => {
-        console.log('dailyTruckCashIncome : ', dailyTruckCashIncome);
-        console.log('dailyTruckCashExpense : ', dailyTruckCashExpense);
+        // console.log('dailyTruckCashIncome : ', dailyTruckCashIncome);
+        // console.log('dailyTruckCashExpense : ', dailyTruckCashExpense);
         let _totalIncome = 0;
         let _totalExpense = 0;
         //    fetch Cash Data
@@ -88,7 +88,13 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
             console.log('Fetched Cash Data:', data);
             // Process the fetched data as needed
             if (data) {
-                let incomeEntries = Array.isArray(data.income) ? [...data.income] : [];
+                // Add key property to each entry
+                let incomeEntries = Array.isArray(data.income)
+                    ? data.income.map((entry, idx) => ({
+                        ...entry,
+                        key: entry.key || `${entry.date || today}-${entry.heading || ''}-${idx}`
+                    }))
+                    : [];
                 if (incomeEntries.length > 0) {
                     incomeEntries[0] = {
                         key: 'incoming-total',
@@ -113,7 +119,12 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                     }];
                 }
 
-                let expenseEntries = Array.isArray(data.expense) ? [...data.expense] : [];
+                let expenseEntries = Array.isArray(data.expense)
+                    ? data.expense.map((entry, idx) => ({
+                        ...entry,
+                        key: entry.key || `${entry.date || today}-${entry.heading || ''}-${idx}`
+                    }))
+                    : [];
                 if (expenseEntries.length > 0) {
                     expenseEntries[0] = {
                         key: 'expense-total',
@@ -320,7 +331,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
         setLoading(false);
     };
 
-     const addNewPayMedium = async () => {
+    const addNewPayMedium = async () => {
         // Check for duplicates before adding
         if (newPayMedium && items.payMedium && items.payMedium.some(opt => opt.value === newPayMedium)) {
             alert('Pay Medium already exists');
@@ -343,7 +354,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
         }
     };
 
-     const addNewNature = async () => {
+    const addNewNature = async () => {
         // Check for duplicates before adding
         if (newNature && items.nature && items.nature.some(opt => opt.value === newNature)) {
             alert('Nature already exists');
@@ -535,7 +546,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
 
     return (
         <>
-             <div
+            <div
                 style={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -616,6 +627,8 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                         pagination={false}
                         bordered
                         size="small"
+                        // rowKey={record => record.key}
+                        rowKey={'key'}
                     />
                     <Modal
                         title="Add Incoming Entry"
@@ -704,7 +717,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                                 <Input />
                             </Form.Item>
                             <Form.Item name="type" label="Pay Medium" rules={[{ required: true }]}>
-                                <Select 
+                                <Select
                                     showSearch
                                     placeholder="Select Pay Medium"
                                     options={items.payMedium ? items.payMedium.map(pm => ({ value: pm.value, label: pm.label })) : []}
@@ -746,6 +759,8 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                         pagination={false}
                         bordered
                         size="small"
+                        // rowKey={record => record.key}
+                        rowKey={'key'}
                     />
                     <Modal
                         title="Add Expense Entry"
@@ -834,7 +849,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                                 <Input />
                             </Form.Item>
                             <Form.Item name="type" label="Pay Medium" rules={[{ required: true }]}>
-                                <Select 
+                                <Select
                                     showSearch
                                     placeholder="Select Pay Medium"
                                     options={items.payMedium ? items.payMedium.map(pm => ({ value: pm.value, label: pm.label })) : []}
@@ -865,7 +880,7 @@ const DailyTotalCashDetails = ({ dailyTruckCashIncome, dailyTruckCashExpense, da
                 </div>
             </div>
 
-           
+
         </>
     );
 };

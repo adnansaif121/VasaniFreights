@@ -19,12 +19,21 @@ const incomeColumns = [
                 return `${day}-${month}-${year}`;
             }
      },
-    { title: 'Trip Date', dataIndex: 'tripDate', key: 'tripDate' },
+    { title: 'Trip Date', dataIndex: 'tripDate', key: 'tripDate', 
+        render: (text) => {
+            if (!text) return '';
+            const date = new Date(text);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+    },
     { title: 'Truck No', dataIndex: 'truckNo', key: 'truckNo' },
     { title: 'From', dataIndex: 'from', key: 'from' },
     { title: 'To', dataIndex: 'to', key: 'to' },
     { title: 'Amount', dataIndex: 'cashAmount', key: 'cashAmount', render: (val) => <b>{val}</b> },
-    { title: 'Verify', dataIndex: 'verify', key: 'verify', render: (val) => val ? '✔️' : '❌' },
+    // { title: 'Verify', dataIndex: 'verify', key: 'verify', render: (val) => val ? '✔️' : '❌' },
 ];
 
 // Table columns for Truck Expense
@@ -43,10 +52,10 @@ const expenseColumns = [
     { title: 'From', dataIndex: 'from', key: 'from' },
     { title: 'To', dataIndex: 'to', key: 'to' },
     { title: 'Amount', dataIndex: 'tripCash', key: 'tripCash', render: (val) => <b>{val}</b> },
-    { title: 'Verify', dataIndex: 'verify', key: 'verify', render: (val) => val ? '✔️' : '❌' },
+    // { title: 'Verify', dataIndex: 'verify', key: 'verify', render: (val) => val ? '✔️' : '❌' },
 ];
 
-const DailyTruckCash = () => {
+const DailyTruckCash = ({dailyEntryData}) => {
     const [incomeData, setIncomeData] = useState([
         {
             srno: 1,
@@ -81,67 +90,60 @@ const DailyTruckCash = () => {
 
     useDisableNumberInputScroll();
     useEffect(() => {
-        const db = getDatabase();
-        // Fetch daily entry data from Firebase
-        const starCountRef = ref(db, 'dailyEntry/');
-        onValue(starCountRef, (snapshot) => {
-            const data = snapshot.val();
-            let ds_income = []; // Data Source
-            let ds_expense = []; // Data Source for expenses
-            if (data) {
-                Object.keys(data).map((key, i) => {
-                    for (let j = 0; j < data[key].tripDetails.length; j++) {
-                        let receivedAmt = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined) ?
-                            (
-                                parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount) +
-                                parseInt((data[key].firstPayment[j].chequeAmount.trim() === "") ? 0 : data[key].firstPayment[j].chequeAmount) +
-                                parseInt((data[key].firstPayment[j].onlineAmount.trim() === "") ? 0 : data[key].firstPayment[j].onlineAmount) +
-                                // parseInt((data[key].firstPayment[j].pohchAmount.trim() === "") ? 0 : data[key].firstPayment[j].pohchAmount) +
-                                (data[key].tripDetails[j].furthetPaymentTotal === undefined ? 0 : data[key].tripDetails[j].furtherPaymentTotal) +
-                                (data[key].tripDetails[j].extraAmount === undefined ? 0 : data[key].tripDetails[j].extraAmount)
-                            )
-                            : 0;
+        // const db = getDatabase();
+        // // Fetch daily entry data from Firebase
+        // const starCountRef = ref(db, 'dailyEntry/');
+        // onValue(starCountRef, (snapshot) => {
+        // });
+        const data = dailyEntryData;
+        let ds_income = []; // Data Source
+        let ds_expense = []; // Data Source for expenses
+        if (data) {
+            Object.keys(data).map((key, i) => {
+                for (let j = 0; j < data[key].tripDetails.length; j++) {
 
-                        let cashAmount = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined) ?
-                            parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount)
-                            : 0;
-                        let cashDate = (data[key]?.firstPayment !== undefined && data[key].firstPayment[j] !== undefined) ?
-                            data[key].firstPayment[j].cashDate
-                            : null;
-                        let _date = new Date(data[key]?.date);
-                        // Check if this date is today's date
-                        if (_date.toDateString() === new Date().toDateString()) {
-                            // If it is, add it to the data source
-                             ds_income.push({
-                                srno: ds_income.length + 1,
-                                cashDate: cashDate,
-                                tripDate: data[key]?.date,
-                                truckNo: data[key]?.vehicleNo || 'N/A',
-                                from: data[key]?.tripDetails[j]?.from || 'N/A',
-                                to: data[key]?.tripDetails[j]?.to || 'N/A',
-                                verify: data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined ? data[key].firstPayment[j].verify : false,
-                                cashAmount: cashAmount,
-                            });
+                    let cashAmount = (data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined) ?
+                        parseInt((data[key].firstPayment[j].cashAmount.trim() === "") ? 0 : data[key].firstPayment[j].cashAmount)
+                        : 0;
+                    let cashDate = (data[key]?.firstPayment !== undefined && data[key].firstPayment[j] !== undefined) ?
+                        data[key].firstPayment[j].cashDate
+                        : null;
+                    let _date = new Date(data[key]?.date);
+                    let uniqueKey = key + '_' + j; // Unique key for each entry
+                    // Check if this date is today's date
+                    if (_date.toDateString() === new Date().toDateString()) {
+                        // If it is, add it to the data source
+                         ds_income.push({
+                            key: uniqueKey+'_income',
+                            srno: ds_income.length + 1,
+                            cashDate: cashDate,
+                            tripDate: data[key]?.date,
+                            truckNo: data[key]?.vehicleNo || 'N/A',
+                            from: data[key]?.tripDetails[j]?.from || 'N/A',
+                            to: data[key]?.tripDetails[j]?.to || 'N/A',
+                            verify: data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined ? data[key].firstPayment[j].verify : false,
+                            cashAmount: cashAmount,
+                        });
 
-                            ds_expense.push({
-                                srno: ds_expense.length + 1,
-                                tripDate: data[key]?.date,
-                                driver: data[key]?.driver1?.label || 'Not Available',
-                                truckNo: data[key]?.vehicleNo || 'N/A',
-                                from: data[key]?.tripDetails[j]?.from || 'N/A',
-                                to: data[key]?.tripDetails[j]?.to || 'N/A',
-                                tripCash: data[key]?.driver1?.TripCash || 0,
-                                verify: data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined ? data[key].firstPayment[j].verify : false,
-                            });
+                        ds_expense.push({
+                            key: uniqueKey+'_expense',
+                            srno: ds_expense.length + 1,
+                            tripDate: data[key]?.date,
+                            driver: data[key]?.driver1?.label || 'Not Available',
+                            truckNo: data[key]?.vehicleNo || 'N/A',
+                            from: data[key]?.tripDetails[j]?.from || 'N/A',
+                            to: data[key]?.tripDetails[j]?.to || 'N/A',
+                            tripCash: data[key]?.driver1?.TripCash || 0,
+                            verify: data[key]?.firstPayment !== undefined && data[key]?.firstPayment[j] !== undefined ? data[key].firstPayment[j].verify : false,
+                        });
 
-                        }
                     }
-                });
-            }
+                }
+            });
+        }
 
-            setIncomeData([...ds_income]);
-            setExpenseData([...ds_expense]);
-        });
+        setIncomeData([...ds_income]);
+        setExpenseData([...ds_expense]);
 
     }, [])
 
@@ -188,8 +190,8 @@ const DailyTruckCash = () => {
     };
 
     // Calculate total amounts
-    const totalIncome = incomeData.reduce((sum, row) => sum + Number(parseFloat(row.amount)), 0);
-    const totalExpense = expenseData.reduce((sum, row) => sum + Number(parseFloat(row.amount)), 0);
+    const totalIncome = incomeData.reduce((sum, row) => sum + Number(parseFloat(row.cashAmount)), 0);
+    const totalExpense = expenseData.reduce((sum, row) => sum + Number(parseFloat(row.tripCash)), 0);
 
     return (
         <div style={{ display: 'flex', gap: 32, padding: 24, height: '100%' }}>
@@ -207,7 +209,8 @@ const DailyTruckCash = () => {
                     pagination={false}
                     bordered
                     size="small"
-                    rowKey="srno"
+                    // rowKey="srno"
+                    rowKey={record => record.key}
                 />
                 <Divider />
                 <div style={{ textAlign: 'right', fontWeight: 'bold', fontSize: 16 }}>
@@ -249,9 +252,9 @@ const DailyTruckCash = () => {
             <div style={{ flex: 1, background: '#f6f6f6', padding: 16, borderRadius: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Title level={4}>Truck Expense</Title>
-                    <Button type="primary" onClick={() => setExpenseModalOpen(true)}>
+                    {/* <Button type="primary" onClick={() => setExpenseModalOpen(true)}>
                         Add New Entry
-                    </Button>
+                    </Button> */}
                 </div>
                 <Table
                     columns={expenseColumns}
@@ -259,7 +262,8 @@ const DailyTruckCash = () => {
                     pagination={false}
                     bordered
                     size="small"
-                    rowKey="srno"
+                    // rowKey="srno"
+                    rowKey={record => record.key}
                 />
                 <Divider />
                 <div style={{ textAlign: 'right', fontWeight: 'bold', fontSize: 16 }}>

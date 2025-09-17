@@ -151,7 +151,7 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
             Object.keys(data).map((key, i) => {
                 for (let j = 0; j < data[key].tripDetails.length; j++) {
                     if (data[key].firstPayment !== undefined && data[key].firstPayment[j] !== undefined && data[key].firstPayment[j].bhadaKaunDalega === 'UvLogs') {
-                        console.log(data[key]);
+                        // console.log(data[key]);
                         // let _pohchId = (''+new Date().getFullYear()).substring(2) + '' + (new Date().getMonth()+1) + '' + new Date().getDate() + '' + parseInt(Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000);
                         // updatePohchId(key, _pohchId);
                         ds.push(
@@ -190,20 +190,6 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
             });
         }
         applyDateSort(ds);
-
-        // const locationsRef = ref(db, 'locations/');
-        // onValue(locationsRef, (snapshot) => {
-        //     const data = snapshot.val();
-        //     console.log(data, 'Locations');
-        //     // updateStarCount(postElement, data);
-        //     let locations = []; // Data Source
-        //     if (data) {
-        //         Object.values(data).map((location, i) => {
-        //             locations.push(location);
-        //         })
-        //         setLocations([...locations]);
-        //     }
-        // });
 
     }, [dailyEntryData])
 
@@ -703,6 +689,7 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
                             <Button
                                 icon={<SaveOutlined />}
                                 onClick={() => {
+                                    console.log('Save button Clicked')
                                     const value = editingRevisedRateValues[record.key];
                                     if (!value) {
                                         alert('Please enter a value to save');
@@ -726,10 +713,12 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
                                         (trip?.khotiKharabi || 0) +
                                         (trip?.extraAmount || 0);
 
+                                    console.log('totalFreight', parseFloat((parseFloat(value) * parseFloat(trip.qty))).toFixed(2));
                                     update(starCountRef, {
                                         revisedRate: value,
                                         totalFreight: parseFloat((parseFloat(value) * parseFloat(trip.qty))).toFixed(2) || 0,
                                     }).then(() => {
+                                        console.log({ revisedRate: value, totalFreight: parseFloat((parseFloat(value) * parseFloat(trip.qty))).toFixed(2) || 0 });
                                         alert("Revised Rate Updated Successfully!!");
                                         setEditingRevisedRateKey(null);
                                         setEditingRevisedRateValues(prev => ({ ...prev, [record.key]: '' }));
@@ -776,7 +765,8 @@ const Uvlogistics = ({ dailyEntryData, bankData, setBankData, partyData, transpo
                                     const db = getDatabase();
                                     const starCountRef = ref(db, 'dailyEntry/' + record.key + '/tripDetails/0/');
                                     update(starCountRef, {
-                                        revisedRate: value
+                                        revisedRate: value,
+                                        totalFreight: parseFloat((parseFloat(value) * parseFloat(trip.qty))).toFixed(2) || 0,
                                     }).then(() => {
                                         alert("Revised Rate Updated Successfully!!");
                                         setEditingRevisedRateValues(prev => ({ ...prev, [record.key]: '' }));
