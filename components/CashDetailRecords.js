@@ -267,8 +267,8 @@ const CashDetailRecords = ({ dailyEntryData }) => {
   // Date filter logic
   const handleDateFilter = () => {
     if (dateRange[0] && dateRange[1]) {
-      const from = dateRange[0].format('DD-MM-YYYY');
-      const to = dateRange[1].format('DD-MM-YYYY');
+      const from = dateRange[0].format('YYYY-MM-DD');
+      const to = dateRange[1].format('YYYY-MM-DD');
       const filtered = data.filter(
         item => item.date >= from && item.date <= to
       );
