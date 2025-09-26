@@ -283,6 +283,13 @@ const AddDetails = ({
             setConductorValue(null);
             resetDriverList();
             setTotalFreight(0);
+            setRate([0, 0, 0, 0]);
+            setQty([0, 0, 0, 0]);
+            setBhadaKaunDalega(null);
+            setPartyForTransporterPayment('');
+            setSelectedPartyIndex([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]);
+            setSelectedTransporterIndex(-1);
+            setTransporterSelected(false);
         }).catch((error) => {
             console.error('Error:', error);
         });

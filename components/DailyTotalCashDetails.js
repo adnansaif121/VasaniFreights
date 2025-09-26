@@ -649,6 +649,7 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
                                     <Form.Item name="nature" label="Nature" rules={[{ required: true }]}>
                                         <Select
                                             showSearch
+                                            allowClear
                                             placeholder="Select Nature"
                                             options={items.nature ? items.nature.map(n => ({ value: n.value, label: n.label })) : []}
                                             dropdownRender={menu => (
@@ -678,6 +679,7 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
                                             showSearch
                                             placeholder="Vehicle No."
                                             optionFilterProp="children"
+                                            allowClear
                                             // onChange={(value) => setVehicleNo(value)}
                                             // onSearch={onSearch}
                                             filterOption={filterOption}
@@ -685,7 +687,6 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
                                             dropdownRender={(menu) => (
                                                 <>
                                                     {menu}
-
                                                 </>
                                             )}
                                         />
@@ -752,8 +753,9 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
                                 </Col>
 
                                 <Col span={8}>
-                                    <Form.Item name="subHeading" label="Sub Heading" rules={[{ required: true }]}>
+                                    <Form.Item name="subHeading" label="Sub Heading" rules={[{ required: false }]}>
                                         <Select
+                                            allowClear
                                             showSearch
                                             placeholder="Select Sub Heading"
                                             options={items.subheading ? items.subheading.map(sh => ({ value: sh.value, label: sh.label })) : []}
@@ -786,7 +788,7 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
                             </Row>
 
 
-                            <Form.Item name="remarks" label="Remarks" rules={[{ required: true }]}>
+                            <Form.Item name="remarks" label="Remarks" rules={[{ required: false }]}>
                                 <Input.TextArea />
                             </Form.Item>
 
@@ -855,6 +857,7 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
                                  <Col span={6}>
                                     <Form.Item name="truckNo" label="Truck No">
                                         <Select
+                                            allowClear
                                             showSearch
                                             placeholder="Vehicle No."
                                             optionFilterProp="children"
@@ -931,9 +934,10 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
                                 </Col>
 
                                 <Col span={8}>
-                                    <Form.Item name="subHeading" label="Sub Heading" rules={[{ required: true }]}>
+                                    <Form.Item name="subHeading" label="Sub Heading" rules={[{ required: false }]}>
                                         <Select
                                             showSearch
+                                            allowClear
                                             placeholder="Select Sub Heading"
                                             options={items.subheading ? items.subheading.map(sh => ({ value: sh.value, label: sh.label })) : []}
                                             dropdownRender={menu => (
@@ -967,7 +971,7 @@ const DailyTotalCashDetails = ({ dailyEntryData, dailyTruckCashIncome, dailyTruc
                                
                             </Row>
 
-                             <Form.Item name="remarks" label="Remarks" rules={[{ required: true }]}>
+                             <Form.Item name="remarks" label="Remarks" rules={[{ required: false }]}>
                                         <Input.TextArea />
                                     </Form.Item>
                             
