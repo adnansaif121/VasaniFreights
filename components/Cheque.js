@@ -574,7 +574,7 @@ const Cheque = ({ dailyEntryData }) => {
 
         // Prepare data: only include keys present in exportKeys
         let array = [];
-        if((fromDate !== null || toDate !== null)|| exportRows.length === 0)array = dataSource;
+        if((fromDate !== null && toDate !== null)|| exportRows.length === 0)array = dataSource;
         else array = exportRows;
         const exportData = array.map(row => {
             const filteredRow = {};

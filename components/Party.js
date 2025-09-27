@@ -404,7 +404,7 @@ const Party = ({ dailyEntryData, partyData, bankData, setBankData }) => {
 
         // Prepare data: only include keys present in exportKeys
         let array = [];
-        if((fromDate !== null || toDate !== null)|| exportRows.length === 0)array = displayDataSource;
+        if((dateRange[0] !== null && dateRange[1] !== null)|| exportRows.length === 0)array = displayDataSource;
         else array = exportRows;
         const exportData = array.map(row => {
             const filteredRow = {};

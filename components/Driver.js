@@ -372,8 +372,11 @@ const Driver = ({ dailyEntryData, driverData }) => {
             .filter(col => col.dataIndex)
             .map(col => col.dataIndex);
 
+        let array = [];
+        if ((fromDate !== null && toDate !== null) || exportRows.length === 0) array = displayDataSource;
+        else array = exportRows;
         // Prepare data: only include keys present in exportKeys
-        const exportData = displayDataSource.map(row => {
+        const exportData = array.map(row => {
             const filteredRow = {};
             exportKeys.forEach(key => {
                 filteredRow[key] = row[key];

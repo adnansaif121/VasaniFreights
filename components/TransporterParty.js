@@ -191,13 +191,18 @@ const TransporterParty = ({ dailyEntryData, bankData, setBankData, partyData, tr
     }, [refreshKey]);
 
     const exportToExcel = () => {
+        const exportKeys = columns.filter(col => col.dataIndex).map(col => col.dataIndex);
         // Prepare data: remove unwanted fields if needed
         let array = [];
-        if((fromDate !== null || toDate !== null)|| exportRows.length === 0)array = displayDataSource;
+        if((dateRange[0] !== null && dateRange[1] !== null)|| exportRows.length === 0)array = displayDataSource;
         else array = exportRows;
         const exportData = array.map(row => {
-            const { key, ...rest } = row; // remove key if you don't want it in Excel
-            return rest;
+            const filteredRow = {};
+            exportKeys.forEach(key => {
+                filteredRow[key] = row[key];
+            });
+            // const { key, ...rest } = row; // remove key if you don't want it in Excel
+            return filteredRow;
         });
 
         const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -205,7 +210,7 @@ const TransporterParty = ({ dailyEntryData, bankData, setBankData, partyData, tr
         XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
         const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
         const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-        saveAs(data, "HareKrishna.xlsx");
+        saveAs(data, "Transporter.xlsx");
     };
 
 

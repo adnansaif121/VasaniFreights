@@ -139,7 +139,7 @@ const Pohch = ({ dailyEntryData }) => {
 
         // Prepare data: only include keys present in exportKeys
         let array = [];
-        if((fromDate !== null || toDate !== null)|| exportRows.length === 0)array = dataSource;
+        if((fromDate !== null && toDate !== null)|| exportRows.length === 0)array = dataSource;
         else array = exportRows;
         const exportData = array.map(row => {
             const filteredRow = {};
@@ -681,79 +681,6 @@ const Pohch = ({ dailyEntryData }) => {
             setPartyModal({});
             return;
         })
-    }
-
-    const addNewTransporter = (e) => {
-        if (newTransporter.trim() === "") {
-            alert("please enter a value to add transporter.")
-            return;
-        }
-        e.preventDefault();
-        for (let i = 0; i < transporterList.length; i++) {
-            if (newTransporter.toUpperCase() === transporterList[i].value.toUpperCase()) {
-                alert(`Transporter with name ${transporterList[i].value} already exixts`);
-                return;
-            }
-        }
-        setTransporterList([...transporterList, { value: newTransporter, label: newTransporter }]);
-        setNewTransporter('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const transporterListRef = ref(db, 'transporters');
-        const newTransporterRef = push(transporterListRef);
-        set(newTransporterRef, {
-            value: newTransporter,
-            label: newTransporter,
-        });
-    }
-
-    const addNewMaal = (e, _newMaal) => {
-        if (_newMaal === undefined) {
-            _newMaal = newMaal;
-        }
-        if (_newMaal.trim() === "") {
-            alert("please enter a value to add maal.")
-            return;
-        }
-        e.preventDefault();
-        for (let i = 0; i < MaalList.length; i++) {
-            if (_newMaal.toUpperCase() === MaalList[i].value.toUpperCase()) {
-                alert(`Maal with name ${MaalList[i].value} already exixts`);
-                return;
-            }
-        }
-        setMaalList([...MaalList, { value: _newMaal, label: _newMaal }]);
-        setNewMaal('');
-
-        // Create a new party reference with an auto-generated id
-        const db = getDatabase();
-        const maalListRef = ref(db, 'maal');
-        const newMaalRef = push(maalListRef);
-        set(newMaalRef, {
-            value: _newMaal,
-            label: _newMaal,
-        });
-    }
-
-    const addNewBank = (e) => {
-        e.preventDefault();
-        if (newBank.trim() === '') {
-            alert('Please enter bank name to add bank in the list. Field is empty');
-            return;
-        }
-        let key = bankData.length;
-        setBankData([...bankData, { bankName: newBank, value: newBank, label: newBank, key: key }]);
-
-        const db = getDatabase();
-        const bankRef = ref(db, 'bankData/data/' + key);
-        // const newBankRef = push(bankRef);
-        set(bankRef, {
-            bankName: newBank,
-            key: key,
-        })
-
-        setNewBank('');
     }
 
     const addNewDriver = (e) => {
